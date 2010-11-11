@@ -1,0 +1,8 @@
+Skins should be either:
+
+QWidget derived
+QDeclarative/GraphicsView derived
+raw QML
+html content
+
+the last 2 obviously require provided engines

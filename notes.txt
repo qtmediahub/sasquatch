@@ -1,0 +1,11 @@
+General
+
+Hardware permitting, I would strongly recommend that you run qmake with:
+
+qmake -config glviewport
+
+in order to use the Qt OpenGL graphics system
+
+QML
+
+It appears you have to use: forceActiveFocus to change focus if no item currently has active focus

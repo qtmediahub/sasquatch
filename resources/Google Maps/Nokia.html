@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+
+<!-- This file is part of the QtMediaHub project on http://www.gitorious.org.
+
+Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).*
+All rights reserved.
+
+Contact:  Nokia Corporation (qt-info@nokia.com)**
+
+You may use this file under the terms of the BSD license as follows:
+
+"Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+* Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+* Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+* Neither the name of Nokia Corporation and its Subsidiary(-ies) nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE." -->
+
+<html>
+<head>
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+<title>Google Maps Nokia</title>
+<style type="text/css">
+  html { height: 100% }
+  body { height: 100%; margin: 0px; padding: 0px }
+  #map_canvas { height: 100%; width:100%; }
+</style>
+
+<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
+<script type="text/javascript" >
+
+var map;
+var chicago = new google.maps.LatLng(41.850033, -87.6500523);
+var keyboardArray = [ ["Del","Space","A","B","C","D","E","F","G"],
+ 		["H","I","J","K","L","M","N","O","P","Q"],
+                ["R","S","T","U","V","W","X","Y","Z","."],
+		["1","2","3","4","5","6","7","8","9","0"],
+		["!","@","#","$","%","^","&","*","(",")"],
+ 	      ];
+var isFF = navigator.userAgent.indexOf('Firefox',0);
+var inline ="";
+
+function searchKeyDown(e)
+{
+  switch(e.keyCode)
+  {
+  case 38: //UP
+    break;
+  case 37: //LEFT
+    // Focus shifts to D-Pad
+    // Temp focus to zoom.
+      document.getElementById('dpadContainer').focus();
+    break;
+  case 39: //RIGHT
+    document.getElementById('Go').focus();
+    break;
+  case 40: // DOWN
+	var keypad = document.getElementById('keypad');
+	keypad.style.visibility = 'visible';
+	document.getElementById('firstCell').focus();
+	// Change the arrow image
+	var image = document.getElementById('keyPadArrow').firstChild;
+	image.src = './images/uparrow.png';
+	document.getElementById('searchtable').rows[0].style.backgroundImage = "url(./images/search-border-active.png)";
+    break;
+  case 13:
+    break;
+  }  
+}
+
+function cellKeyDown(e)
+{
+  var keypad = document.getElementById('keypad');
+  var cellIndex = this.cellIndex;
+  var rowIndex = parseInt(this.parentNode.id);
+  switch(e.keyCode)
+  {
+  case 37: //LEFT
+	cellIndex = cellIndex-1;
+	if(cellIndex < 0 && rowIndex > 0)
+	{
+	    rowIndex = (rowIndex - 1);	
+	    cellIndex = keypad.rows[rowIndex].cells.length -1;
+	    
+	}
+    break;
+  case 38: //UP
+	rowIndex = rowIndex -1;
+	if(rowIndex == 0)
+	  if(cellIndex > 1)
+	    cellIndex = cellIndex - 1;
+    break;
+  case 39: //RIGHT
+	cellIndex = cellIndex + 1;
+	if(cellIndex > keypad.rows[rowIndex].cells.length - 1)
+	{	
+	    cellIndex = 0;
+	    rowIndex = (rowIndex + 1) %  keypad.rows.length;
+	}
+	
+    break;
+  case 40: // DOWN
+	rowIndex = rowIndex + 1;
+	if(rowIndex == 1)
+	  if(cellIndex!=0)
+	      cellIndex = cellIndex + 1;
+    break;
+  case 13: //Enter
+    // Check for Del and Space
+    if(cellIndex == 0 && rowIndex == 0)
+	onDel();
+    else if(cellIndex == 1 && rowIndex == 0)
+	onSpace();
+    else {
+	onKeyDown(this.firstChild.value);
+    }
+    break;
+  }
+  if(rowIndex < 0) // go to searchEditBox
+  {
+	keypad.style.visibility = 'hidden';
+	document.getElementById('searchEditDiv').focus();
+	var image = document.getElementById('keyPadArrow').firstChild;
+	image.src = './images/dwnarrow.png';
+  }
+  else if(rowIndex > keyboardArray.length)
+      this.focus();
+  else if(cellIndex < 0)
+      this.focus();
+  else
+      keypad.rows[rowIndex].cells[cellIndex].focus();
+}
+
+function SendRequest(e)
+{
+    if(e.type == 'keydown')
+    {
+	switch(e.keyCode)
+	{
+	case 37: //LEFT
+	      document.getElementById('searchEditDiv').focus();
+      
+	    return;
+	case 39: //RIGHT
+	      document.getElementById('mapButton').focus();
+	  return;
+	 default:
+	      	if(e.keyCode !=13) return;
+	}
+     }
+      var geocoder = new google.maps.Geocoder();
+      geocoder.geocode( { 'address': searchString}, function(results, status) {
+	if (status == google.maps.GeocoderStatus.OK) {
+	  map.setCenter(results[0].geometry.location);
+	} else {
+	  alert("Geocoding was not successful for the following reason: " + status);
+	}
+      });
+}
+
+function SearchControl(searchcontrol, map) 
+{
+  var imgArrow = document.createElement('img');
+  imgArrow.src = "./images/leftarrow.png";
+  imgArrow.style.display = 'inline';
+  searchcontrol.appendChild(imgArrow);
+
+  var tablesearch = document.createElement('table');
+  tablesearch.id = 'searchtable';
+  tablesearch.cellSpacing="0px";
+  tablesearch.cellPadding="0px";
+  tablesearch.tabIndex = '0';
+  tablesearch.style.display = inline;
+  
+  tablesearch.addEventListener('focus',function() {
+      this.rows[0].style.backgroundImage = "url(" + "./images/" + "search-border-active.png)";
+  }, false);
+
+  var tr = document.createElement('tr');
+  
+  var td = document.createElement('td');
+  
+  var searchEditDiv = document.createElement('div');
+  searchEditDiv.id = 'searchEditDiv';
+  searchEditDiv.style.backgroundImage="url(" + "./images/" + "textbox.png)";
+  searchEditDiv.style.backgroundRepeat='no-repeat';
+  searchEditDiv.style.margin = '2px 3px 2px 4px';
+  searchEditDiv.style.padding = '0px';
+  searchEditDiv.style.border= '0px';
+  searchEditDiv.style.backgroundPosition = 'center center';
+  searchEditDiv.style.backgroundColor = 'transparent';
+  searchEditDiv.style.width = '210px';
+  searchEditDiv.style.height = '28px';
+  searchEditDiv.tabIndex= '0';
+  
+  var searchEdit = document.createElement('div');
+  searchEdit.id = 'searchEditBox';
+  searchEdit.style.margin = '5px 5px 0px 5px';
+  searchEdit.style.padding = '0px';
+  searchEdit.style.border= '0px';
+  searchEdit.style.width = 'auto';
+  searchEdit.style.height = 'auto';
+  searchEdit.style.position = 'absolute';
+  searchEdit.style.opacity = '0.8';
+  searchEdit.style.clip = 'rect(0px, 200px, 28px, 0px';
+  //searchEdit.style.fontWeight = 'bold';
+  searchEdit.style.fontSize = 'medium';
+
+  searchEditDiv.appendChild(searchEdit);
+  td.appendChild(searchEditDiv);
+  tr.appendChild(td);
+
+  td = document.createElement('td');
+
+  var goButton = document.createElement('input');
+  goButton.type = 'button';
+  goButton.id = 'Go';
+  goButton.value = 'Go';
+  goButton.readonly = 'true';
+  goButton.style.backgroundImage="url(" + "./images/" + "go.png)";
+  goButton.style.backgroundRepeat='no-repeat';
+  goButton.style.backgroundColor = 'transparent';
+  goButton.style.margin = '2px 4px 2px 0px';
+  goButton.style.padding = '0px';
+  goButton.style.border= '0px';
+  goButton.style.width = '44px';
+  goButton.style.height = '28px';
+  goButton.style.color = 'white';
+  goButton.style.fontSize = 'medium';
+  td.appendChild(goButton);
+  
+  tr.appendChild(td);
+  tr.style.backgroundImage = "url(" + "./images/" + "search-border.png)";
+  tr.style.width = '265px';
+  tr.style.height = '34px';
+  if(isFF < 0)
+      tr.style.display = 'inherit';
+  tablesearch.appendChild(tr);
+  searchcontrol.appendChild(tablesearch);
+
+  var mapTypeControlSpan = document.createElement('div');
+  mapTypeControlSpan.style.display = 'inline';
+  mapTypeControlSpan.style.position = 'relative';
+  mapTypeControlSpan.style.left = '21px';
+  MapTypeControl(mapTypeControlSpan, map);
+  
+  searchcontrol.appendChild(mapTypeControlSpan);
+
+  searchcontrol.appendChild(mapTypeControlSpan);
+  
+
+  searchEditDiv.addEventListener('keydown',searchKeyDown, true);
+  
+  searchEditDiv.addEventListener('blur',function() {
+      document.getElementById('searchtable').rows[0].style.backgroundImage = "url(./images/search-border.png)";
+  }, true);
+  
+  searchEditDiv.addEventListener('focus',function() {
+      document.getElementById('searchtable').rows[0].style.backgroundImage = "url(./images/search-border-active.png)";
+  }, true);
+  
+  goButton.addEventListener('keydown',SendRequest, true);
+  goButton.addEventListener('focus', function() {
+      this.style.backgroundImage="url(./images/go-active.png)";
+      document.getElementById('searchtable').rows[0].style.backgroundImage = "url(./images/search-border-active.png)";
+  }, false);
+  
+  goButton.addEventListener('blur', function() {
+      this.style.backgroundImage="url(./images/go.png)";
+      document.getElementById('searchtable').rows[0].style.backgroundImage = "url(./images/search-border.png)";
+  }, false);
+}
+
+function onCellFocus()
+{
+  var path = "./images/";
+  this.firstChild.style.backgroundImage = "url(" + path + "key-active.png)";
+}
+
+function onCellBlur()
+{
+  var path = "./images/";
+  this.firstChild.style.backgroundImage = "url(" + path + "key.png)";
+}
+
+function onSpaceFocus()
+{
+  var path = "./images/";
+  this.firstChild.style.backgroundImage = "url(" + path + "space-active.png)";
+}
+
+function onSpaceBlur()
+{
+  var path = "./images/";
+  this.firstChild.style.backgroundImage = "url(" + path + "space.png)";
+}
+
+var searchString = new Array();
+var start = 0;
+var end = 0;
+function onKeyDown(keyValue)
+{
+  var searchDiv = document.getElementById('searchEditBox');
+  searchString = searchString + keyValue;
+  end = searchString.length;
+  if(searchDiv.clientWidth < 185)
+  {
+    searchDiv.innerHTML = searchString.substring(start, end);
+  }
+  else
+  {
+    start = start + 1;
+    searchDiv.innerHTML = searchString.substring(start, end);
+  }
+  if(searchDiv.clientWidth > 195)
+  {
+      start = start + 1;
+      searchDiv.innerHTML = searchString.substring(start, end);
+  }
+}
+
+function onDel()
+{
+  var searchDiv = document.getElementById('searchEditBox');
+  searchString = searchString.substring(0, end - 1);
+  end = searchString.length;
+
+  searchDiv.innerHTML = searchString.substring(start, end);
+  if(searchDiv.clientWidth < 185)
+  {
+    if(start > 0)
+      start = start -1;  
+    searchDiv.innerHTML = searchString.substring(start, end);
+  }
+}
+
+function onSpace()
+{
+  var searchDiv = document.getElementById('searchEditBox');
+  searchString = searchString + ' ';
+  end = searchString.length;
+  if(searchDiv.clientWidth < 185)
+  {
+    searchDiv.innerHTML = searchString.substring(start, end);
+  }
+  else
+  {
+    start = start + 1;
+    searchDiv.innerHTML = searchString.substring(start, end);
+  }
+  if(searchDiv.clientWidth > 195)
+  {
+      start = start + 1;
+      searchDiv.innerHTML = searchString.substring(start, end);
+  }
+}
+
+function setButtonStyle(button, value)
+{
+  var path = "./images/";
+  button.type = 'button';
+  button.id = 'cell-' + value;
+  button.style.backgroundImage = "url(" + path + "key.png)";
+  button.style.color = 'white';
+  button.style.width = '35px';
+  button.style.height= '28px'; 
+  button.style.padding= '0px';
+  button.style.border= '0px';
+  button.value = value;
+  button.style.fontSize = 'medium';
+  button.style.backgroundColor = 'transparent';
+}
+
+function TableButtonControl(tableControlDiv, map)
+{
+  tableControlDiv.id = 'tableControlDiv';
+  var path = "./images/";
+  var table = document.createElement('table');
+  table.id = 'keypad';
+  table.style.backgroundImage = "url(" + path + "keyboard-background.png)";
+  table.style.visibility = 'hidden';
+  table.cellSpacing="1px";
+
+  // Del and space
+  var colcount = 2;
+  var rowcount = 0;
+  var tr1,td1,button;
+
+  // Del
+  tr1 = document.createElement('tr');
+  tr1.id = rowcount;
+  td1 = document.createElement('td');
+  td1.colSpan=1;
+  td1.id = 'firstCell';
+  td1.tabIndex = 0;
+  button = document.createElement('input');
+  setButtonStyle(button, keyboardArray[0][0], 'key');
+  
+  td1.addEventListener('focus',onCellFocus,false);
+  td1.addEventListener('blur',onCellBlur,false);
+  td1.addEventListener('keydown',cellKeyDown, false);
+  
+  td1.appendChild(button);
+  tr1.appendChild(td1);
+  
+  // Space
+  td1 = document.createElement('td');
+  td1.colSpan=2;
+  td1.tabIndex = 0;
+
+  button = document.createElement('input');
+  setButtonStyle(button, keyboardArray[0][1]);
+  button.style.backgroundImage = "url(" + path + "space.png)";
+  button.style.width = '73px';
+  button.style.height= '28px';
+  
+  td1.addEventListener('focus',onSpaceFocus,false);
+  td1.addEventListener('blur',onSpaceBlur,false);
+  td1.addEventListener('keydown',cellKeyDown, false);
+
+  td1.appendChild(button);
+  tr1.appendChild(td1);
+  
+  //Remaining Keypad
+  for( var i=0;i<keyboardArray.length; i=i+1)
+  {
+      var arr1 = keyboardArray[i];
+      for(var j=colcount;j<arr1.length;j=j+1)
+      {
+	    td1 = document.createElement('td');
+	    td1.colSpan=1;
+	    td1.tabIndex = 0;
+	    
+	    button = document.createElement('input');
+	    setButtonStyle(button, arr1[j]);
+  
+	    td1.appendChild(button);
+	    td1.addEventListener('focus',onCellFocus,false);
+	    td1.addEventListener('blur',onCellBlur,false);
+	    //td1.addEventListener('click',onDelClick,false);
+	    td1.addEventListener('keydown',cellKeyDown, false);
+	    tr1.appendChild(td1);
+      }
+      colcount = 0;
+      table.appendChild(tr1);
+      tr1 = document.createElement('tr');
+      rowcount = rowcount + 1;
+      tr1.id = rowcount;
+  }
+    tableControlDiv.appendChild(table);
+}
+
+var maptype = '0';
+function MapTypeControl(mapTypeControl, map)
+{
+    var maptypetable = document.createElement('table');
+    maptypetable.id = 'maptab';
+    maptypetable.style.display = inline;
+    maptypetable.cellSpacing="0px";
+    maptypetable.cellPadding="0px";
+    maptypetable.tabIndex = '0';
+  
+    var tr = document.createElement('tr');
+    var td = document.createElement('td');
+  
+    var mapButton = document.createElement('input');
+    mapButton.id = 'mapButton';
+    mapButton.type = 'button';
+    mapButton.style.backgroundImage = "url(./images/map-active.png)";
+    mapButton.style.backgroundRepeat = 'no-repeat';
+    mapButton.style.backgroundColor = 'transparent';
+    mapButton.style.color = 'white';
+    mapButton.style.width = '97px';
+    mapButton.style.height= '28px'; 
+    mapButton.style.padding = '0px';
+    mapButton.style.margin= '2px 2px 2px 3px';
+    mapButton.style.border= '0px';
+    mapButton.style.color = 'white';
+    mapButton.value = 'Map';
+    mapButton.style.fontSize = 'medium';
+
+      
+    td.appendChild(mapButton);
+    tr.appendChild(td);
+
+    td = document.createElement('td');
+    var satelliteButton = document.createElement('input');
+    satelliteButton.id = 'satelliteButton';
+    satelliteButton.type = 'button';
+    satelliteButton.style.backgroundImage = "url(./images/satellite.png)";
+    satelliteButton.style.backgroundRepeat = 'no-repeat';
+    satelliteButton.style.backgroundColor = 'transparent';
+    satelliteButton.style.color = 'white';
+    satelliteButton.style.width = '97px';
+    satelliteButton.style.height= '28px'; 
+    satelliteButton.style.padding = '0px';
+    satelliteButton.style.margin= '2px 3px 2px 0px';
+    satelliteButton.style.border= '0px';
+    satelliteButton.style.color = 'white';
+    satelliteButton.value = 'Satellite';
+    satelliteButton.style.fontSize = 'medium';
+
+    td.appendChild(satelliteButton);
+    tr.appendChild(td);
+
+    tr.style.backgroundImage = "url(" + "./images/" + "map-sat-back.png)";
+    tr.style.width = '202px';
+    tr.style.height = '34px';
+    if(isFF < 0)
+      tr.style.display = 'inherit';
+    maptypetable.appendChild(tr);
+    mapTypeControl.appendChild(maptypetable);
+
+     satelliteButton.addEventListener('keydown',function(e) {
+	switch(e.keyCode)
+	{
+	case 37: //LEFT
+	      document.getElementById('mapButton').focus();
+	    break;
+	case 13:
+	  document.getElementById('mapButton').style.backgroundImage = "url(./images/map.png)";
+	  map.setMapTypeId(google.maps.MapTypeId.SATELLITE);
+	  this.style.backgroundImage = "url(./images/satellite-active.png)";
+	  maptype = '1';
+	  break;
+	}
+      }, true);
+
+    mapButton.addEventListener('keydown',function(e) {
+	switch(e.keyCode)
+	{
+	case 37: //LEFT
+	      document.getElementById('Go').focus();
+	    break;
+	case 39: //RIGHT
+	      document.getElementById('satelliteButton').focus();
+	    break;
+	case 13:
+	       document.getElementById('satelliteButton').style.backgroundImage = "url(./images/satellite.png)";
+	       map.setMapTypeId(google.maps.MapTypeId.ROADMAP);
+		this.style.backgroundImage = "url(./images/map-active.png)";
+	      maptype = '0';
+	    break;
+	}
+      }, true);
+
+    mapButton.addEventListener('focus',function() {
+      if(maptype =='0')
+      	return;
+      this.style.backgroundImage = "url(./images/map-active1.png)";
+    },false);
+    
+    mapButton.addEventListener('blur',function() {
+      if(maptype =='0')
+      	return;
+      this.style.backgroundImage = "url(./images/map.png)";
+    },false);
+    
+    satelliteButton.addEventListener('blur',function() {
+      if(maptype =='1')
+      	return;
+      this.style.backgroundImage = "url(./images/satellite.png)";
+    },false);
+    
+    satelliteButton.addEventListener('focus',function() {
+      if(maptype =='1')
+      	return;
+      this.style.backgroundImage = "url(./images/satellite-active1.png)";
+    },false);
+}
+
+function SatelliteTypeControl(satelliteTypeControl, map)
+{
+    var satelliteButton = document.createElement('input');
+    satelliteButton.id = 'satelliteButton';
+    satelliteButton.value = 'Satellite';
+    satelliteButton.type = 'button';
+    satelliteTypeControl.appendChild(satelliteButton);
+
+     satelliteButton.addEventListener('keydown',function(e) {
+	switch(e.keyCode)
+	{
+	case 37: //LEFT
+	      document.getElementById('mapButton').focus();
+	    break;
+	case 39: //RIGHT
+	    break;
+	case 13:
+	  map.setMapTypeId(google.maps.MapTypeId.SATELLITE);
+	  break;
+	}
+      }, true);
+
+}
+
+function DpadControl(navigationContainer, map)
+{
+    var positionContainer = document.createElement('div');
+    positionContainer.style.position= 'absolute';
+    positionContainer.style.left = '7px';
+    positionContainer.style.top = '7px';
+
+    var dpadContainer = document.createElement('div');
+    dpadContainer.id = 'dpadContainer';
+    dpadContainer.style.position= 'absolute';
+    dpadContainer.style.left = '0px';
+    dpadContainer.style.top = '0px';
+    dpadContainer.tabIndex = 1;
+    
+
+    dpadContainer.addEventListener('focus', function() {
+	this.firstChild.style.backgroundImage = "url(./images/select-active.png)";
+    },true);
+
+   /* dpadContainer.addEventListener('blur', function() {
+	
+    },true);*/
+
+    dpadContainer.addEventListener('keydown', function(e) {
+	    switch(e.keyCode)
+	    {
+	      case 38: //UP zoomin
+		    map.panBy(0,-50);
+		break;
+	      case 37: //LEFT`
+		    map.panBy(-50,0);
+		// Focus shifts to D-Pad
+		// Temp focus to search.
+		break;
+	      case 39: //RIGHT
+		  map.panBy(50,0);
+		//No-operation
+		break;
+	      case 40: // DOWN zoomout
+		  map.panBy(0,50);
+		break;
+	      case 13:
+		   // depending on the type of option.. focus appt element
+		  document.getElementById('optionsContainer').style.visibility = 'visible';
+		  document.getElementById('Pan').focus();
+		  this.blur();
+		break;
+	    }
+    }, true);
+
+    var dpad = document.createElement('input');
+    dpad.id = 'dpad';
+    dpad.type = 'button';
+    dpad.style.backgroundImage = "url(./images/select-active.png)";
+    dpad.style.backgroundRepeat = 'no-repeat';
+    dpad.style.backgroundColor = 'transparent';
+    dpad.style.margin = '0px';
+    dpad.style.padding= '0px';
+    dpad.style.width = '106px';
+    dpad.style.height = '106px';
+    dpad.style.border = '0px';
+    dpad.style.color = 'white';
+    dpad.style.fontSize = 'medium';
+    dpad.value = 'Select';
+   
+    
+    dpadContainer.appendChild(dpad);
+    positionContainer.appendChild(dpadContainer);
+
+    var optionsContainer = document.createElement('div');
+    optionsContainer.id = 'optionsContainer';
+    optionsContainer.style.position= 'absolute';
+    optionsContainer.style.left = '71px';
+    optionsContainer.style.top = '70px';
+    optionsContainer.tabIndex = 0;
+    optionsContainer.style.visibility = 'hidden';
+
+    var optionTable = document.createElement('table');
+    optionTable.id = 'optionstable';
+    optionTable.tabIndex = 0;
+    optionTable.style.backgroundImage = "url(./images/options.png)";
+    optionTable.style.width = '107px';
+    optionTable.style.height = '84px';
+    optionTable.cellPadding = '0px';
+    optionTable.cellSpacing = '0px';
+
+
+    var tr, input;
+    var optionarray = ["Pan", "Zoom", "Tools"];
+    for(var i = 0;i< optionarray.length; i = i+1)
+    {
+	tr = document.createElement('tr');
+	input = document.createElement('input');
+	input.type ='button';
+	input.id = optionarray[i];
+	input.value = optionarray[i];
+	//input.style.color = 'white';
+	input.style.textIndent = '10px';
+	input.style.textAlign = 'left';
+	input.style.width = '107px';
+	input.style.height = '28px';
+	input.style.padding = '0px';
+	input.style.border= '0px';
+	input.style.margin = '0px';
+	input.style.fontSize = 'medium';
+	input.style.backgroundColor = 'transparent';
+	input.style.color = 'default';
+	tr.appendChild(input);
+	optionTable.appendChild(tr);
+      
+	input.addEventListener('focus', function() {
+	    this.style.color = 'white';
+	    this.style.backgroundColor = '#788594';
+	}, true);
+	
+	input.addEventListener('blur', function() {
+	    this.style.color = '#3c3b37';
+	    this.style.backgroundColor = 'transparent';
+	}, true);
+	
+	input.addEventListener('keydown', function(e) {
+	    var parent = this.parentNode;
+	    switch(e.keyCode)
+	    {
+	      case 38: //UP zoomin
+		  if(parent.previousSibling)
+		  {
+		      //this.blur();
+		      parent.previousSibling.firstChild.focus();
+		  }
+		break;
+	      case 37: //LEFT`
+		// Focus shifts to D-Pad
+		// Temp focus to search.
+		break;
+	      case 39: //RIGHT
+		//No-operation
+		break;
+	      case 40: // DOWN zoomout
+		  if(parent.nextSibling)
+		  {
+		      //this.blur();
+		      parent.nextSibling.firstChild.focus();
+		  }
+		break;
+	      case 13:
+		   // depending on the type of option.. focus appt element
+		  if(this.id =='Zoom')
+		    document.getElementById('scrollContainer').focus();
+		  else if(this.id =='Tools')
+		    document.getElementById('searchEditDiv').focus();
+    		  else
+		    document.getElementById('dpadContainer').focus();
+		 
+		  if(this.id !='Pan')
+		    document.getElementById('dpad').style.backgroundImage =  "url(./images/select.png)";
+		  document.getElementById('optionsContainer').style.visibility = 'hidden';
+		break;
+	    }
+      	}, true);
+    }
+  
+//rgb(120, 133, 140);
+    optionsContainer.appendChild(optionTable);
+    positionContainer.appendChild(optionsContainer);
+    navigationContainer.appendChild(positionContainer);
+}
+
+
+function NavigationControl(navigationContainer, map)
+{
+
+    DpadControl(navigationContainer, map);
+    // Create a div with an image.
+    var positionContainer = document.createElement('div');
+    positionContainer.style.position= 'absolute';
+    positionContainer.style.left = '0px';
+    positionContainer.style.top = '119px';
+
+    var scrollContainer = document.createElement('div');
+    scrollContainer.id = 'scrollContainer';
+    scrollContainer.style.position= 'absolute';
+    scrollContainer.style.left = '46px';
+    scrollContainer.style.top = '0px';
+    scrollContainer.tabIndex = 0;
+
+
+    var scale = document.createElement('img');
+    scale.id = 'scale';
+    scale.src = "./images/scale-new.png";
+
+    var scrolldiv = document.createElement('div');
+    scrolldiv.id = 'scrolldiv';
+    scrolldiv.style.position= 'absolute';
+    scrolldiv.style.left = '2px';
+    var zoomPos = 29 + (20 - map.getZoom()) * 7;
+    scrolldiv.style.top = zoomPos + 'px';
+
+    var scroller = document.createElement('img');
+    scroller.id = 'scroller';
+    scroller.src = "./images/scroller.png";
+
+    scrolldiv.appendChild(scroller);
+
+    scrollContainer.appendChild(scale);
+    scrollContainer.appendChild(scrolldiv);
+    
+    positionContainer.appendChild(scrollContainer);
+    var arrow = document.createElement('img');
+    arrow.src = "./images/leftarrow.png";
+    arrow.style.position = 'absolute';
+    arrow.style.left = '11px';
+    arrow.style.top = '93px';
+    positionContainer.appendChild(arrow);
+
+    navigationContainer.appendChild(positionContainer);
+    google.maps.event.addListener(map, 'zoom_changed', function() {
+     if(map.getZoom() <= 20) 
+      {
+	var zoomPos = 29 + (20 - map.getZoom()) * 7;
+	scrolldiv.style.top = zoomPos + 'px';
+      }
+    });
+
+    scrollContainer.addEventListener('keydown',function(e) {
+	switch(e.keyCode)
+	{
+	  case 38: //UP zoomin
+	      var curZoom = map.getZoom();
+	      if(curZoom < 20 )
+		map.setZoom(curZoom + 1 );
+	    break;
+	  case 37: //LEFT`
+	    // Focus shifts to D-Pad
+	      document.getElementById('dpadContainer').focus();
+	    break;
+	  case 39: //RIGHT
+	    //No-operation
+	    break;
+	  case 40: // DOWN zoomout
+	      var curZoom = map.getZoom();
+	      if(curZoom > 0)
+		map.setZoom(curZoom - 1);
+	    break;
+	  case 13:
+	    break;
+	}
+      }, true);
+
+}
+
+function initialize() {
+//detect useragent
+  if(isFF > 0) inline = "inline";
+  else	inline = "inline-table";
+
+  var mapDiv = document.getElementById('map_canvas');
+  var myOptions = {
+    zoom: 14,
+    center:chicago,
+    disableDefaultUI: true,
+    //navigationControl: true,
+    mapTypeId: google.maps.MapTypeId.ROADMAP
+  }
+  map = new google.maps.Map(mapDiv, myOptions);
+
+  var tableControlDiv = document.createElement('DIV');
+  TableButtonControl(tableControlDiv, map);
+  
+  var searchcontrolSpan = document.createElement('div');
+  searchcontrolSpan.style.display = 'inline';
+  searchcontrolSpan.style.marginLeft = '50px';
+  SearchControl(searchcontrolSpan, map);
+
+  var divArrow = document.createElement('DIV');
+  divArrow.id = 'keyPadArrow';
+  //divArrow.innerHTML = 'Press "Up / Down Arrow Key" for keypad';
+  var img = document.createElement('img');
+  img.src = './images/dwnarrow.png';
+  divArrow.appendChild(img);
+  divArrow.style.position = 'relative';
+  divArrow.style.left = '25%';
+
+  var container = document.createElement('DIV');
+  container.id = 'mainContainer';
+  container.style.marginTop = '7px';
+  container.appendChild(searchcontrolSpan);
+  container.appendChild(divArrow);
+  tableControlDiv.style.marginLeft = '72px';
+  container.appendChild(tableControlDiv);
+  
+  var navigationContainer = document.createElement('div');
+  NavigationControl(navigationContainer, map);
+  navigationContainer.style.position = 'absolute';
+  navigationContainer.style.left = '0px';
+
+  //document.getElementById('dpadContainer').focus();
+  map.controls[google.maps.ControlPosition.LEFT].push(navigationContainer);
+  map.controls[google.maps.ControlPosition.TOP].push(container);
+  
+    google.maps.event.addListener(map, 'tilesloaded', function() {
+      document.getElementById('dpadContainer').focus();
+      google.maps.event.clearListeners(map, 'tilesloaded');
+    });
+
+
+}
+
+</script>
+</head>
+<body onload="initialize()">
+  <div id="map_canvas"></div>
+</body>
+
+</html>
+
+
