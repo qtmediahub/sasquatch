@@ -9,3 +9,7 @@ in order to use the Qt OpenGL graphics system
 QML
 
 It appears you have to use: forceActiveFocus to change focus if no item currently has active focus
+
+Qt.createComponent does not appear to be cognizant of import calls in said file
+
+Can't query/discover path of QML file being run (making it impossible to use generic qmlviewer for skin work)
