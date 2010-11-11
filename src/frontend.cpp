@@ -50,7 +50,7 @@ public:
 FrontEndPrivate::FrontEndPrivate()
     : widget(0),
 #ifdef Q_OS_MAC
-      platformPathOffset("/../../../.."),
+      platformPathOffset("/../../.."),
 #endif
       skinPath(QCoreApplication::applicationDirPath() + platformPathOffset + "/skins"),
       resourcePath(QCoreApplication::applicationDirPath() + platformPathOffset + "/resources")
