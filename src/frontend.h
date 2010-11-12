@@ -30,6 +30,7 @@ class FrontEndPrivate;
 
 class FrontEnd : public QObject
 {
+    Q_OBJECT
     public:
         FrontEnd(QObject *p);
         ~FrontEnd();

@@ -29,6 +29,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QDeclarativeContext>
 #include <QApplication>
 #include <QTimer>
+#include <QTranslator>
 
 #ifdef GLVIEWPORT
 #include <QGLWidget>
@@ -45,6 +46,7 @@ public:
     const QString platformPathOffset;
     const QString skinPath;
     const QString resourcePath;
+    QTranslator frontEndTranslator;
 };
 
 FrontEndPrivate::FrontEndPrivate()
@@ -82,6 +84,10 @@ QWidget* FrontEnd::loadFrontEnd(const QUrl &url)
         targetUrl = QUrl::fromLocalFile(d->skinPath + "/confluence/720p/Confluence.qml");
     else
         targetUrl = url;
+
+    //Loading translation is part of loading skin
+    //d->translator.load("");
+    //qApp->installTranslator(&(d->translator));
 
     if(targetUrl.path().right(3) == "qml")
     {

@@ -19,8 +19,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <QApplication>
 #include <QWidget>
-//#include <QDebug>
-//#include <QtDeclarative>
 #ifdef GL
 #include <QGLFormat>
 #endif
