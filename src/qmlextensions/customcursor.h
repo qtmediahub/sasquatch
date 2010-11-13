@@ -17,8 +17,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 ****************************************************************************/
 
-#ifndef CUSTOMPath_H
-#define CUSTOMPath_H
+#ifndef CUSTOMCURSOR_H
+#define CUSTOMCURSOR_H
 
 #include <QObject>
 #include <QCursor>
@@ -56,7 +56,9 @@ public slots:
 private:
     QTimer *m_timer;
     QTimer *m_clickedTimer;
+
     Behavior m_currentBehavior;
+
     QString m_defaultCursorPath;
     QString m_clickedCursorPath;
     QCursor m_defaultCursor;
@@ -64,4 +66,4 @@ private:
     QCursor m_blankCursor;
 };
 
-#endif // CUSTOMCursorPath_H
+#endif // CUSTOMCURSOR_H

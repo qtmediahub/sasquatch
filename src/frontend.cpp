@@ -25,7 +25,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QDesktopWidget>
 #include <QDeclarativeView>
 #include <QDeclarativeEngine>
-#include <QDeclarativeComponent>
 #include <QDeclarativeContext>
 #include <QApplication>
 #include <QTimer>
@@ -34,8 +33,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #ifdef GLVIEWPORT
 #include <QGLWidget>
 #endif
-
-#include "qmlextensions/customcursor.h"
 
 struct FrontEndPrivate : public QObject
 {
@@ -97,7 +94,6 @@ QWidget* FrontEnd::loadFrontEnd(const QUrl &url)
         bool scalingAllowed = true;
 
         QDeclarativeView *widget= new QDeclarativeView();
-        qmlRegisterType<CustomCursor>("CustomCursor", 1, 0, "CustomCursor");
 
         if(scalingAllowed) {
             widget->scale(qreal(desktop->width())/1280, qreal(desktop->height())/720);

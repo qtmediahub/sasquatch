@@ -16,13 +16,15 @@ MOC_DIR = $$TEMP_DIR/.moc
 SOURCES += src/main.cpp \
     src/frontend.cpp \
     src/backend.cpp \
-    src/qmlextensions/customcursor.cpp
+    src/qmlextensions/customcursor.cpp \
+    src/qmlextensions/dashboard.cpp
 
 QT += declarative
 
 HEADERS += src/frontend.h \
     src/backend.h \
-    src/qmlextensions/customcursor.h
+    src/qmlextensions/customcursor.h \
+    src/qmlextensions/dashboard.h
 
 glgs {
     CONFIG += gl
