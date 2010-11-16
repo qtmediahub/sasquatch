@@ -134,7 +134,7 @@ static void populateFrontCover(MediaInfo *info, TagLib::ID3v2::Tag *id3v2Tag)
         TagLib::ID3v2::FrameList::Iterator it = frames.begin();
         for (; it != frames.end(); ++it) {
             TagLib::ID3v2::AttachedPictureFrame *frame = dynamic_cast<TagLib::ID3v2::AttachedPictureFrame *>(*it);
-            if (frame && frame->type() != TagLib::ID3v2::AttachedPictureFrame::FrontCover)
+            if (frame && frame->type() != TagLib::ID3v2::AttachedPictureFrame::FrontCover) // BackCover, LeafletPage
                 continue;
             selectedFrame = frame;
             break;
@@ -160,25 +160,23 @@ void MediaModel::update()
         info.path = it.next();
         QByteArray fileName = QFile::encodeName(info.path);
         
-        if (fileName.endsWith(".mp3")) {
-            TagLib::MPEG::File mpegFile(fileName.constData(), true, TagLib::AudioProperties::Accurate);
-            TagLib::ID3v2::Tag *id3v2Tag = mpegFile.ID3v2Tag(false);
+        TagLib::FileRef fileRef(fileName.constData());
+        if (fileRef.isNull()) {
+            // qDebug() << "Dropping " << info.path;
+            continue;
+        }
+
+        TagLib::File *file = fileRef.file();
+        if (TagLib::Tag *tag = file->tag())
+            popuplateGenericTagInfo(&info, tag);
+        if (TagLib::AudioProperties *audioProperties = file->audioProperties())
+            popuplateAudioProperties(&info, audioProperties);
+
+        // Populate media type specific fields
+        if (TagLib::MPEG::File *mpegFile = dynamic_cast<TagLib::MPEG::File *>(file)) {
+            TagLib::ID3v2::Tag *id3v2Tag = mpegFile->ID3v2Tag(false);
             if (id3v2Tag)
                 populateFrontCover(&info, id3v2Tag);
-            if (TagLib::Tag *tag = mpegFile.tag())
-                popuplateGenericTagInfo(&info, mpegFile.tag());
-            if (TagLib::AudioProperties *properties = mpegFile.audioProperties())
-                popuplateAudioProperties(&info, mpegFile.audioProperties());
-        } else {
-            TagLib::FileRef f(fileName.constData());
-            if (f.isNull()) {
-                // qDebug() << "Dropping " << info.path;
-                continue;
-            }
-            if (TagLib::Tag *tag = f.tag())
-                popuplateGenericTagInfo(&info, tag);
-            if (TagLib::AudioProperties *properties = f.audioProperties())
-                popuplateAudioProperties(&info, properties);
         }
 
         m_mediaInfos.append(info);
