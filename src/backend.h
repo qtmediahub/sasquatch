@@ -22,16 +22,22 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <QObject>
 
+class BackendPrivate;
+
 class Backend : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(QString skinPath READ skinPath)
+    Q_PROPERTY(QString resourcePath READ resourcePath)
 public:
+    void discoverPlugins();
+    static Backend *instance();
+    QString skinPath() const;
+    QString resourcePath() const;
+private:
     explicit Backend(QObject *parent = 0);
-
-signals:
-
-public slots:
-
+    static Backend *pSelf;
+    BackendPrivate *d;
 };
 
 #endif // BACKEND_H

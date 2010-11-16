@@ -18,8 +18,68 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 ****************************************************************************/
 
 #include "backend.h"
+#include "plugins/qmhplugininterface.h"
 
-Backend::Backend(QObject *parent) :
-    QObject(parent)
+#include <QDir>
+#include <QString>
+#include <QPluginLoader>
+#include <QList>
+#include <QCoreApplication>
+#include <QVariant>
+
+#include <QDebug>
+
+Backend* Backend::pSelf = 0;
+
+struct BackendPrivate
 {
+    BackendPrivate()
+        :
+      #ifdef Q_OS_MAC
+          platformOffset("/../../.."),
+      #endif
+          basePath(QCoreApplication::applicationDirPath() + platformOffset),
+          skinPath(basePath + "/skins"),
+          resourcePath(basePath + "/resources") { /* */ }
+
+    QList<QMHPluginInterface*> plugins;
+
+    const QString platformOffset;
+
+    const QString basePath;
+    const QString skinPath;
+    const QString resourcePath;
+};
+
+Backend::Backend(QObject *parent)
+    : QObject(parent),
+      d(new BackendPrivate())
+{
+}
+
+void Backend::discoverPlugins()
+{
+    foreach(const QString fileName, QDir("plugins").entryList(QDir::Files)) {
+        QString qualifiedFileName("plugins/" + fileName);
+        QPluginLoader plugin(qualifiedFileName);
+        if(plugin.load())
+            d->plugins << qobject_cast<QMHPluginInterface*>(plugin.instance());
+    }
+}
+
+
+Backend* Backend::instance()
+{
+    if(!pSelf) {
+        pSelf = new Backend();
+    }
+    return pSelf;
+}
+
+QString Backend::skinPath() const {
+    return d->skinPath;
+}
+
+QString Backend::resourcePath() const {
+    return d->resourcePath;
 }

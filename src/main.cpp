@@ -19,15 +19,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <QApplication>
 #include <QWidget>
-#include <QDeclarativeComponent>
 #ifdef GL
 #include <QGLFormat>
 #endif
 
+#include "backend.h"
 #include "frontend.h"
-
-#include "qmlextensions/customcursor.h"
-#include "qmlextensions/dashboard.h"
 
 int main(int argc, char** argv)
 {
@@ -52,14 +49,10 @@ int main(int argc, char** argv)
     QApplication::setGraphicsSystem("opengl");
 #endif
 #endif
-
-    qmlRegisterType<Dashboard>("Dashboard", 1, 0, "Dashboard");
-    qmlRegisterType<CustomCursor>("CustomCursor", 1, 0, "CustomCursor");
-
     QApplication app(argc, argv);
 
-    FrontEnd frontEnd(&app);
-    frontEnd.show();
+    Frontend gui(&app);
+    gui.show();
 
     return app.exec();
 }

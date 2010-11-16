@@ -24,20 +24,20 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QUrl>
 
 class QWidget;
-class FrontEndPrivate;
+class FrontendPrivate;
 
 /*Logic abstracting what is handling the rendering and resolution selection*/
 
-class FrontEnd : public QObject
+class Frontend : public QObject
 {
     Q_OBJECT
     public:
-        FrontEnd(QObject *p);
-        ~FrontEnd();
-        QWidget* loadFrontEnd(const QUrl &url);
+        Frontend(QObject *p);
+        ~Frontend();
+        QWidget* loadFrontend(const QUrl &url);
         void show();
     private:
-        FrontEndPrivate *d;
+        FrontendPrivate *d;
 };
 
 #endif

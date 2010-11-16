@@ -18,6 +18,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 ****************************************************************************/
 
 #include "frontend.h"
+#include "backend.h"
 
 #include <QDebug>
 #include <QFileInfo>
@@ -34,40 +35,35 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QGLWidget>
 #endif
 
-struct FrontEndPrivate : public QObject
+#include "qmlextensions/customcursor.h"
+#include "qmlextensions/dashboard.h"
+
+struct FrontendPrivate : public QObject
 {
     Q_OBJECT
 public:
-    FrontEndPrivate();
+    FrontendPrivate();
     QWidget *widget;
-    const QString platformPathOffset;
-    const QString skinPath;
-    const QString resourcePath;
     QTranslator frontEndTranslator;
 };
 
-FrontEndPrivate::FrontEndPrivate()
-    : widget(0),
-#ifdef Q_OS_MAC
-      platformPathOffset("/../../.."),
-#endif
-      skinPath(QCoreApplication::applicationDirPath() + platformPathOffset + "/skins"),
-      resourcePath(QCoreApplication::applicationDirPath() + platformPathOffset + "/resources")
+FrontendPrivate::FrontendPrivate()
+    : widget(0)
 { /**/ }
 
-FrontEnd::FrontEnd(QObject *p)
+Frontend::Frontend(QObject *p)
     : QObject(p),
-      d(new FrontEndPrivate())
+      d(new FrontendPrivate())
 {
 }
 
-FrontEnd::~FrontEnd()
+Frontend::~Frontend()
 {
     delete d;
     d = 0;
 }
 
-QWidget* FrontEnd::loadFrontEnd(const QUrl &url)
+QWidget* Frontend::loadFrontend(const QUrl &url)
 {
     bool visible = false;
     if(d->widget)
@@ -78,7 +74,7 @@ QWidget* FrontEnd::loadFrontEnd(const QUrl &url)
     QUrl targetUrl;
 
     if(url.isEmpty() || !url.isValid())
-        targetUrl = QUrl::fromLocalFile(d->skinPath + "/confluence/720p/Confluence.qml");
+        targetUrl = QUrl::fromLocalFile(Backend::instance()->skinPath() + "/confluence/720p/Confluence.qml");
     else
         targetUrl = url;
 
@@ -88,6 +84,9 @@ QWidget* FrontEnd::loadFrontEnd(const QUrl &url)
 
     if(targetUrl.path().right(3) == "qml")
     {
+        qmlRegisterType<Dashboard>("Dashboard", 1, 0, "Dashboard");
+        qmlRegisterType<CustomCursor>("CustomCursor", 1, 0, "CustomCursor");
+
         QDesktopWidget *desktop = qApp->desktop();
 
         //FIXME: system settings
@@ -116,8 +115,7 @@ QWidget* FrontEnd::loadFrontEnd(const QUrl &url)
 #else
         widget->setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
 #endif
-        widget->rootContext()->setContextProperty("resourcePath", d->resourcePath);
-        widget->rootContext()->setContextProperty("skinPath", d->skinPath);
+        widget->rootContext()->setContextProperty("backend", Backend::instance());
 
         widget->setSource(targetUrl);
 
@@ -130,10 +128,10 @@ QWidget* FrontEnd::loadFrontEnd(const QUrl &url)
     return d->widget;
 }
 
-void FrontEnd::show()
+void Frontend::show()
 {
     if(!d->widget)
-        loadFrontEnd(QUrl());
+        loadFrontend(QUrl());
     d->widget->showFullScreen();
 }
 
