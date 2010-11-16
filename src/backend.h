@@ -21,6 +21,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #define BACKEND_H
 
 #include <QObject>
+#include <QList>
 
 class BackendPrivate;
 
@@ -28,11 +29,15 @@ class Backend : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString skinPath READ skinPath)
+    Q_PROPERTY(QString pluginPath READ pluginPath)
     Q_PROPERTY(QString resourcePath READ resourcePath)
+    Q_PROPERTY(QList<QObject*> engines READ engines)
 public:
-    void discoverPlugins();
+    void discoverEngines();
+    QList<QObject*> engines() const;
     static Backend *instance();
     QString skinPath() const;
+    QString pluginPath() const;
     QString resourcePath() const;
 private:
     explicit Backend(QObject *parent = 0);

@@ -1,7 +1,5 @@
 #include "musicplugin.h"
 
-MusicPlugin::MusicPlugin(QObject *parent) :
-    QObject(parent),
-    QMHPluginInterface()
-{
-}
+#include <QtPlugin>
+
+Q_EXPORT_PLUGIN2(music, MusicPlugin)

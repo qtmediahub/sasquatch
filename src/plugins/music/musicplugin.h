@@ -4,16 +4,16 @@
 #include <QObject>
 #include "qmhplugininterface.h"
 
-class MusicPlugin : public QObject, public QMHPluginInterface
+class MusicPlugin : public QMHPluginInterface
 {
     Q_OBJECT
+    Q_PROPERTY(QString name READ name)
+    Q_PROPERTY(bool browseable READ browseable)
+    Q_INTERFACES(QMHPluginInterface)
 public:
-    explicit MusicPlugin(QObject *parent = 0);
-
-signals:
-
-public slots:
-
+    ~MusicPlugin() {}
+    QString name() const { return tr("Music"); }
+    bool browseable() const { return true; }
 };
 
 #endif // MUSICPLUGIN_H

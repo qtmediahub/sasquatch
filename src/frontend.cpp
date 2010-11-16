@@ -22,6 +22,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <QDebug>
 #include <QFileInfo>
+#include <QList>
+#include <QVariant>
 
 #include <QDesktopWidget>
 #include <QDeclarativeView>

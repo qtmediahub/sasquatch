@@ -24,7 +24,8 @@ QT += declarative
 HEADERS += frontend.h \
     backend.h \
     qmlextensions/customcursor.h \
-    qmlextensions/dashboard.h
+    qmlextensions/dashboard.h \
+    plugins/qmhplugininterface.h
 
 glgs {
     CONFIG += gl

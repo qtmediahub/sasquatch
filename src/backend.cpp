@@ -23,7 +23,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QDir>
 #include <QString>
 #include <QPluginLoader>
-#include <QList>
 #include <QCoreApplication>
 #include <QVariant>
 
@@ -40,14 +39,16 @@ struct BackendPrivate
       #endif
           basePath(QCoreApplication::applicationDirPath() + platformOffset),
           skinPath(basePath + "/skins"),
+          pluginPath(basePath + "/plugins"),
           resourcePath(basePath + "/resources") { /* */ }
 
-    QList<QMHPluginInterface*> plugins;
+    QList<QObject*> engines;
 
     const QString platformOffset;
 
     const QString basePath;
     const QString skinPath;
+    const QString pluginPath;
     const QString resourcePath;
 };
 
@@ -55,18 +56,26 @@ Backend::Backend(QObject *parent)
     : QObject(parent),
       d(new BackendPrivate())
 {
+    discoverEngines();
 }
 
-void Backend::discoverPlugins()
+void Backend::discoverEngines()
 {
-    foreach(const QString fileName, QDir("plugins").entryList(QDir::Files)) {
-        QString qualifiedFileName("plugins/" + fileName);
+    foreach(const QString fileName, QDir(pluginPath()).entryList(QDir::Files)) {
+        QString qualifiedFileName(pluginPath() + "/" + fileName);
         QPluginLoader plugin(qualifiedFileName);
-        if(plugin.load())
-            d->plugins << qobject_cast<QMHPluginInterface*>(plugin.instance());
+        if(plugin.load()
+           && qobject_cast<QMHPluginInterface*>(plugin.instance()))
+            d->engines << qobject_cast<QObject*>(plugin.instance());
+        else
+            qDebug() << "Invalid plugin present" << qualifiedFileName;
     }
 }
 
+QList<QObject*> Backend::engines() const
+{
+    return d->engines;
+}
 
 Backend* Backend::instance()
 {
@@ -78,6 +87,10 @@ Backend* Backend::instance()
 
 QString Backend::skinPath() const {
     return d->skinPath;
+}
+
+QString Backend::pluginPath() const {
+    return d->pluginPath;
 }
 
 QString Backend::resourcePath() const {
