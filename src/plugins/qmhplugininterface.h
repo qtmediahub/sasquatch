@@ -1,18 +1,11 @@
 #ifndef QMHPLUGININTERFACE_H
 #define QMHPLUGININTERFACE_H
 
-#include <QObject>
-
-class QMHPluginInterface : public QObject
+class QMHPluginInterface
 {
-    //Kills plugin capabilities
-    //Q_OBJECT
-    //Would be nice to enforce properties etc here
-    Q_PROPERTY(QString name READ name)
-    Q_PROPERTY(bool browseable READ browseable)
 public:
     virtual ~QMHPluginInterface() { /* */ }
-    virtual QString name() const = 0;
+    virtual QString name() const { return ""; }
     virtual bool browseable() const { return false; }
 };
 

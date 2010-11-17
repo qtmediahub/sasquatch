@@ -17,40 +17,64 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 ****************************************************************************/
 
-#ifndef BACKEND_H
-#define BACKEND_H
+#include "thumbnailer.h"
 
-#include <QObject>
-#include <QList>
+#include <QCryptographicHash>
+#include <QDir>
+#include <QThreadPool>
 
-class BackendPrivate;
+#include "backend.h"
 
-class Backend : public QObject
+Thumbnailer *Thumbnailer::mInstance = 0;
+
+Thumbnailer::Thumbnailer(QObject *parent) :
+    QObject(parent)
 {
-    Q_OBJECT
-    Q_PROPERTY(QString skinPath READ skinPath NOTIFY skinPathChanged)
-    Q_PROPERTY(QString pluginPath READ pluginPath NOTIFY pluginPathChanged)
-    Q_PROPERTY(QString resourcePath READ resourcePath NOTIFY resourcePathChanged)
-    Q_PROPERTY(QList<QObject*> engines READ engines NOTIFY enginesChanged)
+    mInstance = this;
+}
 
-public:
-    void discoverEngines();
-    QList<QObject*> engines() const;
-    static Backend *instance();
-    QString skinPath() const;
-    QString pluginPath() const;
-    QString resourcePath() const;
+Thumbnailer *Thumbnailer::getInstance()
+{
+    if (!mInstance)
+        new Thumbnailer();
 
-signals:
-    void skinPathChanged();
-    void pluginPathChanged();
-    void resourcePathChanged();
-    void enginesChanged();
+    return mInstance;
+}
 
-private:
-    explicit Backend(QObject *parent = 0);
-    static Backend *pSelf;
-    BackendPrivate *d;
-};
+bool Thumbnailer::canThumbnail(QFileInfo info)
+{
+    QString s = info.suffix();
 
-#endif // BACKEND_H
+    if (s == "jpg" || s == "jpeg" || s == "gif" || s == "png" || s == "bmp")
+        return true;
+    else
+        return false;
+}
+
+QString Thumbnailer::thumbnail(QString filePath, QModelIndex modelIndex)
+{
+    QString ret;
+    QString md5 = QCryptographicHash::hash("file://" + filePath.toAscii(), QCryptographicHash::Md5);
+
+    QFileInfo thumbnailInfo(QDir::homePath() + "/.thumbnails/" + THUMBNAILSUBPATH + "/" + md5 + ".png");
+    QFileInfo fileInfo(filePath);
+
+    if (thumbnailInfo.exists())
+        ret = thumbnailInfo.absoluteFilePath();
+    else if (fileInfo.isDir())
+        ret = Backend::instance()->skinPath() + "/confluence/3rdparty/skin.confluence" + "/media/DefaultFolder.png";
+    else if (canThumbnail(fileInfo)) {
+        ThumbnailerThread *thread = new ThumbnailerThread(filePath, thumbnailInfo.absoluteFilePath(), modelIndex);
+        QThreadPool::globalInstance()->start(thread);
+        ret = Backend::instance()->skinPath() + "/confluence/3rdparty/skin.confluence" + "/media/DefaultPicture.png";
+    } else {
+        ret = Backend::instance()->skinPath() + "/confluence/3rdparty/skin.confluence" + "/media/DefaultFile.png";
+    }
+
+    return ret;
+}
+
+void Thumbnailer::threadFinished(QModelIndex modelIndex)
+{
+    emit creationFinished(modelIndex);
+}

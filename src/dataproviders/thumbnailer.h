@@ -17,40 +17,76 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 ****************************************************************************/
 
-#ifndef BACKEND_H
-#define BACKEND_H
+#ifndef THUMBNAILER_H
+#define THUMBNAILER_H
 
 #include <QObject>
-#include <QList>
+#include <QRunnable>
+#include <QImageReader>
+#include <QModelIndex>
+#include <QFileInfo>
 
-class BackendPrivate;
+#define THUMBNAILSIZE 200
+#define THUMBNAILSUBPATH "qtmediahub"
+// Use "large" to fit freedesktop spec
+//#define THUMBNAILSUBPATH "large"
 
-class Backend : public QObject
+class Thumbnailer : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QString skinPath READ skinPath NOTIFY skinPathChanged)
-    Q_PROPERTY(QString pluginPath READ pluginPath NOTIFY pluginPathChanged)
-    Q_PROPERTY(QString resourcePath READ resourcePath NOTIFY resourcePathChanged)
-    Q_PROPERTY(QList<QObject*> engines READ engines NOTIFY enginesChanged)
-
 public:
-    void discoverEngines();
-    QList<QObject*> engines() const;
-    static Backend *instance();
-    QString skinPath() const;
-    QString pluginPath() const;
-    QString resourcePath() const;
+    explicit Thumbnailer(QObject *parent = 0);
+    static Thumbnailer *getInstance();
+
+    bool canThumbnail(QFileInfo info);
+    QString thumbnail(QString filePath, QModelIndex modelIndex);
+    void threadFinished(QModelIndex modelIndex);
 
 signals:
-    void skinPathChanged();
-    void pluginPathChanged();
-    void resourcePathChanged();
-    void enginesChanged();
+    void creationFinished(QModelIndex modelIndex);
+
+public slots:
 
 private:
-    explicit Backend(QObject *parent = 0);
-    static Backend *pSelf;
-    BackendPrivate *d;
+    static Thumbnailer *mInstance;
 };
 
-#endif // BACKEND_H
+class ThumbnailerThread : public QRunnable
+{
+
+public:
+    ThumbnailerThread(QString filePath, QString thumbnailPath, QModelIndex modelIndex) {
+        mFilePath = filePath;
+        mThumbnailPath = thumbnailPath;
+        mModelIndex = modelIndex;
+    }
+
+    void run() {
+        QImageReader reader;
+        reader.setFileName(mFilePath);
+        reader.setQuality(100);
+
+        if (reader.canRead()) {
+            QSize orig = reader.size();
+
+            if (orig.width() > THUMBNAILSIZE || orig.height() > THUMBNAILSIZE ) {
+                if (orig.width() < orig.height())
+                    reader.setScaledSize(QSize(orig.width()/(qreal)orig.height()*THUMBNAILSIZE, THUMBNAILSIZE));
+                else
+                    reader.setScaledSize(QSize(THUMBNAILSIZE, orig.height()/(qreal)orig.width()*THUMBNAILSIZE));
+            }
+
+            QImage newPix = reader.read();
+            if (!newPix.isNull())
+                newPix.save(mThumbnailPath);
+        }
+
+        Thumbnailer::getInstance()->threadFinished(mModelIndex);
+    }
+
+    QString mFilePath;
+    QString mThumbnailPath;
+    QModelIndex mModelIndex;
+};
+
+#endif // THUMBNAILER_H

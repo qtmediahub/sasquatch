@@ -19,6 +19,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "backend.h"
 #include "plugins/qmhplugininterface.h"
+#include "plugins/qmhplugin.h"
+#include "dataproviders/foldermodel.h"
 
 #include <QDir>
 #include <QString>
@@ -56,6 +58,9 @@ Backend::Backend(QObject *parent)
     : QObject(parent),
       d(new BackendPrivate())
 {
+    // register dataproviders to QML
+    qmlRegisterType<FolderModel>("FolderModel", 1, 0, "FolderModel");
+
     discoverEngines();
 }
 
@@ -65,10 +70,12 @@ void Backend::discoverEngines()
         QString qualifiedFileName(pluginPath() + "/" + fileName);
         QPluginLoader plugin(qualifiedFileName);
         if(plugin.load()
-           && qobject_cast<QMHPluginInterface*>(plugin.instance()))
-            d->engines << qobject_cast<QObject*>(plugin.instance());
+           && qobject_cast<QMHPluginInterface*>(plugin.instance())) {
+            d->engines << qobject_cast<QObject*>((new QMHPLugin(qobject_cast<QMHPluginInterface*>(plugin.instance()), this)));
+            emit enginesChanged();
+        }
         else
-            qDebug() << "Invalid plugin present" << qualifiedFileName;
+            qDebug() << "Invalid plugin present" << qualifiedFileName << plugin.errorString();
     }
 }
 
