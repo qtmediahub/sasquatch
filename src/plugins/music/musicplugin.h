@@ -12,8 +12,9 @@ class MusicPlugin : public QObject, public QMHPluginInterface
 
 public:
     ~MusicPlugin() {}
-    QString name() const { return "Music"; }
+    QString name() const { return tr("Music"); }
     bool browseable() const { return true; }
+    QString role() const { return "music"; }
 };
 
 #endif // MUSICPLUGIN_H

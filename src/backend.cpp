@@ -71,7 +71,7 @@ void Backend::discoverEngines()
         QPluginLoader plugin(qualifiedFileName);
         if(plugin.load()
            && qobject_cast<QMHPluginInterface*>(plugin.instance())) {
-            d->engines << qobject_cast<QObject*>((new QMHPLugin(qobject_cast<QMHPluginInterface*>(plugin.instance()), this)));
+            d->engines << new QMHPlugin(qobject_cast<QMHPluginInterface*>(plugin.instance()), this);
             emit enginesChanged();
         }
         else

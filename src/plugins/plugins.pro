@@ -1,3 +1,8 @@
 TEMPLATE = subdirs
 
-SUBDIRS = music
+SUBDIRS = music \
+          video \
+          picture \
+          scripts \
+          programs \
+          system

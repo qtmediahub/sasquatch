@@ -5,7 +5,9 @@ class QMHPluginInterface
 {
 public:
     virtual ~QMHPluginInterface() { /* */ }
-    virtual QString name() const { return ""; }
+    virtual QString name() const = 0;
+    //Fixme: roles should be a constrained enumeration
+    virtual QString role() const = 0;
     virtual bool browseable() const { return false; }
 };
 
