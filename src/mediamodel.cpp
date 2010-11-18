@@ -33,6 +33,7 @@ MediaModel::MediaModel(QObject *parent)
 {
     m_mediaPath = QDir::currentPath();
     QTimer::singleShot(0, this, SLOT(update()));
+    init();
 }
 
 MediaModel::MediaModel(const QString &mediaPath, QObject *parent)
@@ -40,10 +41,21 @@ MediaModel::MediaModel(const QString &mediaPath, QObject *parent)
       m_mediaPath(mediaPath)
 {
     QTimer::singleShot(0, this, SLOT(update()));
+    init();
 }
 
 MediaModel::~MediaModel()
 {
+}
+
+void MediaModel::init()
+{
+    QHash<int, QByteArray> roleNames;
+    roleNames[TitleRole] = "title";
+    roleNames[AlbumRole] = "album";
+    roleNames[CommentRole] = "comment";
+    roleNames[GenreRole] = "genre";
+    setRoleNames(roleNames);
 }
 
 void MediaModel::setMediaPath(const QString &newPath)
@@ -92,6 +104,14 @@ QVariant MediaModel::data(const QModelIndex &index, int role) const
         return m_mediaInfos[index.row()].path;
     } else if (role == Qt::DecorationRole) {
         return m_mediaInfos[index.row()].frontCover;
+    } else if (role == TitleRole) {
+        return m_mediaInfos[index.row()].title;
+    } else if (role == AlbumRole) {
+        return m_mediaInfos[index.row()].album;
+    } else if (role == CommentRole) {
+        return m_mediaInfos[index.row()].comment;
+    } else if (role == GenreRole) {
+        return m_mediaInfos[index.row()].genre;
     } else {
         return QVariant();
     }

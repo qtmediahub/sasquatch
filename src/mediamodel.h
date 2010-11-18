@@ -66,6 +66,14 @@ public:
     QString mediaPath() const;
     void setMediaPath(const QString &mediaPath);
 
+    enum CustomRoles {
+        TitleRole = Qt::UserRole + 1,
+        ArtistRole,
+        AlbumRole,
+        CommentRole,
+        GenreRole
+    };
+
 signals:
     void mediaPathChanged();
 
@@ -73,6 +81,8 @@ private slots:
     void update();
 
 private:
+    void init();
+
     QString m_mediaPath;
     QList<MediaInfo> m_mediaInfos;
 };
