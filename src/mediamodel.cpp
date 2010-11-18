@@ -116,7 +116,7 @@ QVariant MediaModel::data(const QModelIndex &index, int role) const
 
 void MediaModel::addMedia(const MediaInfo &media)
 {
-    beginInsertRows(QModelIndex(), m_mediaInfos.count(), m_mediaInfos.count()+1);
+    beginInsertRows(QModelIndex(), m_mediaInfos.count(), m_mediaInfos.count());
     m_mediaInfos.append(media);
     endInsertRows();
 }
