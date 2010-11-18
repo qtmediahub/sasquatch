@@ -48,12 +48,12 @@ QString CustomCursor::clickedCursorPath() const {
 
 void CustomCursor::setDefaultCursorPath(const QString &path) {
     m_defaultCursorPath = path;
-    m_defaultCursor = QCursor(QPixmap(m_defaultCursorPath));
+    m_defaultCursor = QCursor(QPixmap(m_defaultCursorPath), 0, 0);
 }
 
 void CustomCursor::setClickedCursorPath(const QString &path) {
     m_clickedCursorPath = path;
-    m_clickedCursor = QCursor(QPixmap(m_clickedCursorPath));
+    m_clickedCursor = QCursor(QPixmap(m_clickedCursorPath), 0, 0);
 }
 
 int CustomCursor::idleTimeout() const
