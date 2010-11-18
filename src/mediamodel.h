@@ -30,7 +30,8 @@
 struct MediaInfo 
 {
     MediaInfo() : year(0), track(0), length(0), bitrate(0), sampleRate(0), channels(0) { }
-    QString path;
+    QString filePath;
+    QString fileName;
     // tag info
     QString title;
     QString artist;
@@ -94,7 +95,9 @@ public:
         ArtistRole,
         AlbumRole,
         CommentRole,
-        GenreRole
+        GenreRole,
+        FilePathRole,
+        FileNameRole
     };
 
 public slots:

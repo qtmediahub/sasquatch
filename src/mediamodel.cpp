@@ -40,6 +40,8 @@ MediaModel::MediaModel(const QString &mediaPath, QObject *parent)
     roleNames[AlbumRole] = "album";
     roleNames[CommentRole] = "comment";
     roleNames[GenreRole] = "genre";
+    roleNames[FilePathRole] = "filePath";
+    roleNames[FileNameRole] = "fileName";
     setRoleNames(roleNames);
 
     m_thread = new MediaModelThread(this);
@@ -103,6 +105,10 @@ QVariant MediaModel::data(const QModelIndex &index, int role) const
         return info.comment;
     } else if (role == GenreRole) {
         return info.genre;
+    } else if (role == FilePathRole) {
+        return info.filePath;
+    } else if (role == FileNameRole) {
+        return info.fileName;
     } else {
         return QVariant();
     }
@@ -184,8 +190,9 @@ void MediaModelThread::run()
     QDirIterator it(m_model->mediaPath(), QDir::Files | QDir::NoDotAndDotDot, QDirIterator::Subdirectories);
     while (it.hasNext()) {
         MediaInfo info;
-        info.path = it.next();
-        QByteArray fileName = QFile::encodeName(info.path);
+        info.filePath = it.next();
+        info.fileName = it.fileName();
+        QByteArray fileName = QFile::encodeName(info.filePath);
         
         TagLib::FileRef fileRef(fileName.constData());
         if (fileRef.isNull()) {
