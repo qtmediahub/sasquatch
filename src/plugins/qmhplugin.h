@@ -38,6 +38,7 @@ class QMHPlugin : public QObject
     Q_PROPERTY(QString name READ name WRITE setName NOTIFY pluginChanged)
     Q_PROPERTY(bool browseable READ browseable WRITE setBrowseable NOTIFY pluginChanged)
     Q_PROPERTY(QString role READ role WRITE setRole NOTIFY pluginChanged)
+    Q_PROPERTY(QList<QObject*> childItems READ childItems NOTIFY pluginChanged)
 public:
     QMHPlugin(QMHPluginInterface *interface = new GenericPlugin(), QObject *parent = 0)
         : QObject(parent)
@@ -52,6 +53,8 @@ public:
 
     QString role() const { return mInterface->role(); }
     void setRole(const QString &role) { mInterface->setRole(role); }
+
+    QList<QObject*> childItems() const { return mInterface->childItems(); }
 
 signals:
     void pluginChanged();

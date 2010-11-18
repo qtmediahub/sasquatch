@@ -1,6 +1,8 @@
 #ifndef QMHPLUGININTERFACE_H
 #define QMHPLUGININTERFACE_H
 
+#include <QObject>
+
 class QMHPluginInterface
 {
 public:
@@ -10,6 +12,7 @@ public:
     virtual QString role() const = 0;
     //Please note this property indicates that an items models can be populated
     virtual bool browseable() const { return false; }
+    virtual QList<QObject*> childItems() const { return QList<QObject*>(); }
 
     //Only make sense for skin specific plugins
     virtual void setName(const QString &name) { Q_UNUSED(name) }
