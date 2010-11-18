@@ -24,6 +24,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QList>
 
 class BackendPrivate;
+class QMHPlugin;
 
 class Backend : public QObject
 {
@@ -40,6 +41,7 @@ public:
     QString skinPath() const;
     QString pluginPath() const;
     QString resourcePath() const;
+    Q_INVOKABLE void registerEngine(QMHPlugin *engine);
 
 signals:
     void skinPathChanged();

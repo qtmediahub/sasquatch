@@ -60,6 +60,7 @@ Backend::Backend(QObject *parent)
 {
     // register dataproviders to QML
     qmlRegisterType<FolderModel>("FolderModel", 1, 0, "FolderModel");
+    qmlRegisterType<QMHPlugin>("QMHPlugin", 1, 0, "QMHPlugin");
 
     discoverEngines();
 }
@@ -102,4 +103,9 @@ QString Backend::pluginPath() const {
 
 QString Backend::resourcePath() const {
     return d->resourcePath;
+}
+
+void Backend::registerEngine(QMHPlugin *engine) {
+    d->engines << engine;
+    emit enginesChanged();
 }
