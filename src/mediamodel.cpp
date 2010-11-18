@@ -85,23 +85,24 @@ QVariant MediaModel::data(const QModelIndex &index, int role) const
     if (!index.isValid())
         return QVariant();
 
+    const MediaInfo &info = m_mediaInfos[index.row()];
     if (role == Qt::DisplayRole) {
-        return m_mediaInfos[index.row()].path;
+        return info.title + QLatin1String(" (") + info.album + QLatin1String(")");
     } else if (role == Qt::DecorationRole) {
         QPixmap pixmap;
-        if (!QPixmapCache::find(m_mediaInfos[index.row()].frontCoverPixmapKey, &pixmap)) {
-            pixmap = QPixmap::fromImage(m_mediaInfos[index.row()].frontCover);
-            m_mediaInfos[index.row()].frontCoverPixmapKey = QPixmapCache::insert(pixmap);
+        if (!QPixmapCache::find(info.frontCoverPixmapKey, &pixmap)) {
+            pixmap = QPixmap::fromImage(info.frontCover);
+            info.frontCoverPixmapKey = QPixmapCache::insert(pixmap);
         }
         return pixmap;
     } else if (role == TitleRole) {
-        return m_mediaInfos[index.row()].title;
+        return info.title;
     } else if (role == AlbumRole) {
-        return m_mediaInfos[index.row()].album;
+        return info.album;
     } else if (role == CommentRole) {
-        return m_mediaInfos[index.row()].comment;
+        return info.comment;
     } else if (role == GenreRole) {
-        return m_mediaInfos[index.row()].genre;
+        return info.genre;
     } else {
         return QVariant();
     }
