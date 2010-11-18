@@ -8,6 +8,7 @@ public:
     virtual QString name() const = 0;
     //Fixme: roles should be a constrained enumeration
     virtual QString role() const = 0;
+    //Please note this property indicates that an items models can be populated
     virtual bool browseable() const { return false; }
 };
 

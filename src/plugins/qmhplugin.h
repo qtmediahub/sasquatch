@@ -5,6 +5,18 @@
 
 #include "qmhplugininterface.h"
 
+class GenericPlugin : public QObject, public QMHPluginInterface
+{
+    Q_OBJECT
+    Q_INTERFACES(QMHPluginInterface)
+
+public:
+    ~GenericPlugin() {}
+    QString name() const { return tr("Skin specific plugin"); }
+    bool browseable() const { return false; }
+    QString role() const { return "generic"; }
+};
+
 class QMHPlugin : public QObject
 {
     Q_OBJECT
@@ -12,7 +24,7 @@ class QMHPlugin : public QObject
     Q_PROPERTY(bool browseable READ browseable NOTIFY pluginChanged)
     Q_PROPERTY(QString role READ role NOTIFY pluginChanged)
 public:
-    QMHPlugin(QMHPluginInterface *interface, QObject *parent = 0)
+    QMHPlugin(QMHPluginInterface *interface = new GenericPlugin(), QObject *parent = 0)
         : QObject(parent)
         , mInterface(interface)
     {}
