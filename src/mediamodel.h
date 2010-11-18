@@ -23,6 +23,7 @@
 #include <QAbstractListModel>
 #include <QImage>
 #include <QPixmap>
+#include <QPixmapCache>
 #include <QRunnable>
 #include <QList>
 
@@ -45,6 +46,7 @@ struct MediaInfo
     int  channels;
     // cover art
     QImage frontCover;
+    mutable QPixmapCache::Key frontCoverPixmapKey;
 };
 
 class MediaModel;

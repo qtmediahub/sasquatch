@@ -88,7 +88,12 @@ QVariant MediaModel::data(const QModelIndex &index, int role) const
     if (role == Qt::DisplayRole) {
         return m_mediaInfos[index.row()].path;
     } else if (role == Qt::DecorationRole) {
-        return m_mediaInfos[index.row()].frontCover;
+        QPixmap pixmap;
+        if (!QPixmapCache::find(m_mediaInfos[index.row()].frontCoverPixmapKey, &pixmap)) {
+            pixmap = QPixmap::fromImage(m_mediaInfos[index.row()].frontCover);
+            m_mediaInfos[index.row()].frontCoverPixmapKey = QPixmapCache::insert(pixmap);
+        }
+        return pixmap;
     } else if (role == TitleRole) {
         return m_mediaInfos[index.row()].title;
     } else if (role == AlbumRole) {
