@@ -19,6 +19,7 @@
 
 #include "mediamodel.h"
 #include <QDirIterator>
+#include <QThreadPool>
 #include <QTimer>
 #include <QtDebug>
 
@@ -28,43 +29,27 @@
 #include <taglib/mpeg/id3v2/id3v2tag.h>
 #include <taglib/mpeg/id3v2/frames/attachedpictureframe.h>
 
-MediaModel::MediaModel(QObject *parent)
-    : QAbstractItemModel(parent)
-{
-    m_mediaPath = QDir::currentPath();
-    QTimer::singleShot(0, this, SLOT(update()));
-    init();
-}
-
 MediaModel::MediaModel(const QString &mediaPath, QObject *parent)
     : QAbstractItemModel(parent),
       m_mediaPath(mediaPath)
 {
-    QTimer::singleShot(0, this, SLOT(update()));
-    init();
-}
+    qRegisterMetaType<MediaInfo>("MediaInfo");
 
-MediaModel::~MediaModel()
-{
-}
-
-void MediaModel::init()
-{
     QHash<int, QByteArray> roleNames;
     roleNames[TitleRole] = "title";
     roleNames[AlbumRole] = "album";
     roleNames[CommentRole] = "comment";
     roleNames[GenreRole] = "genre";
     setRoleNames(roleNames);
+
+    m_thread = new MediaModelThread(this);
+    QThreadPool::globalInstance()->start(m_thread);
+    connect(m_thread, SIGNAL(mediaFound(MediaInfo)), this, SLOT(addMedia(MediaInfo)));
 }
 
-void MediaModel::setMediaPath(const QString &newPath)
+MediaModel::~MediaModel()
 {
-    if (newPath == m_mediaPath)
-        return;
-    m_mediaPath = newPath;
-    update();
-    emit mediaPathChanged();
+    delete m_thread;
 }
 
 QString MediaModel::mediaPath() const
@@ -117,6 +102,13 @@ QVariant MediaModel::data(const QModelIndex &index, int role) const
     }
 }
 
+void MediaModel::addMedia(const MediaInfo &media)
+{
+    beginInsertRows(QModelIndex(), m_mediaInfos.count(), m_mediaInfos.count()+1);
+    m_mediaInfos.append(media);
+    endInsertRows();
+}
+
 static inline QString fromTagString(const TagLib::String &string)
 {
     return QString::fromStdWString(string.toWString());
@@ -167,14 +159,23 @@ static void populateFrontCover(MediaInfo *info, TagLib::ID3v2::Tag *id3v2Tag)
 
     QByteArray imageData(selectedFrame->picture().data(), selectedFrame->picture().size());
     QImage attachedImage = QImage::fromData(imageData);
-    info->frontCover = QPixmap::fromImage(attachedImage);
+    // ## scale as necessary
+    info->frontCover = attachedImage;
 }
 
-void MediaModel::update()
+MediaModelThread::MediaModelThread(MediaModel *model)
+    : m_model(model)
 {
-    beginResetModel();
-    m_mediaInfos.clear();
-    QDirIterator it(m_mediaPath, QDir::Files | QDir::NoDotAndDotDot, QDirIterator::Subdirectories);
+}
+
+MediaModelThread::~MediaModelThread()
+{
+}
+
+void MediaModelThread::run()
+{
+    emit started();
+    QDirIterator it(m_model->mediaPath(), QDir::Files | QDir::NoDotAndDotDot, QDirIterator::Subdirectories);
     while (it.hasNext()) {
         MediaInfo info;
         info.path = it.next();
@@ -199,8 +200,9 @@ void MediaModel::update()
                 populateFrontCover(&info, id3v2Tag);
         }
 
-        m_mediaInfos.append(info);
-    }
-    endResetModel();
+        emit mediaFound(info);
+   }
+
+    emit finished();
 }
 

@@ -23,6 +23,7 @@
 #include <QAbstractListModel>
 #include <QImage>
 #include <QPixmap>
+#include <QRunnable>
 #include <QList>
 
 struct MediaInfo 
@@ -43,16 +44,37 @@ struct MediaInfo
     int  sampleRate;
     int  channels;
     // cover art
-    QPixmap frontCover;
+    QImage frontCover;
+};
+
+class MediaModel;
+
+class MediaModelThread : public QObject, public QRunnable
+{
+    Q_OBJECT
+
+public:
+    MediaModelThread(MediaModel *model);
+    ~MediaModelThread();
+
+    void run();
+
+signals:
+    void started();
+    void mediaFound(const MediaInfo &info);
+    void finished();
+
+private:
+    MediaModel *m_model;
 };
 
 class MediaModel : public QAbstractItemModel
 {
     Q_OBJECT
-    Q_PROPERTY(QString mediaPath READ mediaPath WRITE setMediaPath NOTIFY mediaPathChanged)
+
+    Q_PROPERTY(QString mediaPath READ mediaPath)
 
 public:
-    explicit MediaModel(QObject *parent = 0);
     MediaModel(const QString &mediaPath, QObject *parent = 0);
     ~MediaModel();
 
@@ -64,7 +86,6 @@ public:
     int columnCount(const QModelIndex &idx) const;
 
     QString mediaPath() const;
-    void setMediaPath(const QString &mediaPath);
 
     enum CustomRoles {
         TitleRole = Qt::UserRole + 1,
@@ -74,17 +95,18 @@ public:
         GenreRole
     };
 
+public slots:
+    void addMedia(const MediaInfo &media);
+
 signals:
     void mediaPathChanged();
-
-private slots:
-    void update();
 
 private:
     void init();
 
     QString m_mediaPath;
     QList<MediaInfo> m_mediaInfos;
+    MediaModelThread *m_thread;
 };
 
 #endif // MEDIAMODEL_H
