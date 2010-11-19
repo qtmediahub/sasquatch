@@ -15,7 +15,8 @@ public:
           QMHPluginInterface(),
           mName("Skin Plugin"),
           mBrowseable(false),
-          mRole("undefined") { /* */ }
+          mRole("undefined"),
+          mVisualElement(0) { /* */ }
     ~GenericPlugin() {}
     
     QString name() const { return mName; }
@@ -26,10 +27,15 @@ public:
 
     QString role() const { return mRole; }
     void setRole(const QString &role) { mRole = role; }
+
+    QObject* visualElement() const { return mVisualElement; }
+    void setVisualElement(QObject *element) { mVisualElement = element; }
+
 private:
     QString mName;
     bool mBrowseable;
     QString mRole;
+    QObject *mVisualElement;
 };
 
 class QMHPlugin : public QObject
@@ -39,6 +45,7 @@ class QMHPlugin : public QObject
     Q_PROPERTY(bool browseable READ browseable WRITE setBrowseable NOTIFY pluginChanged)
     Q_PROPERTY(QString role READ role WRITE setRole NOTIFY pluginChanged)
     Q_PROPERTY(QList<QObject*> childItems READ childItems NOTIFY pluginChanged)
+    Q_PROPERTY(QObject* visualElement READ visualElement WRITE setVisualElement NOTIFY pluginChanged)
 public:
     QMHPlugin(QMHPluginInterface *interface = new GenericPlugin(), QObject *parent = 0)
         : QObject(parent)
@@ -55,6 +62,9 @@ public:
     void setRole(const QString &role) { mInterface->setRole(role); }
 
     QList<QObject*> childItems() const { return mInterface->childItems(); }
+
+    QObject* visualElement() const { return mInterface->visualElement(); }
+    void setVisualElement(QObject *element) { mInterface->setVisualElement(element); }
 
 signals:
     void pluginChanged();

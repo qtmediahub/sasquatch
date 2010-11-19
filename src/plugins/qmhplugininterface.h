@@ -7,12 +7,15 @@ class QMHPluginInterface
 {
 public:
     virtual ~QMHPluginInterface() { /* */ }
-    virtual QString name() const = 0;
+    virtual QString name() const { return "Uninitialized plugin name"; }
     //Fixme: roles should be a constrained enumeration
-    virtual QString role() const = 0;
+    virtual QString role() const { return "Undefined"; }
     //Please note this property indicates that an items models can be populated
     virtual bool browseable() const { return false; }
     virtual QList<QObject*> childItems() const { return QList<QObject*>(); }
+
+    virtual QObject* visualElement() const { return 0; }
+    virtual void setVisualElement(QObject *element) { Q_UNUSED(element) }
 
     //Only make sense for skin specific plugins
     virtual void setName(const QString &name) { Q_UNUSED(name) }
