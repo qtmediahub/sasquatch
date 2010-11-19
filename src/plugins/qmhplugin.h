@@ -23,6 +23,7 @@ public:
     void setName(const QString &name) { mName = name; }
 
     bool browseable() const { return mBrowseable; }
+
     void setBrowseable(bool browseable) { mBrowseable = browseable; }
 
     QString role() const { return mRole; }
@@ -32,7 +33,12 @@ public:
     void setVisualElement(QObject *element) { mVisualElement = element; }
 
     QStringList visualElementProperties() const { return mVisualElementProperties; }
-    void setVisualElementProperties(const QStringList& properties) { mVisualElementProperties = properties; }
+    void setVisualElementProperties(const QStringList& properties) {
+        mVisualElementProperties = properties;
+        //Must be property/value pairs
+        if(mVisualElementProperties.size() % 2)
+            mVisualElementProperties.removeLast();
+    }
 
 private:
     QString mName;
