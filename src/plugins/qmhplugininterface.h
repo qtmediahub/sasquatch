@@ -2,6 +2,7 @@
 #define QMHPLUGININTERFACE_H
 
 #include <QObject>
+#include <QStringList>
 
 class QMHPluginInterface
 {
@@ -16,6 +17,9 @@ public:
 
     virtual QObject* visualElement() const { return 0; }
     virtual void setVisualElement(QObject *element) { Q_UNUSED(element) }
+
+    virtual QStringList visualElementProperties() const { return QStringList(); }
+    virtual void setVisualElementProperties(const QStringList& properties) { Q_UNUSED(properties); }
 
     //Only make sense for skin specific plugins
     virtual void setName(const QString &name) { Q_UNUSED(name) }

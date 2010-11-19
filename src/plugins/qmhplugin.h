@@ -31,11 +31,15 @@ public:
     QObject* visualElement() const { return mVisualElement; }
     void setVisualElement(QObject *element) { mVisualElement = element; }
 
+    QStringList visualElementProperties() const { return mVisualElementProperties; }
+    void setVisualElementProperties(const QStringList& properties) { mVisualElementProperties = properties; }
+
 private:
     QString mName;
     bool mBrowseable;
     QString mRole;
     QObject *mVisualElement;
+    QStringList mVisualElementProperties;
 };
 
 class QMHPlugin : public QObject
@@ -46,6 +50,7 @@ class QMHPlugin : public QObject
     Q_PROPERTY(QString role READ role WRITE setRole NOTIFY pluginChanged)
     Q_PROPERTY(QList<QObject*> childItems READ childItems NOTIFY pluginChanged)
     Q_PROPERTY(QObject* visualElement READ visualElement WRITE setVisualElement NOTIFY pluginChanged)
+    Q_PROPERTY(QStringList visualElementProperties READ visualElementProperties WRITE setVisualElementProperties NOTIFY pluginChanged)
 public:
     QMHPlugin(QMHPluginInterface *interface = new GenericPlugin(), QObject *parent = 0)
         : QObject(parent)
@@ -65,6 +70,9 @@ public:
 
     QObject* visualElement() const { return mInterface->visualElement(); }
     void setVisualElement(QObject *element) { mInterface->setVisualElement(element); }
+
+    QStringList visualElementProperties() const { return mInterface->visualElementProperties(); }
+    void setVisualElementProperties(const QStringList& properties) { mInterface->setVisualElementProperties(properties); }
 
 signals:
     void pluginChanged();
