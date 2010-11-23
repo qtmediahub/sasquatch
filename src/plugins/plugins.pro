@@ -5,4 +5,5 @@ SUBDIRS = music \
           picture \
           scripts \
           programs \
-          system
+          system \
+          dashboard

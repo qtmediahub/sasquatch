@@ -69,14 +69,16 @@ void Backend::discoverEngines()
 {
     foreach(const QString fileName, QDir(pluginPath()).entryList(QDir::Files)) {
         QString qualifiedFileName(pluginPath() + "/" + fileName);
-        QPluginLoader plugin(qualifiedFileName);
-        if(plugin.load()
-           && qobject_cast<QMHPluginInterface*>(plugin.instance())) {
-            d->engines << new QMHPlugin(qobject_cast<QMHPluginInterface*>(plugin.instance()), this);
+        QPluginLoader pluginLoader(qualifiedFileName);
+        if(pluginLoader.load()
+           && qobject_cast<QMHPluginInterface*>(pluginLoader.instance())) {
+            QMHPlugin *plugin = new QMHPlugin(qobject_cast<QMHPluginInterface*>(pluginLoader.instance()), this);
+            plugin->registerPlugin();
+            d->engines << plugin;
             emit enginesChanged();
         }
         else
-            qDebug() << "Invalid plugin present" << qualifiedFileName << plugin.errorString();
+            qDebug() << "Invalid plugin present" << qualifiedFileName << pluginLoader.errorString();
     }
 }
 
@@ -108,4 +110,12 @@ QString Backend::resourcePath() const {
 void Backend::registerEngine(QMHPlugin *engine) {
     d->engines << engine;
     emit enginesChanged();
+}
+
+QObject* Backend::engine(const QString &role) {
+    foreach(QObject *currentEngine, d->engines )
+        if(qobject_cast<QMHPlugin*>(currentEngine)->role() == role)
+            return currentEngine;
+    qWarning() << "Seeking a non-existant plugin, prepare to die";
+    return 0;
 }

@@ -14,16 +14,11 @@ class Dashboard : public QDeclarativeItem
 
 public:
     explicit Dashboard(QDeclarativeItem *parent = 0);
-signals:
-
-public slots:
-
-public:
-  QString widgetPath() const { return mWidgetPath; }
-  void setWidgetPath(const QString &path) { mWidgetPath = path; }
-  Q_INVOKABLE QStringList discoverWidgets();
+    QString widgetPath() const { return mWidgetPath; }
+    void setWidgetPath(const QString &path) { mWidgetPath = path; }
+    Q_INVOKABLE QStringList discoverWidgets();
 private:
-  QString mWidgetPath;
+    QString mWidgetPath;
 };
 
 #endif // DASHBOARD_H

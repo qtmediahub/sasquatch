@@ -29,6 +29,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QDeclarativeView>
 #include <QDeclarativeEngine>
 #include <QDeclarativeContext>
+#include <QDeclarativeComponent>
 #include <QApplication>
 #include <QTimer>
 #include <QTranslator>
@@ -38,7 +39,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #endif
 
 #include "qmlextensions/customcursor.h"
-#include "qmlextensions/dashboard.h"
 
 struct FrontendPrivate : public QObject
 {
@@ -86,7 +86,6 @@ QWidget* Frontend::loadFrontend(const QUrl &url)
 
     if(targetUrl.path().right(3) == "qml")
     {
-        qmlRegisterType<Dashboard>("Dashboard", 1, 0, "Dashboard");
         qmlRegisterType<CustomCursor>("CustomCursor", 1, 0, "CustomCursor");
 
         QDesktopWidget *desktop = qApp->desktop();

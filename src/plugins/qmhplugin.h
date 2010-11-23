@@ -80,12 +80,14 @@ public:
     QStringList visualElementProperties() const { return mInterface->visualElementProperties(); }
     void setVisualElementProperties(const QStringList& properties) { mInterface->setVisualElementProperties(properties); }
 
+    void registerPlugin() { mInterface->registerPlugin(); }
+    void unregisterPlugin() { mInterface->unregisterPlugin(); }
+
 signals:
     void pluginChanged();
 
 private:
     QMHPluginInterface *mInterface;
-}
-;
+};
 
 #endif // QMHPLUGIN_H

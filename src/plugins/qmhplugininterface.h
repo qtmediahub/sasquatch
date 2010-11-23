@@ -21,6 +21,9 @@ public:
     virtual QStringList visualElementProperties() const { return QStringList(); }
     virtual void setVisualElementProperties(const QStringList& properties) { Q_UNUSED(properties); }
 
+    virtual void registerPlugin() { /**/ }
+    virtual void unregisterPlugin() { /**/ }
+
     //Only make sense for skin specific plugins
     virtual void setName(const QString &name) { Q_UNUSED(name) }
     virtual void setBrowseable(bool browseable) { Q_UNUSED(browseable) }

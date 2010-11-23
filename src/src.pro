@@ -13,8 +13,6 @@ SOURCES += main.cpp \
     frontend.cpp \
     backend.cpp \
     qmlextensions/customcursor.cpp \
-    qmlextensions/dashboard.cpp \
-    plugins/qmhplugin.cpp \
     dataproviders/foldermodel.cpp \
     dataproviders/thumbnailer.cpp
 
@@ -23,7 +21,6 @@ QT += declarative
 HEADERS += frontend.h \
     backend.h \
     qmlextensions/customcursor.h \
-    qmlextensions/dashboard.h \
     plugins/qmhplugininterface.h \
     plugins/qmhplugin.h \
     dataproviders/foldermodel.h \
