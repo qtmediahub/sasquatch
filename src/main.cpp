@@ -52,7 +52,11 @@ int main(int argc, char** argv)
     QApplication app(argc, argv);
 
     Frontend gui(&app);
-    gui.show();
+    if (app.arguments().contains("--no-fullscreen")) {
+        gui.show();
+    } else {
+        gui.showFullScreen();
+    }
 
     return app.exec();
 }

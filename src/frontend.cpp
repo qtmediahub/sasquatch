@@ -67,9 +67,11 @@ Frontend::~Frontend()
 
 QWidget* Frontend::loadFrontend(const QUrl &url)
 {
-    bool visible = false;
-    if(d->widget)
+    bool visible = false, fullScreen = false;
+    if(d->widget) {
         visible = d->widget->isVisible();
+        fullScreen = d->widget->windowState() & Qt::WindowFullScreen;
+    }
 
     delete d->widget;
 
@@ -123,13 +125,25 @@ QWidget* Frontend::loadFrontend(const QUrl &url)
         d->widget = widget;
     }
 
-    if(visible)
-        d->widget->showFullScreen();
+    if(visible) {
+        if (fullScreen)
+            d->widget->showFullScreen();
+        else
+            d->widget->show();
+    }
 
     return d->widget;
 }
 
 void Frontend::show()
+{
+    if(!d->widget)
+        loadFrontend(QUrl());
+    d->widget->resize(1000, 720);
+    d->widget->show();
+}
+
+void Frontend::showFullScreen()
 {
     if(!d->widget)
         loadFrontend(QUrl());
