@@ -1,5 +1,7 @@
 TEMPLATE = subdirs
 
+CONFIG += ordered
+
 SUBDIRS = music \
           video \
           picture \

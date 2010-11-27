@@ -7,6 +7,9 @@ TEMP_DIR = tmp
 OBJECTS_DIR = $$TEMP_DIR/.obj
 MOC_DIR = $$TEMP_DIR/.moc
 
+QMAKE_LIBDIR += ../hub
+LIBS += -lqmhplugin
+QMAKE_LFLAGS += -Wl,--rpath=.
 
 # Input
 SOURCES += main.cpp \
@@ -21,8 +24,6 @@ QT += declarative
 HEADERS += frontend.h \
     backend.h \
     qmlextensions/customcursor.h \
-    plugins/qmhplugininterface.h \
-    plugins/qmhplugin.h \
     dataproviders/foldermodel.h \
     dataproviders/thumbnailer.h
 

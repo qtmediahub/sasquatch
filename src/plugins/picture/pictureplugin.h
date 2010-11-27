@@ -3,18 +3,20 @@
 
 #include <QObject>
 
-#include "qmhplugininterface.h"
+#include "qmhplugin.h"
 
-class PicturePlugin : public QObject, public QMHPluginInterface
+class PicturePlugin : public QMHPlugin
 {
     Q_OBJECT
-    Q_INTERFACES(QMHPluginInterface)
+    Q_INTERFACES(QMHPlugin)
 
 public:
+    PicturePlugin() {
+        mName = tr("Pictures");
+        mBrowseable = true;
+        mRole = "pictures";
+    }
     ~PicturePlugin() {}
-    QString name() const { return tr("Pictures"); }
-    bool browseable() const { return true; }
-    QString role() const { return "pictures"; }
 };
 
 #endif // PICTUREPLUGIN_H

@@ -3,24 +3,16 @@
 
 #include <QObject>
 
-#include "qmhplugininterface.h"
+#include "qmhplugin.h"
 
-class MusicPlugin : public QObject, public QMHPluginInterface
+class MusicPlugin : public QMHPlugin
 {
     Q_OBJECT
-    Q_INTERFACES(QMHPluginInterface)
+    Q_INTERFACES(QMHPlugin)
 
 public:
     MusicPlugin();
     ~MusicPlugin() {}
-    QString name() const { return tr("Music"); }
-    bool browseable() const { return true; }
-    QString role() const { return "music"; }
-
-    QList<QObject*> childItems() const;
-
-private:
-    QList<QObject *> m_childItems;
 };
 
 #endif // MUSICPLUGIN_H

@@ -1,4 +1,8 @@
 TEMPLATE = subdirs
 
-SUBDIRS = src \
+CONFIG += ordered
+
+SUBDIRS = src/plugins/qmhplugin \
+          src \
           src/plugins
+

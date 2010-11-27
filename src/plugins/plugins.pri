@@ -5,7 +5,8 @@ CONFIG += plugin
 OBJECTS_DIR=.obj
 MOC_DIR=.moc
 
-INCLUDEPATH += ../
+QMAKE_LFLAGS += -Wl,--rpath=.
+INCLUDEPATH += ../ ../qmhplugin/
 
 HEADERS += \
     ../submenuentry.h

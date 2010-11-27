@@ -18,8 +18,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 ****************************************************************************/
 
 #include "backend.h"
-#include "plugins/qmhplugininterface.h"
-#include "plugins/qmhplugin.h"
+#include "plugins/qmhplugin/qmhplugin.h"
 #include "dataproviders/foldermodel.h"
 
 #include <QDir>
@@ -71,9 +70,8 @@ void Backend::discoverEngines()
         QString qualifiedFileName(pluginPath() + "/" + fileName);
         QPluginLoader pluginLoader(qualifiedFileName);
         if(pluginLoader.load()
-           && qobject_cast<QMHPluginInterface*>(pluginLoader.instance())) {
-            QMHPlugin *plugin = new QMHPlugin(qobject_cast<QMHPluginInterface*>(pluginLoader.instance()), this);
-            plugin->setParent(this);
+           && qobject_cast<QMHPlugin*>(pluginLoader.instance())) {
+            QMHPlugin *plugin = qobject_cast<QMHPlugin*>(pluginLoader.instance());
             plugin->registerPlugin();
             registerEngine(plugin);
         }
@@ -114,8 +112,9 @@ void Backend::registerEngine(QMHPlugin *engine) {
 
 QObject* Backend::engine(const QString &role) {
     foreach(QObject *currentEngine, d->engines )
-        if(qobject_cast<QMHPlugin*>(currentEngine)->role() == role)
-            return currentEngine;
+        if (QMHPlugin *plugin = qobject_cast<QMHPlugin*>(currentEngine))
+            if (plugin->role() == role)
+                return currentEngine;
     qWarning() << "Seeking a non-existant plugin, prepare to die";
     return 0;
 }

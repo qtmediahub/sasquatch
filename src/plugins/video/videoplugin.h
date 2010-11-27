@@ -3,23 +3,16 @@
 
 #include <QObject>
 
-#include "qmhplugininterface.h"
+#include "qmhplugin.h"
 
-class VideoPlugin : public QObject, public QMHPluginInterface
+class VideoPlugin : public QMHPlugin
 {
     Q_OBJECT
-    Q_INTERFACES(QMHPluginInterface)
+    Q_INTERFACES(QMHPlugin)
 
 public:
     VideoPlugin();
     ~VideoPlugin() {}
-    QString name() const { return tr("Videos"); }
-    bool browseable() const { return true; }
-    QString role() const { return "videos"; }
-    QList<QObject*> childItems() const { return mChildItems; }
-
-private:
-    QList<QObject*> mChildItems;
 };
 
 #endif // VIDEOPLUGIN_H

@@ -3,18 +3,20 @@
 
 #include <QObject>
 
-#include "qmhplugininterface.h"
+#include "qmhplugin.h"
 
-class SystemPlugin : public QObject, public QMHPluginInterface
+class SystemPlugin : public QMHPlugin
 {
     Q_OBJECT
-    Q_INTERFACES(QMHPluginInterface)
+    Q_INTERFACES(QMHPlugin)
 
 public:
+    SystemPlugin() {
+        mName = tr("System");
+        mBrowseable = false;
+        mRole = "system";
+    }
     ~SystemPlugin() {}
-    QString name() const { return tr("System"); }
-    bool browseable() const { return false; }
-    QString role() const { return "system"; }
 };
 
 #endif // SYSTEMPLUGIN_H
