@@ -73,9 +73,9 @@ void Backend::discoverEngines()
         if(pluginLoader.load()
            && qobject_cast<QMHPluginInterface*>(pluginLoader.instance())) {
             QMHPlugin *plugin = new QMHPlugin(qobject_cast<QMHPluginInterface*>(pluginLoader.instance()), this);
+            plugin->setParent(this);
             plugin->registerPlugin();
-            d->engines << plugin;
-            emit enginesChanged();
+            registerEngine(plugin);
         }
         else
             qDebug() << "Invalid plugin present" << qualifiedFileName << pluginLoader.errorString();
