@@ -45,6 +45,7 @@ struct FrontendPrivate : public QObject
     Q_OBJECT
 public:
     FrontendPrivate();
+    ~FrontendPrivate();
     QWidget *widget;
     QTranslator frontEndTranslator;
 };
@@ -52,6 +53,12 @@ public:
 FrontendPrivate::FrontendPrivate()
     : widget(0)
 { /**/ }
+
+FrontendPrivate::~FrontendPrivate()
+{
+    delete widget;
+    widget = 0;
+}
 
 Frontend::Frontend(QObject *p)
     : QObject(p),
