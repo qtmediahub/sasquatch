@@ -17,8 +17,8 @@
  *
  * ****************************************************************************/
 
-#ifndef MEDIAMODEL_H
-#define MEDIAMODEL_H
+#ifndef MUSICMODEL_H
+#define MUSICMODEL_H
 
 #include <QAbstractListModel>
 #include <QImage>
@@ -27,9 +27,9 @@
 #include <QRunnable>
 #include <QList>
 
-struct MediaInfo 
+struct MusicInfo 
 {
-    MediaInfo() : year(0), track(0), length(0), bitrate(0), sampleRate(0), channels(0) { }
+    MusicInfo() : year(0), track(0), length(0), bitrate(0), sampleRate(0), channels(0) { }
     QString filePath;
     QString fileName;
     // tag info
@@ -50,36 +50,36 @@ struct MediaInfo
     mutable QPixmapCache::Key frontCoverPixmapKey;
 };
 
-class MediaModel;
+class MusicModel;
 
-class MediaModelThread : public QObject, public QRunnable
+class MusicModelThread : public QObject, public QRunnable
 {
     Q_OBJECT
 
 public:
-    MediaModelThread(MediaModel *model);
-    ~MediaModelThread();
+    MusicModelThread(MusicModel *model);
+    ~MusicModelThread();
 
     void run();
 
 signals:
     void started();
-    void mediaFound(const MediaInfo &info);
+    void musicFound(const MusicInfo &info);
     void finished();
 
 private:
-    MediaModel *m_model;
+    MusicModel *m_model;
 };
 
-class MediaModel : public QAbstractItemModel
+class MusicModel : public QAbstractItemModel
 {
     Q_OBJECT
 
-    Q_PROPERTY(QString mediaPath READ mediaPath)
+    Q_PROPERTY(QString musicPath READ musicPath)
 
 public:
-    MediaModel(const QString &mediaPath, QObject *parent = 0);
-    ~MediaModel();
+    MusicModel(const QString &musicPath, QObject *parent = 0);
+    ~MusicModel();
 
     // reimp
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
@@ -88,7 +88,7 @@ public:
     QModelIndex parent(const QModelIndex &idx) const;
     int columnCount(const QModelIndex &idx) const;
 
-    QString mediaPath() const;
+    QString musicPath() const;
 
     enum CustomRoles {
         TitleRole = Qt::UserRole + 1,
@@ -101,18 +101,18 @@ public:
     };
 
 public slots:
-    void addMedia(const MediaInfo &media);
+    void addMusic(const MusicInfo &music);
 
 signals:
-    void mediaPathChanged();
+    void musicPathChanged();
 
 private:
     void init();
 
-    QString m_mediaPath;
-    QList<MediaInfo> m_mediaInfos;
-    MediaModelThread *m_thread;
+    QString m_musicPath;
+    QList<MusicInfo> m_musicInfos;
+    MusicModelThread *m_thread;
 };
 
-#endif // MEDIAMODEL_H
+#endif // MUSICMODEL_H
 

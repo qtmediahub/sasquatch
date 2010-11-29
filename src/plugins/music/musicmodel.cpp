@@ -17,7 +17,7 @@
  *
  * ****************************************************************************/
 
-#include "mediamodel.h"
+#include "musicmodel.h"
 #include <QDirIterator>
 #include <QThreadPool>
 #include <QTimer>
@@ -29,11 +29,11 @@
 #include <taglib/mpeg/id3v2/id3v2tag.h>
 #include <taglib/mpeg/id3v2/frames/attachedpictureframe.h>
 
-MediaModel::MediaModel(const QString &mediaPath, QObject *parent)
+MusicModel::MusicModel(const QString &musicPath, QObject *parent)
     : QAbstractItemModel(parent),
-      m_mediaPath(mediaPath)
+      m_musicPath(musicPath)
 {
-    qRegisterMetaType<MediaInfo>("MediaInfo");
+    qRegisterMetaType<MusicInfo>("MusicInfo");
 
     QHash<int, QByteArray> roleNames;
     roleNames[TitleRole] = "title";
@@ -44,50 +44,50 @@ MediaModel::MediaModel(const QString &mediaPath, QObject *parent)
     roleNames[FileNameRole] = "fileName";
     setRoleNames(roleNames);
 
-    m_thread = new MediaModelThread(this);
+    m_thread = new MusicModelThread(this);
     QThreadPool::globalInstance()->start(m_thread);
-    connect(m_thread, SIGNAL(mediaFound(MediaInfo)), this, SLOT(addMedia(MediaInfo)));
+    connect(m_thread, SIGNAL(musicFound(MusicInfo)), this, SLOT(addMusic(MusicInfo)));
 }
 
-MediaModel::~MediaModel()
+MusicModel::~MusicModel()
 {
     delete m_thread;
 }
 
-QString MediaModel::mediaPath() const
+QString MusicModel::musicPath() const
 {
-    return m_mediaPath;
+    return m_musicPath;
 }
 
-QModelIndex MediaModel::index(int row, int col, const QModelIndex &parent) const
+QModelIndex MusicModel::index(int row, int col, const QModelIndex &parent) const
 {
-    if (parent.isValid() || row < 0 || row >= m_mediaInfos.count() || col != 0)
+    if (parent.isValid() || row < 0 || row >= m_musicInfos.count() || col != 0)
         return QModelIndex();
     return createIndex(row, 0, 0);
 }
 
-QModelIndex MediaModel::parent(const QModelIndex &idx) const
+QModelIndex MusicModel::parent(const QModelIndex &idx) const
 {
     Q_UNUSED(idx);
     return QModelIndex();
 }
 
-int MediaModel::columnCount(const QModelIndex &idx) const
+int MusicModel::columnCount(const QModelIndex &idx) const
 {
     return idx.isValid() ? 0 : 1;
 }
 
-int MediaModel::rowCount(const QModelIndex &parent) const
+int MusicModel::rowCount(const QModelIndex &parent) const
 {
-    return parent.isValid() ? 0 : m_mediaInfos.count();
+    return parent.isValid() ? 0 : m_musicInfos.count();
 }
 
-QVariant MediaModel::data(const QModelIndex &index, int role) const
+QVariant MusicModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid())
         return QVariant();
 
-    const MediaInfo &info = m_mediaInfos[index.row()];
+    const MusicInfo &info = m_musicInfos[index.row()];
     if (role == Qt::DisplayRole) {
         return info.title + QLatin1String(" (") + info.album + QLatin1String(")");
     } else if (role == Qt::DecorationRole) {
@@ -114,10 +114,10 @@ QVariant MediaModel::data(const QModelIndex &index, int role) const
     }
 }
 
-void MediaModel::addMedia(const MediaInfo &media)
+void MusicModel::addMusic(const MusicInfo &music)
 {
-    beginInsertRows(QModelIndex(), m_mediaInfos.count(), m_mediaInfos.count());
-    m_mediaInfos.append(media);
+    beginInsertRows(QModelIndex(), m_musicInfos.count(), m_musicInfos.count());
+    m_musicInfos.append(music);
     endInsertRows();
 }
 
@@ -126,7 +126,7 @@ static inline QString fromTagString(const TagLib::String &string)
     return QString::fromStdWString(string.toWString());
 }
 
-static void popuplateGenericTagInfo(MediaInfo *info, TagLib::Tag *tag)
+static void popuplateGenericTagInfo(MusicInfo *info, TagLib::Tag *tag)
 {
     info->title = fromTagString(tag->title());
     info->artist = fromTagString(tag->artist());
@@ -137,7 +137,7 @@ static void popuplateGenericTagInfo(MediaInfo *info, TagLib::Tag *tag)
     info->track = tag->track();
 }
 
-static void popuplateAudioProperties(MediaInfo *info, TagLib::AudioProperties *properties)
+static void popuplateAudioProperties(MusicInfo *info, TagLib::AudioProperties *properties)
 {
     info->length = properties->length();
     info->bitrate = properties->bitrate();
@@ -145,7 +145,7 @@ static void popuplateAudioProperties(MediaInfo *info, TagLib::AudioProperties *p
     info->channels = properties->channels();
 }
 
-static void populateFrontCover(MediaInfo *info, TagLib::ID3v2::Tag *id3v2Tag)
+static void populateFrontCover(MusicInfo *info, TagLib::ID3v2::Tag *id3v2Tag)
 {
     TagLib::ID3v2::FrameList frames = id3v2Tag->frameListMap()["APIC"];
     if (frames.isEmpty()) {
@@ -175,21 +175,21 @@ static void populateFrontCover(MediaInfo *info, TagLib::ID3v2::Tag *id3v2Tag)
     info->frontCover = attachedImage;
 }
 
-MediaModelThread::MediaModelThread(MediaModel *model)
+MusicModelThread::MusicModelThread(MusicModel *model)
     : m_model(model)
 {
 }
 
-MediaModelThread::~MediaModelThread()
+MusicModelThread::~MusicModelThread()
 {
 }
 
-void MediaModelThread::run()
+void MusicModelThread::run()
 {
     emit started();
-    QDirIterator it(m_model->mediaPath(), QDir::Files | QDir::NoDotAndDotDot, QDirIterator::Subdirectories);
+    QDirIterator it(m_model->musicPath(), QDir::Files | QDir::NoDotAndDotDot, QDirIterator::Subdirectories);
     while (it.hasNext()) {
-        MediaInfo info;
+        MusicInfo info;
         info.filePath = it.next();
         info.fileName = it.fileName();
         QByteArray fileName = QFile::encodeName(info.filePath);
@@ -206,14 +206,14 @@ void MediaModelThread::run()
         if (TagLib::AudioProperties *audioProperties = file->audioProperties())
             popuplateAudioProperties(&info, audioProperties);
 
-        // Populate media type specific fields
+        // Populate music type specific fields
         if (TagLib::MPEG::File *mpegFile = dynamic_cast<TagLib::MPEG::File *>(file)) {
             TagLib::ID3v2::Tag *id3v2Tag = mpegFile->ID3v2Tag(false);
             if (id3v2Tag)
                 populateFrontCover(&info, id3v2Tag);
         }
 
-        emit mediaFound(info);
+        emit musicFound(info);
    }
 
     emit finished();
