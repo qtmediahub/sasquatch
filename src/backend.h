@@ -42,7 +42,7 @@ public:
     QString pluginPath() const;
     QString resourcePath() const;
     Q_INVOKABLE void registerEngine(QMHPlugin *engine);
-    Q_INVOKABLE QObject* engine(const QString &role);
+    QObject* engine(const QString &role);
 
 signals:
     void skinPathChanged();
