@@ -1,0 +1,14 @@
+QtMediaHub is intended to showcase the versatility of the Qt Development
+Framework, with an emphasis on the functionality delivered by the Qt Quick
+framework
+
+This project resides at:
+
+http://gitorious.org/qtmediahub
+
+The technical notes under:
+
+doc/notes
+
+will be invaluable if you wish to compile/deploy this project and have it
+run optimally on your preferred target.
