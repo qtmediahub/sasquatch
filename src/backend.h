@@ -25,6 +25,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 class BackendPrivate;
 class QMHPlugin;
+class QDeclarativeEngine;
 
 class Backend : public QObject
 {
@@ -35,14 +36,14 @@ class Backend : public QObject
     Q_PROPERTY(QList<QObject*> engines READ engines NOTIFY enginesChanged)
 
 public:
-    void discoverEngines();
-    QList<QObject*> engines() const;
     static Backend *instance();
+    void initialize(QDeclarativeEngine *engine);
+
+    QList<QObject*> engines() const;
     QString skinPath() const;
     QString pluginPath() const;
     QString resourcePath() const;
     Q_INVOKABLE void registerEngine(QMHPlugin *engine);
-    QObject* engine(const QString &role);
 
 signals:
     void skinPathChanged();
@@ -51,6 +52,9 @@ signals:
     void enginesChanged();
 
 private:
+    void discoverEngines();
+    QObject* engine(const QString &role);
+
     explicit Backend(QObject *parent = 0);
     static Backend *pSelf;
     BackendPrivate *d;

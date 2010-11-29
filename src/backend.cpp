@@ -57,11 +57,28 @@ Backend::Backend(QObject *parent)
     : QObject(parent),
       d(new BackendPrivate())
 {
+}
+
+void Backend::initialize(QDeclarativeEngine *qmlEngine)
+{
     // register dataproviders to QML
     qmlRegisterType<FolderModel>("FolderModel", 1, 0, "FolderModel");
     qmlRegisterType<QMHPlugin>("QMHPlugin", 1, 0, "QMHPlugin");
 
     discoverEngines();
+
+    qmlEngine->rootContext()->setContextProperty("backend", this);
+    QSet<QString> allRoles;
+    foreach(QObject *engine, d->engines) {
+        QString role = engine->property("role").toString();
+        if (role.isEmpty())
+            continue;
+        if (allRoles.contains(role)) {
+            qWarning() << "Duplicate engine found for role " << role;
+            continue;
+        }
+        qmlEngine->rootContext()->setContextProperty(role + "Engine", engine);
+    }
 }
 
 void Backend::discoverEngines()

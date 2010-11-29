@@ -125,7 +125,7 @@ QWidget* Frontend::loadFrontend(const QUrl &url)
 #else
         widget->setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
 #endif
-        widget->rootContext()->setContextProperty("backend", Backend::instance());
+        Backend::instance()->initialize(widget->engine());
 
         widget->setSource(targetUrl);
 
