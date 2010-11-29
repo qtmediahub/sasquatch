@@ -3,21 +3,18 @@
 
 #include <QObject>
 
-#include "qmhplugin.h"
+#include "qmhplugininterface.h"
 
-class ScriptsPlugin : public QMHPlugin
+class ScriptsPlugin : public QObject, public QMHPluginInterface
 {
     Q_OBJECT
-    Q_INTERFACES(QMHPlugin)
+    Q_INTERFACES(QMHPluginInterface)
 
 public:
-    ScriptsPlugin() {
-        mName = tr("Scripts");
-        mBrowseable = true;
-        mRole = "scripts";
-    }
-
     ~ScriptsPlugin() {}
+    QString name() const { return tr("Scripts"); }
+    bool browseable() const { return true; }
+    QString role() const { return "scripts"; }
 };
 
 #endif // SCRIPTSPLUGIN_H

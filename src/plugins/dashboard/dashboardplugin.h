@@ -3,26 +3,28 @@
 
 #include <QObject>
 
-#include "qmhplugin.h"
+#include "qmhplugininterface.h"
 #include "dashboard.h"
 
-class DashboardPlugin : public QMHPlugin
+class DashboardPlugin : public QObject, public QMHPluginInterface
 {
     Q_OBJECT
-    Q_INTERFACES(QMHPlugin)
+    Q_INTERFACES(QMHPluginInterface)
 
 public:
-    DashboardPlugin() {
-        mName = tr("Dashboard");
-        mBrowseable = true;
-        mRole = "dashboard";
-    }
     ~DashboardPlugin() {}
+    QString name() const { return tr("Dashboard"); }
+    bool browseable() const { return true; }
+    QString role() const { return "dashboard"; }
+    QList<QObject*> childItems() const { return mChildItems; }
 
-    void registerPlugin() { 
-        qmlRegisterType<Dashboard>("Dashboard", 1, 0, "Dashboard"); 
-        QMHPlugin::registerPlugin();
-    }
+    QObject* visualElement() const { return mVisualElement; }
+    void setVisualElement(QObject *element) { mVisualElement = element; }
+
+    void registerPlugin() { qmlRegisterType<Dashboard>("Dashboard", 1, 0, "Dashboard"); }
+private:
+    QList<QObject*> mChildItems;
+    QObject *mVisualElement;
 };
 
 #endif // DASHBOARDPLUGIN_H

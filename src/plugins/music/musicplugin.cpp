@@ -34,12 +34,15 @@ public:
 
 MusicPlugin::MusicPlugin()
 {
-    mName = tr("Music");
-    mBrowseable = true;
-    mRole = "music";
-    mChildItems << new MusicPluginItem(tr("Files"), this)
-                << new MusicPluginItem(tr("Add-ons"), this)
-                << new MusicPluginItem(tr("Library"), this);
+        m_childItems << new MusicPluginItem(tr("Files"), this)
+                     << new MusicPluginItem(tr("Add-ons"), this)
+                     << new MusicPluginItem(tr("Library"), this);
+
+}
+
+QList<QObject*> MusicPlugin::childItems() const
+{
+    return m_childItems;
 }
 
 Q_EXPORT_PLUGIN2(music, MusicPlugin)
