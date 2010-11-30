@@ -39,6 +39,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #endif
 
 #include "qmlextensions/customcursor.h"
+#include "config.h"
 
 struct FrontendPrivate : public QObject
 {
@@ -85,7 +86,7 @@ QWidget* Frontend::loadFrontend(const QUrl &url)
     QUrl targetUrl;
 
     if(url.isEmpty() || !url.isValid())
-        targetUrl = QUrl::fromLocalFile(Backend::instance()->skinPath() + "/confluence/720p/Confluence.qml");
+        targetUrl = Config::value("defaultSkin", QUrl::fromLocalFile(Backend::instance()->skinPath() + "/confluence/720p/Confluence.qml"));
     else
         targetUrl = url;
 
@@ -99,15 +100,13 @@ QWidget* Frontend::loadFrontend(const QUrl &url)
 
         QDesktopWidget *desktop = qApp->desktop();
 
-        //FIXME: system settings
-        bool scalingAllowed = true;
 
         QDeclarativeView *widget= new QDeclarativeView();
 
-        if(scalingAllowed) {
+        if(Config::isEnabled("scale-ui", false))
             widget->scale(qreal(desktop->width())/1280, qreal(desktop->height())/720);
+        if(Config::isEnabled("smooth-scaling", true))
             widget->setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing);
-        }
 
         widget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
         widget->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
