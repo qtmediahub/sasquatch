@@ -78,6 +78,7 @@ void Backend::initialize(QDeclarativeEngine *qmlEngine)
             qWarning() << "Duplicate engine found for role " << role;
             continue;
         }
+        allRoles.insert(role);
         qmlEngine->rootContext()->setContextProperty(role + "Engine", engine);
     }
 }
