@@ -15,7 +15,8 @@ SOURCES += main.cpp \
     backend.cpp \
     qmlextensions/customcursor.cpp \
     dataproviders/foldermodel.cpp \
-    dataproviders/thumbnailer.cpp
+    dataproviders/thumbnailer.cpp \
+    dataproviders/proxymodel.cpp
 
 QT += declarative
 
@@ -26,7 +27,8 @@ HEADERS += config.h \
     plugins/qmhplugininterface.h \
     plugins/qmhplugin.h \
     dataproviders/foldermodel.h \
-    dataproviders/thumbnailer.h
+    dataproviders/thumbnailer.h \
+    dataproviders/proxymodel.h
 
 glgs {
     CONFIG += gl
