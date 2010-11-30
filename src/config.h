@@ -131,14 +131,9 @@ CONFIG_TYPE(QColor);
 class Config
 {
 public:
-    static void setEnabled(const QString &key, bool on)
+    static void setEnabled(const QString &key, bool on = true)
     {
         Config::setValue(key, on);
-    }
-
-    static inline bool isDisabled(const QString &k, bool defaultValue = false)
-    {
-        return !isEnabled(k, !defaultValue);
     }
 
     static bool isEnabled(const QString &k, bool defaultValue = false)
