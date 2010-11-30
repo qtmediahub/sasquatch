@@ -25,6 +25,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "backend.h"
 #include "frontend.h"
+#include "config.h"
 
 int main(int argc, char** argv)
 {
@@ -50,12 +51,16 @@ int main(int argc, char** argv)
 #endif
 #endif
     QApplication app(argc, argv);
+    app.setApplicationName("qtmediahub");
+    app.setOrganizationName("Nokia");
+
+    Config::init(argc, argv);
 
     Frontend gui(&app);
-    if (app.arguments().contains("--no-fullscreen")) {
-        gui.show();
-    } else {
+    if (Config::isEnabled("start-fullscreen", false)) {
         gui.showFullScreen();
+    } else {
+        gui.show();
     }
 
     return app.exec();

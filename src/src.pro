@@ -10,6 +10,7 @@ MOC_DIR = $$TEMP_DIR/.moc
 
 # Input
 SOURCES += main.cpp \
+    config.cpp \
     frontend.cpp \
     backend.cpp \
     qmlextensions/customcursor.cpp \
@@ -18,7 +19,8 @@ SOURCES += main.cpp \
 
 QT += declarative
 
-HEADERS += frontend.h \
+HEADERS += config.h \
+    frontend.h \
     backend.h \
     qmlextensions/customcursor.h \
     plugins/qmhplugininterface.h \
