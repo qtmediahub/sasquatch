@@ -1,0 +1,2 @@
+#!/bin/sh
+find . -name "*_bob.ts" | xargs sed -e 's/\ type="unfinished">/>Bob/g' -i .bak
