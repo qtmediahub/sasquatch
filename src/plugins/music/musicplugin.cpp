@@ -1,4 +1,5 @@
 #include "musicplugin.h"
+#include "musicmodel.h"
 
 #include <QtPlugin>
 
@@ -34,15 +35,22 @@ public:
 
 MusicPlugin::MusicPlugin()
 {
-        m_childItems << new MusicPluginItem(tr("Files"), this)
-                     << new MusicPluginItem(tr("Add-ons"), this)
-                     << new MusicPluginItem(tr("Library"), this);
+    m_childItems << new MusicPluginItem(tr("Files"), this)
+                 << new MusicPluginItem(tr("Add-ons"), this)
+                 << new MusicPluginItem(tr("Library"), this);
 
+    m_model = new MusicModel("/home/girish/Qt/webruntime/examples/WRTDemo/audio/", this);
 }
 
 QList<QObject*> MusicPlugin::childItems() const
 {
     return m_childItems;
+}
+
+ 
+QObject *MusicPlugin::pluginProperties() const
+{
+    return const_cast<MusicPlugin *>(this);
 }
 
 Q_EXPORT_PLUGIN2(music, MusicPlugin)

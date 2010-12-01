@@ -40,6 +40,8 @@ public:
             mVisualElementProperties.removeLast();
     }
 
+    QObject *pluginProperties() const { return const_cast<GenericPlugin*>(this); }
+
 private:
     QString mName;
     bool mBrowseable;
@@ -57,6 +59,8 @@ class QMHPlugin : public QObject
     Q_PROPERTY(QList<QObject*> childItems READ childItems NOTIFY pluginChanged)
     Q_PROPERTY(QObject* visualElement READ visualElement WRITE setVisualElement NOTIFY pluginChanged)
     Q_PROPERTY(QStringList visualElementProperties READ visualElementProperties WRITE setVisualElementProperties NOTIFY pluginChanged)
+    Q_PROPERTY(QObject* pluginProperties READ pluginProperties NOTIFY pluginChanged)
+
 public:
     QMHPlugin(QMHPluginInterface *interface = new GenericPlugin(), QObject *parent = 0)
         : QObject(parent)
@@ -82,6 +86,8 @@ public:
 
     void registerPlugin() { mInterface->registerPlugin(); }
     void unregisterPlugin() { mInterface->unregisterPlugin(); }
+
+    virtual QObject *pluginProperties() const { return mInterface->pluginProperties(); }
 
 signals:
     void pluginChanged();

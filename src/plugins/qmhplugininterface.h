@@ -30,6 +30,8 @@ public:
     virtual void setBrowseable(bool browseable) { Q_UNUSED(browseable) }
     virtual void setRole(const QString &role) { Q_UNUSED(role) }
 
+    virtual QObject *pluginProperties() const { return 0; }
+
 protected:
     QObject *mVisualElement;
     QStringList mVisualElementProperties;

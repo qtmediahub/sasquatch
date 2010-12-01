@@ -36,6 +36,7 @@ MusicModel::MusicModel(const QString &musicPath, QObject *parent)
     qRegisterMetaType<MusicInfo>("MusicInfo");
 
     QHash<int, QByteArray> roleNames;
+    roleNames[Qt::DisplayRole] = "display";
     roleNames[TitleRole] = "title";
     roleNames[AlbumRole] = "album";
     roleNames[CommentRole] = "comment";

@@ -4,11 +4,13 @@
 #include <QObject>
 
 #include "qmhplugininterface.h"
+#include "musicmodel.h"
 
 class MusicPlugin : public QObject, public QMHPluginInterface
 {
     Q_OBJECT
     Q_INTERFACES(QMHPluginInterface)
+    Q_PROPERTY(QObject *musicModel READ musicModel NOTIFY musicModelChanged)
 
 public:
     MusicPlugin();
@@ -19,8 +21,19 @@ public:
 
     QList<QObject*> childItems() const;
 
+    QObject *pluginProperties() const;
+
+    // accessed from QML
+    QObject *musicModel() const { return m_model; }
+
+signals:
+    void musicModelChanged();
+
+
 private:
     QList<QObject *> m_childItems;
+    MusicModel *m_musicModel;
+    QAbstractItemModel *m_model;
 };
 
 #endif // MUSICPLUGIN_H
