@@ -34,16 +34,15 @@ class Backend : public QObject
     Q_PROPERTY(QString pluginPath READ pluginPath NOTIFY pluginPathChanged)
     Q_PROPERTY(QString resourcePath READ resourcePath NOTIFY resourcePathChanged)
     Q_PROPERTY(QList<QObject*> engines READ engines NOTIFY enginesChanged)
-
 public:
     static Backend *instance();
-    void initialize(QDeclarativeEngine *engine);
+    void initialize(QDeclarativeEngine *engine = 0);
 
     QList<QObject*> engines() const;
     QString skinPath() const;
     QString pluginPath() const;
     QString resourcePath() const;
-    Q_INVOKABLE void registerEngine(QMHPlugin *engine);
+    Q_INVOKABLE void advertizeEngine(QMHPlugin *engine);
 
 signals:
     void skinPathChanged();

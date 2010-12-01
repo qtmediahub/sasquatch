@@ -43,9 +43,12 @@ struct BackendPrivate
           basePath(QCoreApplication::applicationDirPath() + platformOffset),
           skinPath(basePath + "/skins"),
           pluginPath(basePath + "/plugins"),
-          resourcePath(basePath + "/resources") { /* */ }
+          resourcePath(basePath + "/resources"),
+          qmlEngine(0) { /* */ }
 
-    QList<QObject*> engines;
+    QSet<QString> advertizedEngineRoles;
+
+    QList<QObject*> advertizedEngines;
 
     const QString platformOffset;
 
@@ -53,6 +56,7 @@ struct BackendPrivate
     const QString skinPath;
     const QString pluginPath;
     const QString resourcePath;
+    QDeclarativeEngine *qmlEngine;
 };
 
 Backend::Backend(QObject *parent)
@@ -69,21 +73,13 @@ void Backend::initialize(QDeclarativeEngine *qmlEngine)
     qmlRegisterType<ProxyModel>("ProxyModel", 1, 0, "ProxyModel");
     qmlRegisterType<ProxyModelItem>("ProxyModel", 1, 0, "ProxyModelItem");
 
-    discoverEngines();
-
-    qmlEngine->rootContext()->setContextProperty("backend", this);
-    QSet<QString> allRoles;
-    foreach(QObject *engine, d->engines) {
-        QString role = engine->property("role").toString();
-        if (role.isEmpty())
-            continue;
-        if (allRoles.contains(role)) {
-            qWarning() << "Duplicate engine found for role " << role;
-            continue;
-        }
-        allRoles.insert(role);
-        qmlEngine->rootContext()->setContextProperty(role + "Engine", engine);
+    if (qmlEngine) {
+        //FIXME: We are clearly failing to keep the backend Declarative free :p
+        d->qmlEngine = qmlEngine;
+        qmlEngine->rootContext()->setContextProperty("backend", this);
     }
+
+    discoverEngines();
 }
 
 void Backend::discoverEngines()
@@ -96,7 +92,7 @@ void Backend::discoverEngines()
             QMHPlugin *plugin = new QMHPlugin(qobject_cast<QMHPluginInterface*>(pluginLoader.instance()), this);
             plugin->setParent(this);
             plugin->registerPlugin();
-            registerEngine(plugin);
+            advertizeEngine(plugin);
         }
         else
             qDebug() << "Invalid plugin present" << qualifiedFileName << pluginLoader.errorString();
@@ -105,7 +101,7 @@ void Backend::discoverEngines()
 
 QList<QObject*> Backend::engines() const
 {
-    return d->engines;
+    return d->advertizedEngines;
 }
 
 Backend* Backend::instance()
@@ -128,13 +124,23 @@ QString Backend::resourcePath() const {
     return d->resourcePath;
 }
 
-void Backend::registerEngine(QMHPlugin *engine) {
-    d->engines << engine;
+void Backend::advertizeEngine(QMHPlugin *engine) {
+    QString role = engine->property("role").toString();
+    if (role.isEmpty())
+        return;
+    if (d->advertizedEngineRoles.contains(role)) {
+        qWarning() << "Duplicate engine found for role " << role;
+        return;
+    }
+    d->advertizedEngines << engine;
+    if(d->qmlEngine)
+        d->qmlEngine->rootContext()->setContextProperty(role + "Engine", engine);
+    d->advertizedEngineRoles << role;
     emit enginesChanged();
 }
 
 QObject* Backend::engine(const QString &role) {
-    foreach(QObject *currentEngine, d->engines )
+    foreach(QObject *currentEngine, d->advertizedEngines )
         if(qobject_cast<QMHPlugin*>(currentEngine)->role() == role)
             return currentEngine;
     qWarning() << "Seeking a non-existant plugin, prepare to die";
