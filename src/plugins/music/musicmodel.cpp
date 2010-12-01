@@ -150,7 +150,7 @@ static void populateFrontCover(MusicInfo *info, TagLib::ID3v2::Tag *id3v2Tag)
 {
     TagLib::ID3v2::FrameList frames = id3v2Tag->frameListMap()["APIC"];
     if (frames.isEmpty()) {
-        qDebug() << "No front cover";
+        //qDebug() << "No front cover";
         return;
     }
 
