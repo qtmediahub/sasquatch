@@ -56,6 +56,8 @@ FrontendPrivate::FrontendPrivate()
 
 FrontendPrivate::~FrontendPrivate()
 {
+    if(widget)
+        Config::setValue("windowGeometry", widget->geometry());
     delete widget;
     widget = 0;
 }
@@ -142,7 +144,7 @@ void Frontend::show()
 {
     if(!d->widget)
         loadFrontend(QUrl());
-    d->widget->resize(1000, 720);
+    d->widget->setGeometry(Config::value("windowGeometry", QRect(0, 0, 1080, 720)));
     d->widget->show();
 }
 
