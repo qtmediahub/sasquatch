@@ -69,7 +69,7 @@ MusicPlugin::MusicPlugin()
                  << new MusicPluginItem(tr("Add-ons"), this)
                  << new MusicPluginItem(tr("Library"), this);
 
-    m_model = new MusicModel("/home/girish/research/qtmediahub/hub/", this);
+    m_model = new MusicModel(this);
 }
 
 QList<QObject*> MusicPlugin::childItems() const

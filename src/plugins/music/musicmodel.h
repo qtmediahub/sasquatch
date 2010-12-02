@@ -64,12 +64,14 @@ public:
     void run();
 
     void stop();
+
 signals:
     void started();
-    void musicFound(const MusicInfo &info);
+    void musicFound(int row, const MusicInfo &info);
     void finished();
 
 private:
+    void searchIn(int row, const QString &searchPath);
     MusicModel *m_model;
     bool m_stop;
 };
@@ -78,10 +80,8 @@ class MusicModel : public QAbstractItemModel
 {
     Q_OBJECT
 
-    Q_PROPERTY(QString musicPath READ musicPath)
-
 public:
-    MusicModel(const QString &musicPath, QObject *parent = 0);
+    MusicModel(QObject *parent = 0);
     ~MusicModel();
 
     // reimp
@@ -91,7 +91,6 @@ public:
     QModelIndex parent(const QModelIndex &idx) const;
     int columnCount(const QModelIndex &idx) const;
 
-    QString musicPath() const;
     QPixmap decorationPixmap(const QString &path, QSize *size, const QSize &requestedSize);
     QImage decorationImage(const QString &path, QSize *size, const QSize &requestedSize);
 
@@ -106,12 +105,17 @@ public:
         DecorationUrlRole
     };
 
+    // callable from QML
     Q_INVOKABLE void setThemeResourcePath(const QString &themePath);
-    Q_INVOKABLE void start();
-    Q_INVOKABLE void stop();
+    Q_INVOKABLE void addSearchPath(const QString &musicPath, const QString &name);
 
+    void dump();
 public slots:
-    void addMusic(const MusicInfo &music);
+    void start();
+    void stop();
+
+private slots:
+    void addMusic(int row, const MusicInfo &music);
 
 signals:
     void musicPathChanged();
@@ -119,13 +123,21 @@ signals:
 private:
     void init();
     QPixmap decorationPixmap(MusicInfo *info) const;
-    QString m_musicPath;
-    QList<MusicInfo> m_musicInfos;
-    QHash<QString, int> m_pathToIndex;
+    struct Data {
+        Data(const QString &sp, const QString &name) : searchPath(sp), name(name) { }
+        QString searchPath;
+        QString name;
+        QImage dirImage;
+        QPixmapCache::Key dirImageKey;
+        QList<MusicInfo *> musicInfos;
+    };
+    QList<Data *> m_data;
+    QHash<QString, MusicInfo *> m_pathToMusicInfo;
     MusicModelThread *m_thread;
     QString m_themePath;
     QImage m_fanartFallbackImage;
     mutable QPixmapCache::Key m_fanartFallbackKey;
+    friend class MusicModelThread;
 };
 
 #endif // MUSICMODEL_H

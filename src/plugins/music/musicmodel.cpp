@@ -29,9 +29,8 @@
 #include <taglib/mpeg/id3v2/id3v2tag.h>
 #include <taglib/mpeg/id3v2/frames/attachedpictureframe.h>
 
-MusicModel::MusicModel(const QString &musicPath, QObject *parent)
+MusicModel::MusicModel(QObject *parent)
     : QAbstractItemModel(parent),
-      m_musicPath(musicPath),
       m_thread(0)
 {
     qRegisterMetaType<MusicInfo>("MusicInfo");
@@ -50,6 +49,9 @@ MusicModel::MusicModel(const QString &musicPath, QObject *parent)
 
 MusicModel::~MusicModel()
 {
+    for (int i = 0; i < m_data.count(); i++)
+        qDeleteAll(m_data[i]->musicInfos);
+    qDeleteAll(m_data);
     delete m_thread;
 }
 
@@ -57,7 +59,7 @@ void MusicModel::start()
 {
     m_thread = new MusicModelThread(this);
     QThreadPool::globalInstance()->start(m_thread);
-    connect(m_thread, SIGNAL(musicFound(MusicInfo)), this, SLOT(addMusic(MusicInfo)));
+    connect(m_thread, SIGNAL(musicFound(int, MusicInfo)), this, SLOT(addMusic(int, MusicInfo)));
 }
 
 void MusicModel::stop()
@@ -65,32 +67,58 @@ void MusicModel::stop()
     m_thread->stop();
 }
 
-QString MusicModel::musicPath() const
+void MusicModel::addSearchPath(const QString &path, const QString &name)
 {
-    return m_musicPath;
+    beginInsertRows(QModelIndex(), m_data.count(), m_data.count());
+    m_data.append(new Data(path, name));
+    endInsertRows();
 }
 
 QModelIndex MusicModel::index(int row, int col, const QModelIndex &parent) const
 {
-    if (parent.isValid() || row < 0 || row >= m_musicInfos.count() || col != 0)
+    if (col != 0 || row < 0)
         return QModelIndex();
-    return createIndex(row, 0, 0);
+    if (!parent.isValid()) { // top level
+        if (row >= m_data.count())
+            return QModelIndex();
+        return createIndex(row, 0, 0);
+    } else { // first level
+        Data *data = m_data.value(parent.row());
+        if (!data || row >= data->musicInfos.count())
+            return QModelIndex();
+        return createIndex(row, col, data);
+    }
 }
 
 QModelIndex MusicModel::parent(const QModelIndex &idx) const
 {
-    Q_UNUSED(idx);
-    return QModelIndex();
+    if (!idx.isValid())
+        return QModelIndex();
+    if (idx.internalPointer() == 0) // top level
+        return QModelIndex();
+    Data *data = static_cast<Data *>(idx.internalPointer());
+    int loc = m_data.indexOf(data);
+    if (loc == -1)
+        return QModelIndex();
+    return createIndex(loc, 0, 0);
 }
 
 int MusicModel::columnCount(const QModelIndex &idx) const
 {
-    return idx.isValid() ? 0 : 1;
+    Q_UNUSED(idx);
+    return 1;
 }
 
 int MusicModel::rowCount(const QModelIndex &parent) const
 {
-    return parent.isValid() ? 0 : m_musicInfos.count();
+    if (!parent.isValid())
+        return m_data.count();
+    if (parent.internalPointer() == 0) { // top level
+        Data *data = m_data.value(parent.row());
+        return data ? data->musicInfos.count() : 0;
+    } else {
+        return 0;
+    }
 }
 
 QVariant MusicModel::data(const QModelIndex &index, int role) const
@@ -98,35 +126,55 @@ QVariant MusicModel::data(const QModelIndex &index, int role) const
     if (!index.isValid())
         return QVariant();
 
-    MusicInfo &info = (const_cast<MusicModel *>(this))->m_musicInfos[index.row()];
+    if (index.internalPointer() == 0) { // top level
+        Data *data = m_data.value(index.row());
+        if (!data)
+            return QVariant();
+        if (role == Qt::DisplayRole) {
+            return data->name;
+        } else if (role == Qt::DecorationRole) {
+        } else if (role == DecorationUrlRole) {
+        } else if (role == FilePathRole) {
+            return data->searchPath;
+        }
+
+        return QVariant();
+    }
+
+    Data *data = static_cast<Data *>(index.internalPointer());
+    MusicInfo *info = data->musicInfos[index.row()];
     if (role == Qt::DisplayRole) {
-        return info.title + QLatin1String(" (") + info.album + QLatin1String(")");
+        return info->filePath;
+        return info->title + QLatin1String(" (") + info->album + QLatin1String(")");
     } else if (role == Qt::DecorationRole) {
-        return decorationPixmap(&info);
+        return QVariant(); // FIX
+//        return decorationPixmap(info);
     } else if (role == TitleRole) {
-        return info.title;
+        return info->title;
     } else if (role == AlbumRole) {
-        return info.album;
+        return info->album;
     } else if (role == CommentRole) {
-        return info.comment;
+        return info->comment;
     } else if (role == GenreRole) {
-        return info.genre;
+        return info->genre;
     } else if (role == FilePathRole) {
-        return info.filePath;
+        return info->filePath;
     } else if (role == FileNameRole) {
-        return info.fileName;
+        return info->fileName;
     } else if (role == DecorationUrlRole) {
-        return QUrl("image://qtmediahub/musicmodel" + info.filePath);
+        return QUrl("image://qtmediahub/musicmodel" + info->filePath);
     } else {
         return QVariant();
     }
 }
 
-void MusicModel::addMusic(const MusicInfo &music)
+void MusicModel::addMusic(int row, const MusicInfo &music)
 {
-    beginInsertRows(QModelIndex(), m_musicInfos.count(), m_musicInfos.count());
-    m_musicInfos.append(music);
-    m_pathToIndex.insert(music.filePath, m_musicInfos.count()-1);
+    Data *data = m_data[row];
+    beginInsertRows(createIndex(row, 0, 0), data->musicInfos.count(), data->musicInfos.count());
+    MusicInfo *mi = new MusicInfo(music);
+    data->musicInfos.append(mi);
+    m_pathToMusicInfo.insert(mi->filePath, mi);
     endInsertRows();
 }
 
@@ -148,10 +196,10 @@ QPixmap MusicModel::decorationPixmap(MusicInfo *info) const
 QPixmap MusicModel::decorationPixmap(const QString &path, QSize *size, const QSize &requestedSize)
 {
     Q_UNUSED(requestedSize);
-    if (!m_pathToIndex.contains(path))
+    if (!m_pathToMusicInfo.contains(path))
         return QPixmap();
-    int idx = m_pathToIndex[path];
-    QPixmap pix = decorationPixmap(&m_musicInfos[idx]);
+    MusicInfo *info = m_pathToMusicInfo[path];
+    QPixmap pix = decorationPixmap(info);
     *size = pix.size();
     return pix;
 }
@@ -159,10 +207,10 @@ QPixmap MusicModel::decorationPixmap(const QString &path, QSize *size, const QSi
 QImage MusicModel::decorationImage(const QString &path, QSize *size, const QSize &requestedSize)
 {
     Q_UNUSED(requestedSize);
-    if (!m_pathToIndex.contains(path))
+    if (!m_pathToMusicInfo.contains(path))
         return QImage();
-    int idx = m_pathToIndex[path];
-    QImage img = m_musicInfos[idx].frontCover;
+    MusicInfo *info = m_pathToMusicInfo[path];
+    QImage img = info->frontCover;
     if (img.isNull())
         img = m_fanartFallbackImage;
     *size = img.size();
@@ -247,7 +295,19 @@ void MusicModelThread::stop()
 void MusicModelThread::run()
 {
     emit started();
-    QDirIterator it(m_model->musicPath(), QDir::Files | QDir::NoDotAndDotDot, QDirIterator::Subdirectories);
+
+    for (int i = 0; i < m_model->m_data.count(); i++) {
+        searchIn(i, m_model->m_data[i]->searchPath);
+        if (m_stop)
+            break;
+    }
+
+    emit finished();
+}
+
+void MusicModelThread::searchIn(int row, const QString &searchPath)
+{
+    QDirIterator it(searchPath, QDir::Files | QDir::NoDotAndDotDot, QDirIterator::Subdirectories);
     while (!m_stop && it.hasNext()) {
         MusicInfo info;
         info.filePath = it.next();
@@ -273,9 +333,19 @@ void MusicModelThread::run()
                 populateFrontCover(&info, id3v2Tag);
         }
 
-        emit musicFound(info);
+        emit musicFound(row, info);
    }
 
     emit finished();
+}
+
+void MusicModel::dump()
+{
+    qDebug() << m_data.count() << "elements";
+    for (int i = 0; i < m_data.count(); i++) {
+        qDebug() << m_data[i]->searchPath;
+        for(int j = 0; j < m_data[i]->musicInfos.count(); j++)
+            qDebug() << "\t\t" << m_data[i]->musicInfos[j]->filePath;
+    }
 }
 
