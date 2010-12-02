@@ -4,22 +4,22 @@
 <context>
     <name>MusicPlugin</name>
     <message>
-        <location filename="musicplugin.cpp" line="37"/>
+        <location filename="musicplugin.cpp" line="68"/>
         <source>Files</source>
         <translation>Bob</translation>
     </message>
     <message>
-        <location filename="musicplugin.cpp" line="38"/>
+        <location filename="musicplugin.cpp" line="69"/>
         <source>Add-ons</source>
         <translation>Bob</translation>
     </message>
     <message>
-        <location filename="musicplugin.cpp" line="39"/>
+        <location filename="musicplugin.cpp" line="70"/>
         <source>Library</source>
         <translation>Bob</translation>
     </message>
     <message>
-        <location filename="musicplugin.h" line="16"/>
+        <location filename="musicplugin.h" line="20"/>
         <source>Music</source>
         <translation>Bob</translation>
     </message>

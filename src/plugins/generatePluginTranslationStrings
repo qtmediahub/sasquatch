@@ -1,4 +1,4 @@
 #!/bin/sh
 for language in `cat ../../hub/supported_languages`
-do find . -type d -depth 1 | while read i; do lupdate $i -ts $i/"$i"_"$language".ts; done
+do find . -maxdepth 1 -type d | while read i; do lupdate $i -ts $i/"$i"_"$language".ts; done
 done
