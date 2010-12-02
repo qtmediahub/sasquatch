@@ -88,16 +88,11 @@ QVariant MusicModel::data(const QModelIndex &index, int role) const
     if (!index.isValid())
         return QVariant();
 
-    const MusicInfo &info = m_musicInfos[index.row()];
+    MusicInfo &info = (const_cast<MusicModel *>(this))->m_musicInfos[index.row()];
     if (role == Qt::DisplayRole) {
         return info.title + QLatin1String(" (") + info.album + QLatin1String(")");
     } else if (role == Qt::DecorationRole) {
-        QPixmap pixmap;
-        if (!QPixmapCache::find(info.frontCoverPixmapKey, &pixmap)) {
-            pixmap = QPixmap::fromImage(info.frontCover);
-            info.frontCoverPixmapKey = QPixmapCache::insert(pixmap);
-        }
-        return pixmap;
+        return decorationPixmap(&info);
     } else if (role == TitleRole) {
         return info.title;
     } else if (role == AlbumRole) {
@@ -119,7 +114,46 @@ void MusicModel::addMusic(const MusicInfo &music)
 {
     beginInsertRows(QModelIndex(), m_musicInfos.count(), m_musicInfos.count());
     m_musicInfos.append(music);
+    m_pathToIndex.insert(music.filePath, m_musicInfos.count()-1);
     endInsertRows();
+}
+
+QUrl MusicModel::decorationUrl(int index)
+{
+    QString filePath = m_musicInfos.value(index).filePath;
+    return QUrl("image://qtmediahub/musicmodel" + filePath);
+}
+
+QPixmap MusicModel::decorationPixmap(MusicInfo *info) const
+{
+    QPixmap pixmap;
+    if (!QPixmapCache::find(info->frontCoverPixmapKey, &pixmap)) {
+        pixmap = QPixmap::fromImage(info->frontCover);
+        info->frontCoverPixmapKey = QPixmapCache::insert(pixmap);
+    }
+    return pixmap;
+}
+
+QPixmap MusicModel::decorationPixmap(const QString &path, QSize *size, const QSize &requestedSize)
+{
+    Q_UNUSED(requestedSize);
+    if (!m_pathToIndex.contains(path))
+        return QPixmap();
+    int idx = m_pathToIndex[path];
+    QPixmap pix = decorationPixmap(&m_musicInfos[idx]);
+    *size = pix.size();
+    return pix;
+}
+
+QImage MusicModel::decorationImage(const QString &path, QSize *size, const QSize &requestedSize)
+{
+    Q_UNUSED(requestedSize);
+    if (!m_pathToIndex.contains(path))
+        return QImage();
+    int idx = m_pathToIndex[path];
+    QImage img = m_musicInfos[idx].frontCover;
+    *size = img.size();
+    return img;
 }
 
 static inline QString fromTagString(const TagLib::String &string)

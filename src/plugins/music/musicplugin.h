@@ -6,6 +6,8 @@
 #include "qmhplugininterface.h"
 #include "musicmodel.h"
 
+class QDeclarativeContext;
+
 class MusicPlugin : public QObject, public QMHPluginInterface
 {
     Q_OBJECT
@@ -26,14 +28,15 @@ public:
     // accessed from QML
     QObject *musicModel() const { return m_model; }
 
+    void registerPlugin(QDeclarativeContext *context);
 signals:
     void musicModelChanged();
 
-
 private:
     QList<QObject *> m_childItems;
-    MusicModel *m_musicModel;
-    QAbstractItemModel *m_model;
+    MusicModel *m_model;
+
+    friend class ImageProvider;
 };
 
 #endif // MUSICPLUGIN_H

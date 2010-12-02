@@ -1,7 +1,8 @@
 #include "musicplugin.h"
 #include "musicmodel.h"
 
-#include <QtPlugin>
+#include <QtGui>
+#include <QtDeclarative>
 
 class MusicPluginItem : public QObject
 {
@@ -33,13 +34,42 @@ public:
     Files(QObject *parent = 0) : QObject(parent) { }
 };
 
+class ImageProvider : public QDeclarativeImageProvider
+{
+public:
+    ImageProvider(MusicPlugin *plugin) 
+        : QDeclarativeImageProvider(QDeclarativeImageProvider::Pixmap),
+          m_plugin(plugin)
+    {
+    }
+
+    QImage  requestImage(const QString &id, QSize *size, const QSize &requestedSize)
+    {
+        if (id.startsWith("musicmodel")) {
+            return m_plugin->m_model->decorationImage(id.mid(10), size, requestedSize);
+        }
+        return QImage();
+    }
+
+    QPixmap requestPixmap(const QString &id, QSize *size, const QSize &requestedSize)
+    {
+        if (id.startsWith("musicmodel")) {
+            return m_plugin->m_model->decorationPixmap(id.mid(10), size, requestedSize);
+        }
+        return QPixmap();
+    }
+
+private:
+    MusicPlugin *m_plugin;
+};
+
 MusicPlugin::MusicPlugin()
 {
     m_childItems << new MusicPluginItem(tr("Files"), this)
                  << new MusicPluginItem(tr("Add-ons"), this)
                  << new MusicPluginItem(tr("Library"), this);
 
-    m_model = new MusicModel("/home/girish/Qt/webruntime/examples/WRTDemo/audio/", this);
+    m_model = new MusicModel("/home/girish/research/qtmediahub/hub/", this);
 }
 
 QList<QObject*> MusicPlugin::childItems() const
@@ -51,6 +81,11 @@ QList<QObject*> MusicPlugin::childItems() const
 QObject *MusicPlugin::pluginProperties() const
 {
     return const_cast<MusicPlugin *>(this);
+}
+
+void MusicPlugin::registerPlugin(QDeclarativeContext *context)
+{
+    context->engine()->addImageProvider("qtmediahub", new ImageProvider(this));
 }
 
 Q_EXPORT_PLUGIN2(music, MusicPlugin)

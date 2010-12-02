@@ -26,6 +26,7 @@
 #include <QPixmapCache>
 #include <QRunnable>
 #include <QList>
+#include <QUrl>
 
 struct MusicInfo 
 {
@@ -89,6 +90,8 @@ public:
     int columnCount(const QModelIndex &idx) const;
 
     QString musicPath() const;
+    QPixmap decorationPixmap(const QString &path, QSize *size, const QSize &requestedSize);
+    QImage decorationImage(const QString &path, QSize *size, const QSize &requestedSize);
 
     enum CustomRoles {
         TitleRole = Qt::UserRole + 1,
@@ -100,6 +103,8 @@ public:
         FileNameRole
     };
 
+    Q_INVOKABLE QUrl decorationUrl(int index);
+
 public slots:
     void addMusic(const MusicInfo &music);
 
@@ -108,9 +113,10 @@ signals:
 
 private:
     void init();
-
+    QPixmap decorationPixmap(MusicInfo *info) const;
     QString m_musicPath;
     QList<MusicInfo> m_musicInfos;
+    QHash<QString, int> m_pathToIndex;
     MusicModelThread *m_thread;
 };
 
