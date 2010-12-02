@@ -104,6 +104,7 @@ public:
     };
 
     Q_INVOKABLE QUrl decorationUrl(int index);
+    Q_INVOKABLE void setThemeResourcePath(const QString &themePath);
 
 public slots:
     void addMusic(const MusicInfo &music);
@@ -118,6 +119,9 @@ private:
     QList<MusicInfo> m_musicInfos;
     QHash<QString, int> m_pathToIndex;
     MusicModelThread *m_thread;
+    QString m_themePath;
+    QImage m_fanartFallbackImage;
+    mutable QPixmapCache::Key m_fanartFallbackKey;
 };
 
 #endif // MUSICMODEL_H

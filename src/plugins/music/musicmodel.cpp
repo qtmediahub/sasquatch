@@ -127,7 +127,12 @@ QUrl MusicModel::decorationUrl(int index)
 QPixmap MusicModel::decorationPixmap(MusicInfo *info) const
 {
     QPixmap pixmap;
-    if (!QPixmapCache::find(info->frontCoverPixmapKey, &pixmap)) {
+    if (info->frontCover.isNull()) {
+        if (!QPixmapCache::find(m_fanartFallbackKey, &pixmap)) {
+            pixmap = QPixmap::fromImage(m_fanartFallbackImage);
+            m_fanartFallbackKey = QPixmapCache::insert(pixmap);
+        }
+    } else if (!QPixmapCache::find(info->frontCoverPixmapKey, &pixmap)) {
         pixmap = QPixmap::fromImage(info->frontCover);
         info->frontCoverPixmapKey = QPixmapCache::insert(pixmap);
     }
@@ -152,8 +157,17 @@ QImage MusicModel::decorationImage(const QString &path, QSize *size, const QSize
         return QImage();
     int idx = m_pathToIndex[path];
     QImage img = m_musicInfos[idx].frontCover;
+    if (img.isNull())
+        img = m_fanartFallbackImage;
     *size = img.size();
     return img;
+}
+
+void MusicModel::setThemeResourcePath(const QString &themePath)
+{
+    m_themePath = themePath;
+    m_fanartFallbackImage = QImage(m_themePath + "/media/Fanart_Fallback_Music_Small.jpg");
+    reset();
 }
 
 static inline QString fromTagString(const TagLib::String &string)
