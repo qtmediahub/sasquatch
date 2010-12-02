@@ -18,7 +18,7 @@ public:
     bool browseable() const { return true; }
     QString role() const { return ""; }
 
-    void registerPlugin() { qmlRegisterType<CustomCursor>("CustomCursor", 1, 0, "CustomCursor"); }
+    void registerPlugin(QDeclarativeContext *context) { Q_UNUSED(context); qmlRegisterType<CustomCursor>("CustomCursor", 1, 0, "CustomCursor"); }
 };
 
 #endif // CUSTOMCURSORPLUGIN_H

@@ -21,7 +21,7 @@ public:
     QObject* visualElement() const { return mVisualElement; }
     void setVisualElement(QObject *element) { mVisualElement = element; }
 
-    void registerPlugin() { qmlRegisterType<Dashboard>("Dashboard", 1, 0, "Dashboard"); }
+    void registerPlugin(QDeclarativeContext *context) { Q_UNUSED(context); qmlRegisterType<Dashboard>("Dashboard", 1, 0, "Dashboard"); }
 private:
     QList<QObject*> mChildItems;
     QObject *mVisualElement;
