@@ -50,6 +50,8 @@ private:
     QStringList mVisualElementProperties;
 };
 
+class QDeclarativeContext;
+
 class QMHPlugin : public QObject
 {
     Q_OBJECT
@@ -84,8 +86,8 @@ public:
     QStringList visualElementProperties() const { return mInterface->visualElementProperties(); }
     void setVisualElementProperties(const QStringList& properties) { mInterface->setVisualElementProperties(properties); }
 
-    void registerPlugin() { mInterface->registerPlugin(); }
-    void unregisterPlugin() { mInterface->unregisterPlugin(); }
+    void registerPlugin(QDeclarativeContext *context) { mInterface->registerPlugin(context); }
+    void unregisterPlugin(QDeclarativeContext *context) { mInterface->unregisterPlugin(context); }
 
     virtual QObject *pluginProperties() const { return mInterface->pluginProperties(); }
 

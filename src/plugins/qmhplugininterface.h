@@ -4,6 +4,8 @@
 #include <QObject>
 #include <QStringList>
 
+class QDeclarativeContext;
+
 class QMHPluginInterface
 {
 public:
@@ -22,8 +24,8 @@ public:
     virtual QStringList visualElementProperties() const { return mVisualElementProperties; }
     virtual void setVisualElementProperties(const QStringList& properties) { mVisualElementProperties = properties; }
 
-    virtual void registerPlugin() { /**/ }
-    virtual void unregisterPlugin() { /**/ }
+    virtual void registerPlugin(QDeclarativeContext *context) { Q_UNUSED(context); }
+    virtual void unregisterPlugin(QDeclarativeContext *context) { Q_UNUSED(context); }
 
     //Only make sense for skin specific plugins
     virtual void setName(const QString &name) { Q_UNUSED(name) }

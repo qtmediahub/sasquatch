@@ -77,9 +77,9 @@ void Backend::initialize(QDeclarativeEngine *qmlEngine)
         //FIXME: We are clearly failing to keep the backend Declarative free :p
         d->qmlEngine = qmlEngine;
         qmlEngine->rootContext()->setContextProperty("backend", this);
+    
+        discoverEngines();
     }
-
-    discoverEngines();
 }
 
 void Backend::discoverEngines()
@@ -91,7 +91,7 @@ void Backend::discoverEngines()
            && qobject_cast<QMHPluginInterface*>(pluginLoader.instance())) {
             QMHPlugin *plugin = new QMHPlugin(qobject_cast<QMHPluginInterface*>(pluginLoader.instance()), this);
             plugin->setParent(this);
-            plugin->registerPlugin();
+            plugin->registerPlugin(d->qmlEngine->rootContext());
             advertizeEngine(plugin);
         }
         else
