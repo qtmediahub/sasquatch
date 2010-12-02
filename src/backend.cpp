@@ -95,7 +95,7 @@ void Backend::discoverEngines()
             advertizeEngine(plugin);
         }
         else
-            qDebug() << "Invalid plugin present" << qualifiedFileName << pluginLoader.errorString();
+            qWarning() << tr("Invalid plugin present %1 $2").arg(qualifiedFileName).arg(pluginLoader.errorString());
     }
 }
 
@@ -129,7 +129,7 @@ void Backend::advertizeEngine(QMHPlugin *engine) {
     if (role.isEmpty())
         return;
     if (d->advertizedEngineRoles.contains(role)) {
-        qWarning() << "Duplicate engine found for role " << role;
+        qWarning() << tr("Duplicate engine found for role %1").arg(role);
         return;
     }
     d->advertizedEngines << engine;
@@ -143,6 +143,6 @@ QObject* Backend::engine(const QString &role) {
     foreach(QObject *currentEngine, d->advertizedEngines )
         if(qobject_cast<QMHPlugin*>(currentEngine)->role() == role)
             return currentEngine;
-    qWarning() << "Seeking a non-existant plugin, prepare to die";
+    qWarning() << tr("Seeking a non-existant plugin, prepare to die");
     return 0;
 }
