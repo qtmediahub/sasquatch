@@ -42,6 +42,12 @@ int main(int argc, char** argv)
 #else
     format.setSampleBuffers(false);
 #endif
+    //FIXME: Should be configurable, but Config
+    //blocked by instantiation of QApplication
+    //vsync
+    format.setSwapInterval(1);
+    //no vsync
+    //format.setSwapInterval(0);
 //    format.setDoubleBuffer(false);
 //    format.setAlpha(false);
 //    format.setDirectRendering(false);
