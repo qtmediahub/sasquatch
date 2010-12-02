@@ -63,6 +63,7 @@ public:
 
     void run();
 
+    void stop();
 signals:
     void started();
     void musicFound(const MusicInfo &info);
@@ -70,6 +71,7 @@ signals:
 
 private:
     MusicModel *m_model;
+    bool m_stop;
 };
 
 class MusicModel : public QAbstractItemModel
@@ -105,6 +107,8 @@ public:
 
     Q_INVOKABLE QUrl decorationUrl(int index);
     Q_INVOKABLE void setThemeResourcePath(const QString &themePath);
+    Q_INVOKABLE void start();
+    Q_INVOKABLE void stop();
 
 public slots:
     void addMusic(const MusicInfo &music);

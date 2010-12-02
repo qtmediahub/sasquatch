@@ -31,7 +31,8 @@
 
 MusicModel::MusicModel(const QString &musicPath, QObject *parent)
     : QAbstractItemModel(parent),
-      m_musicPath(musicPath)
+      m_musicPath(musicPath),
+      m_thread(0)
 {
     qRegisterMetaType<MusicInfo>("MusicInfo");
 
@@ -44,15 +45,23 @@ MusicModel::MusicModel(const QString &musicPath, QObject *parent)
     roleNames[FilePathRole] = "filePath";
     roleNames[FileNameRole] = "fileName";
     setRoleNames(roleNames);
-
-    m_thread = new MusicModelThread(this);
-    QThreadPool::globalInstance()->start(m_thread);
-    connect(m_thread, SIGNAL(musicFound(MusicInfo)), this, SLOT(addMusic(MusicInfo)));
 }
 
 MusicModel::~MusicModel()
 {
     delete m_thread;
+}
+
+void MusicModel::start()
+{
+    m_thread = new MusicModelThread(this);
+    QThreadPool::globalInstance()->start(m_thread);
+    connect(m_thread, SIGNAL(musicFound(MusicInfo)), this, SLOT(addMusic(MusicInfo)));
+}
+
+void MusicModel::stop()
+{
+    m_thread->stop();
 }
 
 QString MusicModel::musicPath() const
@@ -225,7 +234,7 @@ static void populateFrontCover(MusicInfo *info, TagLib::ID3v2::Tag *id3v2Tag)
 }
 
 MusicModelThread::MusicModelThread(MusicModel *model)
-    : m_model(model)
+    : m_model(model), m_stop(false)
 {
 }
 
@@ -233,11 +242,16 @@ MusicModelThread::~MusicModelThread()
 {
 }
 
+void MusicModelThread::stop()
+{
+    m_stop = true;
+}
+
 void MusicModelThread::run()
 {
     emit started();
     QDirIterator it(m_model->musicPath(), QDir::Files | QDir::NoDotAndDotDot, QDirIterator::Subdirectories);
-    while (it.hasNext()) {
+    while (!m_stop && it.hasNext()) {
         MusicInfo info;
         info.filePath = it.next();
         info.fileName = it.fileName();
