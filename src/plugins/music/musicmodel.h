@@ -102,10 +102,10 @@ public:
         CommentRole,
         GenreRole,
         FilePathRole,
-        FileNameRole
+        FileNameRole,
+        DecorationUrlRole
     };
 
-    Q_INVOKABLE QUrl decorationUrl(int index);
     Q_INVOKABLE void setThemeResourcePath(const QString &themePath);
     Q_INVOKABLE void start();
     Q_INVOKABLE void stop();

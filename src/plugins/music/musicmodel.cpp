@@ -38,6 +38,7 @@ MusicModel::MusicModel(const QString &musicPath, QObject *parent)
 
     QHash<int, QByteArray> roleNames;
     roleNames[Qt::DisplayRole] = "display";
+    roleNames[DecorationUrlRole] = "decorationUrl";
     roleNames[TitleRole] = "title";
     roleNames[AlbumRole] = "album";
     roleNames[CommentRole] = "comment";
@@ -114,6 +115,8 @@ QVariant MusicModel::data(const QModelIndex &index, int role) const
         return info.filePath;
     } else if (role == FileNameRole) {
         return info.fileName;
+    } else if (role == DecorationUrlRole) {
+        return QUrl("image://qtmediahub/musicmodel" + info.filePath);
     } else {
         return QVariant();
     }
@@ -125,12 +128,6 @@ void MusicModel::addMusic(const MusicInfo &music)
     m_musicInfos.append(music);
     m_pathToIndex.insert(music.filePath, m_musicInfos.count()-1);
     endInsertRows();
-}
-
-QUrl MusicModel::decorationUrl(int index)
-{
-    QString filePath = m_musicInfos.value(index).filePath;
-    return QUrl("image://qtmediahub/musicmodel" + filePath);
 }
 
 QPixmap MusicModel::decorationPixmap(MusicInfo *info) const
