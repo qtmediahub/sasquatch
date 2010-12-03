@@ -46,8 +46,8 @@ MusicModel::MusicModel(QObject *parent)
     roleNames[FileNameRole] = "fileName";
     setRoleNames(roleNames);
 
-    // FIXME: Move this to the proxy
-    addSearchPath(QString() /* meta item */, tr("Add new source"));
+    Data *data = new Data(QString(), tr("Add new source"));
+    m_data.append(data);
 }
 
 MusicModel::~MusicModel()
@@ -73,7 +73,11 @@ void MusicModel::stop()
 void MusicModel::addSearchPath(const QString &path, const QString &name)
 {
     beginInsertRows(QModelIndex(), m_data.count()-1, m_data.count()-1);
-    m_data.insert(m_data.count()-1, new Data(path, name));
+    Data *data = new Data(path, name);
+    MusicInfo *mi = new MusicInfo;
+    mi->fileName = tr("..");
+    data->musicInfos.append(mi);
+    m_data.insert(m_data.count()-1, data);
     endInsertRows();
 }
 
@@ -306,7 +310,7 @@ void MusicModelThread::run()
 
     for (int i = 0; i < m_model->m_data.count(); i++) {
         QString searchPath = m_model->m_data[i]->searchPath;
-        if (searchPath.isEmpty())
+        if (searchPath.isEmpty() || searchPath == tr(".."))
             continue;
         searchIn(i, m_model->m_data[i]->searchPath);
         if (m_stop)
