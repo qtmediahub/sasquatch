@@ -72,6 +72,7 @@ void MusicModel::stop()
 
 void MusicModel::addSearchPath(const QString &path, const QString &name)
 {
+    qDebug() << "Adding path " << path << " as " << name;
     beginInsertRows(QModelIndex(), m_data.count()-1, m_data.count()-1);
     Data *data = new Data(path, name);
     MusicInfo *mi = new MusicInfo;

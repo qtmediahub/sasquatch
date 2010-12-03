@@ -86,6 +86,7 @@ FolderModel::FolderModel(QObject *parent)
     : QAbstractListModel(parent)
 {
     QHash<int, QByteArray> roles;
+    roles[Qt::DisplayRole] = "display";
     roles[FilePathRole] = "filePath";
     roles[FileNameRole] = "fileName";
     roles[IconPathRole] = "iconPath";
@@ -131,7 +132,7 @@ QVariant FolderModel::data(const QModelIndex &index, int role) const
     if (modelIndex.isValid()) {
         if (role == FilePathRole)
             rv = d->model.data(modelIndex, QDirModel::FilePathRole).toString();
-        else if (role == FileNameRole)
+        else if (role == FileNameRole || role == Qt::DisplayRole)
             rv = QFileInfo(d->model.data(modelIndex, QDirModel::FileNameRole).toString()).baseName();
         else if (role == IconPathRole)
             rv = Thumbnailer::getInstance()->thumbnail(d->model.data(modelIndex, QDirModel::FilePathRole).toString(), modelIndex);

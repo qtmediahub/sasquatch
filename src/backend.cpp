@@ -22,12 +22,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "plugins/qmhplugin.h"
 #include "dataproviders/foldermodel.h"
 #include "dataproviders/proxymodel.h"
+#include "dataproviders/dirmodel.h"
 
 #include <QDir>
 #include <QString>
 #include <QPluginLoader>
 #include <QCoreApplication>
 #include <QVariant>
+#include <QFileSystemModel>
 
 #include <QDebug>
 
@@ -72,6 +74,7 @@ void Backend::initialize(QDeclarativeEngine *qmlEngine)
     qmlRegisterType<QMHPlugin>("QMHPlugin", 1, 0, "QMHPlugin");
     qmlRegisterType<ProxyModel>("ProxyModel", 1, 0, "ProxyModel");
     qmlRegisterType<ProxyModelItem>("ProxyModel", 1, 0, "ProxyModelItem");
+    qmlRegisterType<DirModel>("DirModel", 1, 0, "DirModel");
 
     if (qmlEngine) {
         //FIXME: We are clearly failing to keep the backend Declarative free :p
@@ -146,3 +149,4 @@ QObject* Backend::engine(const QString &role) {
     qWarning() << tr("Seeking a non-existant plugin, prepare to die");
     return 0;
 }
+

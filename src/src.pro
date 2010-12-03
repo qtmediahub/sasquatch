@@ -26,7 +26,8 @@ HEADERS += config.h \
     plugins/qmhplugin.h \
     dataproviders/foldermodel.h \
     dataproviders/thumbnailer.h \
-    dataproviders/proxymodel.h
+    dataproviders/proxymodel.h \
+    dataproviders/dirmodel.h
 
 glgs {
     CONFIG += gl
