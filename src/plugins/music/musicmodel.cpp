@@ -148,8 +148,12 @@ QVariant MusicModel::data(const QModelIndex &index, int role) const
     Data *data = static_cast<Data *>(index.internalPointer());
     MusicInfo *info = data->musicInfos[index.row()];
     if (role == Qt::DisplayRole) {
-        return info->filePath;
-        return info->title + QLatin1String(" (") + info->album + QLatin1String(")");
+        if (info->title.isEmpty())
+            return info->fileName;
+        QString title = info->title;
+        if (!info->album.isEmpty())
+            title.append(QLatin1String(" (") + info->album + QLatin1String(")"));
+        return title;
     } else if (role == Qt::DecorationRole) {
         return QVariant(); // FIX
 //        return decorationPixmap(info);
