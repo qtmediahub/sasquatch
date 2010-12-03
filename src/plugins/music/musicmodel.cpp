@@ -31,7 +31,8 @@
 
 MusicModel::MusicModel(QObject *parent)
     : QAbstractItemModel(parent),
-      m_thread(0)
+      m_thread(0),
+      m_nowSearching(-1)
 {
     qRegisterMetaType<MusicInfo>("MusicInfo");
 
@@ -55,24 +56,54 @@ MusicModel::~MusicModel()
     for (int i = 0; i < m_data.count(); i++)
         qDeleteAll(m_data[i]->musicInfos);
     qDeleteAll(m_data);
+
+    // FIXME: Wait until thread is dead
     delete m_thread;
 }
 
-void MusicModel::start()
+void MusicModel::startSearchThread()
 {
-    m_thread = new MusicModelThread(this);
-    QThreadPool::globalInstance()->start(m_thread);
+    if (m_nowSearching != -1)
+        return; // already searching some directory
+
+    int i;
+    for (i = 0; i < m_data.count()-1; i++) { // leave out the last item
+        if (m_data[i]->status == Data::NotSearched)
+            break;
+    }
+    if (i == m_data.count()-1) {
+        m_nowSearching = -1;
+        return; // all searched
+    }
+
+    Q_ASSERT(!m_thread);
+    m_thread = new MusicModelThread(this, i, m_data[i]->searchPath);
+    m_data[i]->status = Data::Searching;
+    m_nowSearching = i;
     connect(m_thread, SIGNAL(musicFound(int, MusicInfo, QImage)), this, SLOT(addMusic(int, MusicInfo, QImage)));
+    connect(m_thread, SIGNAL(finished()), this, SLOT(searchThreadFinished()));
+    QThreadPool::globalInstance()->start(m_thread);
 }
 
-void MusicModel::stop()
+void MusicModel::searchThreadFinished()
+{
+    Q_ASSERT(m_nowSearching != -1);
+    Q_ASSERT(m_thread);
+    m_data[m_nowSearching]->status = Data::Searched;
+    m_nowSearching = -1;
+    delete m_thread;
+    m_thread = 0;
+
+    startSearchThread();
+}
+
+void MusicModel::stopSearchThread()
 {
     m_thread->stop();
 }
 
 void MusicModel::addSearchPath(const QString &path, const QString &name)
 {
-    qDebug() << "Adding path " << path << " as " << name;
     beginInsertRows(QModelIndex(), m_data.count()-1, m_data.count()-1);
     Data *data = new Data(path, name);
     MusicInfo *mi = new MusicInfo;
@@ -83,6 +114,8 @@ void MusicModel::addSearchPath(const QString &path, const QString &name)
     m_data.insert(m_data.count()-1, data);
     endInsertRows();
     m_frontCovers.insert(path, QImage(m_themePath + "/media/DefaultHardDisk.png"));
+
+    startSearchThread();
 }
 
 QModelIndex MusicModel::index(int row, int col, const QModelIndex &parent) const
@@ -282,8 +315,8 @@ static QImage readFrontCover(TagLib::ID3v2::Tag *id3v2Tag)
     return attachedImage;
 }
 
-MusicModelThread::MusicModelThread(MusicModel *model)
-    : m_model(model), m_stop(false)
+MusicModelThread::MusicModelThread(MusicModel *model, int row, const QString &searchPath)
+    : m_model(model), m_stop(false), m_row(row), m_searchPath(searchPath)
 {
 }
 
@@ -300,21 +333,15 @@ void MusicModelThread::run()
 {
     emit started();
 
-    for (int i = 0; i < m_model->m_data.count(); i++) {
-        QString searchPath = m_model->m_data[i]->searchPath;
-        if (searchPath.isEmpty() || searchPath == tr("AddNewSource"))
-            continue;
-        searchIn(i, m_model->m_data[i]->searchPath);
-        if (m_stop)
-            break;
-    }
+    Q_ASSERT(!searchPath.isEmpty() && searchPath != tr("AddNewSource"));
+    search();
 
     emit finished();
 }
 
-void MusicModelThread::searchIn(int row, const QString &searchPath)
+void MusicModelThread::search()
 {
-    QDirIterator it(searchPath, QDir::Files | QDir::NoDotAndDotDot, QDirIterator::Subdirectories);
+    QDirIterator it(m_searchPath, QDir::Files | QDir::NoDotAndDotDot, QDirIterator::Subdirectories);
     while (!m_stop && it.hasNext()) {
         MusicInfo info;
         info.filePath = it.next();
@@ -341,10 +368,8 @@ void MusicModelThread::searchIn(int row, const QString &searchPath)
                 frontCover = readFrontCover(id3v2Tag);
         }
 
-        emit musicFound(row, info, frontCover);
+        emit musicFound(m_row, info, frontCover);
    }
-
-    emit finished();
 }
 
 void MusicModel::dump()

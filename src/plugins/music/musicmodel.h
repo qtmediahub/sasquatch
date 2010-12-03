@@ -55,7 +55,7 @@ class MusicModelThread : public QObject, public QRunnable
     Q_OBJECT
 
 public:
-    MusicModelThread(MusicModel *model);
+    MusicModelThread(MusicModel *model, int row, const QString &searchPath);
     ~MusicModelThread();
 
     void run();
@@ -68,9 +68,11 @@ signals:
     void finished();
 
 private:
-    void searchIn(int row, const QString &searchPath);
+    void search();
     MusicModel *m_model;
     bool m_stop;
+    int m_row;
+    QString m_searchPath;
 };
 
 class MusicModel : public QAbstractItemModel
@@ -107,30 +109,33 @@ public:
     Q_INVOKABLE void addSearchPath(const QString &musicPath, const QString &name);
 
     void dump();
-public slots:
-    void start();
-    void stop();
 
 private slots:
     void addMusic(int row, const MusicInfo &music, const QImage &frontCover);
+    void searchThreadFinished();
 
 signals:
     void musicPathChanged();
 
 private:
     void init();
+    void startSearchThread();
+    void stopSearchThread();
+
     QPixmap decorationPixmap(MusicInfo *info) const;
     struct Data {
-        Data(const QString &sp, const QString &name) : searchPath(sp), name(name) { }
+        Data(const QString &sp, const QString &name) : searchPath(sp), name(name), status(NotSearched) { }
         QString searchPath;
         QString name;
         QList<MusicInfo *> musicInfos;
+        enum Status { NotSearched, Searching, Searched } status;
     };
     QList<Data *> m_data;
     QHash<QString, QImage> m_frontCovers;
     MusicModelThread *m_thread;
     QString m_themePath;
     QString m_fanartFallbackImagePath;
+    int m_nowSearching;
     friend class MusicModelThread;
 };
 
