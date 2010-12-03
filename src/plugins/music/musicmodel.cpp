@@ -137,6 +137,7 @@ QVariant MusicModel::data(const QModelIndex &index, int role) const
             return data->name;
         } else if (role == Qt::DecorationRole) {
         } else if (role == DecorationUrlRole) {
+            return QUrl("image://qtmediahub/musicmodel"); // FIXME: Obviously wong
         } else if (role == FilePathRole) {
             return data->searchPath;
         }
