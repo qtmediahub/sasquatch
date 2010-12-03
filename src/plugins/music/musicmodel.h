@@ -46,9 +46,6 @@ struct MusicInfo
     int  bitrate;
     int  sampleRate;
     int  channels;
-    // cover art
-    QImage frontCover;
-    mutable QPixmapCache::Key frontCoverPixmapKey;
 };
 
 class MusicModel;
@@ -67,7 +64,7 @@ public:
 
 signals:
     void started();
-    void musicFound(int row, const MusicInfo &info);
+    void musicFound(int row, const MusicInfo &info, const QImage &frontCover);
     void finished();
 
 private:
@@ -115,7 +112,7 @@ public slots:
     void stop();
 
 private slots:
-    void addMusic(int row, const MusicInfo &music);
+    void addMusic(int row, const MusicInfo &music, const QImage &frontCover);
 
 signals:
     void musicPathChanged();
@@ -127,16 +124,13 @@ private:
         Data(const QString &sp, const QString &name) : searchPath(sp), name(name) { }
         QString searchPath;
         QString name;
-        QImage dirImage;
-        QPixmapCache::Key dirImageKey;
         QList<MusicInfo *> musicInfos;
     };
     QList<Data *> m_data;
-    QHash<QString, MusicInfo *> m_pathToMusicInfo;
+    QHash<QString, QImage> m_frontCovers;
     MusicModelThread *m_thread;
     QString m_themePath;
-    QImage m_fanartFallbackImage;
-    mutable QPixmapCache::Key m_fanartFallbackKey;
+    QString m_fanartFallbackImagePath;
     friend class MusicModelThread;
 };
 
