@@ -333,7 +333,8 @@ void MusicModelThread::run()
 {
     emit started();
 
-    Q_ASSERT(!searchPath.isEmpty() && searchPath != tr("AddNewSource"));
+    Q_ASSERT(!m_searchPath.isEmpty() && m_searchPath != tr("AddNewSource"));
+
     search();
 
     emit finished();
