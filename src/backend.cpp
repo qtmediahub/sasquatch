@@ -23,6 +23,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "dataproviders/foldermodel.h"
 #include "dataproviders/proxymodel.h"
 #include "dataproviders/dirmodel.h"
+#include "config.h"
 
 #include <QDir>
 #include <QString>
@@ -125,6 +126,14 @@ QString Backend::pluginPath() const {
 
 QString Backend::resourcePath() const {
     return d->resourcePath;
+}
+
+bool Backend::transforms() const {
+#ifdef GL
+    return (QGLFormat::hasOpenGL() && Config::isEnabled("transforms", true));
+#else
+    return false;
+#endif
 }
 
 void Backend::advertizeEngine(QMHPlugin *engine) {
