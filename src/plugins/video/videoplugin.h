@@ -4,22 +4,33 @@
 #include <QObject>
 
 #include "qmhplugininterface.h"
+#include "videomodel.h"
 
 class VideoPlugin : public QObject, public QMHPluginInterface
 {
     Q_OBJECT
     Q_INTERFACES(QMHPluginInterface)
+    Q_PROPERTY(QObject *videoModel READ videoModel NOTIFY videoModelChanged)
 
 public:
     VideoPlugin();
     ~VideoPlugin() {}
-    QString name() const { return tr("Videos"); }
+    QString name() const { return tr("Video"); }
     bool browseable() const { return true; }
-    QString role() const { return "videos"; }
-    QList<QObject*> childItems() const { return mChildItems; }
+    QString role() const { return "video"; }
+
+    QObject *pluginProperties() const;
+
+    QList<QObject*> childItems() const { return m_childItems; }
+    // accessed from QML
+    QObject *videoModel() const { return m_model; }
+
+signals:
+    void videoModelChanged();
 
 private:
-    QList<QObject*> mChildItems;
+    QList<QObject *> m_childItems;
+    VideoModel *m_model;
 };
 
 #endif // VIDEOPLUGIN_H

@@ -4,5 +4,10 @@
 
 include(../plugins.pri)
 
-HEADERS += videoplugin.h
-SOURCES += videoplugin.cpp
+HEADERS += \
+        videoplugin.h \
+        videomodel.h
+
+SOURCES += \
+        videoplugin.cpp \
+        videomodel.cpp
