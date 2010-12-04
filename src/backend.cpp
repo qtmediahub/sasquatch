@@ -32,6 +32,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QVariant>
 #include <QFileSystemModel>
 
+#ifdef GL
+#include <QGLFormat>
+#endif
+
 #include <QDebug>
 
 Backend* Backend::pSelf = 0;
