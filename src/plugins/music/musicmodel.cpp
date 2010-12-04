@@ -78,6 +78,7 @@ void MusicModel::startSearchThread()
 
     Q_ASSERT(!m_thread);
     m_thread = new MusicModelThread(this, i, m_data[i]->searchPath);
+    m_thread->setAutoDelete(false);
     m_data[i]->status = Data::Searching;
     m_nowSearching = i;
     connect(m_thread, SIGNAL(musicFound(int, MusicInfo, QImage)), this, SLOT(addMusic(int, MusicInfo, QImage)));
