@@ -1,5 +1,4 @@
 #include "musicplugin.h"
-#include "musicmodel.h"
 
 #include <QtGui>
 #include <QtDeclarative>
@@ -69,7 +68,7 @@ MusicPlugin::MusicPlugin()
                  << new MusicPluginItem(tr("Add-ons"), this)
                  << new MusicPluginItem(tr("Library"), this);
 
-    m_model = new MusicModel(this);
+    m_model = new MediaModel(this);
 }
 
 QList<QObject*> MusicPlugin::childItems() const

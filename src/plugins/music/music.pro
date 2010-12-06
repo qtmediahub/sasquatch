@@ -9,8 +9,8 @@ INCLUDEPATH += ../../3rdparty/taglib/ ../../3rdparty/
 QT += declarative
 
 HEADERS += musicplugin.h \
-           musicmodel.h
+           ../mediamodel.h
 
 SOURCES += musicplugin.cpp \
-           musicmodel.cpp
+           ../mediamodel.cpp
 

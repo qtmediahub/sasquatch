@@ -17,7 +17,7 @@
  *
  * ****************************************************************************/
 
-#include "musicmodel.h"
+#include "mediamodel.h"
 #include <QDirIterator>
 #include <QThreadPool>
 #include <QTimer>
@@ -29,12 +29,12 @@
 #include <taglib/mpeg/id3v2/id3v2tag.h>
 #include <taglib/mpeg/id3v2/frames/attachedpictureframe.h>
 
-MusicModel::MusicModel(QObject *parent)
+MediaModel::MediaModel(QObject *parent)
     : QAbstractItemModel(parent),
       m_thread(0),
       m_nowSearching(-1)
 {
-    qRegisterMetaType<MusicInfo>("MusicInfo");
+    qRegisterMetaType<MediaInfo>("MediaInfo");
 
     QHash<int, QByteArray> roleNames;
     roleNames[Qt::DisplayRole] = "display";
@@ -51,7 +51,7 @@ MusicModel::MusicModel(QObject *parent)
     m_data.append(data);
 }
 
-MusicModel::~MusicModel()
+MediaModel::~MediaModel()
 {
     for (int i = 0; i < m_data.count(); i++)
         qDeleteAll(m_data[i]->musicInfos);
@@ -61,7 +61,7 @@ MusicModel::~MusicModel()
     delete m_thread;
 }
 
-void MusicModel::startSearchThread()
+void MediaModel::startSearchThread()
 {
     if (m_nowSearching != -1)
         return; // already searching some directory
@@ -77,16 +77,16 @@ void MusicModel::startSearchThread()
     }
 
     Q_ASSERT(!m_thread);
-    m_thread = new MusicModelThread(this, i, m_data[i]->searchPath);
+    m_thread = new MediaModelThread(this, i, m_data[i]->searchPath);
     m_thread->setAutoDelete(false);
     m_data[i]->status = Data::Searching;
     m_nowSearching = i;
-    connect(m_thread, SIGNAL(musicFound(int, MusicInfo, QImage)), this, SLOT(addMusic(int, MusicInfo, QImage)));
+    connect(m_thread, SIGNAL(musicFound(int, MediaInfo, QImage)), this, SLOT(addMedia(int, MediaInfo, QImage)));
     connect(m_thread, SIGNAL(finished()), this, SLOT(searchThreadFinished()));
     QThreadPool::globalInstance()->start(m_thread);
 }
 
-void MusicModel::searchThreadFinished()
+void MediaModel::searchThreadFinished()
 {
     Q_ASSERT(m_nowSearching != -1);
     Q_ASSERT(m_thread);
@@ -98,16 +98,16 @@ void MusicModel::searchThreadFinished()
     startSearchThread();
 }
 
-void MusicModel::stopSearchThread()
+void MediaModel::stopSearchThread()
 {
     m_thread->stop();
 }
 
-void MusicModel::addSearchPath(const QString &path, const QString &name)
+void MediaModel::addSearchPath(const QString &path, const QString &name)
 {
     beginInsertRows(QModelIndex(), m_data.count()-1, m_data.count()-1);
     Data *data = new Data(path, name);
-    MusicInfo *mi = new MusicInfo;
+    MediaInfo *mi = new MediaInfo;
     mi->fileName = tr("..");
     mi->filePath = "DotDot";
     m_frontCovers.insert("DotDot", QImage(m_themePath + "/media/DefaultFolderBack.png"));
@@ -119,7 +119,7 @@ void MusicModel::addSearchPath(const QString &path, const QString &name)
     startSearchThread();
 }
 
-QModelIndex MusicModel::index(int row, int col, const QModelIndex &parent) const
+QModelIndex MediaModel::index(int row, int col, const QModelIndex &parent) const
 {
     if (col != 0 || row < 0)
         return QModelIndex();
@@ -135,7 +135,7 @@ QModelIndex MusicModel::index(int row, int col, const QModelIndex &parent) const
     }
 }
 
-QModelIndex MusicModel::parent(const QModelIndex &idx) const
+QModelIndex MediaModel::parent(const QModelIndex &idx) const
 {
     if (!idx.isValid())
         return QModelIndex();
@@ -148,13 +148,13 @@ QModelIndex MusicModel::parent(const QModelIndex &idx) const
     return createIndex(loc, 0, 0);
 }
 
-int MusicModel::columnCount(const QModelIndex &idx) const
+int MediaModel::columnCount(const QModelIndex &idx) const
 {
     Q_UNUSED(idx);
     return 1;
 }
 
-int MusicModel::rowCount(const QModelIndex &parent) const
+int MediaModel::rowCount(const QModelIndex &parent) const
 {
     if (!parent.isValid())
         return m_data.count();
@@ -166,7 +166,7 @@ int MusicModel::rowCount(const QModelIndex &parent) const
     }
 }
 
-QVariant MusicModel::data(const QModelIndex &index, int role) const
+QVariant MediaModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid())
         return QVariant();
@@ -188,7 +188,7 @@ QVariant MusicModel::data(const QModelIndex &index, int role) const
     }
 
     Data *data = static_cast<Data *>(index.internalPointer());
-    MusicInfo *info = data->musicInfos[index.row()];
+    MediaInfo *info = data->musicInfos[index.row()];
     if (role == Qt::DisplayRole) {
         if (info->title.isEmpty())
             return info->fileName;
@@ -218,20 +218,20 @@ QVariant MusicModel::data(const QModelIndex &index, int role) const
     }
 }
 
-void MusicModel::addMusic(int row, const MusicInfo &music, const QImage &frontCover)
+void MediaModel::addMedia(int row, const MediaInfo &music, const QImage &frontCover)
 {
     Data *data = m_data[row];
     beginInsertRows(createIndex(row, 0, 0), data->musicInfos.count(), data->musicInfos.count());
-    MusicInfo *mi = new MusicInfo(music);
+    MediaInfo *mi = new MediaInfo(music);
     if (!frontCover.isNull())
         m_frontCovers.insert(mi->filePath, frontCover);
     else
-        m_frontCovers.insert(mi->filePath, QImage(m_themePath + "/media/Fanart_Fallback_Music_Small.jpg"));
+        m_frontCovers.insert(mi->filePath, QImage(m_themePath + "/media/Fanart_Fallback_Media_Small.jpg"));
     data->musicInfos.append(mi);
     endInsertRows();
 }
 
-QPixmap MusicModel::decorationPixmap(const QString &path, QSize *size, const QSize &requestedSize)
+QPixmap MediaModel::decorationPixmap(const QString &path, QSize *size, const QSize &requestedSize)
 {
     Q_UNUSED(requestedSize);
     if (!m_frontCovers.contains(path))
@@ -245,7 +245,7 @@ QPixmap MusicModel::decorationPixmap(const QString &path, QSize *size, const QSi
     return pixmap;
 }
 
-QImage MusicModel::decorationImage(const QString &path, QSize *size, const QSize &requestedSize)
+QImage MediaModel::decorationImage(const QString &path, QSize *size, const QSize &requestedSize)
 {
     Q_UNUSED(requestedSize);
     if (!m_frontCovers.contains(path))
@@ -255,7 +255,7 @@ QImage MusicModel::decorationImage(const QString &path, QSize *size, const QSize
     return img;
 }
 
-void MusicModel::setThemeResourcePath(const QString &themePath)
+void MediaModel::setThemeResourcePath(const QString &themePath)
 {
     m_themePath = themePath;
     m_frontCovers.insert("AddNewSource", QImage(m_themePath + "/media/DefaultAddSource.png"));
@@ -267,7 +267,7 @@ static inline QString fromTagString(const TagLib::String &string)
     return QString::fromStdWString(string.toWString());
 }
 
-static void popuplateGenericTagInfo(MusicInfo *info, TagLib::Tag *tag)
+static void popuplateGenericTagInfo(MediaInfo *info, TagLib::Tag *tag)
 {
     info->title = fromTagString(tag->title());
     info->artist = fromTagString(tag->artist());
@@ -278,7 +278,7 @@ static void popuplateGenericTagInfo(MusicInfo *info, TagLib::Tag *tag)
     info->track = tag->track();
 }
 
-static void popuplateAudioProperties(MusicInfo *info, TagLib::AudioProperties *properties)
+static void popuplateAudioProperties(MediaInfo *info, TagLib::AudioProperties *properties)
 {
     info->length = properties->length();
     info->bitrate = properties->bitrate();
@@ -316,21 +316,21 @@ static QImage readFrontCover(TagLib::ID3v2::Tag *id3v2Tag)
     return attachedImage;
 }
 
-MusicModelThread::MusicModelThread(MusicModel *model, int row, const QString &searchPath)
+MediaModelThread::MediaModelThread(MediaModel *model, int row, const QString &searchPath)
     : m_model(model), m_stop(false), m_row(row), m_searchPath(searchPath)
 {
 }
 
-MusicModelThread::~MusicModelThread()
+MediaModelThread::~MediaModelThread()
 {
 }
 
-void MusicModelThread::stop()
+void MediaModelThread::stop()
 {
     m_stop = true;
 }
 
-void MusicModelThread::run()
+void MediaModelThread::run()
 {
     emit started();
 
@@ -341,11 +341,11 @@ void MusicModelThread::run()
     emit finished();
 }
 
-void MusicModelThread::search()
+void MediaModelThread::search()
 {
     QDirIterator it(m_searchPath, QDir::Files | QDir::NoDotAndDotDot, QDirIterator::Subdirectories);
     while (!m_stop && it.hasNext()) {
-        MusicInfo info;
+        MediaInfo info;
         info.filePath = it.next();
         info.fileName = it.fileName();
         QByteArray fileName = QFile::encodeName(info.filePath);
@@ -374,7 +374,7 @@ void MusicModelThread::search()
    }
 }
 
-void MusicModel::dump()
+void MediaModel::dump()
 {
     qDebug() << m_data.count() << "elements";
     for (int i = 0; i < m_data.count(); i++) {

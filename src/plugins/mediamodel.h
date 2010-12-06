@@ -17,8 +17,8 @@
  *
  * ****************************************************************************/
 
-#ifndef MUSICMODEL_H
-#define MUSICMODEL_H
+#ifndef MEDIAMODEL_H
+#define MEDIAMODEL_H
 
 #include <QAbstractListModel>
 #include <QImage>
@@ -28,9 +28,9 @@
 #include <QList>
 #include <QUrl>
 
-struct MusicInfo 
+struct MediaInfo 
 {
-    MusicInfo() : year(0), track(0), length(0), bitrate(0), sampleRate(0), channels(0) { }
+    MediaInfo() : year(0), track(0), length(0), bitrate(0), sampleRate(0), channels(0) { }
     QString filePath;
     QString fileName;
     // tag info
@@ -48,15 +48,15 @@ struct MusicInfo
     int  channels;
 };
 
-class MusicModel;
+class MediaModel;
 
-class MusicModelThread : public QObject, public QRunnable
+class MediaModelThread : public QObject, public QRunnable
 {
     Q_OBJECT
 
 public:
-    MusicModelThread(MusicModel *model, int row, const QString &searchPath);
-    ~MusicModelThread();
+    MediaModelThread(MediaModel *model, int row, const QString &searchPath);
+    ~MediaModelThread();
 
     void run();
 
@@ -64,24 +64,24 @@ public:
 
 signals:
     void started();
-    void musicFound(int row, const MusicInfo &info, const QImage &frontCover);
+    void musicFound(int row, const MediaInfo &info, const QImage &frontCover);
     void finished();
 
 private:
     void search();
-    MusicModel *m_model;
+    MediaModel *m_model;
     bool m_stop;
     int m_row;
     QString m_searchPath;
 };
 
-class MusicModel : public QAbstractItemModel
+class MediaModel : public QAbstractItemModel
 {
     Q_OBJECT
 
 public:
-    MusicModel(QObject *parent = 0);
-    ~MusicModel();
+    MediaModel(QObject *parent = 0);
+    ~MediaModel();
 
     // reimp
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
@@ -111,7 +111,7 @@ public:
     void dump();
 
 private slots:
-    void addMusic(int row, const MusicInfo &music, const QImage &frontCover);
+    void addMedia(int row, const MediaInfo &music, const QImage &frontCover);
     void searchThreadFinished();
 
 signals:
@@ -122,22 +122,22 @@ private:
     void startSearchThread();
     void stopSearchThread();
 
-    QPixmap decorationPixmap(MusicInfo *info) const;
+    QPixmap decorationPixmap(MediaInfo *info) const;
     struct Data {
         Data(const QString &sp, const QString &name) : searchPath(sp), name(name), status(NotSearched) { }
         QString searchPath;
         QString name;
-        QList<MusicInfo *> musicInfos;
+        QList<MediaInfo *> musicInfos;
         enum Status { NotSearched, Searching, Searched } status;
     };
     QList<Data *> m_data;
     QHash<QString, QImage> m_frontCovers;
-    MusicModelThread *m_thread;
+    MediaModelThread *m_thread;
     QString m_themePath;
     QString m_fanartFallbackImagePath;
     int m_nowSearching;
-    friend class MusicModelThread;
+    friend class MediaModelThread;
 };
 
-#endif // MUSICMODEL_H
+#endif // MEDIAMODEL_H
 
