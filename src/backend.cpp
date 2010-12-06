@@ -134,7 +134,8 @@ void Backend::discoverEngines()
 QString Backend::language() const {
     //FIXME: derive from locale
     //Allow override
-    return QString();
+    //return QString();
+    //Bob is a testing translation placeholder
     return QString("bob");
 }
 

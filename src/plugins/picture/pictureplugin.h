@@ -14,7 +14,7 @@ public:
     ~PicturePlugin() {}
     QString name() const { return tr("Pictures"); }
     bool browseable() const { return true; }
-    QString role() const { return "pictures"; }
+    QString role() const { return "picture"; }
 };
 
 #endif // PICTUREPLUGIN_H
