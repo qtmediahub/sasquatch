@@ -33,42 +33,13 @@ public:
     Files(QObject *parent = 0) : QObject(parent) { }
 };
 
-class ImageProvider : public QDeclarativeImageProvider
-{
-public:
-    ImageProvider(MusicPlugin *plugin) 
-        : QDeclarativeImageProvider(QDeclarativeImageProvider::Pixmap),
-          m_plugin(plugin)
-    {
-    }
-
-    QImage  requestImage(const QString &id, QSize *size, const QSize &requestedSize)
-    {
-        if (id.startsWith("musicmodel")) {
-            return m_plugin->m_model->decorationImage(id.mid(10), size, requestedSize);
-        }
-        return QImage();
-    }
-
-    QPixmap requestPixmap(const QString &id, QSize *size, const QSize &requestedSize)
-    {
-        if (id.startsWith("musicmodel")) {
-            return m_plugin->m_model->decorationPixmap(id.mid(10), size, requestedSize);
-        }
-        return QPixmap();
-    }
-
-private:
-    MusicPlugin *m_plugin;
-};
-
 MusicPlugin::MusicPlugin()
 {
     m_childItems << new MusicPluginItem(tr("Files"), this)
                  << new MusicPluginItem(tr("Add-ons"), this)
                  << new MusicPluginItem(tr("Library"), this);
 
-    m_model = new MediaModel(this);
+    m_model = new MediaModel(MediaModel::Music, this);
 }
 
 QList<QObject*> MusicPlugin::childItems() const
@@ -84,7 +55,7 @@ QObject *MusicPlugin::pluginProperties() const
 
 void MusicPlugin::registerPlugin(QDeclarativeContext *context)
 {
-    context->engine()->addImageProvider("qtmediahub", new ImageProvider(this));
+    m_model->registerImageProvider(context);
 }
 
 Q_EXPORT_PLUGIN2(music, MusicPlugin)

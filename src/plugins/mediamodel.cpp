@@ -22,6 +22,8 @@
 #include <QThreadPool>
 #include <QTimer>
 #include <QtDebug>
+#include <QMetaEnum>
+#include <QDeclarativeEngine>
 
 #include <taglib/tag.h>
 #include <taglib/fileref.h>
@@ -29,8 +31,9 @@
 #include <taglib/mpeg/id3v2/id3v2tag.h>
 #include <taglib/mpeg/id3v2/frames/attachedpictureframe.h>
 
-MediaModel::MediaModel(QObject *parent)
+MediaModel::MediaModel(MediaModel::MediaType type, QObject *parent)
     : QAbstractItemModel(parent),
+      m_type(type),
       m_thread(0),
       m_nowSearching(-1)
 {
@@ -47,7 +50,7 @@ MediaModel::MediaModel(QObject *parent)
     roleNames[FileNameRole] = "fileName";
     setRoleNames(roleNames);
 
-    Data *data = new Data(QString("AddNewSource"), tr("Add new source"));
+    Data *data = new Data(QString("/AddNewSource"), tr("Add new source"));
     m_data.append(data);
 }
 
@@ -109,8 +112,7 @@ void MediaModel::addSearchPath(const QString &path, const QString &name)
     Data *data = new Data(path, name);
     MediaInfo *mi = new MediaInfo;
     mi->fileName = tr("..");
-    mi->filePath = "DotDot";
-    m_frontCovers.insert("DotDot", QImage(m_themePath + "/media/DefaultFolderBack.png"));
+    mi->filePath = "/DotDot";
     data->musicInfos.append(mi);
     m_data.insert(m_data.count()-1, data);
     endInsertRows();
@@ -179,7 +181,7 @@ QVariant MediaModel::data(const QModelIndex &index, int role) const
             return data->name;
         } else if (role == Qt::DecorationRole) {
         } else if (role == DecorationUrlRole) {
-            return QUrl("image://qtmediahub/musicmodel" + data->searchPath);
+            return QUrl("image://" + imageBaseUrl() + data->searchPath);
         } else if (role == FilePathRole) {
             return data->searchPath;
         }
@@ -212,7 +214,7 @@ QVariant MediaModel::data(const QModelIndex &index, int role) const
     } else if (role == FileNameRole) {
         return info->fileName;
     } else if (role == DecorationUrlRole) {
-        return QUrl("image://qtmediahub/musicmodel" + info->filePath);
+        return QUrl("image://" + imageBaseUrl() + info->filePath);
     } else {
         return QVariant();
     }
@@ -223,19 +225,22 @@ void MediaModel::addMedia(int row, const MediaInfo &music, const QImage &frontCo
     Data *data = m_data[row];
     beginInsertRows(createIndex(row, 0, 0), data->musicInfos.count(), data->musicInfos.count());
     MediaInfo *mi = new MediaInfo(music);
-    if (!frontCover.isNull())
+    if (!frontCover.isNull()) {
         m_frontCovers.insert(mi->filePath, frontCover);
-    else
-        m_frontCovers.insert(mi->filePath, QImage(m_themePath + "/media/Fanart_Fallback_Media_Small.jpg"));
+    } else {
+        m_frontCovers.insert(mi->filePath, QImage(m_themePath + "/media/Fanart_Fallback_Music_Small.jpg")); // FIXME: Make this configurable
+    }
     data->musicInfos.append(mi);
     endInsertRows();
 }
 
-QPixmap MediaModel::decorationPixmap(const QString &path, QSize *size, const QSize &requestedSize)
+QPixmap MediaModel::decorationPixmap(const QString &_path, QSize *size, const QSize &requestedSize)
 {
     Q_UNUSED(requestedSize);
-    if (!m_frontCovers.contains(path))
+    QString path = '/' + _path;
+    if (!m_frontCovers.contains(path)) {
         return QPixmap();
+    }
     QPixmap pixmap;
     if (!QPixmapCache::find("coverart_" + path, &pixmap)) {
         pixmap = QPixmap::fromImage(m_frontCovers[path]);
@@ -258,7 +263,8 @@ QImage MediaModel::decorationImage(const QString &path, QSize *size, const QSize
 void MediaModel::setThemeResourcePath(const QString &themePath)
 {
     m_themePath = themePath;
-    m_frontCovers.insert("AddNewSource", QImage(m_themePath + "/media/DefaultAddSource.png"));
+    m_frontCovers.insert("/AddNewSource", QImage(m_themePath + "/media/DefaultAddSource.png"));
+    m_frontCovers.insert("/DotDot", QImage(m_themePath + "/media/DefaultFolderBack.png"));
     reset();
 }
 
@@ -334,7 +340,7 @@ void MediaModelThread::run()
 {
     emit started();
 
-    Q_ASSERT(!m_searchPath.isEmpty() && m_searchPath != tr("AddNewSource"));
+    Q_ASSERT(!m_searchPath.isEmpty() && m_searchPath != tr("/AddNewSource"));
 
     search();
 
@@ -372,6 +378,18 @@ void MediaModelThread::search()
 
         emit musicFound(m_row, info, frontCover);
    }
+}
+
+void MediaModel::registerImageProvider(QDeclarativeContext *context)
+{
+    context->engine()->addImageProvider(imageBaseUrl(), new MediaImageProvider(this));
+}
+
+QString MediaModel::typeString() const
+{
+    int idx = MediaModel::staticMetaObject.indexOfEnumerator("MediaType");
+    QMetaEnum e = MediaModel::staticMetaObject.enumerator(idx);
+    return QString::fromLatin1(e.valueToKey(m_type));
 }
 
 void MediaModel::dump()

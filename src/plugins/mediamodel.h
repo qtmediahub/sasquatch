@@ -27,6 +27,9 @@
 #include <QRunnable>
 #include <QList>
 #include <QUrl>
+#include <QDeclarativeImageProvider>
+#include <QDeclarativeContext>
+#include <QtDebug>
 
 struct MediaInfo 
 {
@@ -78,9 +81,16 @@ private:
 class MediaModel : public QAbstractItemModel
 {
     Q_OBJECT
+    Q_ENUMS(MediaType)
 
 public:
-    MediaModel(QObject *parent = 0);
+    enum MediaType {
+        Music,
+        Pictures,
+        Video
+    };
+
+    MediaModel(MediaType type, QObject *parent = 0);
     ~MediaModel();
 
     // reimp
@@ -108,6 +118,10 @@ public:
     Q_INVOKABLE void setThemeResourcePath(const QString &themePath);
     Q_INVOKABLE void addSearchPath(const QString &musicPath, const QString &name);
 
+    QString typeString() const;
+    void registerImageProvider(QDeclarativeContext *context);
+    QString imageBaseUrl() const { return typeString().toLower() + "model"; } // ## toLower() needed because of QTBUG-15905
+
     void dump();
 
 private slots:
@@ -130,6 +144,8 @@ private:
         QList<MediaInfo *> musicInfos;
         enum Status { NotSearched, Searching, Searched } status;
     };
+
+    MediaType m_type;
     QList<Data *> m_data;
     QHash<QString, QImage> m_frontCovers;
     MediaModelThread *m_thread;
@@ -137,6 +153,31 @@ private:
     QString m_fanartFallbackImagePath;
     int m_nowSearching;
     friend class MediaModelThread;
+};
+
+// ##: Maybe this model can multiple inherit from ImageProvider. But ownership of the provider 
+// is not clear.
+class MediaImageProvider : public QDeclarativeImageProvider
+{
+public:
+    MediaImageProvider(MediaModel *model) 
+        : QDeclarativeImageProvider(QDeclarativeImageProvider::Pixmap),
+          m_model(model)
+    {
+    }
+
+    QImage requestImage(const QString &id, QSize *size, const QSize &requestedSize)
+    {
+        return m_model->decorationImage(id, size, requestedSize);
+    }
+
+    QPixmap requestPixmap(const QString &id, QSize *size, const QSize &requestedSize)
+    {
+        return m_model->decorationPixmap(id, size, requestedSize);
+    }
+
+private:
+    MediaModel *m_model;
 };
 
 #endif // MEDIAMODEL_H
