@@ -37,6 +37,8 @@ class Frontend : public QObject
         QWidget* loadFrontend(const QUrl &url);
         void show();
         void showFullScreen();
+        void resetLanguage();
+
     private:
         FrontendPrivate *d;
 };

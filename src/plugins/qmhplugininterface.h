@@ -25,7 +25,7 @@ public:
     virtual void setVisualElementProperties(const QStringList& properties) { mVisualElementProperties = properties; }
 
     virtual void registerPlugin(QDeclarativeContext *context) { Q_UNUSED(context); }
-    virtual void unregisterPlugin(QDeclarativeContext *context) { Q_UNUSED(context); }
+    virtual void unregisterPlugin() { /**/ }
 
     //Only make sense for skin specific plugins
     virtual void setName(const QString &name) { Q_UNUSED(name) }

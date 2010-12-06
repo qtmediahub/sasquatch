@@ -51,7 +51,8 @@ struct BackendPrivate
           skinPath(basePath + "/skins"),
           pluginPath(basePath + "/plugins"),
           resourcePath(basePath + "/resources"),
-          qmlEngine(0) { /* */ }
+          qmlEngine(0),
+          backendTranslator(0) { /* */ }
 
     QSet<QString> advertizedEngineRoles;
 
@@ -64,6 +65,8 @@ struct BackendPrivate
     const QString pluginPath;
     const QString resourcePath;
     QDeclarativeEngine *qmlEngine;
+    QTranslator *backendTranslator;
+    QList<QTranslator*> pluginTranslators;
 };
 
 Backend::Backend(QObject *parent)
@@ -85,8 +88,27 @@ void Backend::initialize(QDeclarativeEngine *qmlEngine)
         //FIXME: We are clearly failing to keep the backend Declarative free :p
         d->qmlEngine = qmlEngine;
         qmlEngine->rootContext()->setContextProperty("backend", this);
-    
-        discoverEngines();
+    }
+
+    discoverEngines();
+}
+
+void Backend::resetLanguage()
+{
+    static QString baseTranslationPath(d->basePath + "/translations/");
+    delete d->backendTranslator;
+    d->backendTranslator = new QTranslator(this);
+    d->backendTranslator->load(baseTranslationPath + language() + ".qm");
+    qApp->installTranslator(d->backendTranslator);
+
+    qDeleteAll(d->pluginTranslators.begin(), d->pluginTranslators.end());
+
+    foreach(QObject *pluginObject, d->advertizedEngines) {
+        QMHPlugin *plugin = qobject_cast<QMHPlugin*>(pluginObject);
+        QTranslator *pluginTranslator = new QTranslator(this);
+        pluginTranslator->load(baseTranslationPath + plugin->role() + "_" + language() + ".qm");
+        d->pluginTranslators << pluginTranslator;
+        qApp->installTranslator(pluginTranslator);
     }
 }
 
@@ -99,12 +121,21 @@ void Backend::discoverEngines()
            && qobject_cast<QMHPluginInterface*>(pluginLoader.instance())) {
             QMHPlugin *plugin = new QMHPlugin(qobject_cast<QMHPluginInterface*>(pluginLoader.instance()), this);
             plugin->setParent(this);
-            plugin->registerPlugin(d->qmlEngine->rootContext());
+            if(d->qmlEngine)
+                plugin->registerPlugin(d->qmlEngine->rootContext());
             advertizeEngine(plugin);
         }
         else
             qWarning() << tr("Invalid plugin present %1 $2").arg(qualifiedFileName).arg(pluginLoader.errorString());
     }
+    resetLanguage();
+}
+
+QString Backend::language() const {
+    //FIXME: derive from locale
+    //Allow override
+    return QString();
+    return QString("bob");
 }
 
 QList<QObject*> Backend::engines() const

@@ -86,8 +86,9 @@ public:
     QStringList visualElementProperties() const { return mInterface->visualElementProperties(); }
     void setVisualElementProperties(const QStringList& properties) { mInterface->setVisualElementProperties(properties); }
 
-    void registerPlugin(QDeclarativeContext *context) { mInterface->registerPlugin(context); }
-    void unregisterPlugin(QDeclarativeContext *context) { mInterface->unregisterPlugin(context); }
+    //These plugins should be equally usable from html
+    void registerPlugin(QDeclarativeContext *context = 0) { mInterface->registerPlugin(context); }
+    void unregisterPlugin() { mInterface->unregisterPlugin(); }
 
     virtual QObject *pluginProperties() const { return mInterface->pluginProperties(); }
 

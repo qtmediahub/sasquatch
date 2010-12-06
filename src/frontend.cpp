@@ -46,12 +46,14 @@ struct FrontendPrivate : public QObject
 public:
     FrontendPrivate();
     ~FrontendPrivate();
+
     QWidget *widget;
-    QTranslator frontEndTranslator;
+    QTranslator *frontEndTranslator;
 };
 
 FrontendPrivate::FrontendPrivate()
-    : widget(0)
+    : widget(0),
+      frontEndTranslator(0)
 { /**/ }
 
 FrontendPrivate::~FrontendPrivate()
@@ -91,14 +93,9 @@ QWidget* Frontend::loadFrontend(const QUrl &url)
     else
         targetUrl = url;
 
-    //Loading translation is part of loading skin
-    //d->translator.load("");
-    //qApp->installTranslator(&(d->translator));
-
     if(targetUrl.path().right(3) == "qml")
     {
         QDesktopWidget *desktop = qApp->desktop();
-
 
         QDeclarativeView *widget= new QDeclarativeView();
 
@@ -125,6 +122,7 @@ QWidget* Frontend::loadFrontend(const QUrl &url)
 #endif
         Backend::instance()->initialize(widget->engine());
 
+        resetLanguage();
         widget->setSource(targetUrl);
 
         d->widget = widget;
@@ -154,5 +152,18 @@ void Frontend::showFullScreen()
         loadFrontend(QUrl());
     d->widget->showFullScreen();
 }
+
+void Frontend::resetLanguage()
+{
+    Backend *backend = Backend::instance();
+    QString language = backend->language();
+
+    delete d->frontEndTranslator;
+    d->frontEndTranslator = new QTranslator(this);
+    //FIXME: this clearly needs some heuristics
+    d->frontEndTranslator->load(backend->skinPath() + "/confluence/translations/" + "confluence_" + language + ".qm");
+    qApp->installTranslator(d->frontEndTranslator);
+}
+
 
 #include "frontend.moc"

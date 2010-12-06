@@ -39,6 +39,9 @@ public:
     static Backend *instance();
     void initialize(QDeclarativeEngine *engine = 0);
 
+    void resetLanguage();
+    QString language() const;
+
     QList<QObject*> engines() const;
     QString skinPath() const;
     QString pluginPath() const;
