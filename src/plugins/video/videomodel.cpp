@@ -174,7 +174,7 @@ QVariant VideoModel::data(const QModelIndex &index, int role) const
             return data->name;
         } else if (role == Qt::DecorationRole) {
         } else if (role == DecorationUrlRole) {
-            return QUrl("image://qtmediahub/musicmodel" + data->searchPath);
+            return QUrl("image://qtmediahub/videomodel" + data->searchPath);
         } else if (role == FilePathRole) {
             return data->searchPath;
         }

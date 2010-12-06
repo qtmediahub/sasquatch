@@ -17,8 +17,8 @@
  *
  * ****************************************************************************/
 
-#ifndef MUSICMODEL_H
-#define MUSICMODEL_H
+#ifndef VIDEOMODEL_H
+#define VIDEOMODEL_H
 
 #include <QAbstractListModel>
 #include <QImage>
@@ -124,5 +124,5 @@ private:
     friend class VideoModelThread;
 };
 
-#endif // MUSICMODEL_H
+#endif // VIDEOMODEL_H
 
