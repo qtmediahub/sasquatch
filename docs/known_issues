@@ -1,0 +1,3 @@
+#1 Text has been seen vanishing on 2 Linux machines (Ubuntu and Arch
+respectively) when using the gl viewport. This does not happen when using
+the OpenGL graphics system, and does not happen on mac

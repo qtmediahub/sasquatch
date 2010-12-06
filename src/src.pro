@@ -37,6 +37,7 @@ glgs {
 
 glviewport {
     CONFIG += gl
+    message(Let Donald know if you see text vanishing, see docs/known_issues)
     message(Using an OpenGL viewport)
     DEFINES += GLVIEWPORT
 }
