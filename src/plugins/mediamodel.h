@@ -33,22 +33,9 @@
 
 struct MediaInfo 
 {
-    MediaInfo() : year(0), track(0), length(0), bitrate(0), sampleRate(0), channels(0) { }
+    MediaInfo() { }
     QString filePath;
     QString fileName;
-    // tag info
-    QString title;
-    QString artist;
-    QString album;
-    QString comment;
-    QString genre;
-    quint32 year;
-    quint32 track;
-    // audio properties
-    int  length;
-    int  bitrate;
-    int  sampleRate;
-    int  channels;
 };
 
 class MediaModel;
@@ -67,7 +54,7 @@ public:
 
 signals:
     void started();
-    void musicFound(int row, const MediaInfo &info, const QImage &frontCover);
+    void mediaFound(int row, MediaInfo *info);
     void finished();
 
 private:
@@ -104,19 +91,17 @@ public:
     QImage decorationImage(const QString &path, QSize *size, const QSize &requestedSize);
 
     enum CustomRoles {
-        TitleRole = Qt::UserRole + 1,
-        ArtistRole,
-        AlbumRole,
-        CommentRole,
-        GenreRole,
+        // Qt::UserRole+1 to 100 are reserved by this model!
+        DecorationUrlRole = Qt::UserRole + 1,
         FilePathRole,
-        FileNameRole,
-        DecorationUrlRole
+        FileNameRole
     };
+
+    QString themeResourcePath() const { return m_themePath; }
 
     // callable from QML
     Q_INVOKABLE void setThemeResourcePath(const QString &themePath);
-    Q_INVOKABLE void addSearchPath(const QString &musicPath, const QString &name);
+    Q_INVOKABLE void addSearchPath(const QString &mediaPath, const QString &name);
 
     QString typeString() const;
     void registerImageProvider(QDeclarativeContext *context);
@@ -124,12 +109,16 @@ public:
 
     void dump();
 
+    virtual MediaInfo *readMediaInfo(const QString &filePath) = 0; // called from thread
+    virtual QVariant data(MediaInfo *info, int role) const = 0;
+    virtual QImage decoration(MediaInfo *info) const = 0;
+
 private slots:
-    void addMedia(int row, const MediaInfo &music, const QImage &frontCover);
+    void addMedia(int row, MediaInfo *media);
     void searchThreadFinished();
 
 signals:
-    void musicPathChanged();
+    void mediaPathChanged();
 
 private:
     void init();
@@ -141,7 +130,7 @@ private:
         Data(const QString &sp, const QString &name) : searchPath(sp), name(name), status(NotSearched) { }
         QString searchPath;
         QString name;
-        QList<MediaInfo *> musicInfos;
+        QList<MediaInfo *> mediaInfos;
         enum Status { NotSearched, Searching, Searched } status;
     };
 
@@ -149,8 +138,8 @@ private:
     QList<Data *> m_data;
     QHash<QString, QImage> m_frontCovers;
     MediaModelThread *m_thread;
-    QString m_themePath;
     QString m_fanartFallbackImagePath;
+    QString m_themePath;
     int m_nowSearching;
     friend class MediaModelThread;
 };

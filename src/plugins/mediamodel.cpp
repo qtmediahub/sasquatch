@@ -25,12 +25,6 @@
 #include <QMetaEnum>
 #include <QDeclarativeEngine>
 
-#include <taglib/tag.h>
-#include <taglib/fileref.h>
-#include <taglib/mpeg/mpegfile.h>
-#include <taglib/mpeg/id3v2/id3v2tag.h>
-#include <taglib/mpeg/id3v2/frames/attachedpictureframe.h>
-
 MediaModel::MediaModel(MediaModel::MediaType type, QObject *parent)
     : QAbstractItemModel(parent),
       m_type(type),
@@ -38,14 +32,11 @@ MediaModel::MediaModel(MediaModel::MediaType type, QObject *parent)
       m_nowSearching(-1)
 {
     qRegisterMetaType<MediaInfo>("MediaInfo");
+    qRegisterMetaType<MediaInfo *>("MediaInfo *");
 
-    QHash<int, QByteArray> roleNames;
+    QHash<int, QByteArray> roleNames = QAbstractItemModel::roleNames();
     roleNames[Qt::DisplayRole] = "display";
     roleNames[DecorationUrlRole] = "decorationUrl";
-    roleNames[TitleRole] = "title";
-    roleNames[AlbumRole] = "album";
-    roleNames[CommentRole] = "comment";
-    roleNames[GenreRole] = "genre";
     roleNames[FilePathRole] = "filePath";
     roleNames[FileNameRole] = "fileName";
     setRoleNames(roleNames);
@@ -57,7 +48,7 @@ MediaModel::MediaModel(MediaModel::MediaType type, QObject *parent)
 MediaModel::~MediaModel()
 {
     for (int i = 0; i < m_data.count(); i++)
-        qDeleteAll(m_data[i]->musicInfos);
+        qDeleteAll(m_data[i]->mediaInfos);
     qDeleteAll(m_data);
 
     // FIXME: Wait until thread is dead
@@ -84,7 +75,7 @@ void MediaModel::startSearchThread()
     m_thread->setAutoDelete(false);
     m_data[i]->status = Data::Searching;
     m_nowSearching = i;
-    connect(m_thread, SIGNAL(musicFound(int, MediaInfo, QImage)), this, SLOT(addMedia(int, MediaInfo, QImage)));
+    connect(m_thread, SIGNAL(mediaFound(int, MediaInfo *)), this, SLOT(addMedia(int, MediaInfo *)));
     connect(m_thread, SIGNAL(finished()), this, SLOT(searchThreadFinished()));
     QThreadPool::globalInstance()->start(m_thread);
 }
@@ -113,7 +104,7 @@ void MediaModel::addSearchPath(const QString &path, const QString &name)
     MediaInfo *mi = new MediaInfo;
     mi->fileName = tr("..");
     mi->filePath = "/DotDot";
-    data->musicInfos.append(mi);
+    data->mediaInfos.append(mi);
     m_data.insert(m_data.count()-1, data);
     endInsertRows();
     m_frontCovers.insert(path, QImage(m_themePath + "/media/DefaultHardDisk.png"));
@@ -131,7 +122,7 @@ QModelIndex MediaModel::index(int row, int col, const QModelIndex &parent) const
         return createIndex(row, 0, 0);
     } else { // first level
         Data *data = m_data.value(parent.row());
-        if (!data || row >= data->musicInfos.count())
+        if (!data || row >= data->mediaInfos.count())
             return QModelIndex();
         return createIndex(row, col, data);
     }
@@ -162,7 +153,7 @@ int MediaModel::rowCount(const QModelIndex &parent) const
         return m_data.count();
     if (parent.internalPointer() == 0) { // top level
         Data *data = m_data.value(parent.row());
-        return data ? data->musicInfos.count() : 0;
+        return data ? data->mediaInfos.count() : 0;
     } else {
         return 0;
     }
@@ -189,48 +180,29 @@ QVariant MediaModel::data(const QModelIndex &index, int role) const
         return QVariant();
     }
 
-    Data *data = static_cast<Data *>(index.internalPointer());
-    MediaInfo *info = data->musicInfos[index.row()];
-    if (role == Qt::DisplayRole) {
-        if (info->title.isEmpty())
-            return info->fileName;
-        QString title = info->title;
-        if (!info->album.isEmpty())
-            title.append(QLatin1String(" (") + info->album + QLatin1String(")"));
-        return title;
-    } else if (role == Qt::DecorationRole) {
-        return QVariant(); // FIX
-//        return decorationPixmap(info);
-    } else if (role == TitleRole) {
-        return info->title;
-    } else if (role == AlbumRole) {
-        return info->album;
-    } else if (role == CommentRole) {
-        return info->comment;
-    } else if (role == GenreRole) {
-        return info->genre;
+    Data *d = static_cast<Data *>(index.internalPointer());
+    MediaInfo *info = d->mediaInfos[index.row()];
+    if (role == DecorationUrlRole) {
+        return QUrl("image://" + imageBaseUrl() + info->filePath);
     } else if (role == FilePathRole) {
         return info->filePath;
     } else if (role == FileNameRole) {
         return info->fileName;
-    } else if (role == DecorationUrlRole) {
-        return QUrl("image://" + imageBaseUrl() + info->filePath);
     } else {
-        return QVariant();
+        if (info->fileName == tr("..")) // plain awful (aka coding against a deadline)
+            return role == Qt::DisplayRole ? info->fileName : QVariant();
+        else
+            return data(info, role);
     }
 }
 
-void MediaModel::addMedia(int row, const MediaInfo &music, const QImage &frontCover)
+void MediaModel::addMedia(int row, MediaInfo *mi)
 {
     Data *data = m_data[row];
-    beginInsertRows(createIndex(row, 0, 0), data->musicInfos.count(), data->musicInfos.count());
-    MediaInfo *mi = new MediaInfo(music);
-    if (!frontCover.isNull()) {
-        m_frontCovers.insert(mi->filePath, frontCover);
-    } else {
-        m_frontCovers.insert(mi->filePath, QImage(m_themePath + "/media/Fanart_Fallback_Music_Small.jpg")); // FIXME: Make this configurable
-    }
-    data->musicInfos.append(mi);
+    beginInsertRows(createIndex(row, 0, 0), data->mediaInfos.count(), data->mediaInfos.count());
+    QImage frontCover = decoration(mi);
+    m_frontCovers.insert(mi->filePath, frontCover);
+    data->mediaInfos.append(mi);
     endInsertRows();
 }
 
@@ -268,60 +240,6 @@ void MediaModel::setThemeResourcePath(const QString &themePath)
     reset();
 }
 
-static inline QString fromTagString(const TagLib::String &string)
-{
-    return QString::fromStdWString(string.toWString());
-}
-
-static void popuplateGenericTagInfo(MediaInfo *info, TagLib::Tag *tag)
-{
-    info->title = fromTagString(tag->title());
-    info->artist = fromTagString(tag->artist());
-    info->album = fromTagString(tag->album());
-    info->comment = fromTagString(tag->comment());
-    info->genre = fromTagString(tag->genre());
-    info->year = tag->year();
-    info->track = tag->track();
-}
-
-static void popuplateAudioProperties(MediaInfo *info, TagLib::AudioProperties *properties)
-{
-    info->length = properties->length();
-    info->bitrate = properties->bitrate();
-    info->sampleRate = properties->sampleRate();
-    info->channels = properties->channels();
-}
-
-static QImage readFrontCover(TagLib::ID3v2::Tag *id3v2Tag)
-{
-    TagLib::ID3v2::FrameList frames = id3v2Tag->frameListMap()["APIC"];
-    if (frames.isEmpty()) {
-        //qDebug() << "No front cover";
-        return QImage();
-    }
-
-    TagLib::ID3v2::AttachedPictureFrame *selectedFrame = 0;
-    if (frames.size() != 1) {
-        TagLib::ID3v2::FrameList::Iterator it = frames.begin();
-        for (; it != frames.end(); ++it) {
-            TagLib::ID3v2::AttachedPictureFrame *frame = dynamic_cast<TagLib::ID3v2::AttachedPictureFrame *>(*it);
-            if (frame && frame->type() != TagLib::ID3v2::AttachedPictureFrame::FrontCover) // BackCover, LeafletPage
-                continue;
-            selectedFrame = frame;
-            break;
-        }
-    }
-    if (!selectedFrame)
-        selectedFrame = dynamic_cast<TagLib::ID3v2::AttachedPictureFrame *>(frames.front());
-    if (!selectedFrame)
-        return QImage();
-
-    QByteArray imageData(selectedFrame->picture().data(), selectedFrame->picture().size());
-    QImage attachedImage = QImage::fromData(imageData);
-    // ## scale as necessary
-    return attachedImage;
-}
-
 MediaModelThread::MediaModelThread(MediaModel *model, int row, const QString &searchPath)
     : m_model(model), m_stop(false), m_row(row), m_searchPath(searchPath)
 {
@@ -351,32 +269,14 @@ void MediaModelThread::search()
 {
     QDirIterator it(m_searchPath, QDir::Files | QDir::NoDotAndDotDot, QDirIterator::Subdirectories);
     while (!m_stop && it.hasNext()) {
-        MediaInfo info;
-        info.filePath = it.next();
-        info.fileName = it.fileName();
-        QByteArray fileName = QFile::encodeName(info.filePath);
-        
-        TagLib::FileRef fileRef(fileName.constData());
-        if (fileRef.isNull()) {
-            // qDebug() << "Dropping " << info.path;
+        MediaInfo *info = m_model->readMediaInfo(it.next());
+        if (!info)
             continue;
-        }
 
-        TagLib::File *file = fileRef.file();
-        if (TagLib::Tag *tag = file->tag())
-            popuplateGenericTagInfo(&info, tag);
-        if (TagLib::AudioProperties *audioProperties = file->audioProperties())
-            popuplateAudioProperties(&info, audioProperties);
+        info->filePath = it.filePath();
+        info->fileName = it.fileName();
 
-        // Populate music type specific fields
-        QImage frontCover;
-        if (TagLib::MPEG::File *mpegFile = dynamic_cast<TagLib::MPEG::File *>(file)) {
-            TagLib::ID3v2::Tag *id3v2Tag = mpegFile->ID3v2Tag(false);
-            if (id3v2Tag)
-                frontCover = readFrontCover(id3v2Tag);
-        }
-
-        emit musicFound(m_row, info, frontCover);
+        emit mediaFound(m_row, info);
    }
 }
 
@@ -397,8 +297,8 @@ void MediaModel::dump()
     qDebug() << m_data.count() << "elements";
     for (int i = 0; i < m_data.count(); i++) {
         qDebug() << m_data[i]->searchPath;
-        for(int j = 0; j < m_data[i]->musicInfos.count(); j++)
-            qDebug() << "\t\t" << m_data[i]->musicInfos[j]->filePath;
+        for(int j = 0; j < m_data[i]->mediaInfos.count(); j++)
+            qDebug() << "\t\t" << m_data[i]->mediaInfos[j]->filePath;
     }
 }
 
