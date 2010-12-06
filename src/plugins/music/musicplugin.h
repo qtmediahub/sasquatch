@@ -4,7 +4,7 @@
 #include <QObject>
 
 #include "qmhplugininterface.h"
-#include "../mediamodel.h"
+#include "musicmodel.h"
 
 class QDeclarativeContext;
 
@@ -34,9 +34,7 @@ signals:
 
 private:
     QList<QObject *> m_childItems;
-    MediaModel *m_model;
-
-    friend class ImageProvider;
+    MusicModel *m_model;
 };
 
 #endif // MUSICPLUGIN_H
