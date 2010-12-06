@@ -76,7 +76,7 @@ void VideoModel::startSearchThread()
     m_thread = new VideoModelThread(this, i, m_data[i]->searchPath);
     m_data[i]->status = Data::Searching;
     m_nowSearching = i;
-    connect(m_thread, SIGNAL(videoFound(int, VideoInfo, QImage)), this, SLOT(addVideo(int, VideoInfo, QImage)));
+    connect(m_thread, SIGNAL(videoFound(int, VideoInfo)), this, SLOT(addVideo(int, VideoInfo)));
     connect(m_thread, SIGNAL(finished()), this, SLOT(searchThreadFinished()));
     QThreadPool::globalInstance()->start(m_thread);
 }
@@ -106,11 +106,10 @@ void VideoModel::addSearchPath(const QString &path, const QString &name)
     VideoInfo *mi = new VideoInfo;
     mi->fileName = tr("..");
     mi->filePath = "DotDot";
-    m_frontCovers.insert("DotDot", QImage(m_themePath + "/media/DefaultFolderBack.png"));
+    mi->decorationUrl = m_themePath + "/media/DefaultFolderBack.png";
     data->videoInfos.append(mi);
     m_data.insert(m_data.count()-1, data);
     endInsertRows();
-    m_frontCovers.insert(path, QImage(m_themePath + "/media/DefaultHardDisk.png"));
 
     startSearchThread();
 }
@@ -195,7 +194,7 @@ QVariant VideoModel::data(const QModelIndex &index, int role) const
     } else if (role == FileNameRole) {
         return info->fileName;
     } else if (role == DecorationUrlRole) {
-        return QUrl("image://qtmediahub/musicmodel" + info->filePath);
+        return QUrl(info->decorationUrl);
     } else if (role == LengthRole) {
         return info->length;
     } else if (role == SubtitlesRole) {
@@ -207,47 +206,18 @@ QVariant VideoModel::data(const QModelIndex &index, int role) const
     }
 }
 
-void VideoModel::addVideo(int row, const VideoInfo &video, const QImage &frontCover)
+void VideoModel::addVideo(int row, const VideoInfo &video)
 {
     Data *data = m_data[row];
     beginInsertRows(createIndex(row, 0, 0), data->videoInfos.count(), data->videoInfos.count());
     VideoInfo *mi = new VideoInfo(video);
-    if (!frontCover.isNull())
-        m_frontCovers.insert(mi->filePath, frontCover);
-    else
-        m_frontCovers.insert(mi->filePath, QImage(m_themePath + "/media/Fanart_Fallback_Music_Small.jpg"));
     data->videoInfos.append(mi);
     endInsertRows();
-}
-
-QPixmap VideoModel::decorationPixmap(const QString &path, QSize *size, const QSize &requestedSize)
-{
-    Q_UNUSED(requestedSize);
-    if (!m_frontCovers.contains(path))
-        return QPixmap();
-    QPixmap pixmap;
-    if (!QPixmapCache::find("coverart_" + path, &pixmap)) {
-        pixmap = QPixmap::fromImage(m_frontCovers[path]);
-        QPixmapCache::insert("coverart_" + path, pixmap);
-    }
-    *size = pixmap.size();
-    return pixmap;
-}
-
-QImage VideoModel::decorationImage(const QString &path, QSize *size, const QSize &requestedSize)
-{
-    Q_UNUSED(requestedSize);
-    if (!m_frontCovers.contains(path))
-        return QImage();
-    QImage img = m_frontCovers.value(path);
-    *size = img.size();
-    return img;
 }
 
 void VideoModel::setThemeResourcePath(const QString &themePath)
 {
     m_themePath = themePath;
-    m_frontCovers.insert("AddNewSource", QImage(m_themePath + "/media/DefaultAddSource.png"));
     reset();
 }
 
@@ -280,7 +250,7 @@ static bool generateThumbnail(const VideoInfo &info, const QFileInfo &thumbnailI
 {
     // cleanup tmp
     QDir dir;
-    QFileInfo tmp(thumbnailInfo.absolutePath() + "/00000001.png");
+    QFileInfo tmp("/tmp/00000001.png");
     if (tmp.exists())
         dir.remove(tmp.filePath());
 
@@ -292,59 +262,54 @@ static bool generateThumbnail(const VideoInfo &info, const QFileInfo &thumbnailI
     arguments << "-frames" << "1";
     arguments << info.filePath;
 
-    qDebug() << "videoModel create thumbnail for:" << info.fileName << thumbnailInfo.absoluteFilePath();
-
     QProcess *process = new QProcess();
-    process->setWorkingDirectory(thumbnailInfo.absolutePath());
+    process->setWorkingDirectory(tmp.absolutePath());
     process->start(program, arguments);
     process->waitForFinished();
     delete process;
 
     if (tmp.exists()) {
         dir.rename(tmp.filePath(), thumbnailInfo.absoluteFilePath());
+
+        // cleanup tmp file
+        dir.remove(tmp.filePath());
+
         return true;
     } else {
+        qDebug() << "could not create thumbnail for" << info.fileName;
         return false;
     }
 }
 
 void VideoModelThread::search()
 {
+    // check if thumnail folder exists
+    QFileInfo thumbnailFolderInfo(QDir::homePath() + "/.thumbnails/qtmediahub/");
+    if (!thumbnailFolderInfo.exists()) {
+        QDir dir;
+        dir.mkpath(thumbnailFolderInfo.absoluteFilePath());
+    }
+
     QDirIterator it(m_searchPath, QDir::Files | QDir::NoDotAndDotDot, QDirIterator::Subdirectories);
     while (!m_stop && it.hasNext()) {
         VideoInfo info;
         info.filePath = it.next();
         info.fileName = it.fileName();
-        QByteArray fileName = QFile::encodeName(info.filePath);
 
         // TODO actual readout of metadata
         info.length = 0;
         info.channels = 1;
         info.subtitles = 0;
 
-        // Populate music type specific fields
-        QImage frontCover;
-
         QString md5 = QCryptographicHash::hash(QString("file://" + info.filePath).toUtf8(), QCryptographicHash::Md5).toHex();
-
-        // check if thumnail folder exists
-        QFileInfo thumbnailFolderInfo(QDir::homePath() + "/.thumbnails/qtmediahub/");
-        if (!thumbnailFolderInfo.exists()) {
-            QDir dir;
-            dir.mkpath(thumbnailFolderInfo.absoluteFilePath());
-        }
-
         QFileInfo thumbnailInfo(thumbnailFolderInfo.absoluteFilePath() + md5 + ".png");
-        QFileInfo fileInfo(info.filePath);
 
-        QString ret = "";
-
-        if (thumbnailInfo.exists() || generateThumbnail(info, thumbnailInfo))
-            ret = thumbnailInfo.filePath();
-        else
-            ret = "";
-
-        emit videoFound(m_row, info, frontCover);
+        if (thumbnailInfo.exists() || generateThumbnail(info, thumbnailInfo)) {
+            info.decorationUrl = thumbnailInfo.filePath();
+            emit videoFound(m_row, info);
+        } else {
+            qDebug() << "failed" << info.fileName;
+        }
    }
 }
 

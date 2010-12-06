@@ -37,6 +37,7 @@ struct VideoInfo
     int length;
     int subtitles;
     int channels;
+    QString decorationUrl;
 };
 
 class VideoModel;
@@ -55,7 +56,7 @@ public:
 
 signals:
     void started();
-    void videoFound(int row, const VideoInfo &info, const QImage &frontCover);
+    void videoFound(int row, const VideoInfo &info);
     void finished();
 
 private:
@@ -81,9 +82,6 @@ public:
     QModelIndex parent(const QModelIndex &idx) const;
     int columnCount(const QModelIndex &idx) const;
 
-    QPixmap decorationPixmap(const QString &path, QSize *size, const QSize &requestedSize);
-    QImage decorationImage(const QString &path, QSize *size, const QSize &requestedSize);
-
     enum CustomRoles {
         FilePathRole = Qt::UserRole + 1,
         FileNameRole,
@@ -100,7 +98,7 @@ public:
     void dump();
 
 private slots:
-    void addVideo(int row, const VideoInfo &video, const QImage &frontCover);
+    void addVideo(int row, const VideoInfo &video);
     void searchThreadFinished();
 
 signals:
@@ -111,7 +109,6 @@ private:
     void startSearchThread();
     void stopSearchThread();
 
-    QPixmap decorationPixmap(VideoInfo *info) const;
     struct Data {
         Data(const QString &sp, const QString &name) : searchPath(sp), name(name), status(NotSearched) { }
         QString searchPath;
@@ -120,7 +117,6 @@ private:
         enum Status { NotSearched, Searching, Searched } status;
     };
     QList<Data *> m_data;
-    QHash<QString, QImage> m_frontCovers;
     VideoModelThread *m_thread;
     QString m_themePath;
     QString m_fanartFallbackImagePath;
