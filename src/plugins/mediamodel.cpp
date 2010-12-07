@@ -24,14 +24,18 @@
 #include <QtDebug>
 #include <QMetaEnum>
 #include <QDeclarativeEngine>
+#include <QQueue>
+
+// The internal pointer used in the model is the node itself.
+// If parent is 0, it's a top level node i.e one of the entries in m_data/search paths.
 
 MediaModel::MediaModel(MediaModel::MediaType type, QObject *parent)
     : QAbstractItemModel(parent),
       m_type(type),
       m_thread(0),
-      m_nowSearching(-1)
+      m_nowSearching(-1),
+      m_root(0)
 {
-    qRegisterMetaType<MediaInfo>("MediaInfo");
     qRegisterMetaType<MediaInfo *>("MediaInfo *");
 
     QHash<int, QByteArray> roleNames = QAbstractItemModel::roleNames();
@@ -41,15 +45,17 @@ MediaModel::MediaModel(MediaModel::MediaType type, QObject *parent)
     roleNames[FileNameRole] = "fileName";
     setRoleNames(roleNames);
 
-    Data *data = new Data(QString("/AddNewSource"), tr("Add new source"));
-    m_data.append(data);
+    m_root = new MediaInfo(MediaInfo::Root);
+
+    MediaInfo *addNewSource = new MediaInfo(MediaInfo::AddNewSource);
+    addNewSource->filePath = "/AddNewSource";
+    addNewSource->name = tr("Add new source");
+    m_root->children.append(addNewSource);
 }
 
 MediaModel::~MediaModel()
 {
-    for (int i = 0; i < m_data.count(); i++)
-        qDeleteAll(m_data[i]->mediaInfos);
-    qDeleteAll(m_data);
+    qDeleteAll(m_root->children);
 
     // FIXME: Wait until thread is dead
     delete m_thread;
@@ -60,22 +66,23 @@ void MediaModel::startSearchThread()
     if (m_nowSearching != -1)
         return; // already searching some directory
 
+    QList<MediaInfo *> mediaInfos = m_root->children;
     int i;
-    for (i = 0; i < m_data.count()-1; i++) { // leave out the last item
-        if (m_data[i]->status == Data::NotSearched)
+    for (i = 0; i < mediaInfos.count(); i++) { // leave out the last item
+        if (mediaInfos[i]->type == MediaInfo::SearchPath && mediaInfos[i]->status == MediaInfo::NotSearched)
             break;
     }
-    if (i == m_data.count()-1) {
+    if (i == mediaInfos.count()) {
         m_nowSearching = -1;
         return; // all searched
     }
 
     Q_ASSERT(!m_thread);
-    m_thread = new MediaModelThread(this, i, m_data[i]->searchPath);
-    m_thread->setAutoDelete(false);
-    m_data[i]->status = Data::Searching;
     m_nowSearching = i;
-    connect(m_thread, SIGNAL(mediaFound(int, MediaInfo *)), this, SLOT(addMedia(int, MediaInfo *)));
+    m_thread = new MediaModelThread(this, mediaInfos[i]);
+    m_thread->setAutoDelete(false);
+    mediaInfos[i]->status = MediaInfo::Searching;
+    connect(m_thread, SIGNAL(mediaFound(MediaInfo *)), this, SLOT(addMedia(MediaInfo *)));
     connect(m_thread, SIGNAL(finished()), this, SLOT(searchThreadFinished()));
     QThreadPool::globalInstance()->start(m_thread);
 }
@@ -84,7 +91,7 @@ void MediaModel::searchThreadFinished()
 {
     Q_ASSERT(m_nowSearching != -1);
     Q_ASSERT(m_thread);
-    m_data[m_nowSearching]->status = Data::Searched;
+    m_root->children[m_nowSearching]->status = MediaInfo::Searched;
     m_nowSearching = -1;
     delete m_thread;
     m_thread = 0;
@@ -99,13 +106,11 @@ void MediaModel::stopSearchThread()
 
 void MediaModel::addSearchPath(const QString &path, const QString &name)
 {
-    beginInsertRows(QModelIndex(), m_data.count()-1, m_data.count()-1);
-    Data *data = new Data(path, name);
-    MediaInfo *mi = new MediaInfo;
-    mi->fileName = tr("..");
-    mi->filePath = "/DotDot";
-    data->mediaInfos.append(mi);
-    m_data.insert(m_data.count()-1, data);
+    beginInsertRows(QModelIndex(), m_root->children.count()-1, m_root->children.count()-1);
+    MediaInfo *newSearchPath = new MediaInfo(MediaInfo::SearchPath);
+    newSearchPath->filePath = path;
+    newSearchPath->name = name;
+    m_root->children.insert(m_root->children.count()-1, newSearchPath); // add before AddNewSource
     endInsertRows();
     m_frontCovers.insert(path, QImage(m_themePath + "/media/DefaultHardDisk.png"));
 
@@ -116,29 +121,20 @@ QModelIndex MediaModel::index(int row, int col, const QModelIndex &parent) const
 {
     if (col != 0 || row < 0)
         return QModelIndex();
-    if (!parent.isValid()) { // top level
-        if (row >= m_data.count())
-            return QModelIndex();
-        return createIndex(row, 0, 0);
-    } else { // first level
-        Data *data = m_data.value(parent.row());
-        if (!data || row >= data->mediaInfos.count())
-            return QModelIndex();
-        return createIndex(row, col, data);
-    }
+    MediaInfo *parentInfo = parent.isValid() ? static_cast<MediaInfo *>(parent.internalPointer()) : m_root;
+    if (!parentInfo || row >= parentInfo->children.count())
+        return QModelIndex();
+    return createIndex(row, col, parentInfo->children[row]);
 }
 
 QModelIndex MediaModel::parent(const QModelIndex &idx) const
 {
     if (!idx.isValid())
         return QModelIndex();
-    if (idx.internalPointer() == 0) // top level
-        return QModelIndex();
-    Data *data = static_cast<Data *>(idx.internalPointer());
-    int loc = m_data.indexOf(data);
-    if (loc == -1)
-        return QModelIndex();
-    return createIndex(loc, 0, 0);
+    MediaInfo *info = static_cast<MediaInfo *>(idx.internalPointer());
+    MediaInfo *parent = info->parent;
+    MediaInfo *grandParent = parent && parent->parent ? parent->parent : m_root;
+    return createIndex(grandParent->children.indexOf(parent), idx.column(), parent);
 }
 
 int MediaModel::columnCount(const QModelIndex &idx) const
@@ -150,13 +146,9 @@ int MediaModel::columnCount(const QModelIndex &idx) const
 int MediaModel::rowCount(const QModelIndex &parent) const
 {
     if (!parent.isValid())
-        return m_data.count();
-    if (parent.internalPointer() == 0) { // top level
-        Data *data = m_data.value(parent.row());
-        return data ? data->mediaInfos.count() : 0;
-    } else {
-        return 0;
-    }
+        return m_root->children.count();
+    MediaInfo *info = static_cast<MediaInfo *>(parent.internalPointer());
+    return info->children.count();
 }
 
 QVariant MediaModel::data(const QModelIndex &index, int role) const
@@ -164,45 +156,42 @@ QVariant MediaModel::data(const QModelIndex &index, int role) const
     if (!index.isValid())
         return QVariant();
 
-    if (index.internalPointer() == 0) { // top level
-        Data *data = m_data.value(index.row());
-        if (!data)
-            return QVariant();
-        if (role == Qt::DisplayRole) {
-            return data->name;
-        } else if (role == Qt::DecorationRole) {
-        } else if (role == DecorationUrlRole) {
-            return QUrl("image://" + imageBaseUrl() + data->searchPath);
-        } else if (role == FilePathRole) {
-            return data->searchPath;
-        }
-
-        return QVariant();
-    }
-
-    Data *d = static_cast<Data *>(index.internalPointer());
-    MediaInfo *info = d->mediaInfos[index.row()];
+    MediaInfo *info = static_cast<MediaInfo *>(index.internalPointer());
     if (role == DecorationUrlRole) {
         return QUrl("image://" + imageBaseUrl() + info->filePath);
     } else if (role == FilePathRole) {
         return info->filePath;
     } else if (role == FileNameRole) {
-        return info->fileName;
+        return info->name;
+    }
+
+    if (info->parent == m_root) {
+        if (role == Qt::DisplayRole)
+            return info->name;
+
+        return QVariant();
     } else {
-        if (info->fileName == tr("..")) // plain awful (aka coding against a deadline)
-            return role == Qt::DisplayRole ? info->fileName : QVariant();
+        if (info->type != MediaInfo::File)
+            return role == Qt::DisplayRole ? info->name : QVariant();
         else
             return data(info, role);
     }
 }
 
-void MediaModel::addMedia(int row, MediaInfo *mi)
+void MediaModel::addMedia(MediaInfo *mi)
 {
-    Data *data = m_data[row];
-    beginInsertRows(createIndex(row, 0, 0), data->mediaInfos.count(), data->mediaInfos.count());
-    QImage frontCover = decoration(mi);
+    MediaInfo *parent = mi->parent;
+    Q_ASSERT(parent);
+    MediaInfo *grandParent = parent->parent ? parent->parent : m_root;
+    QModelIndex parentIndex = createIndex(grandParent->children.indexOf(parent), 0, parent);
+    beginInsertRows(parentIndex, parent->children.count(), parent->children.count());
+    QImage frontCover;
+    if (mi->type == MediaInfo::File)
+        frontCover = decoration(mi);
+    else
+        frontCover = QImage(m_themePath + "/media/DefaultFolder.png");
     m_frontCovers.insert(mi->filePath, frontCover);
-    data->mediaInfos.append(mi);
+    parent->children.append(mi);
     endInsertRows();
 }
 
@@ -240,8 +229,8 @@ void MediaModel::setThemeResourcePath(const QString &themePath)
     reset();
 }
 
-MediaModelThread::MediaModelThread(MediaModel *model, int row, const QString &searchPath)
-    : m_model(model), m_stop(false), m_row(row), m_searchPath(searchPath)
+MediaModelThread::MediaModelThread(MediaModel *model, MediaInfo *mediaInfo)
+    : m_model(model), m_stop(false), m_mediaInfo(mediaInfo), m_searchPath(mediaInfo->filePath)
 {
 }
 
@@ -267,17 +256,36 @@ void MediaModelThread::run()
 
 void MediaModelThread::search()
 {
-    QDirIterator it(m_searchPath, QDir::Files | QDir::NoDotAndDotDot, QDirIterator::Subdirectories);
-    while (!m_stop && it.hasNext()) {
-        MediaInfo *info = m_model->readMediaInfo(it.next());
-        if (!info)
-            continue;
+    QQueue<MediaInfo *> dirQ;
+    QString currentSearchPath = m_searchPath;
+    MediaInfo *currentParent = m_mediaInfo;
 
-        info->filePath = it.filePath();
-        info->fileName = it.fileName();
+    while (true) {
+        QDirIterator it(currentSearchPath, QDir::Files | QDir::AllDirs | QDir::NoDotAndDotDot, QDirIterator::NoIteratorFlags);
+        while (!m_stop && it.hasNext()) {
+            it.next();
+            MediaInfo *info = 0;
+            if (it.fileInfo().isDir()) {
+                info = new MediaInfo(MediaInfo::Directory);
+                dirQ.enqueue(info);
+            } else if (it.fileInfo().isFile()) {
+                info = m_model->readMediaInfo(it.filePath());
+                if (!info)
+                    continue;
+            }
+            info->filePath = it.filePath();
+            info->name = it.fileName();
+            info->parent = currentParent;
 
-        emit mediaFound(m_row, info);
-   }
+            emit mediaFound(info);
+        }
+
+        if (dirQ.isEmpty())
+            break;
+
+        currentParent = dirQ.dequeue();
+        currentSearchPath = currentParent->filePath;
+    }
 }
 
 void MediaModel::registerImageProvider(QDeclarativeContext *context)
@@ -292,13 +300,14 @@ QString MediaModel::typeString() const
     return QString::fromLatin1(e.valueToKey(m_type));
 }
 
-void MediaModel::dump()
+void MediaModel::dump(MediaInfo *info, int indent)
 {
-    qDebug() << m_data.count() << "elements";
-    for (int i = 0; i < m_data.count(); i++) {
-        qDebug() << m_data[i]->searchPath;
-        for(int j = 0; j < m_data[i]->mediaInfos.count(); j++)
-            qDebug() << "\t\t" << m_data[i]->mediaInfos[j]->filePath;
+    qDebug() << info->children.count() << "elements";
+    QString space;
+    space = space.fill(' ', indent);
+    for (int i = 0; i < info->children.count(); i++) {
+        qDebug() << qPrintable(space) << info->children[i]->filePath;
+        dump(info->children[i], indent+4);
     }
 }
 

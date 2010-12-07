@@ -30,12 +30,30 @@
 #include <QDeclarativeImageProvider>
 #include <QDeclarativeContext>
 #include <QtDebug>
+#include <QApplication>
 
 struct MediaInfo 
 {
-    MediaInfo() { }
+    enum Status { NotSearched, Searching, Searched };
+    enum Type { Root, AddNewSource, SearchPath, DotDot, Directory, File };
+    MediaInfo(Type type) : parent(0), type(type), status(NotSearched) {
+        // is this wise?
+        if (type == Directory || type == SearchPath) {
+            MediaInfo *info = new MediaInfo(DotDot);
+            info->filePath = "/DotDot";
+            info->name = QT_TRANSLATE_NOOP("MediaModel", "..");
+            info->parent = this;
+            children.append(info);
+        }
+    }
+    ~MediaInfo() { qDeleteAll(children); children.clear(); }
+
+    MediaInfo *parent;
+    Type type;
     QString filePath;
-    QString fileName;
+    QString name;
+    Status status;
+    QList<MediaInfo *> children;
 };
 
 class MediaModel;
@@ -45,7 +63,7 @@ class MediaModelThread : public QObject, public QRunnable
     Q_OBJECT
 
 public:
-    MediaModelThread(MediaModel *model, int row, const QString &searchPath);
+    MediaModelThread(MediaModel *model, MediaInfo *info);
     ~MediaModelThread();
 
     void run();
@@ -54,14 +72,14 @@ public:
 
 signals:
     void started();
-    void mediaFound(int row, MediaInfo *info);
+    void mediaFound(MediaInfo *info);
     void finished();
 
 private:
     void search();
     MediaModel *m_model;
     bool m_stop;
-    int m_row;
+    MediaInfo *m_mediaInfo;
     QString m_searchPath;
 };
 
@@ -107,14 +125,14 @@ public:
     void registerImageProvider(QDeclarativeContext *context);
     QString imageBaseUrl() const { return typeString().toLower() + "model"; } // ## toLower() needed because of QTBUG-15905
 
-    void dump();
+    void dump(MediaInfo *info, int indent = 0);
 
     virtual MediaInfo *readMediaInfo(const QString &filePath) = 0; // called from thread
     virtual QVariant data(MediaInfo *info, int role) const = 0;
     virtual QImage decoration(MediaInfo *info) const = 0;
 
 private slots:
-    void addMedia(int row, MediaInfo *media);
+    void addMedia(MediaInfo *media);
     void searchThreadFinished();
 
 signals:
@@ -126,21 +144,14 @@ private:
     void stopSearchThread();
 
     QPixmap decorationPixmap(MediaInfo *info) const;
-    struct Data {
-        Data(const QString &sp, const QString &name) : searchPath(sp), name(name), status(NotSearched) { }
-        QString searchPath;
-        QString name;
-        QList<MediaInfo *> mediaInfos;
-        enum Status { NotSearched, Searching, Searched } status;
-    };
 
     MediaType m_type;
-    QList<Data *> m_data;
     QHash<QString, QImage> m_frontCovers;
     MediaModelThread *m_thread;
     QString m_fanartFallbackImagePath;
     QString m_themePath;
     int m_nowSearching;
+    MediaInfo *m_root;
     friend class MediaModelThread;
 };
 

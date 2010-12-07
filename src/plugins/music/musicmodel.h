@@ -5,7 +5,8 @@
 
 struct MusicInfo : public MediaInfo
 {
-    MusicInfo() :  year(0), track(0), length(0), bitrate(0), sampleRate(0), channels(0) { }
+    MusicInfo() :  MediaInfo(File), year(0), track(0), length(0), bitrate(0), sampleRate(0), channels(0) { }
+
     // tag info
     QString title;
     QString artist;

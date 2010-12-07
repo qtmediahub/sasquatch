@@ -28,7 +28,7 @@ QVariant MusicModel::data(MediaInfo *mediaInfo, int role) const
     MusicInfo *info = static_cast<MusicInfo *>(mediaInfo);
     if (role == Qt::DisplayRole) {
         if (info->title.isEmpty())
-            return info->fileName;
+            return info->name;
         QString title = info->title;
         if (!info->album.isEmpty())
             title.append(QLatin1String(" (") + info->album + QLatin1String(")"));
