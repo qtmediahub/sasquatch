@@ -15,9 +15,9 @@ PictureModel::~PictureModel()
 
 QVariant PictureModel::data(MediaInfo *mediaInfo, int role) const
 {
-    Q_UNUSED(mediaInfo);
-    Q_UNUSED(role);
-    return QVariant(); // we have nothing special to offer
+    if (role == Qt::DisplayRole)
+        return mediaInfo->name;
+    return QVariant();
 }
 
 QImage PictureModel::decoration(MediaInfo *info) const
