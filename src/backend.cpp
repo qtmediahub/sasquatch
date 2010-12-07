@@ -31,6 +31,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QCoreApplication>
 #include <QVariant>
 #include <QFileSystemModel>
+#include <QDesktopServices>
 
 #ifdef GL
 #include <QGLFormat>
@@ -186,6 +187,12 @@ void Backend::advertizeEngine(QMHPlugin *engine) {
     d->advertizedEngineRoles << role;
     emit enginesChanged();
 }
+
+void Backend::openUrlExternally(const QUrl & url) const
+{
+    QDesktopServices::openUrl(url);
+}
+
 
 QObject* Backend::engine(const QString &role) {
     foreach(QObject *currentEngine, d->advertizedEngines )

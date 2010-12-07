@@ -23,6 +23,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QObject>
 #include <QList>
 
+class QUrl;
 class BackendPrivate;
 class QMHPlugin;
 class QDeclarativeEngine;
@@ -49,6 +50,7 @@ public:
     bool transforms() const;
 
     Q_INVOKABLE void advertizeEngine(QMHPlugin *engine);
+    Q_INVOKABLE void openUrlExternally(const QUrl & url) const;
 
 signals:
     void skinPathChanged();
