@@ -4,5 +4,11 @@
 
 include(../plugins.pri)
 
-HEADERS += pictureplugin.h
-SOURCES += pictureplugin.cpp
+QT += declarative
+
+HEADERS += pictureplugin.h \
+           picturemodel.h
+
+SOURCES += pictureplugin.cpp \
+           picturemodel.cpp
+

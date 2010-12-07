@@ -69,7 +69,7 @@ class MediaModel : public QAbstractItemModel
 public:
     enum MediaType {
         Music,
-        Pictures,
+        Picture,
         Video
     };
 
