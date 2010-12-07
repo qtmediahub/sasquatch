@@ -1,6 +1,7 @@
 #include "picturemodel.h"
 
 #include <QFile>
+#include <QImageReader>
 
 PictureModel::PictureModel(QObject *parent)
     : MediaModel(MediaModel::Picture, parent)
@@ -22,16 +23,19 @@ QVariant PictureModel::data(MediaInfo *mediaInfo, int role) const
 
 QImage PictureModel::decoration(MediaInfo *info) const
 {
-    QImage thumbnail = (static_cast<PictureInfo *>(info))->thumbnail;
-    if (thumbnail.isNull())
-        return QImage(themeResourcePath() + "/media/Fanart_Fallback_Picture_Small.jpg"); // FIXME: Make this configurable
-    return thumbnail;
+    return (static_cast<PictureInfo *>(info))->thumbnail;
 }
 
 MediaInfo *PictureModel::readMediaInfo(const QString &filePath)
 {
-    QImage image(filePath);
-    
+    QImageReader imageReader(filePath);
+    if (!imageReader.canRead())
+        return 0;
+
+    QImage image = imageReader.read();
+    if (image.isNull())
+        return 0;
+
     PictureInfo *info = new PictureInfo;
     info->thumbnail = image;
 
