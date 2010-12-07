@@ -7,8 +7,10 @@ include(../plugins.pri)
 QT += declarative
 
 HEADERS += pictureplugin.h \
-           picturemodel.h
+           picturemodel.h \
+           ../mediamodel.h
 
 SOURCES += pictureplugin.cpp \
-           picturemodel.cpp
+           picturemodel.cpp \
+           ../mediamodel.cpp
 
