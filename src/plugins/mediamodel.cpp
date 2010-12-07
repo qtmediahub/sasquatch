@@ -26,9 +26,6 @@
 #include <QDeclarativeEngine>
 #include <QQueue>
 
-// The internal pointer used in the model is the node itself.
-// If parent is 0, it's a top level node i.e one of the entries in m_data/search paths.
-
 MediaModel::MediaModel(MediaModel::MediaType type, QObject *parent)
     : QAbstractItemModel(parent),
       m_type(type),
