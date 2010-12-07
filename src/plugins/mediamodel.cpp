@@ -40,11 +40,12 @@ MediaModel::MediaModel(MediaModel::MediaType type, QObject *parent)
     roleNames[DecorationUrlRole] = "decorationUrl";
     roleNames[FilePathRole] = "filePath";
     roleNames[FileNameRole] = "fileName";
+    roleNames[MediaInfoTypeRole] = "type";
     setRoleNames(roleNames);
 
-    m_root = new MediaInfo(MediaInfo::Root);
+    m_root = new MediaInfo(MediaModel::Root);
 
-    MediaInfo *addNewSource = new MediaInfo(MediaInfo::AddNewSource);
+    MediaInfo *addNewSource = new MediaInfo(MediaModel::AddNewSource);
     addNewSource->filePath = "/AddNewSource";
     addNewSource->name = tr("Add new source");
     m_root->children.append(addNewSource);
@@ -66,7 +67,7 @@ void MediaModel::startSearchThread()
     QList<MediaInfo *> mediaInfos = m_root->children;
     int i;
     for (i = 0; i < mediaInfos.count(); i++) { // leave out the last item
-        if (mediaInfos[i]->type == MediaInfo::SearchPath && mediaInfos[i]->status == MediaInfo::NotSearched)
+        if (mediaInfos[i]->type == MediaModel::SearchPath && mediaInfos[i]->status == MediaInfo::NotSearched)
             break;
     }
     if (i == mediaInfos.count()) {
@@ -104,7 +105,7 @@ void MediaModel::stopSearchThread()
 void MediaModel::addSearchPath(const QString &path, const QString &name)
 {
     beginInsertRows(QModelIndex(), m_root->children.count()-1, m_root->children.count()-1);
-    MediaInfo *newSearchPath = new MediaInfo(MediaInfo::SearchPath);
+    MediaInfo *newSearchPath = new MediaInfo(MediaModel::SearchPath);
     newSearchPath->filePath = path;
     newSearchPath->name = name;
     m_root->children.insert(m_root->children.count()-1, newSearchPath); // add before AddNewSource
@@ -160,6 +161,10 @@ QVariant MediaModel::data(const QModelIndex &index, int role) const
         return info->filePath;
     } else if (role == FileNameRole) {
         return info->name;
+    } else if (role == MediaInfoTypeRole) {
+        int idx = MediaModel::staticMetaObject.indexOfEnumerator("MediaInfoType");
+        QMetaEnum e = MediaModel::staticMetaObject.enumerator(idx);
+        return QString::fromLatin1(e.valueToKey(info->type));
     }
 
     if (info->parent == m_root) {
@@ -168,7 +173,7 @@ QVariant MediaModel::data(const QModelIndex &index, int role) const
 
         return QVariant();
     } else {
-        if (info->type != MediaInfo::File)
+        if (info->type != MediaModel::File)
             return role == Qt::DisplayRole ? info->name : QVariant();
         else
             return data(info, role);
@@ -183,7 +188,7 @@ void MediaModel::addMedia(MediaInfo *mi)
     QModelIndex parentIndex = createIndex(grandParent->children.indexOf(parent), 0, parent);
     beginInsertRows(parentIndex, parent->children.count(), parent->children.count());
     QImage frontCover;
-    if (mi->type == MediaInfo::File)
+    if (mi->type == MediaModel::File)
         frontCover = decoration(mi);
     else
         frontCover = QImage(m_themePath + "/media/DefaultFolder.png");
@@ -263,7 +268,7 @@ void MediaModelThread::search()
             it.next();
             MediaInfo *info = 0;
             if (it.fileInfo().isDir()) {
-                info = new MediaInfo(MediaInfo::Directory);
+                info = new MediaInfo(MediaModel::Directory);
                 dirQ.enqueue(info);
             } else if (it.fileInfo().isFile()) {
                 info = m_model->readMediaInfo(it.filePath());

@@ -32,31 +32,8 @@
 #include <QtDebug>
 #include <QApplication>
 
-struct MediaInfo 
-{
-    enum Status { NotSearched, Searching, Searched };
-    enum Type { Root, AddNewSource, SearchPath, DotDot, Directory, File };
-    MediaInfo(Type type) : parent(0), type(type), status(NotSearched) {
-        // is this wise?
-        if (type == Directory || type == SearchPath) {
-            MediaInfo *info = new MediaInfo(DotDot);
-            info->filePath = "/DotDot";
-            info->name = QT_TRANSLATE_NOOP("MediaModel", "..");
-            info->parent = this;
-            children.append(info);
-        }
-    }
-    ~MediaInfo() { qDeleteAll(children); children.clear(); }
-
-    MediaInfo *parent;
-    Type type;
-    QString filePath;
-    QString name;
-    Status status;
-    QList<MediaInfo *> children;
-};
-
 class MediaModel;
+class MediaInfo;
 
 class MediaModelThread : public QObject, public QRunnable
 {
@@ -87,12 +64,23 @@ class MediaModel : public QAbstractItemModel
 {
     Q_OBJECT
     Q_ENUMS(MediaType)
+    Q_ENUMS(MediaInfoType)
 
 public:
     enum MediaType {
         Music,
         Pictures,
         Video
+    };
+
+    // this is here, so we can expose it to QML
+    enum MediaInfoType { 
+        Root, 
+        AddNewSource, 
+        SearchPath, 
+        DotDot, 
+        Directory, 
+        File 
     };
 
     MediaModel(MediaType type, QObject *parent = 0);
@@ -112,7 +100,8 @@ public:
         // Qt::UserRole+1 to 100 are reserved by this model!
         DecorationUrlRole = Qt::UserRole + 1,
         FilePathRole,
-        FileNameRole
+        FileNameRole,
+        MediaInfoTypeRole
     };
 
     QString themeResourcePath() const { return m_themePath; }
@@ -178,6 +167,29 @@ public:
 
 private:
     MediaModel *m_model;
+};
+
+struct MediaInfo 
+{
+    enum Status { NotSearched, Searching, Searched };
+    MediaInfo(MediaModel::MediaInfoType type) : parent(0), type(type), status(NotSearched) {
+        // is this wise?
+        if (type == MediaModel::Directory || type == MediaModel::SearchPath) {
+            MediaInfo *info = new MediaInfo(MediaModel::DotDot);
+            info->filePath = "/DotDot";
+            info->name = QT_TRANSLATE_NOOP("MediaModel", "..");
+            info->parent = this;
+            children.append(info);
+        }
+    }
+    ~MediaInfo() { qDeleteAll(children); children.clear(); }
+
+    MediaInfo *parent;
+    MediaModel::MediaInfoType type;
+    QString filePath;
+    QString name;
+    Status status;
+    QList<MediaInfo *> children;
 };
 
 #endif // MEDIAMODEL_H
