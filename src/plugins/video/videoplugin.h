@@ -2,7 +2,7 @@
 #define VIDEOPLUGIN_H
 
 #include <QObject>
-
+#include <QDeclarativeContext>
 #include "qmhplugininterface.h"
 #include "videomodel.h"
 
@@ -24,6 +24,8 @@ public:
     QList<QObject*> childItems() const { return m_childItems; }
     // accessed from QML
     QObject *videoModel() const { return m_model; }
+
+    void registerPlugin(QDeclarativeContext *context);
 
 signals:
     void videoModelChanged();
