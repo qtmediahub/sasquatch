@@ -18,237 +18,47 @@
  * ****************************************************************************/
 
 #include "videomodel.h"
-#include <QDirIterator>
-#include <QThreadPool>
-#include <QTimer>
-#include <QtDebug>
-#include <QProcess>
-#include <QCryptographicHash>
 
+#include <QFileInfo>
+#include <QDir>
+#include <QCryptographicHash>
+#include <QProcess>
 
 VideoModel::VideoModel(QObject *parent)
-    : QAbstractItemModel(parent),
-      m_thread(0),
-      m_nowSearching(-1)
+    : MediaModel(MediaModel::Video, parent)
 {
-    qRegisterMetaType<VideoInfo>("VideoInfo");
-
-    QHash<int, QByteArray> roleNames;
-    roleNames[Qt::DisplayRole] = "display";
-    roleNames[DecorationUrlRole] = "decorationUrl";
+    QHash<int, QByteArray> roleNames = MediaModel::roleNames();
     roleNames[LengthRole] = "length";
-    roleNames[SubtitlesRole] = "subtitles";
-    roleNames[ChannelsRole] = "channels";
-    roleNames[FilePathRole] = "filePath";
-    roleNames[FileNameRole] = "fileName";
+    roleNames[ThumbnailRole] = "thumbnail";
     setRoleNames(roleNames);
-
-    Data *data = new Data(QString("AddNewSource"), tr("Add new source"));
-    m_data.append(data);
 }
 
 VideoModel::~VideoModel()
 {
-    for (int i = 0; i < m_data.count(); i++)
-        qDeleteAll(m_data[i]->videoInfos);
-    qDeleteAll(m_data);
-
-    // FIXME: Wait until thread is dead
-    delete m_thread;
 }
 
-void VideoModel::startSearchThread()
+QVariant VideoModel::data(MediaInfo *mediaInfo, int role) const
 {
-    if (m_nowSearching != -1)
-        return; // already searching some directory
+    VideoInfo *info = static_cast<VideoInfo *>(mediaInfo);
 
-    int i;
-    for (i = 0; i < m_data.count()-1; i++) { // leave out the last item
-        if (m_data[i]->status == Data::NotSearched)
-            break;
-    }
-    if (i == m_data.count()-1) {
-        m_nowSearching = -1;
-        return; // all searched
-    }
-
-    Q_ASSERT(!m_thread);
-    m_thread = new VideoModelThread(this, i, m_data[i]->searchPath);
-    m_data[i]->status = Data::Searching;
-    m_nowSearching = i;
-    connect(m_thread, SIGNAL(videoFound(int, VideoInfo)), this, SLOT(addVideo(int, VideoInfo)));
-    connect(m_thread, SIGNAL(finished()), this, SLOT(searchThreadFinished()));
-    QThreadPool::globalInstance()->start(m_thread);
-}
-
-void VideoModel::searchThreadFinished()
-{
-    Q_ASSERT(m_nowSearching != -1);
-    Q_ASSERT(m_thread);
-    m_data[m_nowSearching]->status = Data::Searched;
-    m_nowSearching = -1;
-    // TODO will leak but currently crashes....
-//    delete m_thread;
-    m_thread = 0;
-
-    startSearchThread();
-}
-
-void VideoModel::stopSearchThread()
-{
-    m_thread->stop();
-}
-
-void VideoModel::addSearchPath(const QString &path, const QString &name)
-{
-    beginInsertRows(QModelIndex(), m_data.count()-1, m_data.count()-1);
-    Data *data = new Data(path, name);
-    VideoInfo *mi = new VideoInfo;
-    mi->fileName = tr("..");
-    mi->filePath = "DotDot";
-    mi->decorationUrl = m_themePath + "/media/DefaultFolderBack.png";
-    data->videoInfos.append(mi);
-    m_data.insert(m_data.count()-1, data);
-    endInsertRows();
-
-    startSearchThread();
-}
-
-QModelIndex VideoModel::index(int row, int col, const QModelIndex &parent) const
-{
-    if (col != 0 || row < 0)
-        return QModelIndex();
-    if (!parent.isValid()) { // top level
-        if (row >= m_data.count())
-            return QModelIndex();
-        return createIndex(row, 0, 0);
-    } else { // first level
-        Data *data = m_data.value(parent.row());
-        if (!data || row >= data->videoInfos.count())
-            return QModelIndex();
-        return createIndex(row, col, data);
-    }
-}
-
-QModelIndex VideoModel::parent(const QModelIndex &idx) const
-{
-    if (!idx.isValid())
-        return QModelIndex();
-    if (idx.internalPointer() == 0) // top level
-        return QModelIndex();
-    Data *data = static_cast<Data *>(idx.internalPointer());
-    int loc = m_data.indexOf(data);
-    if (loc == -1)
-        return QModelIndex();
-    return createIndex(loc, 0, 0);
-}
-
-int VideoModel::columnCount(const QModelIndex &idx) const
-{
-    Q_UNUSED(idx);
-    return 1;
-}
-
-int VideoModel::rowCount(const QModelIndex &parent) const
-{
-    if (!parent.isValid())
-        return m_data.count();
-    if (parent.internalPointer() == 0) { // top level
-        Data *data = m_data.value(parent.row());
-        return data ? data->videoInfos.count() : 0;
-    } else {
-        return 0;
-    }
-}
-
-QVariant VideoModel::data(const QModelIndex &index, int role) const
-{
-    if (!index.isValid())
-        return QVariant();
-
-    if (index.internalPointer() == 0) { // top level
-        Data *data = m_data.value(index.row());
-        if (!data)
-            return QVariant();
-        if (role == Qt::DisplayRole) {
-            return data->name;
-        } else if (role == Qt::DecorationRole) {
-        } else if (role == DecorationUrlRole) {
-            return QUrl("image://qtmediahub/videomodel" + data->searchPath);
-        } else if (role == FilePathRole) {
-            return data->searchPath;
-        }
-
-        return QVariant();
-    }
-
-    Data *data = static_cast<Data *>(index.internalPointer());
-    VideoInfo *info = data->videoInfos[index.row()];
     if (role == Qt::DisplayRole) {
-        return info->fileName;
-    } else if (role == Qt::DecorationRole) {
-        return QVariant(); // FIX
-//        return decorationPixmap(info);
-    } else if (role == FilePathRole) {
-        return info->filePath;
-    } else if (role == FileNameRole) {
-        return info->fileName;
-    } else if (role == DecorationUrlRole) {
-        return QUrl(info->decorationUrl);
+        return info->name;
     } else if (role == LengthRole) {
         return info->length;
-    } else if (role == SubtitlesRole) {
-        return info->subtitles;
-    } else if (role == ChannelsRole) {
-        return info->channels;
+    } else if (role == ThumbnailRole) {
+        return info->thumbnail;
     } else {
         return QVariant();
     }
 }
 
-void VideoModel::addVideo(int row, const VideoInfo &video)
+QImage VideoModel::decoration(MediaInfo */*info*/) const
 {
-    Data *data = m_data[row];
-    beginInsertRows(createIndex(row, 0, 0), data->videoInfos.count(), data->videoInfos.count());
-    VideoInfo *mi = new VideoInfo(video);
-    data->videoInfos.append(mi);
-    endInsertRows();
+    return QImage(themeResourcePath() + "/media/DefaultVideo.png");
 }
 
-void VideoModel::setThemeResourcePath(const QString &themePath)
+static bool generateThumbnail(const QFileInfo &fileInfo, const QFileInfo &thumbnailInfo)
 {
-    m_themePath = themePath;
-    reset();
-}
-
-VideoModelThread::VideoModelThread(VideoModel *model, int row, const QString &searchPath)
-    : m_model(model), m_stop(false), m_row(row), m_searchPath(searchPath)
-{
-}
-
-VideoModelThread::~VideoModelThread()
-{
-}
-
-void VideoModelThread::stop()
-{
-    m_stop = true;
-}
-
-void VideoModelThread::run()
-{
-    emit started();
-
-    Q_ASSERT(!m_searchPath.isEmpty() && m_searchPath != tr("AddNewSource"));
-
-    search();
-
-    emit finished();
-}
-
-static bool generateThumbnail(const VideoInfo &info, const QFileInfo &thumbnailInfo)
-{
-    // cleanup tmp
     QDir dir;
     QFileInfo tmp("/tmp/00000001.png");
     if (tmp.exists())
@@ -260,66 +70,47 @@ static bool generateThumbnail(const VideoInfo &info, const QFileInfo &thumbnailI
     arguments << "-nosound";
     arguments << "-vo" << "png";
     arguments << "-frames" << "1";
-    arguments << info.filePath;
+    arguments << fileInfo.filePath();
 
-    QProcess *process = new QProcess();
-    process->setWorkingDirectory(tmp.absolutePath());
-    process->start(program, arguments);
-    process->waitForFinished();
-    delete process;
+    QProcess process;
+    process.setWorkingDirectory(tmp.path());
+    process.start(program, arguments);
+    process.waitForFinished();
 
     if (tmp.exists()) {
-        dir.rename(tmp.filePath(), thumbnailInfo.absoluteFilePath());
-
-        // cleanup tmp file
+        dir.rename(tmp.filePath(), thumbnailInfo.filePath());
         dir.remove(tmp.filePath());
-
         return true;
-    } else {
-        qDebug() << "could not create thumbnail for" << info.fileName;
-        return false;
     }
+
+    return false;
 }
 
-void VideoModelThread::search()
+MediaInfo *VideoModel::readMediaInfo(const QString &filePath)
 {
-    // check if thumnail folder exists
     QFileInfo thumbnailFolderInfo(QDir::homePath() + "/.thumbnails/qtmediahub/");
     if (!thumbnailFolderInfo.exists()) {
         QDir dir;
         dir.mkpath(thumbnailFolderInfo.absoluteFilePath());
     }
 
-    QDirIterator it(m_searchPath, QDir::Files | QDir::NoDotAndDotDot, QDirIterator::Subdirectories);
-    while (!m_stop && it.hasNext()) {
-        VideoInfo info;
-        info.filePath = it.next();
-        info.fileName = it.fileName();
+    QFileInfo fileInfo(filePath);
+    if (!fileInfo.exists())
+        return 0;
 
-        // TODO actual readout of metadata
-        info.length = 0;
-        info.channels = 1;
-        info.subtitles = 0;
+    VideoInfo *info = new VideoInfo;
+    info->length = 0;
 
-        QString md5 = QCryptographicHash::hash(QString("file://" + info.filePath).toUtf8(), QCryptographicHash::Md5).toHex();
-        QFileInfo thumbnailInfo(thumbnailFolderInfo.absoluteFilePath() + md5 + ".png");
+    QString md5 = QCryptographicHash::hash(QString("file://" + fileInfo.absoluteFilePath()).toUtf8(), QCryptographicHash::Md5).toHex();
+    QFileInfo thumbnailInfo(thumbnailFolderInfo.filePath() + md5 + ".png");
 
-        if (thumbnailInfo.exists() || generateThumbnail(info, thumbnailInfo)) {
-            info.decorationUrl = thumbnailInfo.filePath();
-            emit videoFound(m_row, info);
-        } else {
-            qDebug() << "failed" << info.fileName;
-        }
-   }
-}
-
-void VideoModel::dump()
-{
-    qDebug() << m_data.count() << "elements";
-    for (int i = 0; i < m_data.count(); i++) {
-        qDebug() << m_data[i]->searchPath;
-        for(int j = 0; j < m_data[i]->videoInfos.count(); j++)
-            qDebug() << "\t\t" << m_data[i]->videoInfos[j]->filePath;
+    if (thumbnailInfo.exists() || generateThumbnail(fileInfo, thumbnailInfo)) {
+        info->thumbnail = thumbnailInfo.filePath();
+        return info;
     }
+
+    delete info;
+
+    return 0;
 }
 

@@ -26,6 +26,7 @@ MusicModel::~MusicModel()
 QVariant MusicModel::data(MediaInfo *mediaInfo, int role) const
 {
     MusicInfo *info = static_cast<MusicInfo *>(mediaInfo);
+
     if (role == Qt::DisplayRole) {
         if (info->title.isEmpty())
             return info->name;

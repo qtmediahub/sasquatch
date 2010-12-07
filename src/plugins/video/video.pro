@@ -4,10 +4,14 @@
 
 include(../plugins.pri)
 
+QT += declarative
+
 HEADERS += \
         videoplugin.h \
+        ../mediamodel.h \
         videomodel.h
 
 SOURCES += \
         videoplugin.cpp \
+        ../mediamodel.cpp \
         videomodel.cpp

@@ -18,6 +18,7 @@
  * ****************************************************************************/
 
 #include "mediamodel.h"
+
 #include <QDirIterator>
 #include <QThreadPool>
 #include <QTimer>
@@ -155,6 +156,7 @@ QVariant MediaModel::data(const QModelIndex &index, int role) const
         return QVariant();
 
     MediaInfo *info = static_cast<MediaInfo *>(index.internalPointer());
+
     if (role == DecorationUrlRole) {
         return QUrl("image://" + imageBaseUrl() + info->filePath);
     } else if (role == FilePathRole) {

@@ -20,108 +20,33 @@
 #ifndef VIDEOMODEL_H
 #define VIDEOMODEL_H
 
-#include <QAbstractListModel>
-#include <QImage>
-#include <QPixmap>
-#include <QPixmapCache>
-#include <QRunnable>
-#include <QList>
-#include <QUrl>
+#include "../mediamodel.h"
 
-struct VideoInfo
+struct VideoInfo : public MediaInfo
 {
-    VideoInfo() : length(0), subtitles(0), channels(0) { }
-    QString filePath;
-    QString fileName;
+    VideoInfo() :  MediaInfo(MediaModel::File), length(0) { }
+
     // video properties
-    int length;
-    int subtitles;
-    int channels;
-    QString decorationUrl;
+    int  length;
+
+    QString thumbnail;
 };
 
-class VideoModel;
-
-class VideoModelThread : public QObject, public QRunnable
+class VideoModel : public MediaModel
 {
     Q_OBJECT
-
-public:
-    VideoModelThread(VideoModel *model, int row, const QString &searchPath);
-    ~VideoModelThread();
-
-    void run();
-
-    void stop();
-
-signals:
-    void started();
-    void videoFound(int row, const VideoInfo &info);
-    void finished();
-
-private:
-    void search();
-    VideoModel *m_model;
-    bool m_stop;
-    int m_row;
-    QString m_searchPath;
-};
-
-class VideoModel : public QAbstractItemModel
-{
-    Q_OBJECT
-
 public:
     VideoModel(QObject *parent = 0);
     ~VideoModel();
 
-    // reimp
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-    QModelIndex index(int row, int col, const QModelIndex &parent) const;
-    QModelIndex parent(const QModelIndex &idx) const;
-    int columnCount(const QModelIndex &idx) const;
-
     enum CustomRoles {
-        FilePathRole = Qt::UserRole + 1,
-        FileNameRole,
-        DecorationUrlRole,
-        LengthRole,
-        SubtitlesRole,
-        ChannelsRole
+        LengthRole = Qt::UserRole + 100,
+        ThumbnailRole
     };
 
-    // callable from QML
-    Q_INVOKABLE void setThemeResourcePath(const QString &themePath);
-    Q_INVOKABLE void addSearchPath(const QString &videoPath, const QString &name);
-
-    void dump();
-
-private slots:
-    void addVideo(int row, const VideoInfo &video);
-    void searchThreadFinished();
-
-signals:
-    void videoPathChanged();
-
-private:
-    void init();
-    void startSearchThread();
-    void stopSearchThread();
-
-    struct Data {
-        Data(const QString &sp, const QString &name) : searchPath(sp), name(name), status(NotSearched) { }
-        QString searchPath;
-        QString name;
-        QList<VideoInfo *> videoInfos;
-        enum Status { NotSearched, Searching, Searched } status;
-    };
-    QList<Data *> m_data;
-    VideoModelThread *m_thread;
-    QString m_themePath;
-    QString m_fanartFallbackImagePath;
-    int m_nowSearching;
-    friend class VideoModelThread;
+    QVariant data(MediaInfo *mediaInfo, int role) const;
+    MediaInfo *readMediaInfo(const QString &filePath); // called from thread
+    QImage decoration(MediaInfo *mediaInfo) const;
 };
 
 #endif // VIDEOMODEL_H
