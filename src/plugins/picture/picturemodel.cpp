@@ -3,6 +3,9 @@
 #include <QFile>
 #include <QImageReader>
 
+#include <libexif/exif-loader.h>
+#include <libexif/exif-data.h>
+
 PictureModel::PictureModel(QObject *parent)
     : MediaModel(MediaModel::Picture, parent)
 {
@@ -38,6 +41,19 @@ MediaInfo *PictureModel::readMediaInfo(const QString &filePath)
 
     PictureInfo *info = new PictureInfo;
     info->thumbnail = image;
+
+    // get orientation
+    ExifLoader *loader = exif_loader_new();
+
+    exif_loader_write_file(loader, filePath.toLatin1().constData());
+    ExifData *data = exif_loader_get_data(loader);
+    exif_loader_unref(loader); // deleting it
+
+    ExifEntry *entry = exif_data_get_entry(data, EXIF_TAG_ORIENTATION);
+    char buf[1024];
+    info->orientation = exif_entry_get_value(entry, buf, sizeof(buf));
+    exif_entry_unref(entry);
+    exif_data_unref(data);
 
     return info;
 }

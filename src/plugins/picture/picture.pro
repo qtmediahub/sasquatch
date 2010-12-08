@@ -14,3 +14,5 @@ SOURCES += pictureplugin.cpp \
            picturemodel.cpp \
            ../mediamodel.cpp
 
+INCLUDE += ../../3rdparty/libexif-0.6.19/libexif
+LIBS += -L../../3rdparty/libexif-0.6.19/libexif/.libs -lexif
