@@ -41,6 +41,7 @@ QVariant VideoModel::data(MediaInfo *mediaInfo, int role) const
 {
     VideoInfo *info = static_cast<VideoInfo *>(mediaInfo);
 
+
     if (role == Qt::DisplayRole) {
         return info->name;
     } else if (role == LengthRole) {
@@ -52,9 +53,11 @@ QVariant VideoModel::data(MediaInfo *mediaInfo, int role) const
     }
 }
 
-QImage VideoModel::decoration(MediaInfo */*info*/) const
+QImage VideoModel::decoration(MediaInfo *mediaInfo) const
 {
-    return QImage(themeResourcePath() + "/media/DefaultVideo.png");
+    VideoInfo *info = static_cast<VideoInfo *>(mediaInfo);
+
+    return QImage(info->thumbnail);
 }
 
 static bool generateThumbnail(const QFileInfo &fileInfo, const QFileInfo &thumbnailInfo)
