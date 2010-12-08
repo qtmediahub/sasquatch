@@ -4,7 +4,6 @@ SUBDIRS = music \
           video \
           scripts \
           programs \
-          system \
           dashboard \
           customcursor
 
