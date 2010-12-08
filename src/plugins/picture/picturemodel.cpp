@@ -50,8 +50,11 @@ MediaInfo *PictureModel::readMediaInfo(const QString &filePath)
     exif_loader_unref(loader); // deleting it
 
     ExifEntry *entry = exif_data_get_entry(data, EXIF_TAG_ORIENTATION);
-    char buf[1024];
-    info->orientation = exif_entry_get_value(entry, buf, sizeof(buf));
+    info->orientation = (PictureInfo::Orientation)(*(entry->data));
+    if (info->orientation == 0) {
+        // default value should be top left
+        info->orientation = PictureInfo::TOPLEFT;
+    }
     exif_entry_unref(entry);
     exif_data_unref(data);
 

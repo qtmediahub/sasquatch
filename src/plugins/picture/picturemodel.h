@@ -8,9 +8,17 @@ struct PictureInfo : public MediaInfo
     PictureInfo() :  MediaInfo(MediaModel::File) { }
 
     QImage thumbnail;
-    // this really needs to be something else like an enum but i haven't been able to decode the exif
-    // codes yet.
-    QString orientation;
+    enum Orientation {
+        TOPLEFT = 1,
+        TOPRIGHT,
+        BOTTOMRRIGHT,
+        BOTTOMLEFT,
+        LEFTTOP,
+        RIGHTTOP,
+        RIGHTBOTTOM,
+        LEFTBOTTOM
+    };
+    Orientation orientation;
 };
 
 class PictureModel : public MediaModel
