@@ -53,7 +53,19 @@ struct BackendPrivate
           pluginPath(basePath + "/plugins"),
           resourcePath(basePath + "/resources"),
           qmlEngine(0),
-          backendTranslator(0) { /* */ }
+          backendTranslator(0),
+          logFile(qApp->applicationName().append(".log"))
+    {
+        logFile.open(QIODevice::Text|QIODevice::ReadWrite);
+        log.setDevice(&logFile);
+    }
+
+    ~BackendPrivate()
+    {
+        delete backendTranslator;
+        backendTranslator = 0;
+        qDeleteAll(pluginTranslators.begin(), pluginTranslators.end());
+    }
 
     QSet<QString> advertizedEngineRoles;
 
@@ -68,12 +80,20 @@ struct BackendPrivate
     QDeclarativeEngine *qmlEngine;
     QTranslator *backendTranslator;
     QList<QTranslator*> pluginTranslators;
+    QFile logFile;
+    QTextStream log;
 };
 
 Backend::Backend(QObject *parent)
     : QObject(parent),
       d(new BackendPrivate())
 {
+}
+
+Backend::~Backend()
+{
+    delete d;
+    d = 0;
 }
 
 void Backend::initialize(QDeclarativeEngine *qmlEngine)
@@ -153,6 +173,12 @@ Backend* Backend::instance()
     return pSelf;
 }
 
+void Backend::destroy()
+{
+    delete pSelf;
+    pSelf = 0;
+}
+
 QString Backend::skinPath() const {
     return d->skinPath;
 }
@@ -193,6 +219,9 @@ void Backend::openUrlExternally(const QUrl & url) const
     QDesktopServices::openUrl(url);
 }
 
+void Backend::log(const QString &logMsg) {
+    d->log << logMsg << endl;
+}
 
 QObject* Backend::engine(const QString &role) {
     foreach(QObject *currentEngine, d->advertizedEngines )

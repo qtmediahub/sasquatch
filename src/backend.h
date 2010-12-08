@@ -38,6 +38,9 @@ class Backend : public QObject
     Q_PROPERTY(QList<QObject*> engines READ engines NOTIFY enginesChanged)
 public:
     static Backend *instance();
+    static void destroy();
+
+    ~Backend();
     void initialize(QDeclarativeEngine *engine = 0);
 
     void resetLanguage();
@@ -50,7 +53,8 @@ public:
     bool transforms() const;
 
     Q_INVOKABLE void advertizeEngine(QMHPlugin *engine);
-    Q_INVOKABLE void openUrlExternally(const QUrl & url) const;
+    Q_INVOKABLE void openUrlExternally(const QUrl &url) const;
+    Q_INVOKABLE void log(const QString &logMsg);
 
 signals:
     void skinPathChanged();

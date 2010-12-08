@@ -74,6 +74,8 @@ Frontend::~Frontend()
 {
     delete d;
     d = 0;
+    //Can't decide whether this is filthy or not
+    Backend::destroy();
 }
 
 QWidget* Frontend::loadFrontend(const QUrl &url)
