@@ -57,7 +57,11 @@ QImage VideoModel::decoration(MediaInfo *mediaInfo) const
 {
     VideoInfo *info = static_cast<VideoInfo *>(mediaInfo);
 
-    return QImage(info->thumbnail);
+    QImage img = QImage(info->thumbnail);
+    if (img.isNull())
+        img = QImage(themeResourcePath() + "/media/DefaultVideo.png");
+
+    return img;
 }
 
 static bool generateThumbnail(const QFileInfo &fileInfo, const QFileInfo &thumbnailInfo)
