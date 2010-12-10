@@ -17,7 +17,7 @@ SOURCES += main.cpp \
     dataproviders/thumbnailer.cpp \
     dataproviders/proxymodel.cpp
 
-QT += declarative
+QT += declarative script
 
 HEADERS += config.h \
     frontend.h \
