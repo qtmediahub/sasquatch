@@ -101,7 +101,8 @@ public:
         DecorationUrlRole = Qt::UserRole + 1,
         FilePathRole,
         FileNameRole,
-        MediaInfoTypeRole
+        MediaInfoTypeRole,
+        SizeRole
     };
 
     QString themeResourcePath() const { return m_themePath; }
@@ -169,10 +170,10 @@ private:
     MediaModel *m_model;
 };
 
-struct MediaInfo 
+struct MediaInfo
 {
     enum Status { NotSearched, Searching, Searched };
-    MediaInfo(MediaModel::MediaInfoType type) : parent(0), type(type), status(NotSearched) {
+    MediaInfo(MediaModel::MediaInfoType type) : parent(0), type(type), status(NotSearched), size(-1) {
         // is this wise?
         if (type == MediaModel::Directory || type == MediaModel::SearchPath) {
             MediaInfo *info = new MediaInfo(MediaModel::DotDot);
@@ -190,6 +191,7 @@ struct MediaInfo
     QString name;
     Status status;
     QList<MediaInfo *> children;
+    qint64 size;
 };
 
 #endif // MEDIAMODEL_H

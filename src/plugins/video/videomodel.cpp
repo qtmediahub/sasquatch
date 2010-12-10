@@ -27,6 +27,8 @@
 VideoModel::VideoModel(QObject *parent)
     : MediaModel(MediaModel::Video, parent)
 {
+    qRegisterMetaType<VideoInfo *>("VideoInfo *");
+
     QHash<int, QByteArray> roleNames = MediaModel::roleNames();
     roleNames[LengthRole] = "length";
     roleNames[ThumbnailRole] = "thumbnail";
@@ -102,22 +104,21 @@ MediaInfo *VideoModel::readMediaInfo(const QString &filePath)
     }
 
     QFileInfo fileInfo(filePath);
-    if (!fileInfo.exists())
+    QStringList supportedTypes;
+    supportedTypes << "avi" << "ogg" << "mp4" << "mpeg" << "mpg" << "mov";
+
+    if (!fileInfo.exists() || !supportedTypes.contains(fileInfo.suffix()))
         return 0;
 
     VideoInfo *info = new VideoInfo;
-    info->length = 0;
+    info->size = fileInfo.size();
 
     QString md5 = QCryptographicHash::hash(QString("file://" + fileInfo.absoluteFilePath()).toUtf8(), QCryptographicHash::Md5).toHex();
     QFileInfo thumbnailInfo(thumbnailFolderInfo.filePath() + md5 + ".png");
 
-    if (thumbnailInfo.exists() || generateThumbnail(fileInfo, thumbnailInfo)) {
+    if (thumbnailInfo.exists() || generateThumbnail(fileInfo, thumbnailInfo))
         info->thumbnail = thumbnailInfo.filePath();
-        return info;
-    }
 
-    delete info;
-
-    return 0;
+    return info;
 }
 
