@@ -5,18 +5,18 @@
 
 struct PictureInfo : public MediaInfo
 {
-    PictureInfo() :  MediaInfo(MediaModel::File) { }
+    PictureInfo() :  MediaInfo(MediaModel::File), orientation(TopLeft) { }
 
     QImage thumbnail;
     enum Orientation {
-        TOPLEFT = 1,
-        TOPRIGHT,
-        BOTTOMRRIGHT,
-        BOTTOMLEFT,
-        LEFTTOP,
-        RIGHTTOP,
-        RIGHTBOTTOM,
-        LEFTBOTTOM
+        TopLeft = 1,
+        TopRight,
+        BottomRight,
+        BottomLeft,
+        LeftTop,
+        RightTop,
+        RightBottom,
+        LeftBottom
     };
     Orientation orientation;
 };

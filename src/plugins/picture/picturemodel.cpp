@@ -53,7 +53,7 @@ MediaInfo *PictureModel::readMediaInfo(const QString &filePath)
     info->orientation = (PictureInfo::Orientation)(*(entry->data));
     if (info->orientation == 0) {
         // default value should be top left
-        info->orientation = PictureInfo::TOPLEFT;
+        info->orientation = PictureInfo::TopLeft;
     }
     exif_entry_unref(entry);
     exif_data_unref(data);
