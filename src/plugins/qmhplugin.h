@@ -69,6 +69,8 @@ public:
         , mInterface(interface)
     {}
 
+    ~QMHPlugin() { delete mInterface; }
+
     QString name() const { return mInterface->name(); }
     void setName(const QString &name) { mInterface->setName(name); }
 
