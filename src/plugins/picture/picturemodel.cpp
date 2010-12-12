@@ -3,9 +3,6 @@
 #include <QFile>
 #include <QImageReader>
 
-#include <libexif/exif-loader.h>
-#include <libexif/exif-data.h>
-
 PictureModel::PictureModel(QObject *parent)
     : MediaModel(MediaModel::Picture, parent)
 {
@@ -19,8 +16,28 @@ PictureModel::~PictureModel()
 
 QVariant PictureModel::data(MediaInfo *mediaInfo, int role) const
 {
+    PictureInfo *pictureInfo = static_cast<PictureInfo *>(mediaInfo);
     if (role == Qt::DisplayRole)
         return mediaInfo->name;
+    else if (role == UserCommentsRole)
+        return pictureInfo->userComments;
+    else if (role == ImageDescriptionRole)
+        return pictureInfo->imageDescription;
+    else if (role == CreationTimeRole)
+        return pictureInfo->creationTime;
+    else if (role == CameraMakeRole)
+        return pictureInfo->cameraMake;
+    else if (role == CameraModelRole)
+        return pictureInfo->cameraModel;
+    else if (role == LatitudeRole)
+        return pictureInfo->latitude;
+    else if (role == LongitudeRole)
+        return pictureInfo->longitude;
+    else if (role == AltitudeRole)
+        return pictureInfo->altitude;
+    else if (role == OrientationRole)
+        return pictureInfo->orientation;
+
     return QVariant();
 }
 
@@ -42,21 +59,20 @@ MediaInfo *PictureModel::readMediaInfo(const QString &filePath)
     PictureInfo *info = new PictureInfo;
     info->thumbnail = image;
 
-    // get orientation
-    ExifLoader *loader = exif_loader_new();
+    ExifReader exifReader(filePath);
+    info->userComments = exifReader.userComments();
+    info->imageDescription = exifReader.imageDescription();
+    info->creationTime = exifReader.creationTime();
+    info->cameraModel = exifReader.cameraModel();
+    info->cameraMake = exifReader.cameraMake();
 
-    exif_loader_write_file(loader, filePath.toLatin1().constData());
-    ExifData *data = exif_loader_get_data(loader);
-    exif_loader_unref(loader); // deleting it
+    bool ok1, ok2, ok3;
+    info->latitude = exifReader.latitude(&ok1);
+    info->longitude = exifReader.longitude(&ok2);
+    info->hasGeolocation = ok1 && ok2;
+    info->altitude = exifReader.altitude(&ok3);
 
-    ExifEntry *entry = exif_data_get_entry(data, EXIF_TAG_ORIENTATION);
-    info->orientation = (PictureInfo::Orientation)(*(entry->data));
-    if (info->orientation == 0) {
-        // default value should be top left
-        info->orientation = PictureInfo::TopLeft;
-    }
-    exif_entry_unref(entry);
-    exif_data_unref(data);
+    info->orientation = exifReader.orientation();
 
     return info;
 }

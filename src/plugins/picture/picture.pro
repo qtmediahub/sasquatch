@@ -9,11 +9,13 @@ QT += declarative
 
 HEADERS += pictureplugin.h \
            picturemodel.h \
-           ../mediamodel.h
+           ../mediamodel.h \
+           exifreader.h
 
 SOURCES += pictureplugin.cpp \
            picturemodel.cpp \
-           ../mediamodel.cpp
+           ../mediamodel.cpp \
+           exifreader.cpp
 
 INCLUDEPATH += ../../3rdparty/libexif-0.6.19/libexif \
            ../../3rdparty/libexif-0.6.19/

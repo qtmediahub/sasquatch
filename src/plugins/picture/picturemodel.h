@@ -2,23 +2,28 @@
 #define PICTUREMODEL_H
 
 #include "../mediamodel.h"
+#include "exifreader.h"
 
 struct PictureInfo : public MediaInfo
 {
-    PictureInfo() :  MediaInfo(MediaModel::File), orientation(TopLeft) { }
+    PictureInfo() :  MediaInfo(MediaModel::File), latitude(0), longitude(0), altitude(0),
+                     hasGeolocation(false), orientation(ExifReader::NoOrientation)
+    { }
 
     QImage thumbnail;
-    enum Orientation {
-        TopLeft = 1,
-        TopRight,
-        BottomRight,
-        BottomLeft,
-        LeftTop,
-        RightTop,
-        RightBottom,
-        LeftBottom
-    };
-    Orientation orientation;
+    QString userComments;
+    QString imageDescription;
+    QDateTime creationTime;
+    QString cameraModel;
+    QString cameraMake;
+    
+    double latitude;
+    double longitude;
+    double altitude;
+    
+    bool hasGeolocation;
+
+    ExifReader::Orientation orientation;
 };
 
 class PictureModel : public MediaModel
@@ -29,6 +34,15 @@ public:
     ~PictureModel();
 
     enum CustomRoles {
+        UserCommentsRole,
+        ImageDescriptionRole,
+        CreationTimeRole,
+        CameraMakeRole,
+        CameraModelRole,
+        LatitudeRole,
+        LongitudeRole,
+        AltitudeRole,
+        OrientationRole
     };
 
     QVariant data(MediaInfo *mediaInfo, int role) const;
