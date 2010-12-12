@@ -42,7 +42,7 @@ MediaModel::MediaModel(MediaModel::MediaType type, QObject *parent)
     roleNames[FilePathRole] = "filePath";
     roleNames[FileNameRole] = "fileName";
     roleNames[MediaInfoTypeRole] = "type";
-    roleNames[SizeRole] = "size";
+    roleNames[FileSizeRole] = "fileSize";
     setRoleNames(roleNames);
 
     m_root = new MediaInfo(MediaModel::Root);
@@ -189,8 +189,8 @@ QVariant MediaModel::data(const QModelIndex &index, int role) const
         int idx = MediaModel::staticMetaObject.indexOfEnumerator("MediaInfoType");
         QMetaEnum e = MediaModel::staticMetaObject.enumerator(idx);
         return QString::fromLatin1(e.valueToKey(info->type));
-    } else if (role == SizeRole) {
-        return info->size;
+    } else if (role == FileSizeRole) {
+        return info->fileSize;
     }
 
     if (info->parent == m_root) {
@@ -309,6 +309,7 @@ void MediaModelThread::search()
             }
             info->filePath = it.filePath();
             info->name = it.fileName();
+            info->fileSize = it.fileInfo().size();
             info->parent = currentParent;
 
             emit mediaFound(info);

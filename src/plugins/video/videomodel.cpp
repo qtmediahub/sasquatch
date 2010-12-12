@@ -111,7 +111,6 @@ MediaInfo *VideoModel::readMediaInfo(const QString &filePath)
         return 0;
 
     VideoInfo *info = new VideoInfo;
-    info->size = fileInfo.size();
 
     QString md5 = QCryptographicHash::hash(QString("file://" + fileInfo.absoluteFilePath()).toUtf8(), QCryptographicHash::Md5).toHex();
     QFileInfo thumbnailInfo(thumbnailFolderInfo.filePath() + md5 + ".png");

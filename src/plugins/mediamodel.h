@@ -106,7 +106,7 @@ public:
         FilePathRole,
         FileNameRole,
         MediaInfoTypeRole,
-        SizeRole
+        FileSizeRole
     };
 
     QString themeResourcePath() const { return m_themePath; }
@@ -179,7 +179,7 @@ private:
 struct MediaInfo
 {
     enum Status { NotSearched, Searching, Searched };
-    MediaInfo(MediaModel::MediaInfoType type) : parent(0), type(type), status(NotSearched), size(-1) {
+    MediaInfo(MediaModel::MediaInfoType type) : parent(0), type(type), status(NotSearched), fileSize(-1) {
         // is this wise?
         if (type == MediaModel::Directory || type == MediaModel::SearchPath) {
             MediaInfo *info = new MediaInfo(MediaModel::DotDot);
@@ -197,7 +197,7 @@ struct MediaInfo
     QString name;
     Status status;
     QList<MediaInfo *> children;
-    qint64 size;
+    qint64 fileSize;
 };
 
 #endif // MEDIAMODEL_H
