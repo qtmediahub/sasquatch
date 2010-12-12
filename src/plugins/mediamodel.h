@@ -43,6 +43,9 @@ public:
     MediaModelThread(MediaModel *model, MediaInfo *info);
     ~MediaModelThread();
 
+    MediaInfo *mediaInfo() const { return m_mediaInfo; }
+    MediaModel *mediaModel() const { return m_model; }
+
     void run();
 
     void stop();
@@ -74,7 +77,8 @@ public:
     };
 
     // this is here, so we can expose it to QML
-    enum MediaInfoType { 
+    enum MediaInfoType {
+        Deleted,
         Root, 
         AddNewSource, 
         SearchPath, 
@@ -110,6 +114,7 @@ public:
     // callable from QML
     Q_INVOKABLE void setThemeResourcePath(const QString &themePath);
     Q_INVOKABLE void addSearchPath(const QString &mediaPath, const QString &name);
+    Q_INVOKABLE void removeSearchPath(int index);
 
     QString typeString() const;
     void registerImageProvider(QDeclarativeContext *context);
@@ -142,6 +147,7 @@ private:
     QString m_themePath;
     int m_nowSearching;
     MediaInfo *m_root;
+    QList<MediaInfo *> m_deleteLaterInfos;
     friend class MediaModelThread;
 };
 

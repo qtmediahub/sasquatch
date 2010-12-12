@@ -56,6 +56,7 @@ MediaModel::MediaModel(MediaModel::MediaType type, QObject *parent)
 MediaModel::~MediaModel()
 {
     qDeleteAll(m_root->children);
+    qDeleteAll(m_deleteLaterInfos);
 
     // FIXME: Wait until thread is dead
     delete m_thread;
@@ -115,6 +116,26 @@ void MediaModel::addSearchPath(const QString &path, const QString &name)
     m_frontCovers.insert(path, QImage(m_themePath + "/media/DefaultHardDisk.png"));
 
     startSearchThread();
+}
+
+void MediaModel::removeSearchPath(int index)
+{
+    if (index < 0 || index >= m_root->children.count())
+        return;
+
+    if (m_root->children[index]->type != MediaModel::SearchPath)
+        return;
+
+    beginRemoveRows(QModelIndex(), index, index);
+    MediaInfo *info = m_root->children.takeAt(index);
+    if (!m_thread || m_root->children[m_nowSearching] != info) {
+        delete info;
+    } else { // currently searching this node
+        info->type = MediaModel::Deleted;
+        m_deleteLaterInfos.append(info);
+        m_thread->stop();
+    }
+    endRemoveRows();
 }
 
 QModelIndex MediaModel::index(int row, int col, const QModelIndex &parent) const
@@ -187,10 +208,14 @@ QVariant MediaModel::data(const QModelIndex &index, int role) const
 
 void MediaModel::addMedia(MediaInfo *mi)
 {
+    if (mi->type == MediaModel::Deleted)
+        return;
+
     MediaInfo *parent = mi->parent;
     Q_ASSERT(parent);
     MediaInfo *grandParent = parent->parent ? parent->parent : m_root;
-    QModelIndex parentIndex = createIndex(grandParent->children.indexOf(parent), 0, parent);
+    const int row = grandParent->children.indexOf(parent);
+    QModelIndex parentIndex = createIndex(row, 0, parent);
     beginInsertRows(parentIndex, parent->children.count(), parent->children.count());
     QImage frontCover;
     if (mi->type == MediaModel::File)
