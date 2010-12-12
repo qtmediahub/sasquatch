@@ -5,7 +5,8 @@
 #ENDIF(WIN32)
 
 DEFINES += GETTEXT_PACKAGE=\\\"libexif-12\\\"
-DEFINES += HAVE_CONFIG_H=0
+DEFINES += LOCALEDIR=\\\"/usr/local/share/locale\\\"
+DEFINES += HAVE_CONFIG_H
 
 SOURCES += $$PWD/exif-byte-order.c \
            $$PWD/exif-content.c \

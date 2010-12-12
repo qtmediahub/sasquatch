@@ -3,6 +3,7 @@
 ######################################################################
 
 include(../plugins.pri)
+include(../../3rdparty/libexif-0.6.19/libexif/libexif.pri)
 
 QT += declarative
 
@@ -16,4 +17,4 @@ SOURCES += pictureplugin.cpp \
 
 INCLUDEPATH += ../../3rdparty/libexif-0.6.19/libexif \
            ../../3rdparty/libexif-0.6.19/
-LIBS += -L../../3rdparty/libexif-0.6.19/libexif/.libs -lexif
+
