@@ -74,6 +74,17 @@ MediaInfo *PictureModel::readMediaInfo(const QString &filePath)
 
     info->orientation = exifReader.orientation();
 
+    info->aperture = exifReader.aperture();
+    info->focalLength = exifReader.focalLength();
+    info->exposureMode = exifReader.exposureMode();
+    info->whiteBalance = exifReader.whiteBalance();
+    info->lightSource = exifReader.lightSource();
+    info->isoSpeed = exifReader.isoSpeed();
+    info->digitalZoomRatio = exifReader.digitalZoomRatio();
+    info->flashUsage = exifReader.flashUsage();
+    info->exposureTime = exifReader.exposureTime();
+    info->colorSpace = exifReader.colorSpace();
+
     return info;
 }
 

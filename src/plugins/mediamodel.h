@@ -31,6 +31,7 @@
 #include <QDeclarativeContext>
 #include <QtDebug>
 #include <QApplication>
+#include <QDateTime>
 
 class MediaModel;
 class MediaInfo;
@@ -106,7 +107,8 @@ public:
         FilePathRole,
         FileNameRole,
         MediaInfoTypeRole,
-        FileSizeRole
+        FileSizeRole,
+        FileDateTimeRole
     };
 
     QString themeResourcePath() const { return m_themePath; }
@@ -198,6 +200,7 @@ struct MediaInfo
     Status status;
     QList<MediaInfo *> children;
     qint64 fileSize;
+    QDateTime fileDateTime;
 };
 
 #endif // MEDIAMODEL_H

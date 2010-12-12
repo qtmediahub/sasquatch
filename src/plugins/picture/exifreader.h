@@ -39,6 +39,17 @@ public:
     };
     Orientation orientation() const;
 
+    QString aperture() const;
+    QString focalLength() const;
+    QString exposureTime() const;
+    QString exposureMode() const;
+    QString whiteBalance() const;
+    QString lightSource() const;
+    QString isoSpeed() const;
+    QString digitalZoomRatio() const;
+    QString flashUsage() const;
+    QString colorSpace() const;
+
 private:
     QString stringValue(ExifEntry *entry) const;
     ExifByteOrder m_byteOrder;

@@ -11,19 +11,32 @@ struct PictureInfo : public MediaInfo
     { }
 
     QImage thumbnail;
+
+    // Exif
     QString userComments;
     QString imageDescription;
     QDateTime creationTime;
     QString cameraModel;
     QString cameraMake;
-    
+
     double latitude;
     double longitude;
     double altitude;
-    
+
     bool hasGeolocation;
 
     ExifReader::Orientation orientation;
+
+    QString aperture;
+    QString focalLength;
+    QString exposureMode;
+    QString whiteBalance;
+    QString lightSource;
+    QString isoSpeed;
+    QString digitalZoomRatio;
+    QString flashUsage;
+    QString exposureTime;
+    QString colorSpace;
 };
 
 class PictureModel : public MediaModel

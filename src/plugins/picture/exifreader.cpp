@@ -1,6 +1,7 @@
 #include "exifreader.h"
 
 #include <QFile>
+#include <QDebug>
 
 ExifReader::ExifReader(const QString &file) :
 	m_sizeOfRational(exif_format_get_size(EXIF_FORMAT_RATIONAL))
@@ -177,4 +178,56 @@ QString ExifReader::stringValue(ExifEntry *entry) const
 	value[sizeof(value)-1] = 0;
 	return QString::fromAscii(value); // ###: fix encoding
 }
+
+QString ExifReader::aperture() const
+{
+    return stringTag(EXIF_TAG_APERTURE_VALUE);
+}
+
+QString ExifReader::focalLength() const
+{
+    return stringTag(EXIF_TAG_FOCAL_LENGTH);
+}
+
+QString ExifReader::exposureTime() const
+{
+    return stringTag(EXIF_TAG_EXPOSURE_TIME);
+}
+
+QString ExifReader::exposureMode() const
+{
+    return stringTag(EXIF_TAG_EXPOSURE_MODE);
+}
+
+QString ExifReader::whiteBalance() const
+{
+    return stringTag(EXIF_TAG_WHITE_BALANCE);
+}
+
+QString ExifReader::lightSource() const
+{
+    return stringTag(EXIF_TAG_LIGHT_SOURCE);
+}
+
+QString ExifReader::isoSpeed() const
+{
+    return stringTag(EXIF_TAG_ISO_SPEED_RATINGS);
+}
+
+QString ExifReader::digitalZoomRatio() const
+{
+    return stringTag(EXIF_TAG_DIGITAL_ZOOM_RATIO);
+}
+
+QString ExifReader::flashUsage() const
+{
+    return stringTag(EXIF_TAG_FLASH);
+}
+
+QString ExifReader::colorSpace() const
+{
+    return stringTag(EXIF_TAG_COLOR_SPACE);
+}
+
+
 

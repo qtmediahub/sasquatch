@@ -191,6 +191,8 @@ QVariant MediaModel::data(const QModelIndex &index, int role) const
         return QString::fromLatin1(e.valueToKey(info->type));
     } else if (role == FileSizeRole) {
         return info->fileSize;
+    } else if (role == FileDateTimeRole) {
+        return info->fileDateTime;
     }
 
     if (info->parent == m_root) {
@@ -310,6 +312,7 @@ void MediaModelThread::search()
             info->filePath = it.filePath();
             info->name = it.fileName();
             info->fileSize = it.fileInfo().size();
+            info->fileDateTime = it.fileInfo().created();
             info->parent = currentParent;
 
             emit mediaFound(info);
