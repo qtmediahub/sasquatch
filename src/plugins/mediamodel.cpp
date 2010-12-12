@@ -304,6 +304,8 @@ void MediaModelThread::search()
                 info = m_model->readMediaInfo(it.filePath());
                 if (!info)
                     continue;
+            } else {
+                continue;
             }
             info->filePath = it.filePath();
             info->name = it.fileName();
