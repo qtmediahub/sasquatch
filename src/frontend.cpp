@@ -104,6 +104,10 @@ void Frontend::loadFrontend(const QUrl &url)
         QDesktopWidget *desktop = qApp->desktop();
 
         QDeclarativeView *widget= new QDeclarativeView();
+        QDeclarativeEngine *engine = widget->engine();
+
+        engine->addPluginPath(Backend::instance()->resourcePath() + "/lib");
+        engine->addImportPath(Backend::instance()->resourcePath() + "/imports");
 
         if(Config::isEnabled("scale-ui", false))
             widget->scale(qreal(desktop->width())/1280, qreal(desktop->height())/720);
@@ -116,7 +120,7 @@ void Frontend::loadFrontend(const QUrl &url)
         widget->setOptimizationFlags(QGraphicsView::DontSavePainterState);
         widget->scene()->setItemIndexMethod(QGraphicsScene::NoIndex);
 
-        QObject::connect(widget->engine(), SIGNAL(quit()), qApp, SLOT(quit()));
+        QObject::connect(engine, SIGNAL(quit()), qApp, SLOT(quit()));
 
 #ifdef GLVIEWPORT
         widget->setViewport(new QGLWidget());
@@ -126,7 +130,7 @@ void Frontend::loadFrontend(const QUrl &url)
 #else
         widget->setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
 #endif
-        Backend::instance()->initialize(widget->engine());
+        Backend::instance()->initialize(engine);
 
         resetLanguage();
         widget->setSource(targetUrl);

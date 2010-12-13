@@ -31,7 +31,7 @@ HEADERS += config.h \
 
 glgs {
     CONFIG += gl
-    message(Using the OpenGL graphics system)
+    message(Using the OpenGL graphics system: I hope you know what you are doing)
     DEFINES += GLGS
 }
 
