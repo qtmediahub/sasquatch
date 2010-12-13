@@ -55,7 +55,7 @@ QVariant VideoModel::data(MediaInfo *mediaInfo, int role) const
     }
 }
 
-QImage VideoModel::decoration(MediaInfo *mediaInfo) const
+QImage VideoModel::preview(MediaInfo *mediaInfo) const
 {
     VideoInfo *info = static_cast<VideoInfo *>(mediaInfo);
 

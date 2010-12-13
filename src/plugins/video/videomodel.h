@@ -46,7 +46,7 @@ public:
 
     QVariant data(MediaInfo *mediaInfo, int role) const;
     MediaInfo *readMediaInfo(const QString &filePath); // called from thread
-    QImage decoration(MediaInfo *mediaInfo) const;
+    QImage preview(MediaInfo *mediaInfo) const;
 };
 
 #endif // VIDEOMODEL_H

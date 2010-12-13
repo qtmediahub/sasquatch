@@ -47,7 +47,7 @@ QVariant MusicModel::data(MediaInfo *mediaInfo, int role) const
     }
 }
 
-QImage MusicModel::decoration(MediaInfo *info) const
+QImage MusicModel::preview(MediaInfo *info) const
 {
     QImage frontCover = (static_cast<MusicInfo *>(info))->frontCover;
     if (frontCover.isNull())

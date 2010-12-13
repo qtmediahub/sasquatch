@@ -98,14 +98,14 @@ public:
     QModelIndex parent(const QModelIndex &idx) const;
     int columnCount(const QModelIndex &idx) const;
 
-    QPixmap decorationPixmap(const QString &path, QSize *size, const QSize &requestedSize);
-    QImage decorationImage(const QString &path, QSize *size, const QSize &requestedSize);
+    QPixmap previewPixmap(const QString &path, QSize *size, const QSize &requestedSize);
+    QImage previewImage(const QString &path, QSize *size, const QSize &requestedSize);
 
     enum CustomRoles {
         // Qt::UserRole+1 to 100 are reserved by this model!
-        DecorationUrlRole = Qt::UserRole + 1,
-        DecorationWidthRole,
-        DecorationHeightRole,
+        PreviewUrlRole = Qt::UserRole + 1,
+        PreviewWidthRole,
+        PreviewHeightRole,
         FilePathRole,
         FileNameRole,
         MediaInfoTypeRole,
@@ -128,7 +128,7 @@ public:
 
     virtual MediaInfo *readMediaInfo(const QString &filePath) = 0; // called from thread
     virtual QVariant data(MediaInfo *info, int role) const = 0;
-    virtual QImage decoration(MediaInfo *info) const = 0;
+    virtual QImage preview(MediaInfo *info) const = 0;
 
 private slots:
     void addMedia(MediaInfo *media);
@@ -142,7 +142,7 @@ private:
     void startSearchThread();
     void stopSearchThread();
 
-    QPixmap decorationPixmap(MediaInfo *info) const;
+    QPixmap previewPixmap(MediaInfo *info) const;
 
     MediaType m_type;
     QHash<QString, QImage> m_frontCovers;
@@ -168,12 +168,12 @@ public:
 
     QImage requestImage(const QString &id, QSize *size, const QSize &requestedSize)
     {
-        return m_model->decorationImage(id, size, requestedSize);
+        return m_model->previewImage(id, size, requestedSize);
     }
 
     QPixmap requestPixmap(const QString &id, QSize *size, const QSize &requestedSize)
     {
-        return m_model->decorationPixmap(id, size, requestedSize);
+        return m_model->previewPixmap(id, size, requestedSize);
     }
 
 private:
@@ -203,7 +203,7 @@ struct MediaInfo
     QList<MediaInfo *> children;
     qint64 fileSize;
     QDateTime fileDateTime;
-    QSize decorationSize;
+    QSize previewSize;
 };
 
 #endif // MEDIAMODEL_H

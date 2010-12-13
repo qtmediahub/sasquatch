@@ -58,7 +58,7 @@ QVariant PictureModel::data(MediaInfo *mediaInfo, int role) const
     return QVariant();
 }
 
-QImage PictureModel::decoration(MediaInfo *info) const
+QImage PictureModel::preview(MediaInfo *info) const
 {
     return (static_cast<PictureInfo *>(info))->thumbnail;
 }

@@ -38,9 +38,9 @@ MediaModel::MediaModel(MediaModel::MediaType type, QObject *parent)
 
     QHash<int, QByteArray> roleNames = QAbstractItemModel::roleNames();
     roleNames[Qt::DisplayRole] = "display";
-    roleNames[DecorationUrlRole] = "decorationUrl";
-    roleNames[DecorationWidthRole] = "decorationWidth";
-    roleNames[DecorationHeightRole] = "decorationHeight";
+    roleNames[PreviewUrlRole] = "previewUrl";
+    roleNames[PreviewWidthRole] = "previewWidth";
+    roleNames[PreviewHeightRole] = "previewHeight";
     roleNames[FilePathRole] = "filePath";
     roleNames[FileNameRole] = "fileName";
     roleNames[MediaInfoTypeRole] = "type";
@@ -183,12 +183,12 @@ QVariant MediaModel::data(const QModelIndex &index, int role) const
 
     MediaInfo *info = static_cast<MediaInfo *>(index.internalPointer());
 
-    if (role == DecorationUrlRole) {
+    if (role == PreviewUrlRole) {
         return QUrl("image://" + imageBaseUrl() + info->filePath);
-    } else if (role == DecorationWidthRole) {
-        return info->decorationSize.isValid() ? info->decorationSize.width() : 342;
-    } else if (role == DecorationHeightRole) {
-        return info->decorationSize.isValid() ? info->decorationSize.height() : 348;
+    } else if (role == PreviewWidthRole) {
+        return info->previewSize.isValid() ? info->previewSize.width() : 342;
+    } else if (role == PreviewHeightRole) {
+        return info->previewSize.isValid() ? info->previewSize.height() : 348;
     } else if (role == FilePathRole) {
         return info->filePath;
     } else if (role == FileNameRole) {
@@ -229,8 +229,8 @@ void MediaModel::addMedia(MediaInfo *mi)
     beginInsertRows(parentIndex, parent->children.count(), parent->children.count());
     QImage frontCover;
     if (mi->type == MediaModel::File) {
-        frontCover = decoration(mi);
-        mi->decorationSize = frontCover.size();
+        frontCover = preview(mi);
+        mi->previewSize = frontCover.size();
     } else
         frontCover = QImage(m_themePath + "/media/DefaultFolder.png");
     m_frontCovers.insert(mi->filePath, frontCover);
@@ -238,7 +238,7 @@ void MediaModel::addMedia(MediaInfo *mi)
     endInsertRows();
 }
 
-QPixmap MediaModel::decorationPixmap(const QString &_path, QSize *size, const QSize &requestedSize)
+QPixmap MediaModel::previewPixmap(const QString &_path, QSize *size, const QSize &requestedSize)
 {
     Q_UNUSED(requestedSize);
     QString path = '/' + _path;
@@ -254,7 +254,7 @@ QPixmap MediaModel::decorationPixmap(const QString &_path, QSize *size, const QS
     return pixmap;
 }
 
-QImage MediaModel::decorationImage(const QString &path, QSize *size, const QSize &requestedSize)
+QImage MediaModel::previewImage(const QString &path, QSize *size, const QSize &requestedSize)
 {
     Q_UNUSED(requestedSize);
     if (!m_frontCovers.contains(path))
