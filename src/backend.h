@@ -43,13 +43,15 @@ public:
     ~Backend();
     void initialize(QDeclarativeEngine *engine = 0);
 
-    void resetLanguage();
     QString language() const;
 
     QList<QObject*> engines() const;
+    QStringList skins() const;
+
     QString skinPath() const;
     QString pluginPath() const;
     QString resourcePath() const;
+    
     bool transforms() const;
 
     Q_INVOKABLE void advertizeEngine(QMHPlugin *engine);
@@ -64,7 +66,6 @@ signals:
     void enginesChanged();
 
 private:
-    void discoverEngines();
     QObject* engine(const QString &role);
 
     explicit Backend(QObject *parent = 0);

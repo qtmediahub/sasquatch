@@ -78,7 +78,11 @@ Frontend::~Frontend()
     Backend::destroy();
 }
 
-QWidget* Frontend::loadFrontend(const QUrl &url)
+void Frontend::setSkin(const QString &name)
+{
+}
+
+void Frontend::loadFrontend(const QUrl &url)
 {
     bool visible = false, fullScreen = false;
     if(d->widget) {
@@ -91,7 +95,7 @@ QWidget* Frontend::loadFrontend(const QUrl &url)
     QUrl targetUrl;
 
     if(url.isEmpty() || !url.isValid())
-        targetUrl = Config::value("defaultSkin", QUrl::fromLocalFile(Backend::instance()->skinPath() + "/confluence/720p/Confluence.qml"));
+        targetUrl = Config::value("defaultSkin", QUrl::fromLocalFile(Backend::instance()->skinPath() + "/confluence/720/Confluence.qml"));
     else
         targetUrl = url;
 
@@ -136,8 +140,6 @@ QWidget* Frontend::loadFrontend(const QUrl &url)
         else
             d->widget->show();
     }
-
-    return d->widget;
 }
 
 void Frontend::show()

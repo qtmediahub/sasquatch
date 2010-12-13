@@ -34,7 +34,8 @@ class Frontend : public QObject
     public:
         Frontend(QObject *p);
         ~Frontend();
-        QWidget* loadFrontend(const QUrl &url);
+        void setSkin(const QString &name);
+        void loadFrontend(const QUrl &url);
         void show();
         void showFullScreen();
         void resetLanguage();

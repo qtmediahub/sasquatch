@@ -32,6 +32,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QVariant>
 #include <QFileSystemModel>
 #include <QDesktopServices>
+#include <QFileSystemWatcher>
 
 #ifdef GL
 #include <QGLFormat>
@@ -41,10 +42,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 Backend* Backend::pSelf = 0;
 
-struct BackendPrivate
+class BackendPrivate : public QObject
 {
-    BackendPrivate()
-        :
+    Q_OBJECT
+public:
+    BackendPrivate(QObject *p)
+        : QObject(p),
       #ifdef Q_OS_MAC
           platformOffset("/../../.."),
       #endif
@@ -58,6 +61,16 @@ struct BackendPrivate
     {
         logFile.open(QIODevice::Text|QIODevice::ReadWrite);
         log.setDevice(&logFile);
+
+        connect(&resourcePathMonitor,
+                SIGNAL(directoryChanged(const QString &)),
+                this,
+                SLOT(handleDirChanged(const QString &)));
+
+        resourcePathMonitor.addPath(skinPath);
+        resourcePathMonitor.addPath(pluginPath);
+
+        discoverSkins();
     }
 
     ~BackendPrivate()
@@ -66,7 +79,12 @@ struct BackendPrivate
         backendTranslator = 0;
         qDeleteAll(pluginTranslators.begin(), pluginTranslators.end());
     }
-
+public slots:
+    void handleDirChanged(const QString &dir);
+public:
+    void resetLanguage();
+    void discoverSkins();
+    void discoverEngines();
     QSet<QString> advertizedEngineRoles;
 
     QList<QObject*> advertizedEngines;
@@ -82,11 +100,76 @@ struct BackendPrivate
     QList<QTranslator*> pluginTranslators;
     QFile logFile;
     QTextStream log;
+    QFileSystemWatcher resourcePathMonitor;
+    QStringList skins;
 };
+
+void BackendPrivate::handleDirChanged(const QString &dir)
+{
+    if(dir == pluginPath) {
+        qWarning() << "Changes in plugin path, probably about to eat your poodle";
+        discoverEngines();
+    } else if(dir == skinPath) {
+        qWarning() << "Changes in skin path, repopulating skins";
+        discoverSkins();
+    }
+}
+
+void BackendPrivate::resetLanguage()
+{
+    static QString baseTranslationPath(basePath + "/translations/");
+    const QString language = Backend::instance()->language();
+    delete backendTranslator;
+    backendTranslator = new QTranslator(this);
+    backendTranslator->load(baseTranslationPath + language + ".qm");
+    qApp->installTranslator(backendTranslator);
+
+    qDeleteAll(pluginTranslators.begin(), pluginTranslators.end());
+
+    foreach(QObject *pluginObject, advertizedEngines) {
+        QMHPlugin *plugin = qobject_cast<QMHPlugin*>(pluginObject);
+        QTranslator *pluginTranslator = new QTranslator(this);
+        pluginTranslator->load(baseTranslationPath + plugin->role() + "_" + language + ".qm");
+        pluginTranslators << pluginTranslator;
+        qApp->installTranslator(pluginTranslator);
+    }
+}
+
+void BackendPrivate::discoverSkins()
+{
+    skins.clear();
+
+    QStringList potentialSkins = QDir(skinPath).entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+
+    foreach(const QString &currentPath, potentialSkins)
+        if(QFile(skinPath + "/" + currentPath + "/" + currentPath).exists())
+            skins << currentPath;
+
+    qWarning() << "Available skins" << skins;
+}
+
+void BackendPrivate::discoverEngines()
+{
+    foreach(const QString fileName, QDir(pluginPath).entryList(QDir::Files)) {
+        QString qualifiedFileName(pluginPath + "/" + fileName);
+        QPluginLoader pluginLoader(qualifiedFileName);
+        if(pluginLoader.load()
+           && qobject_cast<QMHPluginInterface*>(pluginLoader.instance())) {
+            QMHPlugin *plugin = new QMHPlugin(qobject_cast<QMHPluginInterface*>(pluginLoader.instance()), this);
+            plugin->setParent(this);
+            if(qmlEngine)
+                plugin->registerPlugin(qmlEngine->rootContext());
+            Backend::instance()->advertizeEngine(plugin);
+        }
+        else
+            qWarning() << tr("Invalid plugin present %1 $2").arg(qualifiedFileName).arg(pluginLoader.errorString());
+    }
+    resetLanguage();
+}
 
 Backend::Backend(QObject *parent)
     : QObject(parent),
-      d(new BackendPrivate())
+      d(new BackendPrivate(this))
 {
 }
 
@@ -111,46 +194,9 @@ void Backend::initialize(QDeclarativeEngine *qmlEngine)
         qmlEngine->rootContext()->setContextProperty("backend", this);
     }
 
-    discoverEngines();
+    d->discoverEngines();
 }
 
-void Backend::resetLanguage()
-{
-    static QString baseTranslationPath(d->basePath + "/translations/");
-    delete d->backendTranslator;
-    d->backendTranslator = new QTranslator(this);
-    d->backendTranslator->load(baseTranslationPath + language() + ".qm");
-    qApp->installTranslator(d->backendTranslator);
-
-    qDeleteAll(d->pluginTranslators.begin(), d->pluginTranslators.end());
-
-    foreach(QObject *pluginObject, d->advertizedEngines) {
-        QMHPlugin *plugin = qobject_cast<QMHPlugin*>(pluginObject);
-        QTranslator *pluginTranslator = new QTranslator(this);
-        pluginTranslator->load(baseTranslationPath + plugin->role() + "_" + language() + ".qm");
-        d->pluginTranslators << pluginTranslator;
-        qApp->installTranslator(pluginTranslator);
-    }
-}
-
-void Backend::discoverEngines()
-{
-    foreach(const QString fileName, QDir(pluginPath()).entryList(QDir::Files)) {
-        QString qualifiedFileName(pluginPath() + "/" + fileName);
-        QPluginLoader pluginLoader(qualifiedFileName);
-        if(pluginLoader.load()
-           && qobject_cast<QMHPluginInterface*>(pluginLoader.instance())) {
-            QMHPlugin *plugin = new QMHPlugin(qobject_cast<QMHPluginInterface*>(pluginLoader.instance()), this);
-            plugin->setParent(this);
-            if(d->qmlEngine)
-                plugin->registerPlugin(d->qmlEngine->rootContext());
-            advertizeEngine(plugin);
-        }
-        else
-            qWarning() << tr("Invalid plugin present %1 $2").arg(qualifiedFileName).arg(pluginLoader.errorString());
-    }
-    resetLanguage();
-}
 
 QString Backend::language() const {
     //FIXME: derive from locale
@@ -163,6 +209,11 @@ QString Backend::language() const {
 QList<QObject*> Backend::engines() const
 {
     return d->advertizedEngines;
+}
+
+QStringList Backend::skins() const
+{
+    return d->skins;
 }
 
 Backend* Backend::instance()
@@ -231,3 +282,4 @@ QObject* Backend::engine(const QString &role) {
     return 0;
 }
 
+#include "backend.moc"
