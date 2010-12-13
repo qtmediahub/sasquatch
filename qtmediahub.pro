@@ -1,7 +1,8 @@
 TEMPLATE = subdirs
 
 SUBDIRS = src \
-          src/plugins
+          src/plugins \
+          src/3rdparty/qt-components/qt-components.pro
 
 QMAKE_CACHE=.qmake.cache
 !exists($$QMAKE_CACHE) {
