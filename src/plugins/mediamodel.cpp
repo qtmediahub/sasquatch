@@ -43,6 +43,7 @@ MediaModel::MediaModel(MediaModel::MediaType type, QObject *parent)
     roleNames[FileNameRole] = "fileName";
     roleNames[MediaInfoTypeRole] = "type";
     roleNames[FileSizeRole] = "fileSize";
+    roleNames[FileDateTimeRole] = "fileDateTime";
     setRoleNames(roleNames);
 
     m_root = new MediaInfo(MediaModel::Root);

@@ -6,47 +6,26 @@
 
 struct PictureInfo : public MediaInfo
 {
-    PictureInfo() :  MediaInfo(MediaModel::File), latitude(0), longitude(0), altitude(0),
-                     hasGeolocation(false), orientation(ExifReader::NoOrientation)
+    PictureInfo() :  MediaInfo(MediaModel::File)
     { }
 
     QImage thumbnail;
+    QSize resolution;
 
     // Exif
-    QString userComments;
-    QString imageDescription;
-    QDateTime creationTime;
-    QString cameraModel;
-    QString cameraMake;
-
-    double latitude;
-    double longitude;
-    double altitude;
-
-    bool hasGeolocation;
-
-    ExifReader::Orientation orientation;
-
-    QString aperture;
-    QString focalLength;
-    QString exposureMode;
-    QString whiteBalance;
-    QString lightSource;
-    QString isoSpeed;
-    QString digitalZoomRatio;
-    QString flashUsage;
-    QString exposureTime;
-    QString colorSpace;
+    QMap<QString, QVariant> exifProperties;
 };
 
 class PictureModel : public MediaModel
 {
     Q_OBJECT
+
 public:
     PictureModel(QObject *parent = 0);
     ~PictureModel();
 
     enum CustomRoles {
+        ResolutionRole = Qt::UserRole + 100,
         UserCommentsRole,
         ImageDescriptionRole,
         CreationTimeRole,
@@ -55,7 +34,8 @@ public:
         LatitudeRole,
         LongitudeRole,
         AltitudeRole,
-        OrientationRole
+        OrientationRole,
+        ExifPropertiesRole
     };
 
     QVariant data(MediaInfo *mediaInfo, int role) const;
