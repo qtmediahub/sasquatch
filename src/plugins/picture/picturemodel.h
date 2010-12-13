@@ -26,6 +26,8 @@ public:
 
     enum CustomRoles {
         ResolutionRole = Qt::UserRole + 100,
+        ResolutionWidthRole,
+        ResolutionHeightRole,
         UserCommentsRole,
         ImageDescriptionRole,
         CreationTimeRole,

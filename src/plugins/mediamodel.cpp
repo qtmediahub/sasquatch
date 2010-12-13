@@ -39,6 +39,8 @@ MediaModel::MediaModel(MediaModel::MediaType type, QObject *parent)
     QHash<int, QByteArray> roleNames = QAbstractItemModel::roleNames();
     roleNames[Qt::DisplayRole] = "display";
     roleNames[DecorationUrlRole] = "decorationUrl";
+    roleNames[DecorationWidthRole] = "decorationWidth";
+    roleNames[DecorationHeightRole] = "decorationHeight";
     roleNames[FilePathRole] = "filePath";
     roleNames[FileNameRole] = "fileName";
     roleNames[MediaInfoTypeRole] = "type";
@@ -114,7 +116,8 @@ void MediaModel::addSearchPath(const QString &path, const QString &name)
     newSearchPath->name = name;
     m_root->children.insert(m_root->children.count()-1, newSearchPath); // add before AddNewSource
     endInsertRows();
-    m_frontCovers.insert(path, QImage(m_themePath + "/media/DefaultHardDisk.png"));
+    QImage image(m_themePath + "/media/DefaultHardDisk.png");
+    m_frontCovers.insert(path, image);
 
     startSearchThread();
 }
@@ -182,6 +185,10 @@ QVariant MediaModel::data(const QModelIndex &index, int role) const
 
     if (role == DecorationUrlRole) {
         return QUrl("image://" + imageBaseUrl() + info->filePath);
+    } else if (role == DecorationWidthRole) {
+        return info->decorationSize.isValid() ? info->decorationSize.width() : 342;
+    } else if (role == DecorationHeightRole) {
+        return info->decorationSize.isValid() ? info->decorationSize.height() : 348;
     } else if (role == FilePathRole) {
         return info->filePath;
     } else if (role == FileNameRole) {
@@ -221,9 +228,10 @@ void MediaModel::addMedia(MediaInfo *mi)
     QModelIndex parentIndex = createIndex(row, 0, parent);
     beginInsertRows(parentIndex, parent->children.count(), parent->children.count());
     QImage frontCover;
-    if (mi->type == MediaModel::File)
+    if (mi->type == MediaModel::File) {
         frontCover = decoration(mi);
-    else
+        mi->decorationSize = frontCover.size();
+    } else
         frontCover = QImage(m_themePath + "/media/DefaultFolder.png");
     m_frontCovers.insert(mi->filePath, frontCover);
     parent->children.append(mi);

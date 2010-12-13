@@ -104,6 +104,8 @@ public:
     enum CustomRoles {
         // Qt::UserRole+1 to 100 are reserved by this model!
         DecorationUrlRole = Qt::UserRole + 1,
+        DecorationWidthRole,
+        DecorationHeightRole,
         FilePathRole,
         FileNameRole,
         MediaInfoTypeRole,
@@ -201,6 +203,7 @@ struct MediaInfo
     QList<MediaInfo *> children;
     qint64 fileSize;
     QDateTime fileDateTime;
+    QSize decorationSize;
 };
 
 #endif // MEDIAMODEL_H

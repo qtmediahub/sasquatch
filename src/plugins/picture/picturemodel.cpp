@@ -74,7 +74,7 @@ MediaInfo *PictureModel::readMediaInfo(const QString &filePath)
         return 0;
 
     PictureInfo *info = new PictureInfo;
-    info->thumbnail = image;
+    info->thumbnail = image.scaledToWidth(342, Qt::SmoothTransformation);
     info->resolution = image.size();
 
     ExifReader exifReader(filePath);
