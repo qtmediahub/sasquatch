@@ -108,5 +108,3 @@ MediaInfo *PictureModel::readMediaInfo(const QString &filePath)
     return info;
 }
 
-#include "picturemodel.moc"
-
