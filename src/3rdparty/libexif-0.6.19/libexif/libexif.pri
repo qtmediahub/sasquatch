@@ -7,6 +7,7 @@
 DEFINES += GETTEXT_PACKAGE=\\\"libexif-12\\\"
 DEFINES += LOCALEDIR=\\\"/usr/local/share/locale\\\"
 DEFINES += HAVE_CONFIG_H
+!mac: DEFINES += ENABLE_NLS=1
 
 SOURCES += $$PWD/exif-byte-order.c \
            $$PWD/exif-content.c \
