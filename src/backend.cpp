@@ -274,6 +274,13 @@ void Backend::log(const QString &logMsg) {
     d->log << logMsg << endl;
 }
 
+// again dependent on declarative, needs to be fixed
+void Backend::clearComponentCache() {
+    if(d->qmlEngine) {
+        d->qmlEngine->clearComponentCache();
+    }
+}
+
 QObject* Backend::engine(const QString &role) {
     foreach(QObject *currentEngine, d->advertizedEngines )
         if(qobject_cast<QMHPlugin*>(currentEngine)->role() == role)

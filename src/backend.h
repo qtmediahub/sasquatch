@@ -57,6 +57,7 @@ public:
     Q_INVOKABLE void advertizeEngine(QMHPlugin *engine);
     Q_INVOKABLE void openUrlExternally(const QUrl &url) const;
     Q_INVOKABLE void log(const QString &logMsg);
+    Q_INVOKABLE void clearComponentCache();
 
 signals:
     void skinPathChanged();

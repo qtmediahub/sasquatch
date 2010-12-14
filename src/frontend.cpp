@@ -108,6 +108,7 @@ void Frontend::loadFrontend(const QUrl &url)
 
         engine->addPluginPath(Backend::instance()->resourcePath() + "/lib");
         engine->addImportPath(Backend::instance()->resourcePath() + "/imports");
+        engine->addImportPath(Backend::instance()->skinPath());
 
         if(Config::isEnabled("scale-ui", false))
             widget->scale(qreal(desktop->width())/1280, qreal(desktop->height())/720);
