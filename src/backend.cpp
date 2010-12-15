@@ -52,9 +52,9 @@ public:
           platformOffset("/../../.."),
       #endif
           basePath(QCoreApplication::applicationDirPath() + platformOffset),
-          skinPath(basePath + "/skins"),
-          pluginPath(basePath + "/plugins"),
-          resourcePath(basePath + "/resources"),
+          skinPath(basePath % "/skins"),
+          pluginPath(basePath % "/plugins"),
+          resourcePath(basePath % "/resources"),
           qmlEngine(0),
           backendTranslator(0),
           logFile(qApp->applicationName().append(".log"))
@@ -117,11 +117,11 @@ void BackendPrivate::handleDirChanged(const QString &dir)
 
 void BackendPrivate::resetLanguage()
 {
-    static QString baseTranslationPath(basePath + "/translations/");
+    static QString baseTranslationPath(basePath % "/translations/");
     const QString language = Backend::instance()->language();
     delete backendTranslator;
     backendTranslator = new QTranslator(this);
-    backendTranslator->load(baseTranslationPath + language + ".qm");
+    backendTranslator->load(baseTranslationPath % language % ".qm");
     qApp->installTranslator(backendTranslator);
 
     qDeleteAll(pluginTranslators.begin(), pluginTranslators.end());
@@ -129,7 +129,7 @@ void BackendPrivate::resetLanguage()
     foreach(QObject *pluginObject, advertizedEngines) {
         QMHPlugin *plugin = qobject_cast<QMHPlugin*>(pluginObject);
         QTranslator *pluginTranslator = new QTranslator(this);
-        pluginTranslator->load(baseTranslationPath + plugin->role() + "_" + language + ".qm");
+        pluginTranslator->load(baseTranslationPath % plugin->role() % "_" % language % ".qm");
         pluginTranslators << pluginTranslator;
         qApp->installTranslator(pluginTranslator);
     }
@@ -142,7 +142,7 @@ void BackendPrivate::discoverSkins()
     QStringList potentialSkins = QDir(skinPath).entryList(QDir::Dirs | QDir::NoDotAndDotDot);
 
     foreach(const QString &currentPath, potentialSkins)
-        if(QFile(skinPath + "/" + currentPath + "/" + currentPath).exists())
+        if(QFile(skinPath % "/" % currentPath % "/" % currentPath).exists())
             skins << currentPath;
 
     qWarning() << "Available skins" << skins;
@@ -151,7 +151,7 @@ void BackendPrivate::discoverSkins()
 void BackendPrivate::discoverEngines()
 {
     foreach(const QString fileName, QDir(pluginPath).entryList(QDir::Files)) {
-        QString qualifiedFileName(pluginPath + "/" + fileName);
+        QString qualifiedFileName(pluginPath % "/" % fileName);
         QPluginLoader pluginLoader(qualifiedFileName);
         if(pluginLoader.load()
            && qobject_cast<QMHPluginInterface*>(pluginLoader.instance())) {
@@ -260,7 +260,7 @@ void Backend::advertizeEngine(QMHPlugin *engine) {
     }
     d->advertizedEngines << engine;
     if(d->qmlEngine)
-        d->qmlEngine->rootContext()->setContextProperty(role + "Engine", engine);
+        d->qmlEngine->rootContext()->setContextProperty(role % "Engine", engine);
     d->advertizedEngineRoles << role;
     emit enginesChanged();
 }

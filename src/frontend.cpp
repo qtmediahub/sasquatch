@@ -25,7 +25,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QList>
 #include <QVariant>
 
-#include <QDesktopWidget>
 #include <QDeclarativeView>
 #include <QDeclarativeEngine>
 #include <QDeclarativeContext>
@@ -40,126 +39,174 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "config.h"
 
-struct FrontendPrivate : public QObject
+class FrontendPrivate : public QObject
 {
     Q_OBJECT
 public:
-    FrontendPrivate();
+    FrontendPrivate(Frontend *p);
     ~FrontendPrivate();
-
-    QWidget *widget;
+public slots:
+    void handleResize();
+public:
+    QWidget *centralWidget;
     QTranslator *frontEndTranslator;
+    QString skin;
+    QTimer resizeSettleTimer;
+    Frontend *pSelf;
 };
 
-FrontendPrivate::FrontendPrivate()
-    : widget(0),
-      frontEndTranslator(0)
-{ /**/ }
+FrontendPrivate::FrontendPrivate(Frontend *p)
+    : QObject(p),
+      centralWidget(0),
+      frontEndTranslator(0),
+      pSelf(p)
+{
+    resizeSettleTimer.setSingleShot(true);
+    connect(&resizeSettleTimer, SIGNAL(timeout()), this, SLOT(handleResize()));
+}
 
 FrontendPrivate::~FrontendPrivate()
 {
-    if(widget)
-        Config::setValue("windowGeometry", widget->geometry());
-    delete widget;
-    widget = 0;
+    Config::setValue("last-skin", skin);
+    delete centralWidget;
+    centralWidget = 0;
 }
 
-Frontend::Frontend(QObject *p)
-    : QObject(p),
-      d(new FrontendPrivate())
+void FrontendPrivate::handleResize()
 {
+    if(centralWidget)
+        centralWidget->setFixedSize(pSelf->size());
+    QGraphicsView *gv = qobject_cast<QGraphicsView*>(centralWidget);
+    if(gv && Config::isEnabled("scale-ui", false)) {
+        gv->resetMatrix();
+        //Needs to be scaled by res of top level qml file
+        gv->scale(qreal(pSelf->width())/1280, qreal(pSelf->height())/720);
+    }
+}
+
+Frontend::Frontend(QWidget *p)
+    : QWidget(p),
+      d(new FrontendPrivate(this))
+{
+    setGeometry(Config::value("windowGeometry", QRect(0, 0, 1080, 720)));
+    setSkin(Config::value("last-skin", "").toString());
 }
 
 Frontend::~Frontend()
 {
+    Config::setValue("windowGeometry", geometry());
     delete d;
     d = 0;
     //Can't decide whether this is filthy or not
     Backend::destroy();
 }
 
-void Frontend::setSkin(const QString &name)
+void Frontend::paintEvent(QPaintEvent *e)
 {
+    Q_UNUSED(e)
+    QPainter p(this);
+    p.fillRect(rect(), Qt::black);
 }
 
-void Frontend::loadFrontend(const QUrl &url)
+void Frontend::resizeEvent(QResizeEvent *e)
 {
-    bool visible = false, fullScreen = false;
-    if(d->widget) {
-        visible = d->widget->isVisible();
-        fullScreen = d->widget->windowState() & Qt::WindowFullScreen;
+    Q_UNUSED(e)
+    d->resizeSettleTimer.start(300);
+}
+
+void Frontend::setSkin(const QString &name)
+{
+    //Maybe we will be able to influence this?
+    static QSize nativeResolution = qApp->desktop()->screenGeometry(this).size();
+    static QString nativeResolutionString = QString("%1x%2").arg(nativeResolution.width()).arg(nativeResolution.height());
+    //http://en.wikipedia.org/wiki/720p
+    //1440, 1080, 720, 576, 480, 360, 240
+    static QHash<QString, QString> resolutionHash;
+    resolutionHash["1440"] = "2560x1440";
+    resolutionHash["1080"] = "1920x1080";
+    resolutionHash["720"] = "1280x720";
+
+    Backend *backend = Backend::instance();
+    QString skinName(name);
+
+    if(!backend->skins().contains(skinName)) {
+        skinName = Config::value("default-skin", "confluence").toString();
     }
 
-    delete d->widget;
+    QFile skinConfig(backend->skinPath() % "/" % skinName % "/" % skinName);
+    if(!skinConfig.exists()) {
+        qFatal("Something has gone horribly awry, you want for skins");
+    }
+    if(skinConfig.open(QIODevice::ReadOnly))
+    {
+        QHash<QString, QString> fileForResolution;
+        QTextStream skinStream(&skinConfig);
+        while(!skinStream.atEnd())
+        {
+            QStringList resolutionToFile = skinStream.readLine().split(":");
+            QString resolution =
+                resolutionHash.contains(resolutionToFile.at(0))
+                ? resolutionHash[resolutionToFile.at(0)]
+                : resolutionToFile.at(0);
+            fileForResolution[resolution] = resolutionToFile.at(1);
+        }
 
-    QUrl targetUrl;
+        QString urlPath =
+            fileForResolution.contains(nativeResolutionString)
+            ? fileForResolution[nativeResolutionString]
+            : fileForResolution[Config::value("fallback-resolution", "default").toString()];
 
-    if(url.isEmpty() || !url.isValid())
-        targetUrl = Config::value("defaultSkin", QUrl::fromLocalFile(Backend::instance()->skinPath() + "/confluence/720/Confluence.qml"));
-    else
-        targetUrl = url;
+        d->skin = skinName;
+
+        initialize(QUrl::fromLocalFile(Backend::instance()->skinPath() % "/" % skinName % "/" % urlPath));
+    }
+    else {
+        qWarning() << "Can't read" << skinName;
+    }
+}
+
+void Frontend::initialize(const QUrl &targetUrl)
+{
+    if(targetUrl.isEmpty() || !targetUrl.isValid())
+        qFatal("You are explicitly forcing a broken url on the skin system");
+
+    delete d->centralWidget;
 
     if(targetUrl.path().right(3) == "qml")
     {
-        QDesktopWidget *desktop = qApp->desktop();
+        QDeclarativeView *centralWidget= new QDeclarativeView(this);
+        QDeclarativeEngine *engine = centralWidget->engine();
 
-        QDeclarativeView *widget= new QDeclarativeView();
-        QDeclarativeEngine *engine = widget->engine();
-
-        engine->addPluginPath(Backend::instance()->resourcePath() + "/lib");
-        engine->addImportPath(Backend::instance()->resourcePath() + "/imports");
+        engine->addPluginPath(Backend::instance()->resourcePath() % "/lib");
+        engine->addImportPath(Backend::instance()->resourcePath() % "/imports");
         engine->addImportPath(Backend::instance()->skinPath());
 
-        if(Config::isEnabled("scale-ui", false))
-            widget->scale(qreal(desktop->width())/1280, qreal(desktop->height())/720);
         if(Config::isEnabled("smooth-scaling", true))
-            widget->setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing);
+            centralWidget->setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing);
 
-        widget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-        widget->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-        widget->setFrameStyle(0);
-        widget->setOptimizationFlags(QGraphicsView::DontSavePainterState);
-        widget->scene()->setItemIndexMethod(QGraphicsScene::NoIndex);
+        centralWidget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        centralWidget->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        centralWidget->setFrameStyle(0);
+        centralWidget->setOptimizationFlags(QGraphicsView::DontSavePainterState);
+        centralWidget->scene()->setItemIndexMethod(QGraphicsScene::NoIndex);
 
         QObject::connect(engine, SIGNAL(quit()), qApp, SLOT(quit()));
 
 #ifdef GLVIEWPORT
-        widget->setViewport(new QGLWidget());
+        centralWidget->setViewport(new QGLWidget());
 #endif
 #ifdef GL
-        widget->setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
+        centralWidget->setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
 #else
-        widget->setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
+        centralWidget->setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
 #endif
         Backend::instance()->initialize(engine);
 
         resetLanguage();
-        widget->setSource(targetUrl);
+        centralWidget->setSource(targetUrl);
 
-        d->widget = widget;
+        d->centralWidget = centralWidget;
     }
-
-    if(visible) {
-        if (fullScreen)
-            d->widget->showFullScreen();
-        else
-            d->widget->show();
-    }
-}
-
-void Frontend::show()
-{
-    if(!d->widget)
-        loadFrontend(QUrl());
-    d->widget->setGeometry(Config::value("windowGeometry", QRect(0, 0, 1080, 720)));
-    d->widget->show();
-}
-
-void Frontend::showFullScreen()
-{
-    if(!d->widget)
-        loadFrontend(QUrl());
-    d->widget->showFullScreen();
 }
 
 void Frontend::resetLanguage()
@@ -170,9 +217,8 @@ void Frontend::resetLanguage()
     delete d->frontEndTranslator;
     d->frontEndTranslator = new QTranslator(this);
     //FIXME: this clearly needs some heuristics
-    d->frontEndTranslator->load(backend->skinPath() + "/confluence/translations/" + "confluence_" + language + ".qm");
+    d->frontEndTranslator->load(backend->skinPath() % "/confluence/translations/" % "confluence_" % language % ".qm");
     qApp->installTranslator(d->frontEndTranslator);
 }
-
 
 #include "frontend.moc"

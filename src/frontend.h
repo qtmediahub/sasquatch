@@ -20,24 +20,25 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #ifndef FRONT_END
 #define FRONT_END
 
-#include <QObject>
+#include <QWidget>
 #include <QUrl>
 
-class QWidget;
 class FrontendPrivate;
 
 /*Logic abstracting what is handling the rendering and resolution selection*/
 
-class Frontend : public QObject
+class Frontend : public QWidget
 {
     Q_OBJECT
     public:
-        Frontend(QObject *p);
+        Frontend(QWidget *p = 0);
         ~Frontend();
+
+        void paintEvent(QPaintEvent *e);
+        void resizeEvent(QResizeEvent *e);
+
         void setSkin(const QString &name);
-        void loadFrontend(const QUrl &url);
-        void show();
-        void showFullScreen();
+        void initialize(const QUrl &url);
         void resetLanguage();
 
     private:

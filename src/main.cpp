@@ -77,7 +77,7 @@ int main(int argc, char** argv)
                    << proxyPort;
     }
 
-    Frontend gui(&app);
+    Frontend gui;
     if (Config::isEnabled("start-fullscreen", false)) {
         gui.showFullScreen();
     } else {
