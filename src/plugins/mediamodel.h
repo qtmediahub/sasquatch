@@ -138,7 +138,7 @@ signals:
     void mediaPathChanged();
 
 private:
-    void init();
+    void restore();
     void startSearchThread();
     void stopSearchThread();
 
@@ -152,6 +152,7 @@ private:
     int m_nowSearching;
     MediaInfo *m_root;
     QList<MediaInfo *> m_deleteLaterInfos;
+    bool m_restored;
     friend class MediaModelThread;
 };
 

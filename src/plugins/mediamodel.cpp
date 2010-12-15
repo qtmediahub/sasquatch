@@ -26,13 +26,25 @@
 #include <QMetaEnum>
 #include <QDeclarativeEngine>
 #include <QQueue>
+#include <QSettings>
+
+static QString typeToString(MediaModel::MediaType type)
+{
+    switch (type) {
+    case MediaModel::Music: return "music";
+    case MediaModel::Video: return "video";
+    case MediaModel::Picture: return "picture";
+    default: qWarning() << "Unknown media type " << type; return "unknown";
+    }
+}
 
 MediaModel::MediaModel(MediaModel::MediaType type, QObject *parent)
     : QAbstractItemModel(parent),
       m_type(type),
       m_thread(0),
       m_nowSearching(-1),
-      m_root(0)
+      m_root(0),
+      m_restored(false)
 {
     qRegisterMetaType<MediaInfo *>("MediaInfo *");
 
@@ -63,6 +75,31 @@ MediaModel::~MediaModel()
 
     // FIXME: Wait until thread is dead
     delete m_thread;
+}
+
+void MediaModel::restore()
+{
+    QSettings settings;
+    settings.beginGroup(typeToString(m_type) + "model");
+    int size = settings.beginReadArray("searchpaths");
+
+    QImage image(m_themePath + "/media/DefaultHardDisk.png");
+    for (int i = 0; i < size; i++) {
+        settings.setArrayIndex(i);
+
+        MediaInfo *newSearchPath = new MediaInfo(MediaModel::SearchPath);
+        newSearchPath->filePath = settings.value("path").toString();
+        newSearchPath->name = settings.value("name").toString();
+        m_root->children.insert(m_root->children.count()-1, newSearchPath);
+        m_frontCovers.insert(newSearchPath->filePath, image);
+    }
+
+    settings.endArray();
+    settings.endGroup();
+
+    m_restored = true;
+
+    startSearchThread();
 }
 
 void MediaModel::startSearchThread()
@@ -119,6 +156,15 @@ void MediaModel::addSearchPath(const QString &path, const QString &name)
     QImage image(m_themePath + "/media/DefaultHardDisk.png");
     m_frontCovers.insert(path, image);
 
+    QSettings settings;
+    settings.beginGroup(typeToString(m_type) + "model");
+    settings.beginWriteArray("searchpaths", m_root->children.count()-1 /* ignore the 'Add search path' */);
+    settings.setArrayIndex(m_root->children.count()-2);
+    settings.setValue("path", path);
+    settings.setValue("name", name);
+    settings.endArray();
+    settings.endGroup();
+
     startSearchThread();
 }
 
@@ -140,6 +186,17 @@ void MediaModel::removeSearchPath(int index)
         m_thread->stop();
     }
     endRemoveRows();
+
+    QSettings settings;
+    settings.beginGroup(typeToString(m_type) + "model");
+    settings.beginWriteArray("searchpaths", m_root->children.count()-1);
+    for (int i = index; i < m_root->children.count()-1; i++) {
+        settings.setArrayIndex(i);
+        settings.setValue("path", m_root->children[i]->filePath);
+        settings.setValue("name", m_root->children[i]->name);
+    }
+    settings.endArray();
+    settings.endGroup();
 }
 
 QModelIndex MediaModel::index(int row, int col, const QModelIndex &parent) const
@@ -269,6 +326,10 @@ void MediaModel::setThemeResourcePath(const QString &themePath)
     m_themePath = themePath;
     m_frontCovers.insert("/AddNewSource", QImage(m_themePath + "/media/DefaultAddSource.png"));
     m_frontCovers.insert("/DotDot", QImage(m_themePath + "/media/DefaultFolderBack.png"));
+
+    if (!m_restored)
+        restore();
+
     reset();
 }
 
