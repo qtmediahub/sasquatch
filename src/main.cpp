@@ -19,6 +19,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <QApplication>
 #include <QWidget>
+#include <QNetworkProxy>
 #ifdef GL
 #include <QGLFormat>
 #endif
@@ -61,6 +62,20 @@ int main(int argc, char** argv)
     app.setOrganizationName("Nokia");
 
     Config::init(argc, argv);
+
+    QNetworkProxy proxy;
+    if(Config::isEnabled("proxy", false)) {
+        QString proxyHost(Config::value("proxy-host", "localhost").toString());
+        int proxyPort = Config::value("proxy-port", 8080);
+        proxy.setType(QNetworkProxy::HttpProxy);
+        proxy.setHostName(proxyHost);
+        proxy.setPort(proxyPort);
+        QNetworkProxy::setApplicationProxy(proxy);
+        qWarning() << "Using proxy host"
+                   << proxyHost
+                   << "on port"
+                   << proxyPort;
+    }
 
     Frontend gui(&app);
     if (Config::isEnabled("start-fullscreen", false)) {
