@@ -23,6 +23,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QDirModel>
 #include <QtDeclarative>
 
+Q_DECLARE_METATYPE(QModelIndex)
+
 class DirModel : public QDirModel
 {
     Q_OBJECT
@@ -38,7 +40,12 @@ public:
     Q_INVOKABLE QString baseName(const QModelIndex &index) {
         return index.isValid() ? QFileInfo(index.data(QDirModel::FilePathRole).toString()).baseName() : "/";
     }
-
+    Q_INVOKABLE QVariant modelIndexForPath(const QString &path) const {
+        return QVariant::fromValue(index(path));
+    }
+    Q_INVOKABLE QVariant modelIndexForHomePath() const {
+        return QVariant::fromValue(index(QDir::homePath()));
+    }
 };
 
 QML_DECLARE_TYPE(DirModel)
