@@ -23,4 +23,4 @@ meego {
     CONFIG += meegotouch
 }
 
-QMAKE_LFLAGS += -Wl,--rpath=. -Wl,--rpath=./hub/resources/lib
+linux: QMAKE_LFLAGS += -Wl,--rpath=. -Wl,--rpath=./hub/resources/lib
