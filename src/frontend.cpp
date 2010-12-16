@@ -189,6 +189,7 @@ void Frontend::initialize(const QUrl &targetUrl)
         centralWidget->setFrameStyle(0);
         centralWidget->setOptimizationFlags(QGraphicsView::DontSavePainterState);
         centralWidget->scene()->setItemIndexMethod(QGraphicsScene::NoIndex);
+        centralWidget->setResizeMode(QDeclarativeView::SizeRootObjectToView);
 
         QObject::connect(engine, SIGNAL(quit()), qApp, SLOT(quit()));
 
