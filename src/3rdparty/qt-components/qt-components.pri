@@ -22,6 +22,5 @@ meego {
     DEFINES += Q_COMPONENTS_MEEGO
     CONFIG += meegotouch
 }
-linux {
-    QMAKE_LFLAGS += -Wl,--rpath=.
-}
+
+QMAKE_LFLAGS += -Wl,--rpath=. -Wl,--rpath=./hub/resources/lib

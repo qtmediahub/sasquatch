@@ -1,6 +1,6 @@
 DESTDIR = ../hub
 TEMPLATE = app
-TARGET = qtmediahub
+TARGET = qmh
 DEPENDPATH += .
 INCLUDEPATH += .
 TEMP_DIR = tmp

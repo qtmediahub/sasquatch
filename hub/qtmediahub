@@ -1,0 +1,5 @@
+#!/bin/sh
+#You have discovered my treachery, Qt Components needs to be discoverable
+#DYLD_LIBRARY_PATH
+scriptPath=$(cd ${0%/*} && pwd -P)
+LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$scriptPath/resources/lib $scriptPath/qmh
