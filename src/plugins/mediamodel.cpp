@@ -63,7 +63,6 @@ MediaModel::MediaModel(MediaModel::MediaType type, QObject *parent)
     m_root = new MediaInfo(MediaModel::Root);
 
     MediaInfo *addNewSource = new MediaInfo(MediaModel::AddNewSource);
-    addNewSource->filePath = "/AddNewSource";
     addNewSource->name = tr("Add new source");
     m_root->children.append(addNewSource);
 }
@@ -83,7 +82,6 @@ void MediaModel::restore()
     settings.beginGroup(typeToString(m_type) + "model");
     int size = settings.beginReadArray("searchpaths");
 
-    QImage image(m_themePath + "/media/DefaultHardDisk.png");
     for (int i = 0; i < size; i++) {
         settings.setArrayIndex(i);
 
@@ -91,7 +89,6 @@ void MediaModel::restore()
         newSearchPath->filePath = settings.value("path").toString();
         newSearchPath->name = settings.value("name").toString();
         m_root->children.insert(m_root->children.count()-1, newSearchPath);
-        m_frontCovers.insert(newSearchPath->filePath, image);
     }
 
     settings.endArray();
@@ -153,8 +150,6 @@ void MediaModel::addSearchPath(const QString &path, const QString &name)
     newSearchPath->name = name;
     m_root->children.insert(m_root->children.count()-1, newSearchPath); // add before AddNewSource
     endInsertRows();
-    QImage image(m_themePath + "/media/DefaultHardDisk.png");
-    m_frontCovers.insert(path, image);
 
     QSettings settings;
     settings.beginGroup(typeToString(m_type) + "model");
@@ -241,7 +236,17 @@ QVariant MediaModel::data(const QModelIndex &index, int role) const
     MediaInfo *info = static_cast<MediaInfo *>(index.internalPointer());
 
     if (role == PreviewUrlRole) {
-        return QUrl("image://" + imageBaseUrl() + info->filePath);
+        QString urlBase = "image://" + imageBaseUrl();
+        if (info->type == AddNewSource)
+            return QUrl(urlBase + "/AddNewSource");
+        else if (info->type == DotDot)
+            return QUrl(urlBase + "/DotDot");
+        else if (info->type == SearchPath)
+            return QUrl(urlBase + "/SearchPath");
+        else if (info->type == Directory)
+            return QUrl(urlBase + "/Directory");
+        else
+            return QUrl(urlBase + info->filePath);
     } else if (role == PreviewWidthRole) {
         return info->previewSize.isValid() ? info->previewSize.width() : 342;
     } else if (role == PreviewHeightRole) {
@@ -288,8 +293,7 @@ void MediaModel::addMedia(MediaInfo *mi)
     if (mi->type == MediaModel::File) {
         frontCover = preview(mi);
         mi->previewSize = frontCover.size();
-    } else
-        frontCover = QImage(m_themePath + "/media/DefaultFolder.png");
+    }
     m_frontCovers.insert(mi->filePath, frontCover);
     parent->children.append(mi);
     endInsertRows();
@@ -324,8 +328,11 @@ QImage MediaModel::previewImage(const QString &path, QSize *size, const QSize &r
 void MediaModel::setThemeResourcePath(const QString &themePath)
 {
     m_themePath = themePath;
+
     m_frontCovers.insert("/AddNewSource", QImage(m_themePath + "/media/DefaultAddSource.png"));
     m_frontCovers.insert("/DotDot", QImage(m_themePath + "/media/DefaultFolderBack.png"));
+    m_frontCovers.insert("/Directory", QImage(m_themePath + "/media/DefaultFolder.png"));
+    m_frontCovers.insert("/SearchPath", QImage(m_themePath + "/media/DefaultHardDisk.png"));
 
     if (!m_restored)
         restore();

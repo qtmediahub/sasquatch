@@ -188,7 +188,6 @@ struct MediaInfo
         // is this wise?
         if (type == MediaModel::Directory || type == MediaModel::SearchPath) {
             MediaInfo *info = new MediaInfo(MediaModel::DotDot);
-            info->filePath = "/DotDot";
             info->name = QT_TRANSLATE_NOOP("MediaModel", "..");
             info->parent = this;
             children.append(info);
