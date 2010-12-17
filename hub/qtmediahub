@@ -4,9 +4,9 @@
 if [ `uname` = "Darwin" ]; then
 echo "Running on mac"
 scriptPath=$(cd ${0%/*} && pwd -P)
-DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$scriptPath/resources/lib $scriptPath/qmh.app/Contents/MacOS/qmh
+DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$scriptPath/resources/lib $scriptPath/qmh.app/Contents/MacOS/qmh $@
 else
 echo "Running on linux"
 scriptPath=$(cd ${0%/*} && pwd -P)
-LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$scriptPath/resources/lib $scriptPath/qmh
+LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$scriptPath/resources/lib $scriptPath/qmh $@
 fi
