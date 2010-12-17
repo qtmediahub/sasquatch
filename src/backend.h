@@ -22,6 +22,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <QObject>
 #include <QList>
+#include <QDateTime>
 
 class QUrl;
 class BackendPrivate;
@@ -36,6 +37,8 @@ class Backend : public QObject
     Q_PROPERTY(QString resourcePath READ resourcePath NOTIFY resourcePathChanged)
     Q_PROPERTY(bool transforms READ transforms NOTIFY backendChanged)
     Q_PROPERTY(QList<QObject*> engines READ engines NOTIFY enginesChanged)
+    Q_PROPERTY(QDateTime currentDateTime READ currentDateTime NOTIFY currentDateTimeChanged)
+
 public:
     static Backend *instance();
     static void destroy();
@@ -51,6 +54,7 @@ public:
     QString skinPath() const;
     QString pluginPath() const;
     QString resourcePath() const;
+    QDateTime currentDateTime() const;
     
     bool transforms() const;
 
@@ -65,6 +69,7 @@ signals:
     void resourcePathChanged();
     void backendChanged();
     void enginesChanged();
+    void currentDateTimeChanged();
 
 private:
     QObject* engine(const QString &role);

@@ -171,6 +171,11 @@ Backend::Backend(QObject *parent)
     : QObject(parent),
       d(new BackendPrivate(this))
 {
+    QTimer *timer = new QTimer(this);
+    timer->setInterval(1000);
+    timer->setSingleShot(false);
+    connect(timer, SIGNAL(timeout()), this, SIGNAL(currentDateTimeChanged()));
+    timer->start();
 }
 
 Backend::~Backend()
@@ -240,6 +245,10 @@ QString Backend::pluginPath() const {
 
 QString Backend::resourcePath() const {
     return d->resourcePath;
+}
+
+QDateTime Backend::currentDateTime() const {
+    return QDateTime::currentDateTime();
 }
 
 bool Backend::transforms() const {
