@@ -55,6 +55,7 @@ MediaModel::MediaModel(MediaModel::MediaType type, QObject *parent)
     roleNames[PreviewHeightRole] = "previewHeight";
     roleNames[FilePathRole] = "filePath";
     roleNames[FileNameRole] = "fileName";
+    roleNames[FileUrlRole] = "fileUrl";
     roleNames[MediaInfoTypeRole] = "type";
     roleNames[FileSizeRole] = "fileSize";
     roleNames[FileDateTimeRole] = "fileDateTime";
@@ -247,6 +248,8 @@ QVariant MediaModel::data(const QModelIndex &index, int role) const
             return QUrl(urlBase + "/Directory");
         else
             return QUrl(urlBase + info->filePath);
+    } else if (role == FileUrlRole) {
+        return QUrl::fromLocalFile(info->filePath);
     } else if (role == PreviewWidthRole) {
         return info->previewSize.isValid() ? info->previewSize.width() : 342;
     } else if (role == PreviewHeightRole) {

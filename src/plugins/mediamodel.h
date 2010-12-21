@@ -108,6 +108,7 @@ public:
         PreviewHeightRole,
         FilePathRole,
         FileNameRole,
+        FileUrlRole,
         MediaInfoTypeRole,
         FileSizeRole,
         FileDateTimeRole
