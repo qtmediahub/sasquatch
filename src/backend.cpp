@@ -280,6 +280,7 @@ void Backend::openUrlExternally(const QUrl & url) const
 }
 
 void Backend::log(const QString &logMsg) {
+    qDebug() << logMsg;
     d->log << logMsg << endl;
 }
 
