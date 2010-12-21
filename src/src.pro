@@ -15,7 +15,8 @@ SOURCES += main.cpp \
     backend.cpp \
     dataproviders/foldermodel.cpp \
     dataproviders/thumbnailer.cpp \
-    dataproviders/proxymodel.cpp
+    dataproviders/proxymodel.cpp \
+    dataproviders/modelindexiterator.cpp
 
 QT += declarative script network
 
@@ -27,7 +28,8 @@ HEADERS += config.h \
     dataproviders/foldermodel.h \
     dataproviders/thumbnailer.h \
     dataproviders/proxymodel.h \
-    dataproviders/dirmodel.h
+    dataproviders/dirmodel.h \
+    dataproviders/modelindexiterator.h
 
 glgs {
     CONFIG += gl

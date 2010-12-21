@@ -23,6 +23,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "dataproviders/foldermodel.h"
 #include "dataproviders/proxymodel.h"
 #include "dataproviders/dirmodel.h"
+#include "dataproviders/modelindexiterator.h"
 #include "config.h"
 
 #include <QDir>
@@ -192,6 +193,7 @@ void Backend::initialize(QDeclarativeEngine *qmlEngine)
     qmlRegisterType<ProxyModel>("ProxyModel", 1, 0, "ProxyModel");
     qmlRegisterType<ProxyModelItem>("ProxyModel", 1, 0, "ProxyModelItem");
     qmlRegisterType<DirModel>("DirModel", 1, 0, "DirModel");
+    qmlRegisterType<ModelIndexIterator>("ModelIndexIterator", 1, 0, "ModelIndexIterator");
 
     if (qmlEngine) {
         //FIXME: We are clearly failing to keep the backend Declarative free :p
