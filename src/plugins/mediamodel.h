@@ -69,6 +69,7 @@ class MediaModel : public QAbstractItemModel
     Q_OBJECT
     Q_ENUMS(MediaType)
     Q_ENUMS(MediaInfoType)
+    Q_ENUMS(SortField)
 
 public:
     enum MediaType {
@@ -86,6 +87,12 @@ public:
         DotDot, 
         Directory, 
         File 
+    };
+
+    enum SortField {
+        Name,
+        Date,
+        Size,
     };
 
     MediaModel(MediaType type, QObject *parent = 0);
@@ -120,6 +127,7 @@ public:
     Q_INVOKABLE void setThemeResourcePath(const QString &themePath);
     Q_INVOKABLE void addSearchPath(const QString &mediaPath, const QString &name);
     Q_INVOKABLE void removeSearchPath(int index);
+    Q_INVOKABLE void sort(const QModelIndex &root, const QString &field);
 
     QString typeString() const;
     void registerImageProvider(QDeclarativeContext *context);

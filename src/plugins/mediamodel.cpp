@@ -343,6 +343,50 @@ void MediaModel::setThemeResourcePath(const QString &themePath)
     reset();
 }
 
+bool nameLessThan(MediaInfo *info1, MediaInfo *info2)
+{
+    if (info1->type == MediaModel::DotDot || info2->type == MediaModel::AddNewSource)
+        return true;
+    if (info1->type == MediaModel::AddNewSource || info2->type == MediaModel::DotDot)
+        return false;
+    return QString::localeAwareCompare(info1->name.toLower(), info2->name.toLower()) < 0;
+}
+
+bool dateLessThan(MediaInfo *info1, MediaInfo *info2)
+{
+    if (info1->type == MediaModel::DotDot || info2->type == MediaModel::AddNewSource)
+        return true;
+    if (info1->type == MediaModel::AddNewSource || info2->type == MediaModel::DotDot)
+        return false;
+    return info1->fileDateTime < info2->fileDateTime;
+}
+
+bool sizeLessThan(MediaInfo *info1, MediaInfo *info2)
+{
+    if (info1->type == MediaModel::DotDot || info2->type == MediaModel::AddNewSource)
+        return true;
+    if (info1->type == MediaModel::AddNewSource || info2->type == MediaModel::DotDot)
+        return false;
+    return info1->fileSize < info2->fileSize;
+}
+
+void MediaModel::sort(const QModelIndex &index, const QString &_fieldString)
+{
+    QString fieldString = _fieldString.toLower();
+    fieldString[0] = fieldString[0].toUpper();
+    int idx = MediaModel::staticMetaObject.indexOfEnumerator("SortField");
+    QMetaEnum e = MediaModel::staticMetaObject.enumerator(idx);
+    int field = e.keyToValue(fieldString.toLatin1().constData());
+    bool (*sorters[])(MediaInfo *, MediaInfo *) = { nameLessThan, dateLessThan, sizeLessThan };
+    if (field < 0 || field >= int(sizeof(sorters)/sizeof(void *)))
+        return;
+
+    emit layoutAboutToBeChanged();
+    MediaInfo *info = !index.isValid() ? m_root: static_cast<MediaInfo *>(index.internalPointer());
+    qSort(info->children.begin(), info->children.end(), sorters[field]); // ## do this recursively for every Directory?
+    emit layoutChanged();
+}
+
 MediaModelThread::MediaModelThread(MediaModel *model, MediaInfo *mediaInfo)
     : m_model(model), m_stop(false), m_mediaInfo(mediaInfo), m_searchPath(mediaInfo->filePath)
 {
