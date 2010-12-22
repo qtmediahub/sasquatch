@@ -78,7 +78,7 @@ int main(int argc, char** argv)
     }
 
     Frontend gui;
-    if (Config::isEnabled("start-fullscreen", false)) {
+    if (Config::isEnabled("fullscreen", false)) {
         gui.showFullScreen();
     } else {
         gui.show();

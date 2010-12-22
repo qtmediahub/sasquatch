@@ -41,6 +41,13 @@ class Frontend : public QWidget
         void initialize(const QUrl &url);
         void resetLanguage();
 
+    public slots:
+        void toggleFullScreen();
+        void showFullScreen();
+        void showNormal();
+        void grow();
+        void shrink();
+
     private:
         FrontendPrivate *d;
 };

@@ -45,13 +45,18 @@ class FrontendPrivate : public QObject
 public:
     FrontendPrivate(Frontend *p);
     ~FrontendPrivate();
+
 public slots:
     void handleResize();
+
 public:
     QWidget *centralWidget;
     QTranslator *frontEndTranslator;
     QString skin;
     QTimer resizeSettleTimer;
+    const QRect defaultGeometry;
+    bool overscanWorkAround;
+    bool attemptingFullScreen;
     Frontend *pSelf;
 };
 
@@ -59,25 +64,31 @@ FrontendPrivate::FrontendPrivate(Frontend *p)
     : QObject(p),
       centralWidget(0),
       frontEndTranslator(0),
+      defaultGeometry(0, 0, 1080, 720),
+      attemptingFullScreen(false),
       pSelf(p)
 {
     resizeSettleTimer.setSingleShot(true);
     connect(&resizeSettleTimer, SIGNAL(timeout()), this, SLOT(handleResize()));
+    overscanWorkAround = Config::isEnabled("overscan", false);
 }
 
 FrontendPrivate::~FrontendPrivate()
 {
+    Config::setValue("fullscreen", attemptingFullScreen);
     Config::setValue("last-skin", skin);
+
     delete centralWidget;
     centralWidget = 0;
 }
 
 void FrontendPrivate::handleResize()
 {
-    if(centralWidget)
+    if (centralWidget)
         centralWidget->setFixedSize(pSelf->size());
+
     QGraphicsView *gv = qobject_cast<QGraphicsView*>(centralWidget);
-    if(gv && Config::isEnabled("scale-ui", false)) {
+    if (gv && Config::isEnabled("scale-ui", false)) {
         gv->resetMatrix();
         //Needs to be scaled by res of top level qml file
         gv->scale(qreal(pSelf->width())/1280, qreal(pSelf->height())/720);
@@ -88,13 +99,22 @@ Frontend::Frontend(QWidget *p)
     : QWidget(p),
       d(new FrontendPrivate(this))
 {
-    setGeometry(Config::value("windowGeometry", QRect(0, 0, 1080, 720)));
     setSkin(Config::value("last-skin", "").toString());
+    new QShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::ALT + Qt::Key_Down), this, SLOT(shrink()));
+    new QShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::ALT + Qt::Key_Up), this, SLOT(grow()));
+    new QShortcut(QKeySequence(Qt::ALT + Qt::Key_Return), this, SLOT(toggleFullScreen()));
 }
 
 Frontend::~Frontend()
 {
-    Config::setValue("windowGeometry", geometry());
+    Config::setEnabled("overscan", d->overscanWorkAround);
+
+    if (d->overscanWorkAround)
+        Config::setValue("overscan-geometry", geometry());
+    else
+        Config::setValue("window-geometry", geometry());
+
+
     delete d;
     d = 0;
     //Can't decide whether this is filthy or not
@@ -129,15 +149,15 @@ void Frontend::setSkin(const QString &name)
     Backend *backend = Backend::instance();
     QString skinName(name);
 
-    if(!backend->skins().contains(skinName)) {
+    if (!backend->skins().contains(skinName)) {
         skinName = Config::value("default-skin", "confluence").toString();
     }
 
     QFile skinConfig(backend->skinPath() % "/" % skinName % "/" % skinName);
-    if(!skinConfig.exists()) {
+    if (!skinConfig.exists()) {
         qFatal("Something has gone horribly awry, you want for skins");
     }
-    if(skinConfig.open(QIODevice::ReadOnly))
+    if (skinConfig.open(QIODevice::ReadOnly))
     {
         QHash<QString, QString> fileForResolution;
         QTextStream skinStream(&skinConfig);
@@ -145,16 +165,16 @@ void Frontend::setSkin(const QString &name)
         {
             QStringList resolutionToFile = skinStream.readLine().split(":");
             QString resolution =
-                resolutionHash.contains(resolutionToFile.at(0))
-                ? resolutionHash[resolutionToFile.at(0)]
-                : resolutionToFile.at(0);
+                    resolutionHash.contains(resolutionToFile.at(0))
+                    ? resolutionHash[resolutionToFile.at(0)]
+                    : resolutionToFile.at(0);
             fileForResolution[resolution] = resolutionToFile.at(1);
         }
 
         QString urlPath =
-            fileForResolution.contains(nativeResolutionString)
-            ? fileForResolution[nativeResolutionString]
-            : fileForResolution[Config::value("fallback-resolution", "default").toString()];
+                fileForResolution.contains(nativeResolutionString)
+                ? fileForResolution[nativeResolutionString]
+                : fileForResolution[Config::value("fallback-resolution", "default").toString()];
 
         d->skin = skinName;
 
@@ -167,12 +187,12 @@ void Frontend::setSkin(const QString &name)
 
 void Frontend::initialize(const QUrl &targetUrl)
 {
-    if(targetUrl.isEmpty() || !targetUrl.isValid())
+    if (targetUrl.isEmpty() || !targetUrl.isValid())
         qFatal("You are explicitly forcing a broken url on the skin system");
 
     delete d->centralWidget;
 
-    if(targetUrl.path().right(3) == "qml")
+    if (targetUrl.path().right(3) == "qml")
     {
         QDeclarativeView *centralWidget= new QDeclarativeView(this);
         QDeclarativeEngine *engine = centralWidget->engine();
@@ -181,7 +201,7 @@ void Frontend::initialize(const QUrl &targetUrl)
         engine->addImportPath(Backend::instance()->resourcePath() % "/imports");
         engine->addImportPath(Backend::instance()->skinPath());
 
-        if(Config::isEnabled("smooth-scaling", true))
+        if (Config::isEnabled("smooth-scaling", true))
             centralWidget->setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing);
 
         centralWidget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -220,6 +240,76 @@ void Frontend::resetLanguage()
     //FIXME: this clearly needs some heuristics
     d->frontEndTranslator->load(backend->skinPath() % "/confluence/translations/" % "confluence_" % language % ".qm");
     qApp->installTranslator(d->frontEndTranslator);
+}
+
+void Frontend::showFullScreen()
+{
+    d->attemptingFullScreen = true;
+
+    if (d->overscanWorkAround) {
+        QRect geometry = Config::value("overscan-geometry", d->defaultGeometry);
+        geometry.moveCenter(qApp->desktop()->availableGeometry().center());
+        setGeometry(geometry);
+
+        setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
+        setWindowState(Qt::WindowNoState);
+
+        show();
+    } else {
+        QWidget::showFullScreen();
+    }
+
+    activateWindow();
+}
+
+void Frontend::showNormal()
+{
+    d->attemptingFullScreen = false;
+
+    setWindowFlags(Qt::Window);
+    setGeometry(Config::value("window-geometry", d->defaultGeometry));
+    QWidget::showNormal();
+
+    activateWindow();
+}
+
+void Frontend::grow()
+{
+    if (!d->attemptingFullScreen)
+        return;
+
+    const QRect newGeometry = geometry().adjusted(-1,-1,1,1);
+
+    const QSize desktopSize = qApp->desktop()->screenGeometry(this).size();
+    if ((newGeometry.width() > desktopSize.width())
+            || (newGeometry.height() > desktopSize.height())) {
+        d->overscanWorkAround = false;
+        showFullScreen();
+    }
+    else {
+        setGeometry(newGeometry);
+    }
+}
+
+void Frontend::shrink()
+{
+    if (!d->attemptingFullScreen)
+        return;
+
+    d->overscanWorkAround = true;
+    setGeometry(geometry().adjusted(1,1,-1,-1));
+}
+
+void Frontend::toggleFullScreen()
+{
+    if (d->attemptingFullScreen) {
+        Config::setValue("overscan-geometry", geometry());
+        showNormal();
+    }
+    else {
+        Config::setValue("window-geometry", geometry());
+        showFullScreen();
+    }
 }
 
 #include "frontend.moc"
