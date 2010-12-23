@@ -34,15 +34,21 @@ void ModelIndexIterator::setRootIndex(const QVariant &index)
     if (rootIndex == m_rootIndex)
         return;
     m_rootIndex = rootIndex;
-    m_state = NotStarted;
-    m_stack.clear();
-    m_stack.push(m_rootIndex);
+    restart();
     emit rootIndexChanged();
 }
 
 QVariant ModelIndexIterator::rootIndex() const
 {
     return QVariant::fromValue<QModelIndex>(m_rootIndex);
+}
+
+void ModelIndexIterator::restart()
+{
+    m_state = NotStarted;
+    m_stack.clear();
+    m_stack.push(m_rootIndex);
+    m_currentIndex = QModelIndex();
 }
 
 void ModelIndexIterator::setFilterRole(const QString &role)

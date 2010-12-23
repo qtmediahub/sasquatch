@@ -56,6 +56,7 @@ public:
     QVariant data() const;
 
     Q_INVOKABLE bool next();
+    Q_INVOKABLE void restart();
 
 signals:
     void rootIndexChanged();
