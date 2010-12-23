@@ -46,8 +46,8 @@ QVariant ModelIndexIterator::rootIndex() const
 void ModelIndexIterator::restart()
 {
     m_state = NotStarted;
-    m_stack.clear();
-    m_stack.push(m_rootIndex);
+    m_queue.clear();
+    m_queue.enqueue(m_rootIndex);
     m_currentIndex = QModelIndex();
 }
 
@@ -131,20 +131,20 @@ bool ModelIndexIterator::next()
 
     while (true) {
         if (!m_currentIndex.isValid()) {
-            if (m_stack.isEmpty()) {
+            if (m_queue.isEmpty()) {
                 m_state = Done;
                 break;
             }
-            m_currentIndex = m_stack.pop().child(0, 0);
+            m_currentIndex = m_model->index(0, 0, m_queue.dequeue());
         } else {
             m_currentIndex = m_currentIndex.sibling(m_currentIndex.row()+1, m_currentIndex.column());
             if (!m_currentIndex.isValid())
                 continue;
         }
 
-        if (m_model->hasChildren(m_currentIndex)) {
-            m_stack.push(m_currentIndex);
-        }
+        if (m_model->hasChildren(m_currentIndex))
+            m_queue.enqueue(m_currentIndex);
+
         if (m_currentIndex.data(role) == m_filterValue)
             break;
     }

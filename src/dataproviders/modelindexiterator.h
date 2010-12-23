@@ -76,7 +76,7 @@ private:
     QString m_dataRole;
     QModelIndex m_currentIndex;
     enum State { NotStarted, Started, Done } m_state;
-    QStack<QModelIndex> m_stack;
+    QQueue<QModelIndex> m_queue;
 };
 
 QML_DECLARE_TYPE(ModelIndexIterator)
