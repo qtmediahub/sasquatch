@@ -16,6 +16,7 @@ MusicModel::MusicModel(QObject *parent)
     roleNames[AlbumRole] = "album";
     roleNames[CommentRole] = "comment";
     roleNames[GenreRole] = "genre";
+    roleNames[TagPropertiesRole] = "tagProperties";
     setRoleNames(roleNames);
 }
 
@@ -28,20 +29,22 @@ QVariant MusicModel::data(MediaInfo *mediaInfo, int role) const
     MusicInfo *info = static_cast<MusicInfo *>(mediaInfo);
 
     if (role == Qt::DisplayRole) {
-        if (info->title.isEmpty())
+        if (info->tagProperties["title"].toString().isEmpty())
             return info->name;
-        QString title = info->title;
-        if (!info->album.isEmpty())
-            title.append(QLatin1String(" (") + info->album + QLatin1String(")"));
+        QString title = info->tagProperties["title"].toString();
+        if (!info->tagProperties["album"].toString().isEmpty())
+            title.append(QLatin1String(" (") + info->tagProperties["album"].toString() + QLatin1String(")"));
         return title;
     } else if (role == TitleRole) {
-        return info->title;
+        return info->tagProperties["title"];
     } else if (role == AlbumRole) {
-        return info->album;
+        return info->tagProperties["album"];
     } else if (role == CommentRole) {
-        return info->comment;
+        return info->tagProperties["comment"];
     } else if (role == GenreRole) {
-        return info->genre;
+        return info->tagProperties["genre"];
+    } else if (role == TagPropertiesRole) {
+        return info->tagProperties;
     } else {
         return QVariant();
     }
@@ -62,21 +65,21 @@ static inline QString fromTagString(const TagLib::String &string)
 
 static void popuplateGenericTagInfo(MusicInfo *info, TagLib::Tag *tag)
 {
-    info->title = fromTagString(tag->title());
-    info->artist = fromTagString(tag->artist());
-    info->album = fromTagString(tag->album());
-    info->comment = fromTagString(tag->comment());
-    info->genre = fromTagString(tag->genre());
-    info->year = tag->year();
-    info->track = tag->track();
+    info->tagProperties["title"] = fromTagString(tag->title());
+    info->tagProperties["artist"] = fromTagString(tag->artist());
+    info->tagProperties["album"] = fromTagString(tag->album());
+    info->tagProperties["comment"] = fromTagString(tag->comment());
+    info->tagProperties["genre"] = fromTagString(tag->genre());
+    info->tagProperties["year"] = tag->year();
+    info->tagProperties["track"] = tag->track();
 }
 
 static void popuplateAudioProperties(MusicInfo *info, TagLib::AudioProperties *properties)
 {
-    info->length = properties->length();
-    info->bitrate = properties->bitrate();
-    info->sampleRate = properties->sampleRate();
-    info->channels = properties->channels();
+    info->tagProperties["length"] = properties->length();
+    info->tagProperties["bitrate"] = properties->bitrate();
+    info->tagProperties["sampleRate"] = properties->sampleRate();
+    info->tagProperties["channels"] = properties->channels();
 }
 
 static QImage readFrontCover(TagLib::ID3v2::Tag *id3v2Tag)
