@@ -105,7 +105,7 @@ MediaInfo *VideoModel::readMediaInfo(const QString &filePath)
 
     QFileInfo fileInfo(filePath);
     QStringList supportedTypes;
-    supportedTypes << "avi" << "ogg" << "mp4" << "mpeg" << "mpg" << "mov";
+    supportedTypes << "avi" << "ogg" << "mp4" << "mpeg" << "mpg" << "mov" << "ogv";
 
     if (!fileInfo.exists() || !supportedTypes.contains(fileInfo.suffix()))
         return 0;
