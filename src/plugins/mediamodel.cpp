@@ -200,7 +200,12 @@ QModelIndex MediaModel::index(int row, int col, const QModelIndex &parent) const
     if (col != 0 || row < 0)
         return QModelIndex();
     MediaInfo *parentInfo = parent.isValid() ? static_cast<MediaInfo *>(parent.internalPointer()) : m_root;
-    if (!parentInfo || row >= parentInfo->children.count())
+    if (parentInfo->type == DotDot) {
+        parentInfo = parentInfo->parent->parent;
+        if (!parentInfo)
+            parentInfo = m_root;
+    }
+    if (row >= parentInfo->children.count())
         return QModelIndex();
     return createIndex(row, col, parentInfo->children[row]);
 }
@@ -226,6 +231,10 @@ int MediaModel::rowCount(const QModelIndex &parent) const
     if (!parent.isValid())
         return m_root->children.count();
     MediaInfo *info = static_cast<MediaInfo *>(parent.internalPointer());
+    if (info->type == DotDot) {
+        MediaInfo *grandParent = info->parent->parent;
+        return grandParent ? grandParent->children.count() : m_root->children.count();
+    }
     return info->children.count();
 }
 
@@ -462,9 +471,9 @@ QString MediaModel::typeString() const
     return QString::fromLatin1(e.valueToKey(m_type));
 }
 
-void MediaModel::dump(MediaInfo *info, int indent)
+void MediaModel::dump(const MediaInfo *info, int indent) const
 {
-    qDebug() << info->children.count() << "elements";
+    qDebug() << info << info->children.count() << "elements";
     QString space;
     space = space.fill(' ', indent);
     for (int i = 0; i < info->children.count(); i++) {

@@ -133,7 +133,7 @@ public:
     void registerImageProvider(QDeclarativeContext *context);
     QString imageBaseUrl() const { return typeString().toLower() + "model"; } // ## toLower() needed because of QTBUG-15905
 
-    void dump(MediaInfo *info, int indent = 0);
+    void dump(const MediaInfo *info, int indent = 0) const;
 
     virtual MediaInfo *readMediaInfo(const QString &filePath) = 0; // called from thread
     virtual QVariant data(MediaInfo *info, int role) const = 0;
