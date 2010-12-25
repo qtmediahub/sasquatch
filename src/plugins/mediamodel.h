@@ -55,6 +55,7 @@ signals:
     void started();
     void mediaFound(MediaInfo *info);
     void finished();
+    void progress(const QString &path);
 
 private:
     void search();
@@ -70,6 +71,7 @@ class MediaModel : public QAbstractItemModel
     Q_ENUMS(MediaType)
     Q_ENUMS(MediaInfoType)
     Q_ENUMS(SortField)
+    Q_PROPERTY(QString currentScanPath READ currentScanPath NOTIFY currentScanPathChanged)
 
 public:
     enum MediaType {
@@ -139,12 +141,15 @@ public:
     virtual QVariant data(MediaInfo *info, int role) const = 0;
     virtual QImage preview(MediaInfo *info) const = 0;
 
+    QString currentScanPath() const;
+
 private slots:
     void addMedia(MediaInfo *media);
     void searchThreadFinished();
+    void setCurrentScanPath(const QString &dir);
 
 signals:
-    void mediaPathChanged();
+    void currentScanPathChanged();
 
 private:
     void restore();
@@ -162,6 +167,7 @@ private:
     MediaInfo *m_root;
     QList<MediaInfo *> m_deleteLaterInfos;
     bool m_restored;
+    QString m_currentScanPath;
     friend class MediaModelThread;
 };
 

@@ -77,6 +77,17 @@ MediaModel::~MediaModel()
     delete m_thread;
 }
 
+QString MediaModel::currentScanPath() const
+{
+    return m_currentScanPath;
+}
+
+void MediaModel::setCurrentScanPath(const QString &path)
+{
+    m_currentScanPath = path;
+    emit currentScanPathChanged();
+}
+
 void MediaModel::restore()
 {
     QSettings settings;
@@ -113,6 +124,7 @@ void MediaModel::startSearchThread()
     }
     if (i == mediaInfos.count()) {
         m_nowSearching = -1;
+        setCurrentScanPath(QString());
         return; // all searched
     }
 
@@ -123,6 +135,7 @@ void MediaModel::startSearchThread()
     mediaInfos[i]->status = MediaInfo::Searching;
     connect(m_thread, SIGNAL(mediaFound(MediaInfo *)), this, SLOT(addMedia(MediaInfo *)));
     connect(m_thread, SIGNAL(finished()), this, SLOT(searchThreadFinished()));
+    connect(m_thread, SIGNAL(progress(QString)), this, SLOT(setCurrentScanPath(QString)));
     QThreadPool::globalInstance()->start(m_thread);
 }
 
@@ -429,6 +442,7 @@ void MediaModelThread::search()
 
     while (true) {
         QDirIterator it(currentSearchPath, QDir::Files | QDir::AllDirs | QDir::NoDotAndDotDot, QDirIterator::NoIteratorFlags);
+        emit progress(currentSearchPath);
         while (!m_stop && it.hasNext()) {
             it.next();
             MediaInfo *info = 0;
