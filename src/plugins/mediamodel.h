@@ -130,6 +130,7 @@ public:
     Q_INVOKABLE void addSearchPath(const QString &mediaPath, const QString &name);
     Q_INVOKABLE void removeSearchPath(int index);
     Q_INVOKABLE void sort(const QModelIndex &root, const QString &field);
+    Q_INVOKABLE void rescan(int index);
 
     QString typeString() const;
     void registerImageProvider(QDeclarativeContext *context);
@@ -142,7 +143,7 @@ public:
     virtual QImage preview(MediaInfo *info) const = 0;
 
     QString currentScanPath() const;
-
+    
 private slots:
     void addMedia(MediaInfo *media);
     void searchThreadFinished();

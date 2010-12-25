@@ -189,7 +189,7 @@ void MediaModel::removeSearchPath(int index)
     MediaInfo *info = m_root->children.takeAt(index);
     if (!m_thread || m_root->children[m_nowSearching] != info) {
         delete info;
-    } else { // currently searching this node
+    } else { // FIXME: currently searching this node
         info->type = MediaModel::Deleted;
         m_deleteLaterInfos.append(info);
         m_thread->stop();
@@ -206,6 +206,29 @@ void MediaModel::removeSearchPath(int index)
     }
     settings.endArray();
     settings.endGroup();
+}
+
+void MediaModel::rescan(int index)
+{
+    if (index < 0 || index >= m_root->children.count())
+        return;
+
+    MediaInfo *info = m_root->children[index];
+    if (info->type != MediaModel::SearchPath)
+        return;
+
+    // FIXME: What is supposed to happen, if we are scanning this index?
+    if (m_thread && m_nowSearching == index)
+        return;
+
+    QModelIndex parentIndex = createIndex(index, 0, 0);
+    beginRemoveRows(parentIndex, 1, info->children.count()); // don't remove ".."
+    qDeleteAll(info->children.begin()+1, info->children.end());
+    info->children = info->children.mid(0, 1);
+    info->status = MediaInfo::NotSearched;
+    endRemoveRows();
+
+    startSearchThread();
 }
 
 QModelIndex MediaModel::index(int row, int col, const QModelIndex &parent) const
