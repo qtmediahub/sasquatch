@@ -37,7 +37,6 @@ class Backend : public QObject
     Q_PROPERTY(QString resourcePath READ resourcePath NOTIFY resourcePathChanged)
     Q_PROPERTY(bool transforms READ transforms NOTIFY backendChanged)
     Q_PROPERTY(QList<QObject*> engines READ engines NOTIFY enginesChanged)
-    Q_PROPERTY(QDateTime currentDateTime READ currentDateTime NOTIFY currentDateTimeChanged)
 
 public:
     static Backend *instance();
@@ -54,7 +53,7 @@ public:
     QString skinPath() const;
     QString pluginPath() const;
     QString resourcePath() const;
-    QDateTime currentDateTime() const;
+    Q_INVOKABLE QDateTime currentDateTime() const;
     
     bool transforms() const;
 
@@ -69,7 +68,6 @@ signals:
     void resourcePathChanged();
     void backendChanged();
     void enginesChanged();
-    void currentDateTimeChanged();
 
 private:
     QObject* engine(const QString &role);

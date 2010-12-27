@@ -172,11 +172,6 @@ Backend::Backend(QObject *parent)
     : QObject(parent),
       d(new BackendPrivate(this))
 {
-    QTimer *timer = new QTimer(this);
-    timer->setInterval(1000);
-    timer->setSingleShot(false);
-    connect(timer, SIGNAL(timeout()), this, SIGNAL(currentDateTimeChanged()));
-    timer->start();
 }
 
 Backend::~Backend()
