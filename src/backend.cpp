@@ -163,7 +163,7 @@ void BackendPrivate::discoverEngines()
             Backend::instance()->advertizeEngine(plugin);
         }
         else
-            qWarning() << tr("Invalid plugin present %1 $2").arg(qualifiedFileName).arg(pluginLoader.errorString());
+            qWarning() << tr("Invalid plugin present %1 %2").arg(qualifiedFileName).arg(pluginLoader.errorString());
     }
     resetLanguage();
 }
