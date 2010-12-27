@@ -5,7 +5,6 @@ SUBDIRS = src
 #          examples
 
 isEmpty(Q_COMPONENTS_SOURCE_TREE)|isEmpty(Q_COMPONENTS_BUILD_TREE) {
-    message(This should not be happening, .qmake.cache should exist in the top level directory)
-    unix:system(cat $PROJECTROOT/.qmake.cache)
-    message(If you see nothing above please check that this file is there)
+    message(Causality problem: .qmake.cache needs to exist in your root directory before you hit this point)
+    error(Please re-run: qmake -r .......)
 }
