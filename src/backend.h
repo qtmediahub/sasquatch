@@ -53,7 +53,6 @@ public:
     QString skinPath() const;
     QString pluginPath() const;
     QString resourcePath() const;
-    Q_INVOKABLE QDateTime currentDateTime() const;
     
     bool transforms() const;
 

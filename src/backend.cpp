@@ -244,10 +244,6 @@ QString Backend::resourcePath() const {
     return d->resourcePath;
 }
 
-QDateTime Backend::currentDateTime() const {
-    return QDateTime::currentDateTime();
-}
-
 bool Backend::transforms() const {
 #ifdef GL
     return (QGLFormat::hasOpenGL() && Config::isEnabled("transforms", true));
