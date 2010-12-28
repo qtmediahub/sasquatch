@@ -29,7 +29,9 @@
 
 #include "config.h"
 
-QSettings *Config::instance = 0;
+QSettings *Config::settingsInstance = 0;
+Config *Config::mInstance = 0;
+
 QStringList Config::unused;
 QStringList Config::args;
 
@@ -72,23 +74,23 @@ QVariant Config::valueFromCommandLine(const QString &key)
 
 QSettings * Config::settings()
 {
-    if (!instance) {
+    if (!settingsInstance) {
         QString fileName = valueFromCommandLine("conf").toString();
         if (!fileName.isEmpty()) {
             if (fileName == "none"
-                || fileName == "null"
-                || fileName == "/dev/null") {
+                    || fileName == "null"
+                    || fileName == "/dev/null") {
                 fileName.clear();
-//         } else if (!QFile::exists(fileName)) {
-//             qWarning("%s doesn't seem to exist", qPrintable(fileName));
+                //         } else if (!QFile::exists(fileName)) {
+                //             qWarning("%s doesn't seem to exist", qPrintable(fileName));
             }
-            instance = new QSettings(fileName, QSettings::IniFormat);
+            settingsInstance = new QSettings(fileName, QSettings::IniFormat);
         } else {
-            instance = new QSettings(QSettings::IniFormat, QSettings::UserScope,
-                                     QCoreApplication::organizationName(), QCoreApplication::applicationName());
+            settingsInstance = new QSettings(QSettings::IniFormat, QSettings::UserScope,
+                                             QCoreApplication::organizationName(), QCoreApplication::applicationName());
         }
     }
-    return instance;
+    return settingsInstance;
 }
 
 void Config::initUnused()
@@ -128,4 +130,12 @@ void Config::init(int argc, char **argv)
         args.append(QString::fromLocal8Bit(argv[i]));
     }
     (void)settings();
+}
+
+Config* Config::instance()
+{
+    if(!mInstance) {
+        mInstance = new Config();
+    }
+    return mInstance;
 }

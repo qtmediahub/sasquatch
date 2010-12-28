@@ -128,15 +128,16 @@ CONFIG_TYPE(StringVariantHash);
 CONFIG_TYPE(QColor);
 #endif
 
-class Config
+class Config : public QObject
 {
+    Q_OBJECT
 public:
-    static void setEnabled(const QString &key, bool on = true)
+    Q_INVOKABLE static void setEnabled(const QString &key, bool on = true)
     {
         Config::setValue(key, on);
     }
 
-    static bool isEnabled(const QString &k, bool defaultValue = false)
+    Q_INVOKABLE static bool isEnabled(const QString &k, bool defaultValue = false)
     {
         const QString key = k.toLower();
         const QStringList args = Config::arguments();
@@ -221,14 +222,14 @@ public:
         s->sync();
     }
 
-    static void setValue(const QString &key, const QVariant &value)
+    Q_INVOKABLE static void setValue(const QString &key, const QVariant &value)
     {
         arguments();
         QSettings *s = settings();
         s->setValue(key.toLower(), value);
     }
 
-    static QVariant value(const QString &k, const QVariant &defaultValue)
+    Q_INVOKABLE static QVariant value(const QString &k, const QVariant &defaultValue)
     {
         const QString key = k.toLower();
         QVariant value = valueFromCommandLine(key);
@@ -246,16 +247,18 @@ public:
     static QStringList unusedArguments();
     static QStringList arguments();
     static void init(int argc, char **argv);
+    static Config* instance();
 private:
     static QSettings *settings();
     static void initUnused();
     static bool store();
-    Config() {}
+    Config() : QObject() { (void)settings(); }
     static QVariant valueFromCommandLine(const QString &key);
     static void useArg(int index);
 
     static QStringList unused, args;
-    static QSettings *instance;
+    static QSettings *settingsInstance;
+    static Config* mInstance;
 };
 
 #endif
