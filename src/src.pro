@@ -29,7 +29,8 @@ HEADERS += config.h \
     dataproviders/thumbnailer.h \
     dataproviders/proxymodel.h \
     dataproviders/dirmodel.h \
-    dataproviders/modelindexiterator.h
+    dataproviders/modelindexiterator.h \
+    qml-extensions/qmlfilewrapper.h
 
 glgs {
     CONFIG += gl

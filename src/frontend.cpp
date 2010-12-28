@@ -223,6 +223,7 @@ void Frontend::initialize(const QUrl &targetUrl)
         centralWidget->setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
 #endif
         centralWidget->rootContext()->setContextProperty("config", Config::instance());
+
         Backend::instance()->initialize(engine);
 
         resetLanguage();
