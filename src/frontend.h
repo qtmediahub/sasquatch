@@ -41,6 +41,8 @@ class Frontend : public QWidget
         void initialize(const QUrl &url);
         void resetLanguage();
 
+        Q_INVOKABLE QObject *focusItem() const;
+
     public slots:
         void toggleFullScreen();
         void showFullScreen();

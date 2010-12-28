@@ -50,7 +50,7 @@ public slots:
     void handleResize();
 
 public:
-    QWidget *centralWidget;
+    QGraphicsView *centralWidget;
     QTranslator *frontEndTranslator;
     QString skin;
     QTimer resizeSettleTimer;
@@ -197,6 +197,7 @@ void Frontend::initialize(const QUrl &targetUrl)
         QDeclarativeView *centralWidget= new QDeclarativeView(this);
         QDeclarativeEngine *engine = centralWidget->engine();
 
+        engine->rootContext()->setContextProperty("frontend", this);
         engine->addPluginPath(Backend::instance()->resourcePath() % "/lib");
         engine->addImportPath(Backend::instance()->resourcePath() % "/imports");
         engine->addImportPath(Backend::instance()->skinPath());
@@ -310,6 +311,11 @@ void Frontend::toggleFullScreen()
         Config::setValue("window-geometry", geometry());
         showFullScreen();
     }
+}
+
+QObject *Frontend::focusItem() const
+{
+    return qgraphicsitem_cast<QGraphicsObject *>(d->centralWidget->scene()->focusItem());
 }
 
 #include "frontend.moc"
