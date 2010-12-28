@@ -225,9 +225,9 @@ void Frontend::initialize(const QUrl &targetUrl)
         Backend::instance()->initialize(engine);
 
         resetLanguage();
+        d->centralWidget = centralWidget;
         centralWidget->setSource(targetUrl);
 
-        d->centralWidget = centralWidget;
     }
 }
 
