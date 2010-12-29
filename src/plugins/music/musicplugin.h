@@ -18,7 +18,6 @@ public:
     MusicPlugin();
     ~MusicPlugin() {}
     QString name() const { return tr("Music"); }
-    bool browseable() const { return true; }
     QString role() const { return "music"; }
 
     QList<QObject*> childItems() const;

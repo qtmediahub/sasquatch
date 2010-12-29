@@ -16,7 +16,6 @@ public:
     PicturePlugin();
     ~PicturePlugin() {}
     QString name() const { return tr("Pictures"); }
-    bool browseable() const { return true; }
     QString role() const { return "picture"; }
 
     QObject *pluginProperties() const;

@@ -14,8 +14,6 @@ public:
     virtual QString name() const { return "Uninitialized plugin name"; }
     //Fixme: roles should be a constrained enumeration
     virtual QString role() const { return "Undefined"; }
-    //Please note this property indicates that an items models can be populated
-    virtual bool browseable() const { return false; }
     virtual QList<QObject*> childItems() const { return QList<QObject*>(); }
 
     virtual QObject* visualElement() const { return mVisualElement; }
@@ -29,7 +27,6 @@ public:
 
     //Only make sense for skin specific plugins
     virtual void setName(const QString &name) { Q_UNUSED(name) }
-    virtual void setBrowseable(bool browseable) { Q_UNUSED(browseable) }
     virtual void setRole(const QString &role) { Q_UNUSED(role) }
 
     virtual QObject *pluginProperties() const { return 0; }

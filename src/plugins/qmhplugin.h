@@ -14,17 +14,12 @@ public:
         : QObject(),
           QMHPluginInterface(),
           mName("Skin Plugin"),
-          mBrowseable(false),
           mRole("undefined"),
           mVisualElement(0) { /* */ }
     ~GenericPlugin() {}
     
     QString name() const { return mName; }
     void setName(const QString &name) { mName = name; }
-
-    bool browseable() const { return mBrowseable; }
-
-    void setBrowseable(bool browseable) { mBrowseable = browseable; }
 
     QString role() const { return mRole; }
     void setRole(const QString &role) { mRole = role; }
@@ -44,7 +39,6 @@ public:
 
 private:
     QString mName;
-    bool mBrowseable;
     QString mRole;
     QObject *mVisualElement;
     QStringList mVisualElementProperties;
@@ -56,7 +50,6 @@ class QMHPlugin : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString name READ name WRITE setName NOTIFY pluginChanged)
-    Q_PROPERTY(bool browseable READ browseable WRITE setBrowseable NOTIFY pluginChanged)
     Q_PROPERTY(QString role READ role WRITE setRole NOTIFY pluginChanged)
     Q_PROPERTY(QList<QObject*> childItems READ childItems NOTIFY pluginChanged)
     Q_PROPERTY(QObject* visualElement READ visualElement WRITE setVisualElement NOTIFY pluginChanged)
@@ -73,9 +66,6 @@ public:
 
     QString name() const { return mInterface->name(); }
     void setName(const QString &name) { mInterface->setName(name); }
-
-    bool browseable() const { return mInterface->browseable(); }
-    void setBrowseable(bool browseable) { mInterface->setBrowseable(browseable); }
 
     QString role() const { return mInterface->role(); }
     void setRole(const QString &role) { mInterface->setRole(role); }

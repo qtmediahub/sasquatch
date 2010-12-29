@@ -14,7 +14,6 @@ class DashboardPlugin : public QObject, public QMHPluginInterface
 public:
     ~DashboardPlugin() {}
     QString name() const { return tr("Dashboard"); }
-    bool browseable() const { return true; }
     QString role() const { return "dashboard"; }
     QList<QObject*> childItems() const { return mChildItems; }
 

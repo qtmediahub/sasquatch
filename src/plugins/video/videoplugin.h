@@ -16,7 +16,6 @@ public:
     VideoPlugin();
     ~VideoPlugin() {}
     QString name() const { return tr("Video"); }
-    bool browseable() const { return true; }
     QString role() const { return "video"; }
 
     QObject *pluginProperties() const;
