@@ -28,8 +28,6 @@ struct VideoInfo : public MediaInfo
 
     // video properties
     int  length;
-
-    QString thumbnail;
 };
 
 class VideoModel : public MediaModel
@@ -40,13 +38,11 @@ public:
     ~VideoModel();
 
     enum CustomRoles {
-        LengthRole = Qt::UserRole + 100,
-        ThumbnailRole
+        LengthRole = Qt::UserRole + 100
     };
 
     QVariant data(MediaInfo *mediaInfo, int role) const;
     MediaInfo *readMediaInfo(const QString &filePath); // called from thread
-    QImage preview(MediaInfo *mediaInfo) const;
 };
 
 #endif // VIDEOMODEL_H

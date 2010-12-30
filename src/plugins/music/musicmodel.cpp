@@ -1,6 +1,7 @@
 #include "musicmodel.h"
 
 #include <QFile>
+#include <QFileInfo>
 
 #include <taglib/tag.h>
 #include <taglib/fileref.h>
@@ -48,14 +49,6 @@ QVariant MusicModel::data(MediaInfo *mediaInfo, int role) const
     } else {
         return QVariant();
     }
-}
-
-QImage MusicModel::preview(MediaInfo *info) const
-{
-    QImage frontCover = (static_cast<MusicInfo *>(info))->frontCover;
-    if (frontCover.isNull())
-        return QImage(themeResourcePath() + "/media/Fanart_Fallback_Music_Small.jpg"); // FIXME: Make this configurable
-    return frontCover;
 }
 
 static inline QString fromTagString(const TagLib::String &string)
@@ -130,11 +123,27 @@ MediaInfo *MusicModel::readMediaInfo(const QString &filePath)
     if (TagLib::AudioProperties *audioProperties = file->audioProperties())
         popuplateAudioProperties(info, audioProperties);
 
-    if (TagLib::MPEG::File *mpegFile = dynamic_cast<TagLib::MPEG::File *>(file)) {
-        TagLib::ID3v2::Tag *id3v2Tag = mpegFile->ID3v2Tag(false);
-        if (id3v2Tag)
-            info->frontCover = readFrontCover(id3v2Tag);
+    // check if we already have a local cover art for this file
+    QFileInfo fileInfo(filePath);
+    QFileInfo thumbnailInfo = generateThumbnailFileInfo(fileInfo);
+
+    if (thumbnailInfo.exists()) {
+        info->thumbnail = thumbnailInfo.filePath();
+    } else {
+        if (TagLib::MPEG::File *mpegFile = dynamic_cast<TagLib::MPEG::File *>(file)) {
+            TagLib::ID3v2::Tag *id3v2Tag = mpegFile->ID3v2Tag(false);
+            if (id3v2Tag) {
+                QImage tmp = readFrontCover(id3v2Tag);
+                if (!tmp.isNull()) {
+                    tmp.save(thumbnailInfo.filePath());
+                    info->thumbnail = thumbnailInfo.filePath();
+                }
+            }
+        }
     }
+
+    if (info->thumbnail.isEmpty())
+        info->thumbnail = themeResourcePath() + "/media/DefaultAudio.png";
 
     return info;
 }

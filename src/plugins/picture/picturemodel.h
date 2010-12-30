@@ -9,7 +9,6 @@ struct PictureInfo : public MediaInfo
     PictureInfo() :  MediaInfo(MediaModel::File)
     { }
 
-    QImage thumbnail;
     QSize resolution;
 
     // Exif
@@ -42,7 +41,6 @@ public:
 
     QVariant data(MediaInfo *mediaInfo, int role) const;
     MediaInfo *readMediaInfo(const QString &filePath); // called from thread
-    QImage preview(MediaInfo *mediaInfo) const;
 };
 
 #endif // PICTUREMODEL_H

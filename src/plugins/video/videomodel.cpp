@@ -20,8 +20,6 @@
 #include "videomodel.h"
 
 #include <QFileInfo>
-#include <QDir>
-#include <QCryptographicHash>
 #include <QProcess>
 
 VideoModel::VideoModel(QObject *parent)
@@ -31,7 +29,6 @@ VideoModel::VideoModel(QObject *parent)
 
     QHash<int, QByteArray> roleNames = MediaModel::roleNames();
     roleNames[LengthRole] = "length";
-    roleNames[ThumbnailRole] = "thumbnail";
     setRoleNames(roleNames);
 }
 
@@ -48,22 +45,9 @@ QVariant VideoModel::data(MediaInfo *mediaInfo, int role) const
         return info->name;
     } else if (role == LengthRole) {
         return info->length;
-    } else if (role == ThumbnailRole) {
-        return info->thumbnail;
     } else {
         return QVariant();
     }
-}
-
-QImage VideoModel::preview(MediaInfo *mediaInfo) const
-{
-    VideoInfo *info = static_cast<VideoInfo *>(mediaInfo);
-
-    QImage img = QImage(info->thumbnail);
-    if (img.isNull())
-        img = QImage(themeResourcePath() + "/media/DefaultVideo.png");
-
-    return img;
 }
 
 static bool generateThumbnail(const QFileInfo &fileInfo, const QFileInfo &thumbnailInfo)
@@ -97,12 +81,6 @@ static bool generateThumbnail(const QFileInfo &fileInfo, const QFileInfo &thumbn
 
 MediaInfo *VideoModel::readMediaInfo(const QString &filePath)
 {
-    QFileInfo thumbnailFolderInfo(QDir::homePath() + "/.thumbnails/qtmediahub/");
-    if (!thumbnailFolderInfo.exists()) {
-        QDir dir;
-        dir.mkpath(thumbnailFolderInfo.absoluteFilePath());
-    }
-
     QFileInfo fileInfo(filePath);
     QStringList supportedTypes;
     supportedTypes << "avi" << "ogg" << "mp4" << "mpeg" << "mpg" << "mov" << "ogv";
@@ -111,12 +89,12 @@ MediaInfo *VideoModel::readMediaInfo(const QString &filePath)
         return 0;
 
     VideoInfo *info = new VideoInfo;
-
-    QString md5 = QCryptographicHash::hash(QString("file://" + fileInfo.absoluteFilePath()).toUtf8(), QCryptographicHash::Md5).toHex();
-    QFileInfo thumbnailInfo(thumbnailFolderInfo.filePath() + md5 + ".png");
+    QFileInfo thumbnailInfo = generateThumbnailFileInfo(fileInfo);
 
     if (thumbnailInfo.exists() || generateThumbnail(fileInfo, thumbnailInfo))
         info->thumbnail = thumbnailInfo.filePath();
+    else
+        info->thumbnail = themeResourcePath() + "/media/DefaultVideo.png";
 
     return info;
 }

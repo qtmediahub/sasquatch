@@ -32,6 +32,9 @@
 #include <QtDebug>
 #include <QApplication>
 #include <QDateTime>
+#include <QFileInfo>
+#include <QDir>
+#include <QCryptographicHash>
 
 class MediaModel;
 class MediaInfo;
@@ -140,9 +143,10 @@ public:
 
     virtual MediaInfo *readMediaInfo(const QString &filePath) = 0; // called from thread
     virtual QVariant data(MediaInfo *info, int role) const = 0;
-    virtual QImage preview(MediaInfo *info) const = 0;
 
     QString currentScanPath() const;
+
+    QFileInfo generateThumbnailFileInfo(const QFileInfo &fileInfo);
     
 private slots:
     void addMedia(MediaInfo *media);
@@ -160,7 +164,7 @@ private:
     QPixmap previewPixmap(MediaInfo *info) const;
 
     MediaType m_type;
-    QHash<QString, QImage> m_frontCovers;
+    QHash<QString, QImage> m_defaultThumbnails;
     MediaModelThread *m_thread;
     QString m_fanartFallbackImagePath;
     QString m_themePath;
@@ -220,6 +224,7 @@ struct MediaInfo
     qint64 fileSize;
     QDateTime fileDateTime;
     QSize previewSize;
+    QString thumbnail;
 };
 
 #endif // MEDIAMODEL_H

@@ -9,8 +9,6 @@ struct MusicInfo : public MediaInfo
 
     // tag info
     QMap<QString, QVariant> tagProperties;
-
-    QImage frontCover;
 };
 
 class MusicModel : public MediaModel
@@ -31,7 +29,6 @@ public:
 
     QVariant data(MediaInfo *mediaInfo, int role) const;
     MediaInfo *readMediaInfo(const QString &filePath); // called from thread
-    QImage preview(MediaInfo *mediaInfo) const;
 };
 
 #endif // MUSICMODEL_H

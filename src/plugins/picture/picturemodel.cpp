@@ -4,6 +4,7 @@
 #include <QImageReader>
 #include <QModelIndex>
 #include <QDeclarativePropertyMap>
+#include <QFileInfo>
 
 PictureModel::PictureModel(QObject *parent)
     : MediaModel(MediaModel::Picture, parent)
@@ -58,11 +59,6 @@ QVariant PictureModel::data(MediaInfo *mediaInfo, int role) const
     return QVariant();
 }
 
-QImage PictureModel::preview(MediaInfo *info) const
-{
-    return (static_cast<PictureInfo *>(info))->thumbnail;
-}
-
 MediaInfo *PictureModel::readMediaInfo(const QString &filePath)
 {
     QImageReader imageReader(filePath);
@@ -74,8 +70,21 @@ MediaInfo *PictureModel::readMediaInfo(const QString &filePath)
         return 0;
 
     PictureInfo *info = new PictureInfo;
-    info->thumbnail = image.scaledToWidth(342, Qt::SmoothTransformation);
     info->resolution = image.size();
+
+    // check if we already have a local cover art for this file
+    QFileInfo fileInfo(filePath);
+    QFileInfo thumbnailInfo = generateThumbnailFileInfo(fileInfo);
+
+    if (thumbnailInfo.exists()) {
+        info->thumbnail = thumbnailInfo.filePath();
+    } else {
+        QImage tmp = image.scaledToWidth(342, Qt::SmoothTransformation);
+        if(tmp.save(thumbnailInfo.filePath()))
+            info->thumbnail = thumbnailInfo.filePath();
+        else
+            info->thumbnail = themeResourcePath() + "/media/DefaultPicture.png";
+    }
 
     ExifReader exifReader(filePath);
     info->exifProperties["userComments"] = exifReader.userComments();

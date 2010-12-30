@@ -292,7 +292,7 @@ QVariant MediaModel::data(const QModelIndex &index, int role) const
         else if (info->type == Directory)
             return QUrl(urlBase + "/Directory");
         else
-            return QUrl(urlBase + info->filePath);
+            return QUrl(urlBase + info->thumbnail);
     } else if (role == FileUrlRole) {
         return QUrl::fromLocalFile(info->filePath);
     } else if (role == PreviewWidthRole) {
@@ -337,50 +337,63 @@ void MediaModel::addMedia(MediaInfo *mi)
     const int row = grandParent->children.indexOf(parent);
     QModelIndex parentIndex = createIndex(row, 0, parent);
     beginInsertRows(parentIndex, parent->children.count(), parent->children.count());
-    QImage frontCover;
-    if (mi->type == MediaModel::File) {
-        frontCover = preview(mi);
-        mi->previewSize = frontCover.size();
-    }
-    m_frontCovers.insert(mi->filePath, frontCover);
     parent->children.append(mi);
     endInsertRows();
 }
 
 QPixmap MediaModel::previewPixmap(const QString &_path, QSize *size, const QSize &requestedSize)
 {
-    Q_UNUSED(requestedSize);
     QString path = '/' + _path;
-    if (!m_frontCovers.contains(path)) {
-        return QPixmap();
-    }
-    QPixmap pixmap;
-    if (!QPixmapCache::find("coverart_" + path, &pixmap)) {
-        pixmap = QPixmap::fromImage(m_frontCovers[path]);
-        QPixmapCache::insert("coverart_" + path, pixmap);
-    }
-    *size = pixmap.size();
-    return pixmap;
+    QPixmap pix;
+
+    if (m_defaultThumbnails.contains(path))
+        pix = QPixmap::fromImage(m_defaultThumbnails.value(path));
+
+    if (pix.isNull())
+        pix = QPixmap(path);
+
+    if (pix.isNull())
+        return pix;
+
+    *size = pix.size();
+
+    if (requestedSize.isValid())
+        pix = pix.scaled(requestedSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+
+    return pix;
 }
 
-QImage MediaModel::previewImage(const QString &path, QSize *size, const QSize &requestedSize)
+QImage MediaModel::previewImage(const QString &_path, QSize *size, const QSize &requestedSize)
 {
-    Q_UNUSED(requestedSize);
-    if (!m_frontCovers.contains(path))
-        return QImage();
-    QImage img = m_frontCovers.value(path);
+    QString path = '/' + _path;
+    QImage img;
+
+    if (m_defaultThumbnails.contains(path))
+        img = m_defaultThumbnails.value(path);
+
+    if (img.isNull())
+        QImage img = QImage(path);
+
+    if (img.isNull())
+        return img;
+
     *size = img.size();
-    return img;
+
+    if (requestedSize.isValid())
+        img = img.scaled(requestedSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+
+    return QImage();
 }
 
 void MediaModel::setThemeResourcePath(const QString &themePath)
 {
     m_themePath = themePath;
 
-    m_frontCovers.insert("/AddNewSource", QImage(m_themePath + "/media/DefaultAddSource.png"));
-    m_frontCovers.insert("/DotDot", QImage(m_themePath + "/media/DefaultFolderBack.png"));
-    m_frontCovers.insert("/Directory", QImage(m_themePath + "/media/DefaultFolder.png"));
-    m_frontCovers.insert("/SearchPath", QImage(m_themePath + "/media/DefaultHardDisk.png"));
+    // add default thumbnails
+    m_defaultThumbnails.insert("/AddNewSource", QImage(m_themePath + "/media/DefaultAddSource.png"));
+    m_defaultThumbnails.insert("/DotDot", QImage(m_themePath + "/media/DefaultFolderBack.png"));
+    m_defaultThumbnails.insert("/Directory", QImage(m_themePath + "/media/DefaultFolder.png"));
+    m_defaultThumbnails.insert("/SearchPath", QImage(m_themePath + "/media/DefaultHardDisk.png"));
 
     if (!m_restored)
         restore();
@@ -517,5 +530,21 @@ void MediaModel::dump(const MediaInfo *info, int indent) const
         qDebug() << qPrintable(space) << info->children[i]->filePath;
         dump(info->children[i], indent+4);
     }
+}
+
+QFileInfo MediaModel::generateThumbnailFileInfo(const QFileInfo &fileInfo)
+{
+    // check if thumbnail folder exists
+    QFileInfo thumbnailFolderInfo(QDir::homePath() + "/.thumbnails/qtmediahub/"); // TODO: make the path configureable
+    if (!thumbnailFolderInfo.exists()) {
+        QDir dir;
+        dir.mkpath(thumbnailFolderInfo.absoluteFilePath());
+    }
+
+    // create hash for fileInfo
+    QString md5 = QCryptographicHash::hash(QString("file://" + fileInfo.absoluteFilePath()).toUtf8(), QCryptographicHash::Md5).toHex();
+    QFileInfo thumbnailInfo(thumbnailFolderInfo.filePath() + md5 + ".png");
+
+    return thumbnailInfo;
 }
 
