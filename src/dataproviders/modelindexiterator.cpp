@@ -178,7 +178,6 @@ bool ModelIndexIterator::previous()
             QModelIndex parent = m_currentIndex.parent();
             if (parent == m_rootIndex) {
                 Q_ASSERT(m_queue.isEmpty());
-                qDebug() << "DONE!!!";
                 restart();
                 break;
             }
