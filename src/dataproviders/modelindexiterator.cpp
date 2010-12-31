@@ -60,34 +60,60 @@ void ModelIndexIterator::restart()
 {
     m_state = NotStarted;
     m_queue.clear();
-    m_queue.enqueue(m_rootIndex);
+    m_queue.append(m_rootIndex);
     m_currentIndex = QModelIndex();
 }
 
-void ModelIndexIterator::setFilterRole(const QString &role)
+void ModelIndexIterator::setChildFilterRole(const QString &role)
 {
-    if (m_filterRole == role)
+    if (m_childFilterRole == role)
         return;
-    m_filterRole = role;
-    emit filterRoleChanged();
+    m_childFilterRole = role;
+    emit childFilterRoleChanged();
 }
 
-QString ModelIndexIterator::filterRole() const
+QString ModelIndexIterator::childFilterRole() const
 {
-    return m_filterRole;
+    return m_childFilterRole;
 }
 
-void ModelIndexIterator::setFilterValue(const QString &value)
+void ModelIndexIterator::setChildFilterValue(const QString &value)
 {
-    if (m_filterValue == value)
+    if (m_childFilterValue == value)
         return;
-    m_filterValue = value;
-    emit filterValueChanged();
+    m_childFilterValue = value;
+    emit childFilterValueChanged();
 }
 
-QString ModelIndexIterator::filterValue() const
+QString ModelIndexIterator::childFilterValue() const
 {
-    return m_filterValue;
+    return m_childFilterValue;
+}
+
+void ModelIndexIterator::setParentFilterRole(const QString &role)
+{
+    if (m_parentFilterRole == role)
+        return;
+    m_parentFilterRole = role;
+    emit parentFilterRoleChanged();
+}
+
+QString ModelIndexIterator::parentFilterRole() const
+{
+    return m_parentFilterRole;
+}
+
+void ModelIndexIterator::setParentFilterValue(const QString &value)
+{
+    if (m_parentFilterValue == value)
+        return;
+    m_parentFilterValue = value;
+    emit parentFilterValueChanged();
+}
+
+QString ModelIndexIterator::parentFilterValue() const
+{
+    return m_parentFilterValue;
 }
 
 void ModelIndexIterator::setModel(QObject *model)
@@ -135,12 +161,53 @@ QVariant ModelIndexIterator::data() const
     return m_currentIndex.data(roleFromName(m_dataRole));
 }
 
+bool ModelIndexIterator::previous()
+{
+    if (!m_model || m_state == NotStarted)
+        return false;
+
+    if (!m_currentIndex.isValid())
+        return false;
+
+    int childRole = roleFromName(m_childFilterRole);
+    int parentRole = roleFromName(m_parentFilterRole);
+
+    while (true) {
+        QModelIndex previous = m_currentIndex.sibling(m_currentIndex.row()-1, m_currentIndex.column());
+        if (!previous.isValid()) {
+            QModelIndex parent = m_currentIndex.parent();
+            if (parent == m_rootIndex) {
+                Q_ASSERT(m_queue.isEmpty());
+                qDebug() << "DONE!!!";
+                restart();
+                break;
+            }
+            m_queue.prepend(parent);
+            m_currentIndex = parent.child(m_model->rowCount(parent)-1, parent.column());
+            continue;
+        }
+
+        m_currentIndex = previous;
+        if (m_model->hasChildren(m_currentIndex) && m_currentIndex.data(parentRole) == m_parentFilterValue) {
+            Q_ASSERT(m_queue.last() == m_currentIndex);
+            m_queue.takeLast();
+            continue;
+        }
+
+        if (m_currentIndex.data(childRole) == m_childFilterValue)
+            break;
+    }
+
+    return m_currentIndex.isValid();
+}
+
 bool ModelIndexIterator::next()
 {
     if (!m_model || m_state == Done)
         return false;
 
-    int role = roleFromName(m_filterRole);
+    int childRole = roleFromName(m_childFilterRole);
+    int parentRole = roleFromName(m_parentFilterRole);
 
     while (true) {
         if (!m_currentIndex.isValid()) {
@@ -148,7 +215,7 @@ bool ModelIndexIterator::next()
                 m_state = Done;
                 break;
             }
-            QModelIndex parent = m_queue.dequeue();
+            QModelIndex parent = m_queue.takeFirst();
             m_currentIndex = m_model->index(parent == m_rootIndex ? m_fromRow : 0, 0, parent);
         } else {
             m_currentIndex = m_currentIndex.sibling(m_currentIndex.row()+1, m_currentIndex.column());
@@ -156,12 +223,15 @@ bool ModelIndexIterator::next()
                 continue;
         }
 
-        if (m_model->hasChildren(m_currentIndex))  // ## FIXME: This will queue ..
-            m_queue.enqueue(m_currentIndex);
+        if (m_model->hasChildren(m_currentIndex) && m_currentIndex.data(parentRole) == m_parentFilterValue)
+            m_queue.append(m_currentIndex);
 
-        if (m_currentIndex.data(role) == m_filterValue)
+        if (m_currentIndex.data(childRole) == m_childFilterValue)
             break;
     }
+
+    if (m_state != Done)
+        m_state = Started;
 
     emit dataChanged();
     return m_currentIndex.isValid();

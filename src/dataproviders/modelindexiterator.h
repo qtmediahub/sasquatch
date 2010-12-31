@@ -29,8 +29,10 @@ class ModelIndexIterator : public QObject
     Q_OBJECT
     Q_PROPERTY(QVariant rootIndex READ rootIndex WRITE setRootIndex NOTIFY rootIndexChanged)
     Q_PROPERTY(int fromRow READ fromRow WRITE setFromRow NOTIFY fromRowChanged)
-    Q_PROPERTY(QString filterRole READ filterRole WRITE setFilterRole NOTIFY filterRoleChanged)
-    Q_PROPERTY(QString filterValue READ filterValue WRITE setFilterValue NOTIFY filterValueChanged)
+    Q_PROPERTY(QString childFilterRole READ childFilterRole WRITE setChildFilterRole NOTIFY childFilterRoleChanged)
+    Q_PROPERTY(QString childFilterValue READ childFilterValue WRITE setChildFilterValue NOTIFY childFilterValueChanged)
+    Q_PROPERTY(QString parentFilterRole READ parentFilterRole WRITE setParentFilterRole NOTIFY parentFilterRoleChanged)
+    Q_PROPERTY(QString parentFilterValue READ parentFilterValue WRITE setParentFilterValue NOTIFY parentFilterValueChanged)
     Q_PROPERTY(QObject *model READ model WRITE setModel NOTIFY modelChanged)
     Q_PROPERTY(QString dataRole READ dataRole WRITE setDataRole NOTIFY dataRoleChanged)
     Q_PROPERTY(QVariant data READ data NOTIFY dataChanged)
@@ -45,11 +47,17 @@ public:
     void setFromRow(int row);
     int fromRow() const;
 
-    void setFilterValue(const QString &value);
-    QString filterValue() const;
+    void setChildFilterValue(const QString &value);
+    QString childFilterValue() const;
 
-    void setFilterRole(const QString &role);
-    QString filterRole() const;
+    void setChildFilterRole(const QString &role);
+    QString childFilterRole() const;
+
+    void setParentFilterValue(const QString &value);
+    QString parentFilterValue() const;
+
+    void setParentFilterRole(const QString &role);
+    QString parentFilterRole() const;
 
     void setModel(QObject *model);
     QObject *model() const;
@@ -59,14 +67,17 @@ public:
 
     QVariant data() const;
 
+    Q_INVOKABLE bool previous();
     Q_INVOKABLE bool next();
     Q_INVOKABLE void restart();
 
 signals:
     void rootIndexChanged();
     void fromRowChanged();
-    void filterRoleChanged();
-    void filterValueChanged();
+    void childFilterRoleChanged();
+    void childFilterValueChanged();
+    void parentFilterRoleChanged();
+    void parentFilterValueChanged();
     void modelChanged();
     void dataRoleChanged();
     void dataChanged();
@@ -77,12 +88,14 @@ private:
     QAbstractItemModel *m_model;
     QModelIndex m_rootIndex;
     int m_fromRow;
-    QString m_filterRole;
-    QString m_filterValue;
+    QString m_childFilterRole;
+    QString m_childFilterValue;
+    QString m_parentFilterRole;
+    QString m_parentFilterValue;
     QString m_dataRole;
     QModelIndex m_currentIndex;
     enum State { NotStarted, Started, Done } m_state;
-    QQueue<QModelIndex> m_queue;
+    QList<QModelIndex> m_queue;
 };
 
 QML_DECLARE_TYPE(ModelIndexIterator)
