@@ -20,7 +20,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "modelindexiterator.h"
 
 ModelIndexIterator::ModelIndexIterator(QObject *parent)
-    : QObject(parent), m_model(0), m_state(NotStarted)
+    : QObject(parent), m_model(0), m_fromRow(0), m_state(NotStarted)
 {
 }
 
@@ -34,13 +34,26 @@ void ModelIndexIterator::setRootIndex(const QVariant &index)
     if (rootIndex == m_rootIndex)
         return;
     m_rootIndex = rootIndex;
-    restart();
+    //restart();
     emit rootIndexChanged();
 }
 
 QVariant ModelIndexIterator::rootIndex() const
 {
     return QVariant::fromValue<QModelIndex>(m_rootIndex);
+}
+
+void ModelIndexIterator::setFromRow(int fromRow)
+{
+    if (m_fromRow == fromRow)
+        return;
+    m_fromRow = fromRow;
+    emit fromRowChanged();
+}
+
+int ModelIndexIterator::fromRow() const
+{
+    return m_fromRow;
 }
 
 void ModelIndexIterator::restart()
@@ -135,14 +148,15 @@ bool ModelIndexIterator::next()
                 m_state = Done;
                 break;
             }
-            m_currentIndex = m_model->index(0, 0, m_queue.dequeue());
+            QModelIndex parent = m_queue.dequeue();
+            m_currentIndex = m_model->index(parent == m_rootIndex ? m_fromRow : 0, 0, parent);
         } else {
             m_currentIndex = m_currentIndex.sibling(m_currentIndex.row()+1, m_currentIndex.column());
             if (!m_currentIndex.isValid())
                 continue;
         }
 
-        if (m_model->hasChildren(m_currentIndex))
+        if (m_model->hasChildren(m_currentIndex))  // ## FIXME: This will queue ..
             m_queue.enqueue(m_currentIndex);
 
         if (m_currentIndex.data(role) == m_filterValue)

@@ -28,6 +28,7 @@ class ModelIndexIterator : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QVariant rootIndex READ rootIndex WRITE setRootIndex NOTIFY rootIndexChanged)
+    Q_PROPERTY(int fromRow READ fromRow WRITE setFromRow NOTIFY fromRowChanged)
     Q_PROPERTY(QString filterRole READ filterRole WRITE setFilterRole NOTIFY filterRoleChanged)
     Q_PROPERTY(QString filterValue READ filterValue WRITE setFilterValue NOTIFY filterValueChanged)
     Q_PROPERTY(QObject *model READ model WRITE setModel NOTIFY modelChanged)
@@ -40,6 +41,9 @@ public:
 
     void setRootIndex(const QVariant &index);
     QVariant rootIndex() const;
+
+    void setFromRow(int row);
+    int fromRow() const;
 
     void setFilterValue(const QString &value);
     QString filterValue() const;
@@ -60,6 +64,7 @@ public:
 
 signals:
     void rootIndexChanged();
+    void fromRowChanged();
     void filterRoleChanged();
     void filterValueChanged();
     void modelChanged();
@@ -71,6 +76,7 @@ private:
 
     QAbstractItemModel *m_model;
     QModelIndex m_rootIndex;
+    int m_fromRow;
     QString m_filterRole;
     QString m_filterValue;
     QString m_dataRole;
