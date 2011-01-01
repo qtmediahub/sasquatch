@@ -357,9 +357,6 @@ QPixmap MediaModel::previewPixmap(const QString &_path, QSize *size, const QSize
 
     *size = pix.size();
 
-    if (requestedSize.isValid())
-        pix = pix.scaled(requestedSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-
     return pix;
 }
 
@@ -378,9 +375,6 @@ QImage MediaModel::previewImage(const QString &_path, QSize *size, const QSize &
         return img;
 
     *size = img.size();
-
-    if (requestedSize.isValid())
-        img = img.scaled(requestedSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
 
     return QImage();
 }
