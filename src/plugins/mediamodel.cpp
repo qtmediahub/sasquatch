@@ -44,15 +44,14 @@ MediaModel::MediaModel(MediaModel::MediaType type, QObject *parent)
       m_thread(0),
       m_nowSearching(-1),
       m_root(0),
-      m_restored(false)
+      m_restored(false),
+      m_previewWidth(350)
 {
     qRegisterMetaType<MediaInfo *>("MediaInfo *");
 
     QHash<int, QByteArray> roleNames = QAbstractItemModel::roleNames();
     roleNames[Qt::DisplayRole] = "display";
     roleNames[PreviewUrlRole] = "previewUrl";
-    roleNames[PreviewWidthRole] = "previewWidth";
-    roleNames[PreviewHeightRole] = "previewHeight";
     roleNames[FilePathRole] = "filePath";
     roleNames[FileNameRole] = "fileName";
     roleNames[FileUrlRole] = "fileUrl";
@@ -86,6 +85,17 @@ void MediaModel::setCurrentScanPath(const QString &path)
 {
     m_currentScanPath = path;
     emit currentScanPathChanged();
+}
+
+int MediaModel::previewWidth() const
+{
+    return m_previewWidth;
+}
+
+void MediaModel::setPreviewWidth(int width)
+{
+    m_previewWidth = width;
+    emit previewWidthChanged();
 }
 
 void MediaModel::restore()
@@ -295,10 +305,6 @@ QVariant MediaModel::data(const QModelIndex &index, int role) const
             return QUrl(urlBase + info->thumbnail);
     } else if (role == FileUrlRole) {
         return QUrl::fromLocalFile(info->filePath);
-    } else if (role == PreviewWidthRole) {
-        return info->previewSize.isValid() ? info->previewSize.width() : 342;
-    } else if (role == PreviewHeightRole) {
-        return info->previewSize.isValid() ? info->previewSize.height() : 348;
     } else if (role == FilePathRole) {
         return info->filePath;
     } else if (role == FileNameRole) {
@@ -343,6 +349,7 @@ void MediaModel::addMedia(MediaInfo *mi)
 
 QPixmap MediaModel::previewPixmap(const QString &_path, QSize *size, const QSize &requestedSize)
 {
+    Q_UNUSED(requestedSize);
     QString path = '/' + _path;
     QPixmap pix;
 
@@ -362,6 +369,7 @@ QPixmap MediaModel::previewPixmap(const QString &_path, QSize *size, const QSize
 
 QImage MediaModel::previewImage(const QString &_path, QSize *size, const QSize &requestedSize)
 {
+    Q_UNUSED(requestedSize);
     QString path = '/' + _path;
     QImage img;
 

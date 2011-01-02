@@ -75,6 +75,7 @@ class MediaModel : public QAbstractItemModel
     Q_ENUMS(MediaInfoType)
     Q_ENUMS(SortField)
     Q_PROPERTY(QString currentScanPath READ currentScanPath NOTIFY currentScanPathChanged)
+    Q_PROPERTY(int previewWidth READ previewWidth WRITE setPreviewWidth NOTIFY previewWidthChanged)
 
 public:
     enum MediaType {
@@ -116,8 +117,6 @@ public:
     enum CustomRoles {
         // Qt::UserRole+1 to 100 are reserved by this model!
         PreviewUrlRole = Qt::UserRole + 1,
-        PreviewWidthRole,
-        PreviewHeightRole,
         FilePathRole,
         FileNameRole,
         FileUrlRole,
@@ -148,6 +147,9 @@ public:
 
     QFileInfo generateThumbnailFileInfo(const QFileInfo &fileInfo);
     
+    int previewWidth() const;
+    void setPreviewWidth(int width);
+
 private slots:
     void addMedia(MediaInfo *media);
     void searchThreadFinished();
@@ -155,6 +157,7 @@ private slots:
 
 signals:
     void currentScanPathChanged();
+    void previewWidthChanged();
 
 private:
     void restore();
@@ -173,6 +176,7 @@ private:
     QList<MediaInfo *> m_deleteLaterInfos;
     bool m_restored;
     QString m_currentScanPath;
+    int m_previewWidth;
     friend class MediaModelThread;
 };
 
@@ -223,7 +227,6 @@ struct MediaInfo
     QList<MediaInfo *> children;
     qint64 fileSize;
     QDateTime fileDateTime;
-    QSize previewSize;
     QString thumbnail;
 };
 

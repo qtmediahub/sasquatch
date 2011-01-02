@@ -79,7 +79,7 @@ MediaInfo *PictureModel::readMediaInfo(const QString &filePath)
     if (thumbnailInfo.exists()) {
         info->thumbnail = thumbnailInfo.filePath();
     } else {
-        QImage tmp = image.width() <= 342 ? image: image.scaledToWidth(342, Qt::SmoothTransformation);
+        QImage tmp = image.width() <= previewWidth() ? image: image.scaledToWidth(previewWidth(), Qt::SmoothTransformation);
         if(tmp.save(thumbnailInfo.filePath()))
             info->thumbnail = thumbnailInfo.filePath();
         else

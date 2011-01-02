@@ -135,6 +135,7 @@ MediaInfo *MusicModel::readMediaInfo(const QString &filePath)
             if (id3v2Tag) {
                 QImage tmp = readFrontCover(id3v2Tag);
                 if (!tmp.isNull()) {
+                    tmp = tmp.width() <= previewWidth() ? tmp : tmp.scaledToWidth(previewWidth(), Qt::SmoothTransformation);
                     tmp.save(thumbnailInfo.filePath());
                     info->thumbnail = thumbnailInfo.filePath();
                 }
