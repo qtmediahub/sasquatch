@@ -65,12 +65,8 @@ MediaInfo *PictureModel::readMediaInfo(const QString &filePath)
     if (!imageReader.canRead())
         return 0;
 
-    QImage image = imageReader.read();
-    if (image.isNull())
-        return 0;
-
     PictureInfo *info = new PictureInfo;
-    info->resolution = image.size();
+    info->resolution = imageReader.size(); // ## only Qt's image readers support this!
 
     ExifReader exifReader(filePath);
     info->exifProperties["userComments"] = exifReader.userComments();
@@ -107,6 +103,7 @@ MediaInfo *PictureModel::readMediaInfo(const QString &filePath)
     if (thumbnailInfo.exists()) {
         info->thumbnail = thumbnailInfo.filePath();
     } else {
+        QImage image = imageReader.read();
         QImage tmp = image.width() <= previewWidth() ? image: image.scaledToWidth(previewWidth(), Qt::SmoothTransformation);
         ExifReader::Orientation orientation = static_cast<ExifReader::Orientation>(info->exifProperties["orientation"].toInt());
         QTransform transform;
