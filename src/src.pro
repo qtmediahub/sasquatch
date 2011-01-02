@@ -51,5 +51,15 @@ gl {
     message(Not using GL acceleration)
 }
 
+mac {
+    QT += webkit\
+          multimedia
+          
+    CONFIG += mobility
+
+    MOBILITY += multimedia\
+                systeminfo
+}
+
 #for() structure does not work with lupdate
 TRANSLATIONS = $$system(cat $$DESTDIR/supported_languages | while read i; do echo translations/"$i".ts; done)
