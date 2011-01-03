@@ -22,6 +22,8 @@ public:
     virtual QStringList visualElementProperties() const { return mVisualElementProperties; }
     virtual void setVisualElementProperties(const QStringList& properties) { mVisualElementProperties = properties; }
 
+    virtual bool dependenciesSatisfied() const { return true; }
+
     virtual void registerPlugin(QDeclarativeContext *context) { Q_UNUSED(context); }
     virtual void unregisterPlugin() { /**/ }
 

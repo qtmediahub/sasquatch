@@ -156,7 +156,8 @@ void BackendPrivate::discoverEngines()
         QString qualifiedFileName(pluginPath % "/" % fileName);
         QPluginLoader pluginLoader(qualifiedFileName);
         if(pluginLoader.load()
-           && qobject_cast<QMHPluginInterface*>(pluginLoader.instance())) {
+           && qobject_cast<QMHPluginInterface*>(pluginLoader.instance())
+           && qobject_cast<QMHPluginInterface*>(pluginLoader.instance())->dependenciesSatisfied()) {
             QMHPlugin *plugin = new QMHPlugin(qobject_cast<QMHPluginInterface*>(pluginLoader.instance()), this);
             plugin->setParent(this);
             if(qmlEngine)

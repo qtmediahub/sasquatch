@@ -82,6 +82,8 @@ public:
     void registerPlugin(QDeclarativeContext *context = 0) { mInterface->registerPlugin(context); }
     void unregisterPlugin() { mInterface->unregisterPlugin(); }
 
+    bool dependenciesSatisfied() const { return mInterface->dependenciesSatisfied(); }
+
     virtual QObject *pluginProperties() const { return mInterface->pluginProperties(); }
 
 signals:
