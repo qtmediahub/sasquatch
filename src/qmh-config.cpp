@@ -27,7 +27,7 @@
     IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
     POSSIBILITY OF SUCH DAMAGE.*/
 
-#include "config.h"
+#include "qmh-config.h"
 
 QSettings *Config::settingsInstance = 0;
 Config *Config::mInstance = 0;
@@ -114,13 +114,6 @@ bool Config::store()
     }
 
     return (state == Store);
-}
-
-QStringList Config::arguments()
-{
-    if (args.isEmpty())
-        args = QCoreApplication::arguments();
-    return args;
 }
 
 void Config::init(int argc, char **argv)

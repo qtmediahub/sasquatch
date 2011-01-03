@@ -5,7 +5,7 @@ CONFIG += plugin
 OBJECTS_DIR=.obj
 MOC_DIR=.moc
 
-INCLUDEPATH += ../
+INCLUDEPATH += $${PROJECTROOT}/src/plugins $${PROJECTROOT}/src
 
 HEADERS += \
     ../submenuentry.h

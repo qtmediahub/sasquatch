@@ -10,7 +10,7 @@ MOC_DIR = $$TEMP_DIR/.moc
 
 # Input
 SOURCES += main.cpp \
-    config.cpp \
+    qmh-config.cpp \
     frontend.cpp \
     backend.cpp \
     dataproviders/foldermodel.cpp \
@@ -20,7 +20,7 @@ SOURCES += main.cpp \
 
 QT += declarative script network
 
-HEADERS += config.h \
+HEADERS += qmh-config.h \
     frontend.h \
     backend.h \
     plugins/qmhplugininterface.h \

@@ -37,7 +37,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QGLWidget>
 #endif
 
-#include "config.h"
+#include "qmh-config.h"
 
 class FrontendPrivate : public QObject
 {
@@ -99,6 +99,8 @@ Frontend::Frontend(QWidget *p)
     : QWidget(p),
       d(new FrontendPrivate(this))
 {
+    if(!Config::isEnabled("cursor", false))
+        QApplication::setOverrideCursor(Qt::BlankCursor);
     setSkin(Config::value("last-skin", "").toString());
     new QShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::ALT + Qt::Key_Down), this, SLOT(shrink()));
     new QShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::ALT + Qt::Key_Up), this, SLOT(grow()));

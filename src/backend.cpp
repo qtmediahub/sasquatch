@@ -24,7 +24,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "dataproviders/proxymodel.h"
 #include "dataproviders/dirmodel.h"
 #include "dataproviders/modelindexiterator.h"
-#include "config.h"
+#include "qmh-config.h"
 #include "qml-extensions/qmlfilewrapper.h"
 
 #include <QDir>
@@ -155,6 +155,8 @@ void BackendPrivate::discoverEngines()
     foreach(const QString fileName, QDir(pluginPath).entryList(QDir::Files)) {
         QString qualifiedFileName(pluginPath % "/" % fileName);
         QPluginLoader pluginLoader(qualifiedFileName);
+        //This should suffice?
+        pluginLoader.setLoadHints(QLibrary::ExportExternalSymbolsHint);
         if(pluginLoader.load()
            && qobject_cast<QMHPluginInterface*>(pluginLoader.instance())
            && qobject_cast<QMHPluginInterface*>(pluginLoader.instance())->dependenciesSatisfied()) {

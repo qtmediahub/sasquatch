@@ -245,7 +245,11 @@ public:
 
 
     static QStringList unusedArguments();
-    static QStringList arguments();
+    static QStringList arguments() {
+        if (args.isEmpty())
+            args = QCoreApplication::arguments();
+        return args;
+    }
     static void init(int argc, char **argv);
     static Config* instance();
 private:

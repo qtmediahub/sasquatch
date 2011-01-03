@@ -26,7 +26,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "backend.h"
 #include "frontend.h"
-#include "config.h"
+#include "qmh-config.h"
 
 int main(int argc, char** argv)
 {
