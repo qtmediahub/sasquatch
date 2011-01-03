@@ -128,7 +128,7 @@ CONFIG_TYPE(StringVariantHash);
 CONFIG_TYPE(QColor);
 #endif
 
-class Config : public QObject
+class Q_CORE_EXPORT Config : public QObject
 {
     Q_OBJECT
 public:
