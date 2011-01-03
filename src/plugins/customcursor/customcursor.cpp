@@ -22,7 +22,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QPixmap>
 #include <QApplication>
 #include <QDebug>
-#include "qmh-config.h"
+//#include "qmh-config.h"
 
 CustomCursor::CustomCursor(QObject *parent) :
     QObject(parent),
