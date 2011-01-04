@@ -22,6 +22,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <QWidget>
 #include <QUrl>
+#include <QDeclarativeItem>
 
 class FrontendPrivate;
 
@@ -42,6 +43,7 @@ class Frontend : public QWidget
         void resetLanguage();
 
         Q_INVOKABLE QObject *focusItem() const;
+        Q_INVOKABLE void applyWebViewFocusFix(QDeclarativeItem *item); // See https://bugs.webkit.org/show_bug.cgi?id=51094
 
     public slots:
         void toggleFullScreen();
