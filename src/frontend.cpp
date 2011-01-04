@@ -324,11 +324,12 @@ QObject *Frontend::focusItem() const
 
 void Frontend::applyWebViewFocusFix(QDeclarativeItem *item) // See https://bugs.webkit.org/show_bug.cgi?id=51094
 {
+    item->setFlag(QGraphicsItem::ItemIsFocusScope, true);
     QList<QGraphicsItem *> children = item->childItems();
     for (int i = 0; i < children.count(); i++) {
         QGraphicsWidget *maybeWebView = qgraphicsitem_cast<QGraphicsWidget *>(children[i]);
         if (maybeWebView->inherits("QGraphicsWebView"))
-            item->setFocusProxy(maybeWebView);
+                item->setFocus(Qt::OtherFocusReason);
     }
 }
 
