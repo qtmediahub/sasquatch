@@ -54,7 +54,8 @@ int main(int argc, char** argv)
 //    format.setDirectRendering(false);
     QGLFormat::setDefaultFormat(format);
 #ifdef GLGS
-    QApplication::setGraphicsSystem("opengl");
+    if (Config::isEnabled("use-gl", true))
+        QApplication::setGraphicsSystem("opengl");
 #endif
 #endif
     QApplication app(argc, argv);

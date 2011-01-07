@@ -216,14 +216,15 @@ void Frontend::initialize(const QUrl &targetUrl)
 
         QObject::connect(engine, SIGNAL(quit()), qApp, SLOT(quit()));
 
+        if (Config::isEnabled("use-gl", true))
+        {
 #ifdef GLVIEWPORT
-        centralWidget->setViewport(new QGLWidget());
+            centralWidget->setViewport(new QGLWidget());
 #endif
-#ifdef GL
-        centralWidget->setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
-#else
-        centralWidget->setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
-#endif
+            centralWidget->setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
+        } else {
+            centralWidget->setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
+        }
         centralWidget->rootContext()->setContextProperty("config", Config::instance());
 
         Backend::instance()->initialize(engine);
