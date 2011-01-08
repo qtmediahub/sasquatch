@@ -66,3 +66,7 @@ mac {
 
 #for() structure does not work with lupdate
 TRANSLATIONS = $$system(cat $$DESTDIR/supported_languages | while read i; do echo translations/"$i".ts; done)
+
+QMAKE_LFLAGS += -Wl,-export-dynamic
+# rdynamic 
+#QMAKE_CXXFLAGS += -rdynamic

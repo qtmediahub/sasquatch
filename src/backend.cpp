@@ -155,8 +155,6 @@ void BackendPrivate::discoverEngines()
     foreach(const QString fileName, QDir(pluginPath).entryList(QDir::Files)) {
         QString qualifiedFileName(pluginPath % "/" % fileName);
         QPluginLoader pluginLoader(qualifiedFileName);
-        //This should suffice?
-        pluginLoader.setLoadHints(QLibrary::ExportExternalSymbolsHint);
         if(pluginLoader.load()
            && qobject_cast<QMHPluginInterface*>(pluginLoader.instance())
            && qobject_cast<QMHPluginInterface*>(pluginLoader.instance())->dependenciesSatisfied()) {
