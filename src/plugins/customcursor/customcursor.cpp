@@ -22,7 +22,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QPixmap>
 #include <QApplication>
 #include <QDebug>
-//#include "qmh-config.h"
+#include "qmh-config.h"
 
 CustomCursor::CustomCursor(QObject *parent) :
     QObject(parent),
@@ -37,7 +37,7 @@ CustomCursor::CustomCursor(QObject *parent) :
 
     qApp->setOverrideCursor(m_blankCursor);
     qApp->installEventFilter(this);
-    //setIdleTimeout(Config::value("hideIdleCursorTimeout", 5));
+    setIdleTimeout(Config::value("hideIdleCursorTimeout", 5));
 }
 
 QString CustomCursor::defaultCursorPath() const {

@@ -18,7 +18,7 @@ public:
     QString name() const { return tr("CustomCursor"); }
     QString role() const { return ""; }
 
-    bool dependenciesSatisfied() const { return true; /* Config::isEnabled("cursor", false) && Config::isEnabled("custom-cursor", true); */ }
+    bool dependenciesSatisfied() const { return Config::isEnabled("cursor", false) && Config::isEnabled("custom-cursor", true); }
 
     void registerPlugin(QDeclarativeContext *context) { Q_UNUSED(context); qmlRegisterType<CustomCursor>("CustomCursor", 1, 0, "CustomCursor"); }
 };
