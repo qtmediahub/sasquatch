@@ -21,6 +21,7 @@ SOURCES += main.cpp \
 QT += declarative script network
 
 HEADERS += qmh-config.h \
+    global.h \
     frontend.h \
     backend.h \
     plugins/qmhplugininterface.h \
@@ -31,6 +32,8 @@ HEADERS += qmh-config.h \
     dataproviders/dirmodel.h \
     dataproviders/modelindexiterator.h \
     qml-extensions/qmlfilewrapper.h
+
+DEFINES += BUILDING_QMH
 
 glgs {
     CONFIG += gl

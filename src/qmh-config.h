@@ -35,6 +35,8 @@
 #include <QtCore>
 #endif
 
+#include "global.h"
+
 /* not thread safe */
 
 template <typename T> bool read(const QVariant &, T &)
@@ -128,7 +130,7 @@ CONFIG_TYPE(StringVariantHash);
 CONFIG_TYPE(QColor);
 #endif
 
-class Q_CORE_EXPORT Config : public QObject
+class QMH_EXPORT Config : public QObject
 {
     Q_OBJECT
 public:
