@@ -155,17 +155,19 @@ void BackendPrivate::discoverEngines()
     foreach(const QString fileName, QDir(pluginPath).entryList(QDir::Files)) {
         QString qualifiedFileName(pluginPath % "/" % fileName);
         QPluginLoader pluginLoader(qualifiedFileName);
-        if(pluginLoader.load()
-           && qobject_cast<QMHPluginInterface*>(pluginLoader.instance())
-           && qobject_cast<QMHPluginInterface*>(pluginLoader.instance())->dependenciesSatisfied()) {
+        if (!pluginLoader.load())
+            qWarning() << tr("Cant load plugin: %1 returns %2").arg(qualifiedFileName).arg(pluginLoader.errorString());
+        else if (!qobject_cast<QMHPluginInterface*>(pluginLoader.instance()))
+            qWarning() << tr("Invalid QMH plugin present: %1").arg(qualifiedFileName);
+        else if (!qobject_cast<QMHPluginInterface*>(pluginLoader.instance())->dependenciesSatisfied())
+            qWarning() << tr("Can't meet dependencies for %1").arg(qualifiedFileName);
+        else {
             QMHPlugin *plugin = new QMHPlugin(qobject_cast<QMHPluginInterface*>(pluginLoader.instance()), this);
             plugin->setParent(this);
             if(qmlEngine)
                 plugin->registerPlugin(qmlEngine->rootContext());
             Backend::instance()->advertizeEngine(plugin);
         }
-        else
-            qWarning() << tr("Invalid plugin present %1 %2").arg(qualifiedFileName).arg(pluginLoader.errorString());
     }
     resetLanguage();
 }
