@@ -34,6 +34,9 @@ VideoPlugin::VideoPlugin()
                  << new VideoPluginItem(tr("Library"), this);
 
     m_model = new VideoModel(this);
+
+    setName(tr("Video"));
+    setRole("video");
 }
 
 QObject *VideoPlugin::pluginProperties() const

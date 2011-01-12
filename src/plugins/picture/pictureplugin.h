@@ -15,8 +15,6 @@ class PicturePlugin : public QObject, public QMHPluginInterface
 public:
     PicturePlugin();
     ~PicturePlugin() {}
-    QString name() const { return tr("Pictures"); }
-    QString role() const { return "picture"; }
 
     QObject *pluginProperties() const;
         

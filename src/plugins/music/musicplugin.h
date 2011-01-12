@@ -17,8 +17,6 @@ class MusicPlugin : public QObject, public QMHPluginInterface
 public:
     MusicPlugin();
     ~MusicPlugin() {}
-    QString name() const { return tr("Music"); }
-    QString role() const { return "music"; }
 
     QList<QObject*> childItems() const;
 

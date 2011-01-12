@@ -9,33 +9,44 @@ class QDeclarativeContext;
 class QMHPluginInterface
 {
 public:
-    QMHPluginInterface() : mVisualElement(0) { }
+    QMHPluginInterface()
+        : mVisualElement(0),
+          mName("Skin Plugin"),
+          mRole("undefined") { /**/ }
+
     virtual ~QMHPluginInterface() { /* */ }
-    virtual QString name() const { return "Uninitialized plugin name"; }
-    //Fixme: roles should be a constrained enumeration
-    virtual QString role() const { return "Undefined"; }
+
+    QString name() const { return mName; }
+    void setName(const QString &name) { mName = name; }
+
+    QString role() const { return mRole; }
+    void setRole(const QString &role) { mRole = role; }
+
     virtual QList<QObject*> childItems() const { return QList<QObject*>(); }
 
-    virtual QObject* visualElement() const { return mVisualElement; }
-    virtual void setVisualElement(QObject *element) { mVisualElement = element; }
+    QObject* visualElement() const { return mVisualElement; }
+    void setVisualElement(QObject *element) { mVisualElement = element; }
 
-    virtual QStringList visualElementProperties() const { return mVisualElementProperties; }
-    virtual void setVisualElementProperties(const QStringList& properties) { mVisualElementProperties = properties; }
+    QStringList visualElementProperties() const { return mVisualElementProperties; }
+    void setVisualElementProperties(const QStringList& properties) {
+        mVisualElementProperties = properties;
+        //Must be property/value pairs
+        if(mVisualElementProperties.size() % 2)
+            mVisualElementProperties.removeLast();
+    }
 
     virtual bool dependenciesSatisfied() const { return true; }
 
     virtual void registerPlugin(QDeclarativeContext *context) { Q_UNUSED(context); }
     virtual void unregisterPlugin() { /**/ }
 
-    //Only make sense for skin specific plugins
-    virtual void setName(const QString &name) { Q_UNUSED(name) }
-    virtual void setRole(const QString &role) { Q_UNUSED(role) }
-
     virtual QObject *pluginProperties() const { return 0; }
 
 protected:
     QObject *mVisualElement;
     QStringList mVisualElementProperties;
+    QString mName;
+    QString mRole;
 };
 
 Q_DECLARE_INTERFACE(QMHPluginInterface, "com.nokia.QMH.PluginInterface/1.0")

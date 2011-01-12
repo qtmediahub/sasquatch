@@ -12,36 +12,11 @@ class GenericPlugin : public QObject, public QMHPluginInterface
 public:
     GenericPlugin()
         : QObject(),
-          QMHPluginInterface(),
-          mName("Skin Plugin"),
-          mRole("undefined"),
-          mVisualElement(0) { /* */ }
+          QMHPluginInterface()
+          { /* */ }
     ~GenericPlugin() {}
-    
-    QString name() const { return mName; }
-    void setName(const QString &name) { mName = name; }
-
-    QString role() const { return mRole; }
-    void setRole(const QString &role) { mRole = role; }
-
-    QObject* visualElement() const { return mVisualElement; }
-    void setVisualElement(QObject *element) { mVisualElement = element; }
-
-    QStringList visualElementProperties() const { return mVisualElementProperties; }
-    void setVisualElementProperties(const QStringList& properties) {
-        mVisualElementProperties = properties;
-        //Must be property/value pairs
-        if(mVisualElementProperties.size() % 2)
-            mVisualElementProperties.removeLast();
-    }
 
     QObject *pluginProperties() const { return const_cast<GenericPlugin*>(this); }
-
-private:
-    QString mName;
-    QString mRole;
-    QObject *mVisualElement;
-    QStringList mVisualElementProperties;
 };
 
 class QDeclarativeContext;

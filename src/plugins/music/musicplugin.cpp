@@ -40,6 +40,9 @@ MusicPlugin::MusicPlugin()
                  << new MusicPluginItem(tr("Library"), this);
 
     m_model = new MusicModel(this);
+
+    setName(tr("Music"));
+    setRole("music");
 }
 
 QList<QObject*> MusicPlugin::childItems() const

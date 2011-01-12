@@ -15,8 +15,6 @@ class VideoPlugin : public QObject, public QMHPluginInterface
 public:
     VideoPlugin();
     ~VideoPlugin() {}
-    QString name() const { return tr("Video"); }
-    QString role() const { return "video"; }
 
     QObject *pluginProperties() const;
 

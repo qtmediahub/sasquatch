@@ -5,6 +5,9 @@
 PicturePlugin::PicturePlugin()
 {
     m_model = new PictureModel(this);
+
+    setName(tr("Pictures"));
+    setRole("picture");
 }
 
 QObject *PicturePlugin::pluginProperties() const
