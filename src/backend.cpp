@@ -155,12 +155,19 @@ void BackendPrivate::discoverEngines()
     foreach(const QString fileName, QDir(pluginPath).entryList(QDir::Files)) {
         QString qualifiedFileName(pluginPath % "/" % fileName);
         QPluginLoader pluginLoader(qualifiedFileName);
-        if (!pluginLoader.load())
+
+        if (!pluginLoader.load()) {
             qWarning() << tr("Cant load plugin: %1 returns %2").arg(qualifiedFileName).arg(pluginLoader.errorString());
-        else if (!qobject_cast<QMHPluginInterface*>(pluginLoader.instance()))
+            continue;
+        }
+
+        QMHPluginInterface* pluginInterface = qobject_cast<QMHPluginInterface*>(pluginLoader.instance());
+        if (!pluginInterface)
             qWarning() << tr("Invalid QMH plugin present: %1").arg(qualifiedFileName);
-        else if (!qobject_cast<QMHPluginInterface*>(pluginLoader.instance())->dependenciesSatisfied())
+        else if (!pluginInterface->dependenciesSatisfied())
             qWarning() << tr("Can't meet dependencies for %1").arg(qualifiedFileName);
+        else if (pluginInterface->role() == "undefined")
+            qWarning() << tr("Plugin %1 has an undefined role").arg(qualifiedFileName);
         else {
             QMHPlugin *plugin = new QMHPlugin(qobject_cast<QMHPluginInterface*>(pluginLoader.instance()), this);
             plugin->setParent(this);

@@ -14,9 +14,11 @@ class CustomCursorPlugin : public QObject, public QMHPluginInterface
     Q_INTERFACES(QMHPluginInterface)
 
 public:
+    CustomCursorPlugin() {
+        setName(tr("CustomCursor"));
+        setRole("");
+    }
     ~CustomCursorPlugin() {}
-    QString name() const { return tr("CustomCursor"); }
-    QString role() const { return ""; }
 
     void registerPlugin(QDeclarativeContext *context) { Q_UNUSED(context); qmlRegisterType<CustomCursor>("CustomCursor", 1, 0, "CustomCursor"); }
 };
