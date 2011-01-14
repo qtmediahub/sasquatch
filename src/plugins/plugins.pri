@@ -8,10 +8,12 @@ MOC_DIR=.moc
 INCLUDEPATH += $${PROJECTROOT}/src/plugins $${PROJECTROOT}/src
 
 HEADERS += \
-    ../submenuentry.h
+    ../submenuentry.h \
+    ../mediainfo.h
 
 SOURCES += \
-    ../submenuentry.cpp
+    ../submenuentry.cpp \
+    ../mediainfo.cpp
 
 #Wouldn't it be nice?
 #LANGUAGES = english_us.ts \

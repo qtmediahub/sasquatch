@@ -20,10 +20,11 @@
 #ifndef VIDEOMODEL_H
 #define VIDEOMODEL_H
 
-#include "../mediamodel.h"
+#include "../mediainfo.h"
 
-struct VideoInfo : public MediaInfo
+class VideoInfo : public MediaInfo
 {
+public:
     VideoInfo() :  MediaInfo(MediaModel::File), length(0) { }
 
     // video properties

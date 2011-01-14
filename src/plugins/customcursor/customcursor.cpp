@@ -24,20 +24,40 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QDebug>
 #include "qmh-config.h"
 
+class MouseEventHorizon : public QObject
+{
+public:
+    MouseEventHorizon(QObject *p) : QObject(p) { /**/ }
+
+    bool eventFilter(QObject *obj, QEvent *event) {
+        if(event->type() == QEvent::MouseMove) {
+            return true;
+        }
+        return QObject::eventFilter(obj, event);
+    }
+};
+
 CustomCursor::CustomCursor(QObject *parent) :
     QObject(parent),
     m_timer(0),
-    m_clickedTimer(new QTimer(this)),
+    m_clickedTimer(0),
     m_currentBehavior(Blank),
     m_blankCursor(Qt::BlankCursor)
 {
-    m_clickedTimer->setSingleShot(true);
-    m_clickedTimer->setInterval(200);
-    connect(m_clickedTimer, SIGNAL(timeout()), this, SLOT(handleClickedTimeout()));
-
     qApp->setOverrideCursor(m_blankCursor);
-    qApp->installEventFilter(this);
-    setIdleTimeout(Config::value("hideIdleCursorTimeout", 5));
+
+    if (Config::isEnabled("cursor", false))
+    {
+        m_clickedTimer = new QTimer(this);
+        m_clickedTimer->setSingleShot(true);
+        m_clickedTimer->setInterval(200);
+        connect(m_clickedTimer, SIGNAL(timeout()), this, SLOT(handleClickedTimeout()));
+
+        qApp->installEventFilter(this);
+        setIdleTimeout(Config::value("hideIdleCursorTimeout", 2));
+    } else {
+        qApp->installEventFilter(new MouseEventHorizon(this));
+    }
 }
 
 QString CustomCursor::defaultCursorPath() const {

@@ -26,6 +26,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "dataproviders/modelindexiterator.h"
 #include "qmh-config.h"
 #include "qml-extensions/qmlfilewrapper.h"
+#include "dataproviders/playlist.h"
 
 #include <QDir>
 #include <QString>
@@ -155,12 +156,19 @@ void BackendPrivate::discoverEngines()
     foreach(const QString fileName, QDir(pluginPath).entryList(QDir::Files)) {
         QString qualifiedFileName(pluginPath % "/" % fileName);
         QPluginLoader pluginLoader(qualifiedFileName);
-        if (!pluginLoader.load())
+
+        if (!pluginLoader.load()) {
             qWarning() << tr("Cant load plugin: %1 returns %2").arg(qualifiedFileName).arg(pluginLoader.errorString());
-        else if (!qobject_cast<QMHPluginInterface*>(pluginLoader.instance()))
+            continue;
+        }
+
+        QMHPluginInterface* pluginInterface = qobject_cast<QMHPluginInterface*>(pluginLoader.instance());
+        if (!pluginInterface)
             qWarning() << tr("Invalid QMH plugin present: %1").arg(qualifiedFileName);
-        else if (!qobject_cast<QMHPluginInterface*>(pluginLoader.instance())->dependenciesSatisfied())
+        else if (!pluginInterface->dependenciesSatisfied())
             qWarning() << tr("Can't meet dependencies for %1").arg(qualifiedFileName);
+        else if (pluginInterface->role() == "undefined")
+            qWarning() << tr("Plugin %1 has an undefined role").arg(qualifiedFileName);
         else {
             QMHPlugin *plugin = new QMHPlugin(qobject_cast<QMHPluginInterface*>(pluginLoader.instance()), this);
             plugin->setParent(this);
@@ -176,6 +184,11 @@ Backend::Backend(QObject *parent)
     : QObject(parent),
       d(new BackendPrivate(this))
 {
+    QFontDatabase::addApplicationFont(d->resourcePath + "/dejavu-fonts-ttf-2.32/ttf/DejaVuSans.ttf");
+    QFontDatabase::addApplicationFont(d->resourcePath + "/dejavu-fonts-ttf-2.32/ttf/DejaVuSans-Bold.ttf");
+    QFontDatabase::addApplicationFont(d->resourcePath + "/dejavu-fonts-ttf-2.32/ttf/DejaVuSans-Oblique.ttf");
+    QFontDatabase::addApplicationFont(d->resourcePath + "/dejavu-fonts-ttf-2.32/ttf/DejaVuSans-BoldOblique.ttf");
+    QApplication::setFont(QFont("DejaVu Sans"));
 }
 
 Backend::~Backend()
@@ -200,6 +213,7 @@ void Backend::initialize(QDeclarativeEngine *qmlEngine)
         //FIXME: We are clearly failing to keep the backend Declarative free :p
         d->qmlEngine = qmlEngine;
         qmlEngine->rootContext()->setContextProperty("backend", this);
+        qmlEngine->rootContext()->setContextProperty("playlist", new Playlist);
     }
 
     d->discoverEngines();

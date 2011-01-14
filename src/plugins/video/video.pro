@@ -6,12 +6,20 @@ include(../plugins.pri)
 
 QT += declarative
 
+gstreamer {
+    message(Using gstreamer for thumbnails)
+    DEFINES += THUMBNAIL_GSTREAMER
+
+    CONFIG += link_pkgconfig
+    PKGCONFIG += gstreamer-0.10
+}
+
 HEADERS += \
         videoplugin.h \
         ../mediamodel.h \
+        ../mediainfo.h \
         videomodel.h
 
 SOURCES += \
         videoplugin.cpp \
-        ../mediamodel.cpp \
         videomodel.cpp

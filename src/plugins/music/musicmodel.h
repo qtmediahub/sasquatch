@@ -2,9 +2,11 @@
 #define MUSICMODEL_H
 
 #include "../mediamodel.h"
+#include "../mediainfo.h"
 
-struct MusicInfo : public MediaInfo
+class MusicInfo : public MediaInfo
 {
+public:
     MusicInfo() :  MediaInfo(MediaModel::File) { }
 
     // tag info
