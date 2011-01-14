@@ -10,9 +10,9 @@ QT += declarative
 
 HEADERS += musicplugin.h \
            ../mediamodel.h \
+           ../mediainfo.h \
            musicmodel.h
 
 SOURCES += musicplugin.cpp \
-           ../mediamodel.cpp \
            musicmodel.cpp
 

@@ -20,7 +20,10 @@ SOURCES += main.cpp \
     dataproviders/foldermodel.cpp \
     dataproviders/thumbnailer.cpp \
     dataproviders/proxymodel.cpp \
-    dataproviders/modelindexiterator.cpp
+    dataproviders/modelindexiterator.cpp \
+    dataproviders/playlist.cpp \
+    plugins/mediamodel.cpp \
+    plugins/mediainfo.cpp
 
 QT += declarative script network
 
@@ -35,7 +38,10 @@ HEADERS += qmh-config.h \
     dataproviders/proxymodel.h \
     dataproviders/dirmodel.h \
     dataproviders/modelindexiterator.h \
-    qml-extensions/qmlfilewrapper.h
+    qml-extensions/qmlfilewrapper.h \
+    dataproviders/playlist.h \
+    plugins/mediamodel.h \
+    plugins/mediainfo.h
 
 DEFINES += BUILDING_QMH
 

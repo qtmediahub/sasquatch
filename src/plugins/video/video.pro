@@ -17,9 +17,9 @@ gstreamer {
 HEADERS += \
         videoplugin.h \
         ../mediamodel.h \
+        ../mediainfo.h \
         videomodel.h
 
 SOURCES += \
         videoplugin.cpp \
-        ../mediamodel.cpp \
         videomodel.cpp

@@ -28,6 +28,8 @@
 #include <QQueue>
 #include <QSettings>
 
+#include "mediainfo.h"
+
 static QString typeToString(MediaModel::MediaType type)
 {
     switch (type) {

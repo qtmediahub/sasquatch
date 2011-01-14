@@ -26,6 +26,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "dataproviders/modelindexiterator.h"
 #include "qmh-config.h"
 #include "qml-extensions/qmlfilewrapper.h"
+#include "dataproviders/playlist.h"
 
 #include <QDir>
 #include <QString>
@@ -207,6 +208,7 @@ void Backend::initialize(QDeclarativeEngine *qmlEngine)
         //FIXME: We are clearly failing to keep the backend Declarative free :p
         d->qmlEngine = qmlEngine;
         qmlEngine->rootContext()->setContextProperty("backend", this);
+        qmlEngine->rootContext()->setContextProperty("playlist", new Playlist);
     }
 
     d->discoverEngines();
