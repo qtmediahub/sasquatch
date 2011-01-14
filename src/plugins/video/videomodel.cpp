@@ -22,6 +22,8 @@
 #include <QFileInfo>
 #include <QProcess>
 
+#include "qmh-config.h"
+
 VideoModel::VideoModel(QObject *parent)
     : MediaModel(MediaModel::Video, parent)
 {
@@ -203,9 +205,14 @@ static bool generateThumbnailGstreamer(const QFileInfo &fileInfo, const QFileInf
 static bool generateThumbnail(const QFileInfo &fileInfo, const QFileInfo &thumbnailInfo)
 {
 #ifdef THUMBNAIL_GSTREAMER
-    return generateThumbnailGstreamer(fileInfo, thumbnailInfo);
+    if (!Config::isEnabled("video-thumbnails", true))
+        return false;
+    else
+        return generateThumbnailGstreamer(fileInfo, thumbnailInfo);
 #else
-    if (generateThumbnailGstreamerProcess(fileInfo, thumbnailInfo))
+    if (!Config::isEnabled("video-thumbnails", true))
+        return false;
+    else if (generateThumbnailGstreamerProcess(fileInfo, thumbnailInfo))
         return true;
     else if (generateThumbnailMplayerProcess(fileInfo, thumbnailInfo))
         return true;
