@@ -207,6 +207,7 @@ void Backend::initialize(QDeclarativeEngine *qmlEngine)
     qmlRegisterType<DirModel>("DirModel", 1, 0, "DirModel");
     qmlRegisterType<ModelIndexIterator>("ModelIndexIterator", 1, 0, "ModelIndexIterator");
     qmlRegisterType<QMLFileWrapper>("QMLFileWrapper", 1, 0, "QMLFileWrapper");
+    qmlRegisterType<Playlist>("Playlist", 1, 0, "Playlist");
 
 
     if (qmlEngine) {

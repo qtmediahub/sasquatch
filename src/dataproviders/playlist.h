@@ -29,6 +29,9 @@ class PlaylistPrivate;
 class Playlist : public QAbstractListModel
 {
     Q_OBJECT
+    Q_PROPERTY(int count READ count)
+    Q_ENUMS(CustomRoles)
+
 public:
     Playlist(QObject *parent = 0);
     ~Playlist();
@@ -46,12 +49,17 @@ public:
 
     int rowCount(const QModelIndex &parent) const;
     int count() const { return rowCount(QModelIndex()); }
-    QVariant data(const QModelIndex &index, int role) const;
+    Q_INVOKABLE QModelIndex index ( int row ) const;
+    Q_INVOKABLE QVariant data(const QModelIndex &index, int role) const;
 
-signals:
+    void dump() const;
 
-public slots:
-    void add(const MediaInfo *info);
+    Q_INVOKABLE int add(MediaInfo *info);
+
+    QString typeString() const;
+
+    Q_INVOKABLE QModelIndex playNextIndex(const QModelIndex &idx) const;
+    Q_INVOKABLE QModelIndex playPreviousIndex(const QModelIndex &idx) const;
 
 private:
     Q_DISABLE_COPY(Playlist)

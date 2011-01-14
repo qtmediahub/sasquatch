@@ -8,6 +8,8 @@
 class MediaInfo : public QObject
 {
     Q_OBJECT
+    Q_ENUMS(Status)
+
 public:
     enum Status { NotSearched, Searching, Searched };
 
@@ -24,5 +26,7 @@ public:
     QDateTime fileDateTime;
     QString thumbnail;
 };
+
+Q_DECLARE_METATYPE(MediaInfo*)
 
 #endif // MEDIAINFO_H

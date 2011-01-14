@@ -60,6 +60,7 @@ MediaModel::MediaModel(MediaModel::MediaType type, QObject *parent)
     roleNames[MediaInfoTypeRole] = "type";
     roleNames[FileSizeRole] = "fileSize";
     roleNames[FileDateTimeRole] = "fileDateTime";
+    roleNames[MediaInfoRole] = "mediaInfo";
     setRoleNames(roleNames);
 
     m_root = new MediaInfo(MediaModel::Root);
@@ -319,6 +320,8 @@ QVariant MediaModel::data(const QModelIndex &index, int role) const
         return info->fileSize;
     } else if (role == FileDateTimeRole) {
         return info->fileDateTime;
+    } else if (role == MediaInfoRole) {
+        return qVariantFromValue(info);
     }
 
     if (info->parent == m_root) {

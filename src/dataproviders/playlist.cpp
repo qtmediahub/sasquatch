@@ -20,6 +20,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "playlist.h"
 
 #include <QList>
+#include <QMetaEnum>
+#include <QModelIndex>
+
+//#define PLAYLIST_DEBUG
 
 class PlaylistPrivate
 {
@@ -62,31 +66,22 @@ QVariant Playlist::data(const QModelIndex &index, int role) const
 
     if (0 <= index.row() && index.row() < d->content.size()) {
         MediaInfo *info = d->content.at(index.row());
-        if (role == Qt::DisplayRole)
+        if (role == Qt::DisplayRole || role == FileNameRole)
             return info->name;
-        /*else if (role == PreviewUrlRole) {
-            QString urlBase = "image://" + imageBaseUrl();
-            if (info->type == AddNewSource)
-                return QUrl(urlBase + "/AddNewSource");
-            else if (info->type == DotDot)
-                return QUrl(urlBase + "/DotDot");
-            else if (info->type == SearchPath)
-                return QUrl(urlBase + "/SearchPath");
-            else if (info->type == Directory)
-                return QUrl(urlBase + "/Directory");
-            else
-                return QUrl(urlBase + info->thumbnail);
-        }*/ else if (role == FileUrlRole) {
+        else if (role == PreviewUrlRole) {
+            int idx = MediaModel::staticMetaObject.indexOfEnumerator("MediaType");
+            QMetaEnum e = MediaModel::staticMetaObject.enumerator(idx);
+            QString urlBase = "image://" + QString::fromLatin1(e.valueToKey(info->type)).toLower() + "model";
+            return QUrl(urlBase + info->thumbnail);
+        } else if (role == FileUrlRole) {
             return QUrl::fromLocalFile(info->filePath);
         } else if (role == FilePathRole) {
             return info->filePath;
-        } else if (role == FileNameRole) {
-            return info->name;
-        }/* else if (role == MediaInfoTypeRole) {
+        } else if (role == MediaInfoTypeRole) {
             int idx = MediaModel::staticMetaObject.indexOfEnumerator("MediaInfoType");
             QMetaEnum e = MediaModel::staticMetaObject.enumerator(idx);
             return QString::fromLatin1(e.valueToKey(info->type));
-        }*/ else if (role == FileSizeRole) {
+        } else if (role == FileSizeRole) {
             return info->fileSize;
         } else if (role == FileDateTimeRole) {
             return info->fileDateTime;
@@ -102,10 +97,60 @@ int Playlist::rowCount(const QModelIndex &parent) const
     return d->content.count();
 }
 
-void Playlist::add(const MediaInfo *info)
+int Playlist::add(MediaInfo *info)
 {
-    qDebug() << info->name;
+    // check for type currently only add audio/video files
+    if (info->type != MediaModel::File)
+        return -1;
 
-//    d->content.append(info);
+    int pos = d->content.indexOf(info);
+    if (pos == -1) {
+        d->content.append(info);
+        pos = d->content.count() -1;
+    }
+
+#ifdef PLAYLIST_DEBUG
+    dump();
+#endif
+
+    return pos;
 }
+
+void Playlist::dump() const
+{
+    qDebug() << "playlist:" << d->content.count() << "elements";
+    for (int i = 0; i < d->content.count(); i++) {
+        qDebug() << "  " << d->content[i]->filePath;
+    }
+}
+
+QModelIndex Playlist::index(int row ) const
+{
+    return QAbstractListModel::index(row, 0, QModelIndex());
+}
+
+QModelIndex Playlist::playNextIndex(const QModelIndex &idx) const
+{
+    QModelIndex next;
+
+    if (idx.row() >= count()-1)
+        next = index(0);
+    else
+        next = index(idx.row()+1);
+
+    return next;
+}
+
+QModelIndex Playlist::playPreviousIndex(const QModelIndex &idx) const
+{
+    QModelIndex prev;
+
+    if (idx.row() <= 0)
+        prev = index(count()-1);
+    else
+        prev = index(idx.row()-1);
+
+    return prev;
+}
+
 

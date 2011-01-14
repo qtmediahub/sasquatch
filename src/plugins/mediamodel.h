@@ -122,7 +122,8 @@ public:
         FileUrlRole,
         MediaInfoTypeRole,
         FileSizeRole,
-        FileDateTimeRole
+        FileDateTimeRole,
+        MediaInfoRole
     };
 
     QString themeResourcePath() const { return m_themePath; }
