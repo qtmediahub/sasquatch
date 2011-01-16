@@ -53,6 +53,7 @@ public:
     QString skinPath() const;
     QString pluginPath() const;
     QString resourcePath() const;
+    QString thumbnailPath() const;
     
     bool transforms() const;
 

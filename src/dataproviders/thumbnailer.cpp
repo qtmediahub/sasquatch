@@ -56,7 +56,7 @@ QString Thumbnailer::thumbnail(QString filePath, QModelIndex modelIndex)
     QString ret;
     QString md5 = QCryptographicHash::hash("file://" + filePath.toAscii(), QCryptographicHash::Md5);
 
-    QFileInfo thumbnailInfo(QDir::homePath() + "/.thumbnails/" + THUMBNAILSUBPATH + "/" + md5 + ".png");
+    QFileInfo thumbnailInfo(Backend::instance()->thumbnailPath() + md5 + ".png");
     QFileInfo fileInfo(filePath);
 
     if (thumbnailInfo.exists())

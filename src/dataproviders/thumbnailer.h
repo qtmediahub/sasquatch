@@ -27,9 +27,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QFileInfo>
 
 #define THUMBNAILSIZE 200
-#define THUMBNAILSUBPATH "qtmediahub"
-// Use "large" to fit freedesktop spec
-//#define THUMBNAILSUBPATH "large"
 
 class Thumbnailer : public QObject
 {

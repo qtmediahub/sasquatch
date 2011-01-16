@@ -18,6 +18,7 @@
  * ****************************************************************************/
 
 #include "mediamodel.h"
+#include "backend.h"
 
 #include <QDirIterator>
 #include <QThreadPool>
@@ -542,7 +543,7 @@ void MediaModel::dump(const MediaInfo *info, int indent) const
 QFileInfo MediaModel::generateThumbnailFileInfo(const QFileInfo &fileInfo)
 {
     // check if thumbnail folder exists
-    QFileInfo thumbnailFolderInfo(QDir::homePath() + "/.thumbnails/qtmediahub/"); // TODO: make the path configureable
+    QFileInfo thumbnailFolderInfo(Backend::instance()->thumbnailPath());
     if (!thumbnailFolderInfo.exists()) {
         QDir dir;
         dir.mkpath(thumbnailFolderInfo.absoluteFilePath());

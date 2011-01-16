@@ -58,6 +58,8 @@ public:
           skinPath(basePath % "/skins"),
           pluginPath(basePath % "/plugins"),
           resourcePath(basePath % "/resources"),
+          // Use "large" instead of appName to fit freedesktop spec
+          thumbnailPath(Config::value("thumbnail-path", QDir::homePath() + "/.thumbnails/" + qApp->applicationName() + "/")),
           qmlEngine(0),
           backendTranslator(0),
           logFile(qApp->applicationName().append(".log"))
@@ -98,6 +100,7 @@ public:
     const QString skinPath;
     const QString pluginPath;
     const QString resourcePath;
+    const QString thumbnailPath;
     QDeclarativeEngine *qmlEngine;
     QTranslator *backendTranslator;
     QList<QTranslator*> pluginTranslators;
@@ -263,6 +266,10 @@ QString Backend::pluginPath() const {
 
 QString Backend::resourcePath() const {
     return d->resourcePath;
+}
+
+QString Backend::thumbnailPath() const {
+    return d->thumbnailPath;
 }
 
 bool Backend::transforms() const {

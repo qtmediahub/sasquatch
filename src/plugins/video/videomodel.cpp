@@ -224,8 +224,9 @@ static bool generateThumbnail(const QFileInfo &fileInfo, const QFileInfo &thumbn
 MediaInfo *VideoModel::readMediaInfo(const QString &filePath)
 {
     QFileInfo fileInfo(filePath);
-    QStringList supportedTypes;
-    supportedTypes << "avi" << "ogg" << "mp4" << "mpeg" << "mpg" << "mov" << "ogv";
+    //FIXME: query supported extensions from underlying media framework
+    static QStringList supportedTypes;
+    supportedTypes << "avi" << "ogg" << "mp4" << "mpeg" << "mpg" << "mov" << "ogv" << "wmv";
 
     if (!fileInfo.exists() || !supportedTypes.contains(fileInfo.suffix()))
         return 0;
