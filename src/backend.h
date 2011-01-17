@@ -68,6 +68,8 @@ signals:
     void resourcePathChanged();
     void backendChanged();
     void enginesChanged();
+    void inputIdle();
+    void inputActive();
 
 private:
     QObject* engine(const QString &role);

@@ -49,7 +49,7 @@ class BackendPrivate : public QObject
 {
     Q_OBJECT
 public:
-    BackendPrivate(QObject *p)
+    BackendPrivate(Backend *p)
         : QObject(p),
       #ifdef Q_OS_MAC
           platformOffset("/../../.."),
@@ -60,10 +60,19 @@ public:
           resourcePath(basePath % "/resources"),
           // Use "large" instead of appName to fit freedesktop spec
           thumbnailPath(Config::value("thumbnail-path", QDir::homePath() + "/.thumbnails/" + qApp->applicationName() + "/")),
+          inputIdleTimer(this),
           qmlEngine(0),
           backendTranslator(0),
-          logFile(qApp->applicationName().append(".log"))
+          logFile(qApp->applicationName().append(".log")),
+          pSelf(p)
     {
+        qApp->installEventFilter(this);
+
+        inputIdleTimer.setInterval(Config::value("idle-timeout", 120*1000));
+        inputIdleTimer.setSingleShot(true);
+
+        connect(&inputIdleTimer, SIGNAL(timeout()), pSelf, SIGNAL(inputIdle()));
+
         logFile.open(QIODevice::Text|QIODevice::ReadWrite);
         log.setDevice(&logFile);
 
@@ -90,6 +99,8 @@ public:
     void resetLanguage();
     void discoverSkins();
     void discoverEngines();
+    bool eventFilter(QObject *obj, QEvent *event);
+
     QSet<QString> advertizedEngineRoles;
 
     QList<QObject*> advertizedEngines;
@@ -101,6 +112,8 @@ public:
     const QString pluginPath;
     const QString resourcePath;
     const QString thumbnailPath;
+
+    QTimer inputIdleTimer;
     QDeclarativeEngine *qmlEngine;
     QTranslator *backendTranslator;
     QList<QTranslator*> pluginTranslators;
@@ -108,6 +121,8 @@ public:
     QTextStream log;
     QFileSystemWatcher resourcePathMonitor;
     QStringList skins;
+
+    Backend *pSelf;
 };
 
 void BackendPrivate::handleDirChanged(const QString &dir)
@@ -181,6 +196,19 @@ void BackendPrivate::discoverEngines()
         }
     }
     resetLanguage();
+}
+
+bool BackendPrivate::eventFilter(QObject *obj, QEvent *event) {
+    if (event->type() == QEvent::MouseMove
+            || event->type() == QEvent::MouseButtonPress
+            || event->type() == QEvent::KeyPress
+            || event->type() == QEvent::KeyRelease)
+    {
+        inputIdleTimer.start();
+        QMetaObject::invokeMethod(pSelf, "inputActive");
+    }
+
+    return QObject::eventFilter(obj, event);
 }
 
 Backend::Backend(QObject *parent)
