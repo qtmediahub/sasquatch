@@ -95,25 +95,31 @@ void Playlist::addSubTree(MediaInfo *info)
     }
 }
 
-int Playlist::add(MediaInfo *info, PlaylistRoles role, DepthRoles depth)
+QModelIndex Playlist::add(MediaInfo *info, PlaylistRoles role, DepthRoles depth)
 {
-    // check for type currently only add audio/video files
-    if (info->type != MediaModel::File)
-        return -1;
-
     if (role == Playlist::Replace)
         content.clear();
 
     int pos = content.indexOf(info);
     if (pos == -1) {
-        if (depth == Playlist::Single || !info->parent) {
-            content.append(info);
+        if (depth == Playlist::Single) {
+            if (info->type == MediaModel::File)
+                content.append(info);
+            else
+                addSubTree(info);
         } else if (depth == Playlist::Flat) {
-            foreach (MediaInfo *i, info->parent->children)
-                if (i->type == MediaModel::File)
-                    content.append(i);
+            if (info->parent) {
+                foreach (MediaInfo *i, info->parent->children)
+                    if (i->type == MediaModel::File)
+                        content.append(i);
+            } else {
+                content.append(info);
+            }
         } else {
-            addSubTree(info->parent);
+            if (info->parent)
+                addSubTree(info->parent);
+            else
+                addSubTree(info);
         }
         pos = content.indexOf(info);
     }
@@ -122,7 +128,10 @@ int Playlist::add(MediaInfo *info, PlaylistRoles role, DepthRoles depth)
     dump();
 #endif
 
-    return pos;
+    if (info->type != MediaModel::File && content.count() > 0)
+        pos = 0;
+
+    return index(pos);
 }
 
 void Playlist::dump() const

@@ -66,7 +66,7 @@ public:
     void dump() const;
 
     void addSubTree(MediaInfo *info);
-    Q_INVOKABLE int add(MediaInfo *info, PlaylistRoles role = Replace, DepthRoles depth = Single);
+    Q_INVOKABLE QModelIndex add(MediaInfo *info, PlaylistRoles role = Replace, DepthRoles depth = Single);
 
     QString typeString() const;
 
