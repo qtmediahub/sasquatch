@@ -136,9 +136,8 @@ void Frontend::resizeEvent(QResizeEvent *e)
 
 void Frontend::setSkin(const QString &name)
 {
-    //Maybe we will be able to influence this?
     static QSize nativeResolution = qApp->desktop()->screenGeometry(this).size();
-    static QString nativeResolutionString = QString("%1x%2").arg(nativeResolution.width()).arg(nativeResolution.height());
+    static QString nativeResolutionString = Config::value("native-res-override", QString("%1x%2").arg(nativeResolution.width()).arg(nativeResolution.height()));
     //http://en.wikipedia.org/wiki/720p
     //1440, 1080, 720, 576, 480, 360, 240
     static QHash<QString, QString> resolutionHash;
