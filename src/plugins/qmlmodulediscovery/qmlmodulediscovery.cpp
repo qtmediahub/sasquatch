@@ -2,7 +2,7 @@
 
 #include <QDeclarativeComponent>
 
-QStringList QMLModuleDiscovery::searchPath()
+void QMLModuleDiscovery::searchPath()
 {
     mAvailableItems.clear();
     foreach(const QString dirName, QDir(mPath).entryList(QDir::AllDirs | QDir::NoDotAndDotDot)) {

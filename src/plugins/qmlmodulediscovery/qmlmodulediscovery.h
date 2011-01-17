@@ -19,7 +19,7 @@ public:
     void setPath(const QString &path) { mPath = path; searchPath(); }
     QStringList modules() const { return mAvailableItems; }
 private:
-    QStringList searchPath();
+    void searchPath();
     QStringList mAvailableItems;
     QString mPath;
 };
