@@ -4,7 +4,7 @@
 
 include(../plugins.pri)
 
-HEADERS += dashboardplugin.h dashboard.h
-SOURCES += dashboardplugin.cpp dashboard.cpp
+HEADERS += qmlmodulediscoveryplugin.h qmlmodulediscovery.h
+SOURCES += qmlmodulediscoveryplugin.cpp qmlmodulediscovery.cpp
 
 QT += declarative

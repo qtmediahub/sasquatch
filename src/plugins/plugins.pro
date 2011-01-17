@@ -3,5 +3,5 @@ TEMPLATE = subdirs
 SUBDIRS = music \
           video \
           picture \
-          dashboard \
+          qmlmodulediscovery \
           customcursor
