@@ -555,4 +555,3 @@ QFileInfo MediaModel::generateThumbnailFileInfo(const QFileInfo &fileInfo)
 
     return thumbnailInfo;
 }
-

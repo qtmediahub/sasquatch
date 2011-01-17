@@ -25,16 +25,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 //#define PLAYLIST_DEBUG
 
-class PlaylistPrivate
-{
-public:
-    PlaylistPrivate()
-    {
-    }
-
-    QList<MediaInfo*> content;
-};
-
 Playlist::Playlist(QObject *parent) :
     QAbstractListModel(parent)
 {
@@ -48,13 +38,10 @@ Playlist::Playlist(QObject *parent) :
     roleNames[FileSizeRole] = "fileSize";
     roleNames[FileDateTimeRole] = "fileDateTime";
     setRoleNames(roleNames);
-
-    d = new PlaylistPrivate;
 }
 
 Playlist::~Playlist()
 {
-    delete d;
 }
 
 QVariant Playlist::data(const QModelIndex &index, int role) const
@@ -64,8 +51,8 @@ QVariant Playlist::data(const QModelIndex &index, int role) const
     if (!index.isValid())
         return rv;
 
-    if (0 <= index.row() && index.row() < d->content.size()) {
-        MediaInfo *info = d->content.at(index.row());
+    if (0 <= index.row() && index.row() < content.size()) {
+        MediaInfo *info = content.at(index.row());
         if (role == Qt::DisplayRole || role == FileNameRole)
             return info->name;
         else if (role == PreviewUrlRole) {
@@ -94,19 +81,41 @@ QVariant Playlist::data(const QModelIndex &index, int role) const
 int Playlist::rowCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
-    return d->content.count();
+    return content.count();
 }
 
-int Playlist::add(MediaInfo *info)
+void Playlist::addSubTree(MediaInfo *info)
+{
+    foreach (MediaInfo *i, info->children) {
+        if (i->type == MediaModel::Directory) {
+            addSubTree(i);
+        } else if (i->type == MediaModel::File) {
+            content.append(i);
+        }
+    }
+}
+
+int Playlist::add(MediaInfo *info, PlaylistRoles role, DepthRoles depth)
 {
     // check for type currently only add audio/video files
     if (info->type != MediaModel::File)
         return -1;
 
-    int pos = d->content.indexOf(info);
+    if (role == Playlist::Replace)
+        content.clear();
+
+    int pos = content.indexOf(info);
     if (pos == -1) {
-        d->content.append(info);
-        pos = d->content.count() -1;
+        if (depth == Playlist::Single || !info->parent) {
+            content.append(info);
+        } else if (depth == Playlist::Flat) {
+            foreach (MediaInfo *i, info->parent->children)
+                if (i->type == MediaModel::File)
+                    content.append(i);
+        } else {
+            addSubTree(info->parent);
+        }
+        pos = content.indexOf(info);
     }
 
 #ifdef PLAYLIST_DEBUG
@@ -118,9 +127,9 @@ int Playlist::add(MediaInfo *info)
 
 void Playlist::dump() const
 {
-    qDebug() << "playlist:" << d->content.count() << "elements";
-    for (int i = 0; i < d->content.count(); i++) {
-        qDebug() << "  " << d->content[i]->filePath;
+    qDebug() << "playlist:" << content.count() << "elements";
+    for (int i = 0; i < content.count(); i++) {
+        qDebug() << "  " << content[i]->filePath;
     }
 }
 

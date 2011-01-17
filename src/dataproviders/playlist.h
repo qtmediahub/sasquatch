@@ -24,13 +24,13 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "../plugins/mediainfo.h"
 
-class PlaylistPrivate;
-
 class Playlist : public QAbstractListModel
 {
     Q_OBJECT
     Q_PROPERTY(int count READ count)
     Q_ENUMS(CustomRoles)
+    Q_ENUMS(PlaylistRoles)
+    Q_ENUMS(DepthRoles)
 
 public:
     Playlist(QObject *parent = 0);
@@ -47,6 +47,17 @@ public:
         FileDateTimeRole
     };
 
+    enum PlaylistRoles {
+        Replace,
+        Append
+    };
+
+    enum DepthRoles {
+        Single,
+        Flat,
+        Recursive
+    };
+
     int rowCount(const QModelIndex &parent) const;
     int count() const { return rowCount(QModelIndex()); }
     Q_INVOKABLE QModelIndex index ( int row ) const;
@@ -54,7 +65,8 @@ public:
 
     void dump() const;
 
-    Q_INVOKABLE int add(MediaInfo *info);
+    void addSubTree(MediaInfo *info);
+    Q_INVOKABLE int add(MediaInfo *info, PlaylistRoles role = Replace, DepthRoles depth = Single);
 
     QString typeString() const;
 
@@ -63,7 +75,7 @@ public:
 
 private:
     Q_DISABLE_COPY(Playlist)
-    PlaylistPrivate *d;
+    QList<MediaInfo*> content;
 };
 
 #endif // PLAYLIST_H
