@@ -29,7 +29,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "qjson/src/serializer.h"
 
 RpcConnection::RpcConnection(RpcConnection::Mode mode, QObject *parent)
-    : QObject(parent), m_mode(mode), m_server(0), m_socket(0)
+    : QObject(parent), m_mode(mode), m_server(0), m_socket(0), m_id(1)
 {
     if (m_mode == Server) {
         listen(QHostAddress::Any, 1234);
@@ -48,6 +48,7 @@ void RpcConnection::connectToHost(const QHostAddress &address, quint16 port)
     if (!m_socket)
         m_socket = new QTcpSocket(this);
     m_socket->connectToHost(address, port);
+    connect(m_socket, SIGNAL(readyRead()), this, SLOT(handleReadyRead()));
 }
 
 bool RpcConnection::waitForConnected(int msecs)
@@ -89,6 +90,17 @@ void RpcConnection::handleReadyRead()
         return;
     }
 
+    if (map.contains("method")) {
+        handleRpcCall(map);
+    } else if (map.contains("result")) {
+        handleRpcResponse(map);
+    } else {
+        qWarning() << "No idea what to do with this message" << msg;
+    }
+}
+
+void RpcConnection::handleRpcCall(const QVariantMap &map)
+{
     QVariantList list = map["params"].toList();
     QVarLengthArray<void *, 10> args(list.count()+1);
     for (int i = 0; i < list.count(); i++) {
@@ -101,7 +113,7 @@ void RpcConnection::handleReadyRead()
     QString method = rpcMethod.mid(idx+1);
     QObject *object = m_objects.value(objName);
     if (!object) {
-        qWarning() << "RPC Method " << msg << " not found";
+        qWarning() << "RPC Method " << rpcMethod << " not found";
         return;
     }
 
@@ -125,11 +137,34 @@ void RpcConnection::handleReadyRead()
     }
 
     QMetaObject::metacall(object, QMetaObject::InvokeMetaMethod, idx, args.data());
+
+    sendResponse(map["id"].toString(), args[0] ? *static_cast<QVariant *>(args[0]) : QVariant());
 }
 
-bool RpcConnection::call(const QByteArray &method, const QVariant &arg0, const QVariant &arg1,
-                         const QVariant &arg2, const QVariant &arg3, const QVariant &arg4, const QVariant &arg5,
-                         const QVariant &arg6, const QVariant &arg7, const QVariant &arg8, const QVariant &arg9)
+void RpcConnection::sendResponse(const QString &id, const QVariant &result)
+{
+    QVariantMap responseMap;
+    responseMap.insert("jsonrpc", "2.0");
+    responseMap.insert("result", result);
+    responseMap.insert("id", id);
+    QJson::Serializer serializer;
+    QByteArray jsonRpc = serializer.serialize(QVariant(responseMap));
+
+    struct Header { int length; } header;
+    header.length = htonl(jsonRpc.length());
+    m_socket->write((const char *)&header, sizeof(header));
+    m_socket->write(jsonRpc);
+    m_socket->flush();
+}
+
+void RpcConnection::handleRpcResponse(const QVariantMap &map)
+{
+    qDebug() << "Received " << map;
+}
+
+int RpcConnection::call(const QByteArray &method, const QVariant &arg0, const QVariant &arg1,
+                        const QVariant &arg2, const QVariant &arg3, const QVariant &arg4, const QVariant &arg5,
+                        const QVariant &arg6, const QVariant &arg7, const QVariant &arg8, const QVariant &arg9)
 {
     struct Header { int length; } header;
 
@@ -146,6 +181,7 @@ bool RpcConnection::call(const QByteArray &method, const QVariant &arg0, const Q
     map.insert("jsonrpc", "2.0");
     map.insert("method", method);
     map.insert("params", params);
+    map.insert("id", m_id++);
     QJson::Serializer serializer;
     QByteArray jsonRpc = serializer.serialize(QVariant(map));
 
@@ -154,6 +190,6 @@ bool RpcConnection::call(const QByteArray &method, const QVariant &arg0, const Q
     m_socket->write(jsonRpc);
     m_socket->flush();
 
-    return true;
+    return m_id;
 }
 

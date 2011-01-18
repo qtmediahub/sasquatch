@@ -41,12 +41,12 @@ public:
 
     void registerObject(QObject *object);
 
-    bool call(const QByteArray &method, 
-              const QVariant &arg0 = QVariant(), const QVariant &arg1 = QVariant(),
-              const QVariant &arg2 = QVariant(), const QVariant &arg3 = QVariant(),
-              const QVariant &arg4 = QVariant(), const QVariant &arg5 = QVariant(),
-              const QVariant &arg6 = QVariant(), const QVariant &arg7 = QVariant(),
-              const QVariant &arg8 = QVariant(), const QVariant &arg9 = QVariant());
+    int call(const QByteArray &method, 
+             const QVariant &arg0 = QVariant(), const QVariant &arg1 = QVariant(),
+             const QVariant &arg2 = QVariant(), const QVariant &arg3 = QVariant(),
+             const QVariant &arg4 = QVariant(), const QVariant &arg5 = QVariant(),
+             const QVariant &arg6 = QVariant(), const QVariant &arg7 = QVariant(),
+             const QVariant &arg8 = QVariant(), const QVariant &arg9 = QVariant());
 
 private:
     bool listen(const QHostAddress &address = QHostAddress::Any, quint16 port = 0);
@@ -58,10 +58,15 @@ private slots:
     void handleReadyRead();
 
 private:
+    void sendResponse(const QString &id, const QVariant &result);
+    void handleRpcCall(const QVariantMap &map);
+    void handleRpcResponse(const QVariantMap &map);
+
     Mode m_mode;
     QTcpServer *m_server;
     QTcpSocket *m_socket;
     QHash<QString, QObject *> m_objects;
+    int m_id;
 };
 
 #endif // RPCCONNECTION_H
