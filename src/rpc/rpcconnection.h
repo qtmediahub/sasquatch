@@ -41,7 +41,7 @@ public:
 
     void registerObject(QObject *object);
 
-    int call(const QByteArray &method, const QVariant &arg1 = QVariant(), const QVariant &arg2 = QVariant());
+    bool call(const QByteArray &method, const QVariant &arg1 = QVariant(), const QVariant &arg2 = QVariant());
 
 private:
     bool listen(const QHostAddress &address = QHostAddress::Any, quint16 port = 0);

@@ -23,6 +23,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QTcpSocket>
 #include <netinet/in.h>
 
+#include "qjson/src/parser.h"
+#include "qjson/src/serializer.h"
+
 RpcConnection::RpcConnection(RpcConnection::Mode mode, QObject *parent)
     : QObject(parent), m_mode(mode), m_server(0), m_socket(0)
 {
@@ -74,15 +77,27 @@ void RpcConnection::handleReadyRead()
     m_socket->read((char *)&header, sizeof(header));
     header.length = ntohl(header.length);
     QByteArray msg = m_socket->read(header.length);
-    int idx = msg.indexOf('.');
-    QByteArray objName = msg.mid(0, idx);
-    QByteArray method = msg.mid(idx+1);
+    qDebug() << "Received " << msg;
+
+    bool ok;
+    QJson::Parser parser;
+    QVariantMap map = parser.parse(msg, &ok).toMap();
+    if (!ok || map["jsonrpc"].toString() != "2.0") {
+        qWarning() << "Malformatted JSON-RPC";
+        return;
+    }
+
+    QString rpcMethod = map["method"].toString();
+    int idx = rpcMethod.indexOf('.');
+    QString objName = rpcMethod.mid(0, idx);
+    QString method = rpcMethod.mid(idx+1) + QString::fromLatin1("()");
     QObject *object = m_objects.value(objName);
     if (!object) {
         qWarning() << "RPC Method " << msg << " not found";
         return;
     }
-    idx = object->metaObject()->indexOfMethod(method);
+
+    idx = object->metaObject()->indexOfMethod(method.toLatin1());
     if (idx < 0) {
         qWarning() << "Object '" << objName << "' does not have method named " << method;
         return;
@@ -97,12 +112,22 @@ void RpcConnection::handleReadyRead()
     QMetaObject::metacall(object, QMetaObject::InvokeMetaMethod, idx, args);
 }
 
-int RpcConnection::call(const QByteArray &method, const QVariant &arg1, const QVariant &arg2)
+bool RpcConnection::call(const QByteArray &method, const QVariant &arg1, const QVariant &arg2)
 {
     struct Header { int length; } header;
-    header.length = htonl(method.length());
+
+    QVariantMap map;
+    map.insert("jsonrpc", "2.0");
+    map.insert("method", method);
+    map.insert("params", QVariantList()); // ## FIXME: add params
+    QJson::Serializer serializer;
+    QByteArray jsonRpc = serializer.serialize(QVariant(map));
+
+    header.length = htonl(jsonRpc.length());
     m_socket->write((const char *)&header, sizeof(header));
-    m_socket->write(method);
+    m_socket->write(jsonRpc);
     m_socket->flush();
+
+    return true;
 }
 
