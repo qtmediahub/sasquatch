@@ -27,7 +27,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 class Playlist : public QAbstractListModel
 {
     Q_OBJECT
-    Q_PROPERTY(int count READ count)
+    Q_PROPERTY(int count READ count NOTIFY countChanged)
     Q_PROPERTY(PlayModeRoles playMode READ playMode WRITE setPlayMode NOTIFY playModeChanged)
     Q_ENUMS(CustomRoles)
     Q_ENUMS(PlaylistRoles)
@@ -46,7 +46,8 @@ public:
         FileUrlRole,
         MediaInfoTypeRole,
         FileSizeRole,
-        FileDateTimeRole
+        FileDateTimeRole,
+        MediaInfoRole
     };
 
     enum PlaylistRoles {
@@ -71,12 +72,12 @@ public:
     Q_INVOKABLE QVariant data(const QModelIndex &index, int role) const;
 
     void dump() const;
+    QString typeString() const;
 
     void addSubTree(MediaInfo *info);
     Q_INVOKABLE QModelIndex add(MediaInfo *info, PlaylistRoles role = Replace, DepthRoles depth = Single);
 
-    QString typeString() const;
-
+    Q_INVOKABLE QModelIndex indexFromMediaInfo(MediaInfo *info) const;
     Q_INVOKABLE QModelIndex playNextIndex(const QModelIndex &idx) const;
     Q_INVOKABLE QModelIndex playPreviousIndex(const QModelIndex &idx) const;
 
@@ -86,9 +87,12 @@ public slots:
     void setPlayMode(PlayModeRoles mode);
 
 signals:
+    void countChanged();
     void playModeChanged();
 
 private:
+    void append(MediaInfo *info);
+
     Q_DISABLE_COPY(Playlist)
     QList<MediaInfo*> content;
     PlayModeRoles m_playMode;

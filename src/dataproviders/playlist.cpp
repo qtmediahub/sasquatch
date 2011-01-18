@@ -38,6 +38,7 @@ Playlist::Playlist(QObject *parent)
     roleNames[MediaInfoTypeRole] = "type";
     roleNames[FileSizeRole] = "fileSize";
     roleNames[FileDateTimeRole] = "fileDateTime";
+    roleNames[MediaInfoRole] = "mediaInfo";
     setRoleNames(roleNames);
 }
 
@@ -73,6 +74,8 @@ QVariant Playlist::data(const QModelIndex &index, int role) const
             return info->fileSize;
         } else if (role == FileDateTimeRole) {
             return info->fileDateTime;
+        } else if (role == MediaInfoRole) {
+            return qVariantFromValue(info);
         }
     }
 
@@ -88,34 +91,38 @@ int Playlist::rowCount(const QModelIndex &parent) const
 void Playlist::addSubTree(MediaInfo *info)
 {
     foreach (MediaInfo *i, info->children) {
-        if (i->type == MediaModel::Directory) {
+        if (i->type == MediaModel::Directory)
             addSubTree(i);
-        } else if (i->type == MediaModel::File) {
-            content.append(i);
-        }
+        else if (i->type == MediaModel::File)
+            append(i);
     }
 }
 
 QModelIndex Playlist::add(MediaInfo *info, PlaylistRoles role, DepthRoles depth)
 {
-    if (role == Playlist::Replace)
+    if (!info)
+        return QModelIndex();
+
+    if (role == Playlist::Replace && count() > 0) {
+        beginRemoveRows(QModelIndex(), 0, count()-1);
         content.clear();
+        endRemoveRows();
+    }
 
     int pos = content.indexOf(info);
     if (pos == -1) {
         if (depth == Playlist::Single) {
             if (info->type == MediaModel::File)
-                content.append(info);
+                append(info);
             else
                 addSubTree(info);
         } else if (depth == Playlist::Flat) {
             if (info->parent) {
                 foreach (MediaInfo *i, info->parent->children)
                     if (i->type == MediaModel::File)
-                        content.append(i);
-            } else {
-                content.append(info);
-            }
+                        append(i);
+            } else
+                append(info);
         } else {
             if (info->parent)
                 addSubTree(info->parent);
@@ -146,6 +153,14 @@ void Playlist::dump() const
 QModelIndex Playlist::index(int row ) const
 {
     return QAbstractListModel::index(row, 0, QModelIndex());
+}
+
+QModelIndex Playlist::indexFromMediaInfo(MediaInfo *info) const
+{
+    if (!info)
+        return QModelIndex();
+
+    return index(content.indexOf(info));
 }
 
 QModelIndex Playlist::playNextIndex(const QModelIndex &idx) const
@@ -183,5 +198,16 @@ void Playlist::setPlayMode(Playlist::PlayModeRoles mode)
         emit playModeChanged();
     }
 }
+
+void Playlist::append(MediaInfo *info)
+{
+    int start = count()-1 < 0 ? 0 : count()-1;
+    int end = count() < 0 ? 1 : count();
+
+    emit beginInsertRows(QModelIndex(), start, end);
+    content.append(info);
+    emit endInsertRows();
+}
+
 
 
