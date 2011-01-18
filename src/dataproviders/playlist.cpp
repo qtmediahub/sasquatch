@@ -25,8 +25,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 //#define PLAYLIST_DEBUG
 
-Playlist::Playlist(QObject *parent) :
-    QAbstractListModel(parent)
+Playlist::Playlist(QObject *parent)
+    : QAbstractListModel(parent)
+    , m_playMode(Normal)
 {
     QHash<int, QByteArray> roleNames = QAbstractListModel::roleNames();
     roleNames[Qt::DisplayRole] = "display";
@@ -151,10 +152,14 @@ QModelIndex Playlist::playNextIndex(const QModelIndex &idx) const
 {
     QModelIndex next;
 
-    if (idx.row() >= count()-1)
-        next = index(0);
-    else
-        next = index(idx.row()+1);
+    if (m_playMode == Shuffle) {
+        next = index(int((qreal(qrand())/RAND_MAX)*count()));
+    } else {
+        if (idx.row() >= count()-1)
+            next = index(0);
+        else
+            next = index(idx.row()+1);
+    }
 
     return next;
 }
@@ -169,6 +174,14 @@ QModelIndex Playlist::playPreviousIndex(const QModelIndex &idx) const
         prev = index(idx.row()-1);
 
     return prev;
+}
+
+void Playlist::setPlayMode(Playlist::PlayModeRoles mode)
+{
+    if (m_playMode != mode) {
+        m_playMode = mode;
+        emit playModeChanged();
+    }
 }
 
 

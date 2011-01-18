@@ -28,9 +28,11 @@ class Playlist : public QAbstractListModel
 {
     Q_OBJECT
     Q_PROPERTY(int count READ count)
+    Q_PROPERTY(PlayModeRoles playMode READ playMode WRITE setPlayMode NOTIFY playModeChanged)
     Q_ENUMS(CustomRoles)
     Q_ENUMS(PlaylistRoles)
     Q_ENUMS(DepthRoles)
+    Q_ENUMS(PlayModeRoles)
 
 public:
     Playlist(QObject *parent = 0);
@@ -58,6 +60,11 @@ public:
         Recursive
     };
 
+    enum PlayModeRoles {
+        Normal,
+        Shuffle
+    };
+
     int rowCount(const QModelIndex &parent) const;
     int count() const { return rowCount(QModelIndex()); }
     Q_INVOKABLE QModelIndex index ( int row ) const;
@@ -73,9 +80,18 @@ public:
     Q_INVOKABLE QModelIndex playNextIndex(const QModelIndex &idx) const;
     Q_INVOKABLE QModelIndex playPreviousIndex(const QModelIndex &idx) const;
 
+    PlayModeRoles playMode() { return m_playMode; }
+
+public slots:
+    void setPlayMode(PlayModeRoles mode);
+
+signals:
+    void playModeChanged();
+
 private:
     Q_DISABLE_COPY(Playlist)
     QList<MediaInfo*> content;
+    PlayModeRoles m_playMode;
 };
 
 #endif // PLAYLIST_H
