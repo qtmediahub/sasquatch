@@ -11,7 +11,6 @@ CONFIG += release glviewport
 
 linux: CONFIG += gstreamer
 
-
 # Input
 SOURCES += main.cpp \
     qmh-config.cpp \
@@ -42,6 +41,8 @@ HEADERS += qmh-config.h \
     dataproviders/playlist.h \
     plugins/mediamodel.h \
     plugins/mediainfo.h
+
+include(rpc/rpc.pri)
 
 DEFINES += BUILDING_QMH
 
