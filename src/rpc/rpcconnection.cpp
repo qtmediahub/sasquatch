@@ -19,6 +19,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "rpcconnection.h"
 #include <QMetaMethod>
+#include <QStringList>
+#include <QVarLengthArray>
 #include <QTcpServer>
 #include <QTcpSocket>
 #include <netinet/in.h>
@@ -87,10 +89,16 @@ void RpcConnection::handleReadyRead()
         return;
     }
 
+    QVariantList list = map["params"].toList();
+    QVarLengthArray<void *, 10> args(list.count()+1);
+    for (int i = 0; i < list.count(); i++) {
+        args[i+1] = list[i].data();
+    }
+
     QString rpcMethod = map["method"].toString();
     int idx = rpcMethod.indexOf('.');
     QString objName = rpcMethod.mid(0, idx);
-    QString method = rpcMethod.mid(idx+1) + QString::fromLatin1("()");
+    QString method = rpcMethod.mid(idx+1);
     QObject *object = m_objects.value(objName);
     if (!object) {
         qWarning() << "RPC Method " << msg << " not found";
@@ -107,19 +115,37 @@ void RpcConnection::handleReadyRead()
         qWarning() << "Method " << method << " is a signal or has private access";
         return;
     }
-    // ## Fill with arguments from the message
-    void *args[] = { };
-    QMetaObject::metacall(object, QMetaObject::InvokeMetaMethod, idx, args);
+
+    QVariant result;
+    if (mm.typeName()) {
+        result = QVariant(QVariant::nameToType(mm.typeName()), (void *)0);
+        args[0] = result.data();
+    } else {
+        args[0] = 0;
+    }
+
+    QMetaObject::metacall(object, QMetaObject::InvokeMetaMethod, idx, args.data());
 }
 
-bool RpcConnection::call(const QByteArray &method, const QVariant &arg1, const QVariant &arg2)
+bool RpcConnection::call(const QByteArray &method, const QVariant &arg0, const QVariant &arg1,
+                         const QVariant &arg2, const QVariant &arg3, const QVariant &arg4, const QVariant &arg5,
+                         const QVariant &arg6, const QVariant &arg7, const QVariant &arg8, const QVariant &arg9)
 {
     struct Header { int length; } header;
+
+    QVariantList params;
+    params << arg0 << arg1 << arg2 << arg3 << arg4 << arg5 << arg6 << arg7 << arg8 << arg9;
+    int i;
+    for (i = 0; i < params.count(); i++) {
+        if (params[i].isNull())
+            break;
+    }
+    params = params.mid(0, i);
 
     QVariantMap map;
     map.insert("jsonrpc", "2.0");
     map.insert("method", method);
-    map.insert("params", QVariantList()); // ## FIXME: add params
+    map.insert("params", params);
     QJson::Serializer serializer;
     QByteArray jsonRpc = serializer.serialize(QVariant(map));
 
