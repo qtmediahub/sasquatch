@@ -1,10 +1,17 @@
 General
 
-Hardware permitting, I would strongly recommend that you run qmake with:
+The project defaults to compiling in release mode, using a glviewport and
+using gstreamer to directly generate thumbnails for video content
 
-qmake -config glviewport
+Requirements
 
-in order to use the Qt OpenGL graphics system
+Qt > 4.7.1
+Qt Mobility
+
+Compiling
+
+qmake
+make
 
 QML
 
