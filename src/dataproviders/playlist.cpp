@@ -90,6 +90,8 @@ int Playlist::rowCount(const QModelIndex &parent) const
 
 void Playlist::addSubTree(MediaInfo *info)
 {
+    sort(info);
+
     foreach (MediaInfo *i, info->children) {
         if (i->type == MediaModel::Directory)
             addSubTree(i);
@@ -118,16 +120,17 @@ QModelIndex Playlist::add(MediaInfo *info, PlaylistRoles role, DepthRoles depth)
                 addSubTree(info);
         } else if (depth == Playlist::Flat) {
             if (info->parent) {
+                sort(info);
                 foreach (MediaInfo *i, info->parent->children)
                     if (i->type == MediaModel::File)
                         append(i);
             } else
                 append(info);
         } else {
-            if (info->parent)
-                addSubTree(info->parent);
-            else
+            if (info->type == MediaModel::Directory || info->type == MediaModel::SearchPath)
                 addSubTree(info);
+            else
+                append(info);
         }
         pos = content.indexOf(info);
     }
@@ -207,6 +210,22 @@ void Playlist::append(MediaInfo *info)
     emit beginInsertRows(QModelIndex(), start, end);
     content.append(info);
     emit endInsertRows();
+}
+
+bool playlistNameLessThan(MediaInfo *info1, MediaInfo *info2)
+{
+    if (info1->type == MediaModel::DotDot || info2->type == MediaModel::AddNewSource)
+        return true;
+    if (info1->type == MediaModel::AddNewSource || info2->type == MediaModel::DotDot)
+        return false;
+    return QString::localeAwareCompare(info1->name.toLower(), info2->name.toLower()) < 0;
+}
+
+void Playlist::sort(MediaInfo *info)
+{
+    emit layoutAboutToBeChanged();
+    qSort(info->children.begin(), info->children.end(), playlistNameLessThan); // ## do this recursively for every Directory?
+    emit layoutChanged();
 }
 
 
