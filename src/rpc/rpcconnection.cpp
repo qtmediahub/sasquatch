@@ -40,6 +40,10 @@ RpcConnection::RpcConnection(RpcConnection::Mode mode, QObject *parent)
 
 void RpcConnection::registerObject(QObject *object)
 {
+    if (object->objectName().startsWith("rpc.")) {
+        qWarning() << "Method names starting with 'rpc.' are reserved by the specification";
+        return;
+    }
     m_objects[object->objectName()] = object;
 }
 
