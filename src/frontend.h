@@ -30,30 +30,30 @@ class FrontendPrivate;
 
 class Frontend : public QWidget
 {
-    Q_OBJECT
-    public:
-        Frontend(QWidget *p = 0);
-        ~Frontend();
+Q_OBJECT
+public:
+    Frontend(QWidget *p = 0);
+    ~Frontend();
 
-        void paintEvent(QPaintEvent *e);
-        void resizeEvent(QResizeEvent *e);
+    void paintEvent(QPaintEvent *e);
+    void resizeEvent(QResizeEvent *e);
 
-        void setSkin(const QString &name);
-        void initialize(const QUrl &url);
-        void resetLanguage();
+    void setSkin(const QString &name);
+    void initialize(const QUrl &url);
+    void resetLanguage();
 
-        Q_INVOKABLE QObject *focusItem() const;
-        Q_INVOKABLE void applyWebViewFocusFix(QDeclarativeItem *item); // See https://bugs.webkit.org/show_bug.cgi?id=51094
+    Q_INVOKABLE QObject *focusItem() const;
+    Q_INVOKABLE void applyWebViewFocusFix(QDeclarativeItem *item); // See https://bugs.webkit.org/show_bug.cgi?id=51094
 
-    public slots:
-        void toggleFullScreen();
-        void showFullScreen();
-        void showNormal();
-        void grow();
-        void shrink();
+public slots:
+    void toggleFullScreen();
+    void showFullScreen();
+    void showNormal();
+    void grow();
+    void shrink();
 
-    private:
-        FrontendPrivate *d;
+private:
+    FrontendPrivate *d;
 };
 
 #endif
