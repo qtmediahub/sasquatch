@@ -1,13 +1,10 @@
+include(common.pri)
+
 DESTDIR = ../hub
 TEMPLATE = app
 TARGET = qmh
 DEPENDPATH += .
 INCLUDEPATH += .
-TEMP_DIR = tmp
-OBJECTS_DIR = $$TEMP_DIR/.obj
-MOC_DIR = $$TEMP_DIR/.moc
-
-CONFIG += release glviewport
 
 linux: CONFIG += gstreamer
 
@@ -46,8 +43,6 @@ HEADERS += qmh-config.h \
 
 include(rpc/rpc.pri)
 
-DEFINES += BUILDING_QMH
-
 glgs {
     CONFIG += gl
     message(Using the OpenGL graphics system: I hope you know what you are doing)
@@ -79,7 +74,3 @@ mac {
 
 #for() structure does not work with lupdate
 TRANSLATIONS = $$system(cat $$DESTDIR/supported_languages | while read i; do echo translations/"$i".ts; done)
-
-QMAKE_LFLAGS += -Wl,-export-dynamic
-# rdynamic 
-#QMAKE_CXXFLAGS += -rdynamic
