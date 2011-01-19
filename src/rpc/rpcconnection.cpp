@@ -76,27 +76,29 @@ void RpcConnection::handleNewConnection()
 
 void RpcConnection::handleReadyRead()
 {
-    struct Header { int length; } header;
-    m_socket->read((char *)&header, sizeof(header));
-    header.length = ntohl(header.length);
-    QByteArray msg = m_socket->read(header.length);
-    qDebug() << "Received " << msg;
+    do {
+        struct Header { int length; } header;
+        m_socket->read((char *)&header, sizeof(header));
+        header.length = ntohl(header.length);
+        QByteArray msg = m_socket->read(header.length); // ## assumes we got complete message
+        qDebug() << "Received " << msg;
 
-    bool ok;
-    QJson::Parser parser;
-    QVariantMap map = parser.parse(msg, &ok).toMap();
-    if (!ok || map["jsonrpc"].toString() != "2.0") {
-        qWarning() << "Malformatted JSON-RPC";
-        return;
-    }
+        bool ok;
+        QJson::Parser parser;
+        QVariantMap map = parser.parse(msg, &ok).toMap();
+        if (!ok || map["jsonrpc"].toString() != "2.0") {
+            qWarning() << "Malformatted JSON-RPC";
+            return;
+        }
 
-    if (map.contains("method")) {
-        handleRpcCall(map);
-    } else if (map.contains("result")) {
-        handleRpcResponse(map);
-    } else {
-        qWarning() << "No idea what to do with this message" << msg;
-    }
+        if (map.contains("method")) {
+            handleRpcCall(map);
+        } else if (map.contains("result")) {
+            handleRpcResponse(map);
+        } else {
+            qWarning() << "No idea what to do with this message" << msg;
+        }
+    } while (m_socket->bytesAvailable() != 0);
 }
 
 void RpcConnection::handleRpcCall(const QVariantMap &map)
