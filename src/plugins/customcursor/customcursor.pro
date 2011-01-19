@@ -3,6 +3,7 @@
 ######################################################################
 
 include(../plugins.pri)
+include($${PROJECTROOT}/src/delaysymresolution.pri)
 
 HEADERS += customcursorplugin.h customcursor.h
 SOURCES += customcursorplugin.cpp customcursor.cpp

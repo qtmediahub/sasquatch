@@ -3,6 +3,7 @@
 ######################################################################
 
 include(../plugins.pri)
+include($${PROJECTROOT}/src/delaysymresolution.pri)
 
 QT += declarative
 
