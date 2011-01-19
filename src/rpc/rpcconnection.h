@@ -37,6 +37,16 @@ public:
     };
     RpcConnection(Mode mode, QObject *parent = 0);
 
+    enum ErrorCode {
+        ParseError = -32700,
+        InvalidRequest = -32600,
+        MethodNotFound = -32601,
+        InvalidParameters = -32602,
+        InternalError = -32603,
+        ServerErrorBase = -32099,
+        ServerErrorEnd = -32000
+    };
+
     bool waitForConnected(int msecs = 5000);
 
     void registerObject(QObject *object);
@@ -59,8 +69,11 @@ private slots:
 
 private:
     void sendResponse(const QString &id, const QVariant &result);
+    void sendError(const QString &id, int error, const QString &message, const QString &data = QString());
+
     void handleRpcCall(const QVariantMap &map);
     void handleRpcResponse(const QVariantMap &map);
+    void handleRpcError(const QVariantMap &map);
 
     Mode m_mode;
     QTcpServer *m_server;

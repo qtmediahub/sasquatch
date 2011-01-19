@@ -74,6 +74,28 @@ void RpcConnection::handleNewConnection()
     qDebug() << "Connected to client";
 }
 
+void RpcConnection::sendError(const QString &id, int error, const QString &message, const QString &data)
+{
+    QVariantMap responseMap;
+    responseMap.insert("jsonrpc", "2.0");
+    responseMap.insert("id", id);
+
+    QVariantMap errorMap;
+    errorMap.insert("code", error);
+    errorMap.insert("message", message);
+    errorMap.insert("data", data);
+    responseMap.insert("error", errorMap);
+
+    QJson::Serializer serializer;
+    QByteArray jsonRpc = serializer.serialize(QVariant(responseMap));
+
+    struct Header { int length; } header;
+    header.length = htonl(jsonRpc.length());
+    m_socket->write((const char *)&header, sizeof(header));
+    m_socket->write(jsonRpc);
+    m_socket->flush();
+}
+
 void RpcConnection::handleReadyRead()
 {
     do {
@@ -87,6 +109,7 @@ void RpcConnection::handleReadyRead()
         QJson::Parser parser;
         QVariantMap map = parser.parse(msg, &ok).toMap();
         if (!ok || map["jsonrpc"].toString() != "2.0") {
+            sendError(map["id"].toString(), ParseError, "Malformatted JSON-RPC");
             qWarning() << "Malformatted JSON-RPC";
             return;
         }
@@ -95,7 +118,10 @@ void RpcConnection::handleReadyRead()
             handleRpcCall(map);
         } else if (map.contains("result")) {
             handleRpcResponse(map);
+        } else if (map.contains("error")) {
+            handleRpcError(map);
         } else {
+            sendError(map["id"].toString(), InvalidRequest, "Invalid request. Mot a method call, result or error");
             qWarning() << "No idea what to do with this message" << msg;
         }
     } while (m_socket->bytesAvailable() != 0);
@@ -115,17 +141,20 @@ void RpcConnection::handleRpcCall(const QVariantMap &map)
     QString method = rpcMethod.mid(idx+1);
     QObject *object = m_objects.value(objName);
     if (!object) {
-        qWarning() << "RPC Method " << rpcMethod << " not found";
+        sendError(map["id"].toString(), MethodNotFound, "No such object");
+        qWarning() << "RPC object " << rpcMethod << " not found";
         return;
     }
 
     idx = object->metaObject()->indexOfMethod(method.toLatin1());
     if (idx < 0) {
+        sendError(map["id"].toString(), MethodNotFound, "No such method");
         qWarning() << "Object '" << objName << "' does not have method named " << method;
         return;
     }
     QMetaMethod mm = object->metaObject()->method(idx);
     if (mm.access() == QMetaMethod::Private || mm.methodType() == QMetaMethod::Signal) {
+        sendError(map["id"].toString(), MethodNotFound, "Method is private or is a signal");
         qWarning() << "Method " << method << " is a signal or has private access";
         return;
     }
@@ -161,7 +190,12 @@ void RpcConnection::sendResponse(const QString &id, const QVariant &result)
 
 void RpcConnection::handleRpcResponse(const QVariantMap &map)
 {
-    qDebug() << "Received " << map;
+    qDebug() << "Response" << map;
+}
+
+void RpcConnection::handleRpcError(const QVariantMap &map)
+{
+    qDebug() << "ERROR" << map;
 }
 
 int RpcConnection::call(const QByteArray &method, const QVariant &arg0, const QVariant &arg1,
