@@ -20,7 +20,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "backend.h"
 #include "plugins/qmhplugininterface.h"
 #include "plugins/qmhplugin.h"
-#include "dataproviders/foldermodel.h"
 #include "dataproviders/proxymodel.h"
 #include "dataproviders/dirmodel.h"
 #include "dataproviders/modelindexiterator.h"
@@ -231,7 +230,6 @@ Backend::~Backend()
 void Backend::initialize(QDeclarativeEngine *qmlEngine)
 {
     // register dataproviders to QML
-    qmlRegisterType<FolderModel>("FolderModel", 1, 0, "FolderModel");
     qmlRegisterType<QMHPlugin>("QMHPlugin", 1, 0, "QMHPlugin");
     qmlRegisterType<ProxyModel>("ProxyModel", 1, 0, "ProxyModel");
     qmlRegisterType<ProxyModelItem>("ProxyModel", 1, 0, "ProxyModelItem");

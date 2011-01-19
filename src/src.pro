@@ -14,7 +14,6 @@ SOURCES += main.cpp \
     frontend.cpp \
     backend.cpp \
     rpcapi.cpp \
-    dataproviders/foldermodel.cpp \
     dataproviders/thumbnailer.cpp \
     dataproviders/proxymodel.cpp \
     dataproviders/modelindexiterator.cpp \
@@ -31,7 +30,6 @@ HEADERS += qmh-config.h \
     rpcapi.h \
     plugins/qmhplugininterface.h \
     plugins/qmhplugin.h \
-    dataproviders/foldermodel.h \
     dataproviders/thumbnailer.h \
     dataproviders/proxymodel.h \
     dataproviders/dirmodel.h \
