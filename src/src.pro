@@ -14,7 +14,6 @@ SOURCES += main.cpp \
     frontend.cpp \
     backend.cpp \
     rpcapi.cpp \
-    dataproviders/thumbnailer.cpp \
     dataproviders/proxymodel.cpp \
     dataproviders/modelindexiterator.cpp \
     dataproviders/playlist.cpp \
@@ -30,7 +29,6 @@ HEADERS += qmh-config.h \
     rpcapi.h \
     plugins/qmhplugininterface.h \
     plugins/qmhplugin.h \
-    dataproviders/thumbnailer.h \
     dataproviders/proxymodel.h \
     dataproviders/dirmodel.h \
     dataproviders/modelindexiterator.h \
