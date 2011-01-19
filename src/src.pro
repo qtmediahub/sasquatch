@@ -16,6 +16,7 @@ SOURCES += main.cpp \
     qmh-config.cpp \
     frontend.cpp \
     backend.cpp \
+    rpcapi.cpp \
     dataproviders/foldermodel.cpp \
     dataproviders/thumbnailer.cpp \
     dataproviders/proxymodel.cpp \
@@ -30,6 +31,7 @@ HEADERS += qmh-config.h \
     global.h \
     frontend.h \
     backend.h \
+    rpcapi.h \
     plugins/qmhplugininterface.h \
     plugins/qmhplugin.h \
     dataproviders/foldermodel.h \

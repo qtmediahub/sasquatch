@@ -37,6 +37,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QGLWidget>
 #endif
 
+#include "rpc/rpcconnection.h"
+#include "rpcapi.h"
 #include "qmh-config.h"
 
 class FrontendPrivate : public QObject
@@ -103,6 +105,10 @@ Frontend::Frontend(QWidget *p)
     new QShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::ALT + Qt::Key_Down), this, SLOT(shrink()));
     new QShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::ALT + Qt::Key_Up), this, SLOT(grow()));
     new QShortcut(QKeySequence(Qt::ALT + Qt::Key_Return), this, SLOT(toggleFullScreen()));
+
+    RpcApi *rpcApi = new RpcApi(this);
+    RpcConnection *connection = new RpcConnection(RpcConnection::Server, this);
+    connection->registerObject(rpcApi);
 }
 
 Frontend::~Frontend()
@@ -330,6 +336,11 @@ void Frontend::applyWebViewFocusFix(QDeclarativeItem *item) // See https://bugs.
                 maybeWebView->setFocus();
         }
     }
+}
+
+QWidget *Frontend::centralWidget() const
+{
+    return d->centralWidget;
 }
 
 #include "frontend.moc"
