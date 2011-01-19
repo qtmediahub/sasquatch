@@ -252,7 +252,8 @@ void Backend::initialize(QDeclarativeEngine *qmlEngine)
 }
 
 
-QString Backend::language() const {
+QString Backend::language() const 
+{
     //FIXME: derive from locale
     //Allow override
     return QString();
@@ -272,7 +273,7 @@ QStringList Backend::skins() const
 
 Backend* Backend::instance()
 {
-    if(!pSelf) {
+    if (!pSelf) {
         pSelf = new Backend();
     }
     return pSelf;
@@ -284,23 +285,28 @@ void Backend::destroy()
     pSelf = 0;
 }
 
-QString Backend::skinPath() const {
+QString Backend::skinPath() const 
+{
     return d->skinPath;
 }
 
-QString Backend::pluginPath() const {
+QString Backend::pluginPath() const 
+{
     return d->pluginPath;
 }
 
-QString Backend::resourcePath() const {
+QString Backend::resourcePath() const 
+{
     return d->resourcePath;
 }
 
-QString Backend::thumbnailPath() const {
+QString Backend::thumbnailPath() const 
+{
     return d->thumbnailPath;
 }
 
-bool Backend::transforms() const {
+bool Backend::transforms() const 
+{
 #ifdef GL
     return (QGLFormat::hasOpenGL() && Config::isEnabled("transforms", true));
 #else
@@ -308,7 +314,8 @@ bool Backend::transforms() const {
 #endif
 }
 
-void Backend::advertizeEngine(QMHPlugin *engine) {
+void Backend::advertizeEngine(QMHPlugin *engine) 
+{
     QString role = engine->property("role").toString();
     if (role.isEmpty())
         return;
@@ -317,7 +324,7 @@ void Backend::advertizeEngine(QMHPlugin *engine) {
         return;
     }
     d->advertizedEngines << engine;
-    if(d->qmlEngine)
+    if (d->qmlEngine)
         d->qmlEngine->rootContext()->setContextProperty(role % "Engine", engine);
     d->advertizedEngineRoles << role;
     emit enginesChanged();
@@ -328,21 +335,24 @@ void Backend::openUrlExternally(const QUrl & url) const
     QDesktopServices::openUrl(url);
 }
 
-void Backend::log(const QString &logMsg) {
+void Backend::log(const QString &logMsg) 
+{
     qDebug() << logMsg;
     d->log << logMsg << endl;
 }
 
 // again dependent on declarative, needs to be fixed
-void Backend::clearComponentCache() {
-    if(d->qmlEngine) {
+void Backend::clearComponentCache() 
+{
+    if (d->qmlEngine) {
         d->qmlEngine->clearComponentCache();
     }
 }
 
-QObject* Backend::engine(const QString &role) {
-    foreach(QObject *currentEngine, d->advertizedEngines )
-        if(qobject_cast<QMHPlugin*>(currentEngine)->role() == role)
+QObject* Backend::engine(const QString &role) 
+{
+    foreach (QObject *currentEngine, d->advertizedEngines)
+        if (qobject_cast<QMHPlugin*>(currentEngine)->role() == role)
             return currentEngine;
     qWarning() << tr("Seeking a non-existant plugin, prepare to die");
     return 0;
