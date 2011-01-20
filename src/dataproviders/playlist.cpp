@@ -23,7 +23,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QMetaEnum>
 #include <QModelIndex>
 
-#define PLAYLIST_DEBUG
+//#define PLAYLIST_DEBUG
 
 Playlist::Playlist(QObject *parent)
     : QAbstractListModel(parent)
@@ -122,7 +122,6 @@ QModelIndex Playlist::add(MediaInfo *info, PlaylistRoles role, DepthRoles depth)
             if (info->parent) {
                 sort(info);
                 foreach (MediaInfo *i, info->parent->children) {
-                    qDebug() << i->filePath;
                     if (i->type == MediaModel::File)
                         append(i);
                 }
