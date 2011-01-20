@@ -24,8 +24,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QCursor>
 #include <QTimer>
 
-enum Behavior { Default, Clicked, Blank, BehaviorCount };
-
 class CustomCursor : public QObject
 {
     Q_OBJECT
@@ -34,6 +32,8 @@ class CustomCursor : public QObject
     Q_PROPERTY(int idleTimeout READ idleTimeout WRITE setIdleTimeout)
 
 public:
+    enum Behavior { Default, Clicked, Blank, BehaviorCount };
+
     explicit CustomCursor(QObject *parent = 0);
 
     QString defaultCursorPath() const;

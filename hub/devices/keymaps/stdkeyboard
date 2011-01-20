@@ -1,0 +1,7 @@
+right=Qt::Key_Right
+down=Qt::Key_Down
+left=Qt::Key_Left
+up=Qt::Key_Up
+forward=Qt::Key_Return,Qt::Key_Enter
+back=Qt::Key_Escape
+play=Qt::Key_Space
