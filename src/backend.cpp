@@ -69,6 +69,7 @@ public:
 
         inputIdleTimer.setInterval(Config::value("idle-timeout", 120*1000));
         inputIdleTimer.setSingleShot(true);
+        inputIdleTimer.start();
 
         connect(&inputIdleTimer, SIGNAL(timeout()), pSelf, SIGNAL(inputIdle()));
 
