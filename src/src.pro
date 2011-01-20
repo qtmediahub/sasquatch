@@ -6,7 +6,10 @@ TARGET = qmh
 DEPENDPATH += .
 INCLUDEPATH += .
 
-linux: CONFIG += gstreamer
+linux* {
+    message(default to using gstreamer lib to directly generate thumbnail on linux)
+    CONFIG += gstreamer
+}
 
 # Input
 SOURCES += main.cpp \
