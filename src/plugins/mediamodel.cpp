@@ -69,6 +69,8 @@ MediaModel::MediaModel(MediaModel::MediaType type, QObject *parent)
     MediaInfo *addNewSource = new MediaInfo(MediaModel::AddNewSource);
     addNewSource->name = tr("Add new source");
     m_root->children.append(addNewSource);
+
+    emit mediaTypeChanged();
 }
 
 MediaModel::~MediaModel()

@@ -76,6 +76,7 @@ class MediaModel : public QAbstractItemModel
     Q_ENUMS(SortField)
     Q_PROPERTY(QString currentScanPath READ currentScanPath NOTIFY currentScanPathChanged)
     Q_PROPERTY(int previewWidth READ previewWidth WRITE setPreviewWidth NOTIFY previewWidthChanged)
+    Q_PROPERTY(MediaType mediaType READ mediaType NOTIFY mediaTypeChanged)
 
 public:
     enum MediaType {
@@ -155,10 +156,12 @@ private slots:
     void addMedia(MediaInfo *media);
     void searchThreadFinished();
     void setCurrentScanPath(const QString &dir);
+    MediaType mediaType() { return m_type; };
 
 signals:
     void currentScanPathChanged();
     void previewWidthChanged();
+    void mediaTypeChanged();
 
 private:
     void restore();
