@@ -4,4 +4,5 @@ SUBDIRS = music \
           video \
           picture \
           qmlmodulediscovery \
-          customcursor
+          customcursor \
+          animatedtiles
