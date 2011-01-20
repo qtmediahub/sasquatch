@@ -25,6 +25,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "dataproviders/modelindexiterator.h"
 #include "qmh-config.h"
 #include "qml-extensions/qmlfilewrapper.h"
+#include "qml-extensions/actionmapper.h"
 #include "dataproviders/playlist.h"
 
 #include <QDir>
@@ -69,6 +70,7 @@ public:
 
         inputIdleTimer.setInterval(Config::value("idle-timeout", 120*1000));
         inputIdleTimer.setSingleShot(true);
+        inputIdleTimer.start();
 
         connect(&inputIdleTimer, SIGNAL(timeout()), pSelf, SIGNAL(inputIdle()));
 
@@ -230,6 +232,7 @@ Backend::~Backend()
 void Backend::initialize(QDeclarativeEngine *qmlEngine)
 {
     // register dataproviders to QML
+    qmlRegisterType<ActionMapper>("ActionMapper", 1, 0, "ActionMapper");
     qmlRegisterType<QMHPlugin>("QMHPlugin", 1, 0, "QMHPlugin");
     qmlRegisterType<ProxyModel>("ProxyModel", 1, 0, "ProxyModel");
     qmlRegisterType<ProxyModelItem>("ProxyModel", 1, 0, "ProxyModelItem");
