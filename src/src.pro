@@ -12,6 +12,7 @@ SOURCES += main.cpp \
     frontend.cpp \
     backend.cpp \
     rpcapi.cpp \
+    qml-extensions/actionmapper.cpp \
     dataproviders/proxymodel.cpp \
     dataproviders/modelindexiterator.cpp \
     dataproviders/playlist.cpp \
@@ -31,6 +32,7 @@ HEADERS += qmh-config.h \
     dataproviders/dirmodel.h \
     dataproviders/modelindexiterator.h \
     qml-extensions/qmlfilewrapper.h \
+    qml-extensions/actionmapper.h \
     dataproviders/playlist.h \
     plugins/mediamodel.h \
     plugins/mediainfo.h
