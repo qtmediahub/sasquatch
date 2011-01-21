@@ -212,7 +212,6 @@ bool BackendPrivate::eventFilter(QObject *obj, QEvent *event) {
             || event->type() == QEvent::KeyRelease)
     {
         inputIdleTimer.start();
-        QMetaObject::invokeMethod(pSelf, "inputActive");
     }
 
     return QObject::eventFilter(obj, event);
