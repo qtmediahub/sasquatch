@@ -1,4 +1,4 @@
-include(../3rdparty/qjson/src/src.pri)
+include(../3rdparty/jsonparser/json.pri)
 
 INCLUDEPATH += 3rdparty
 
