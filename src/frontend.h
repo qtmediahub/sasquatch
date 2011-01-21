@@ -47,6 +47,8 @@ public:
     Q_INVOKABLE QObject *focusItem() const;
     Q_INVOKABLE void applyWebViewFocusFix(QDeclarativeItem *item); // See https://bugs.webkit.org/show_bug.cgi?id=51094
 
+signals:
+    void resetUI();
 public slots:
     void toggleFullScreen();
     void showFullScreen();

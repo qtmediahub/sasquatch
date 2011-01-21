@@ -50,6 +50,7 @@ public:
 
 public slots:
     void handleResize();
+    void resetUI();
 
 public:
     QGraphicsView *centralWidget;
@@ -97,11 +98,22 @@ void FrontendPrivate::handleResize()
     }
 }
 
+void FrontendPrivate::resetUI()
+{
+    QDeclarativeView *declarativeWidget = qobject_cast<QDeclarativeView*>(centralWidget);
+    if (declarativeWidget) {
+        QObject* coreObject = declarativeWidget->rootObject();
+        coreObject->setProperty("state", "showingRootBlade");
+    }
+}
+
 Frontend::Frontend(QWidget *p)
     : QWidget(p),
       d(new FrontendPrivate(this))
 {
     setSkin(Config::value("last-skin", "").toString());
+    connect(this, SIGNAL(resetUI()), d, SLOT(resetUI()));
+    new QShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::ALT + Qt::Key_Backspace), this, SIGNAL(resetUI()));
     new QShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::ALT + Qt::Key_Down), this, SLOT(shrink()));
     new QShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::ALT + Qt::Key_Up), this, SLOT(grow()));
     new QShortcut(QKeySequence(Qt::ALT + Qt::Key_Return), this, SLOT(toggleFullScreen()));
