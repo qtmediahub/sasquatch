@@ -103,7 +103,7 @@ void FrontendPrivate::resetUI()
     QDeclarativeView *declarativeWidget = qobject_cast<QDeclarativeView*>(centralWidget);
     if (declarativeWidget) {
         QObject* coreObject = declarativeWidget->rootObject();
-        coreObject->setProperty("state", "showingRootBlade");
+        coreObject->setProperty("state", "");
     }
 }
 
