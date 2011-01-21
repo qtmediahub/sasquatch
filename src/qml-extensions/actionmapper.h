@@ -31,11 +31,12 @@ class ActionMapper : public QObject
     Q_PROPERTY(QString map READ map WRITE setMap)
     public:
     ActionMapper(QObject *p = 0);
-    enum Action { Left, Up, Right, Down, Forward, Back, Context };
+    enum Action { Left, Up, Right, Down, Forward, Back, Context, ContextualUp, ContextualDown, MediaPlayPause, MediaStop, MediaPrevious, MediaNext };
     bool eventMatch(QKeyEvent *event, Action action) {
         if (keyHash.isEmpty())
             populateMap();
-        if(keyHash[action].indexOf(event->key()) != -1)
+        if  (keyHash.contains(action)
+             && keyHash[action].indexOf(event->key()) != -1)
             event->accept();
         return event->isAccepted();
     }
