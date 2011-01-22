@@ -105,6 +105,10 @@ QModelIndex Playlist::add(MediaInfo *info, PlaylistRoles role, DepthRoles depth)
     if (!info)
         return QModelIndex();
 
+#ifdef PLAYLIST_DEBUG
+    qDebug() << "Playlist add" << info->filePath << "width role" << role << "and depth" << depth;
+#endif
+
     if (role == Playlist::Replace && count() > 0) {
         beginRemoveRows(QModelIndex(), 0, count()-1);
         content.clear();
