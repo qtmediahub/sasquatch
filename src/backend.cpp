@@ -85,6 +85,12 @@ public:
         resourcePathMonitor.addPath(skinPath);
         resourcePathMonitor.addPath(pluginPath);
 
+        QFileInfo thumbnailFolderInfo(thumbnailPath);
+        if (!thumbnailFolderInfo.exists()) {
+            QDir dir;
+            dir.mkpath(thumbnailFolderInfo.absoluteFilePath());
+        }
+
         discoverSkins();
     }
 

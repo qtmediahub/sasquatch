@@ -147,8 +147,6 @@ public:
 
     QString currentScanPath() const;
 
-    QFileInfo generateThumbnailFileInfo(const QFileInfo &fileInfo);
-    
     int previewWidth() const;
     void setPreviewWidth(int width);
 

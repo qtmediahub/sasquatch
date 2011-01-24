@@ -7,7 +7,7 @@
 class MusicInfo : public MediaInfo
 {
 public:
-    MusicInfo() :  MediaInfo(MediaModel::File) { }
+    MusicInfo(const QString &path) :  MediaInfo(MediaModel::File, path) { }
 
     // tag info
     QMap<QString, QVariant> tagProperties;

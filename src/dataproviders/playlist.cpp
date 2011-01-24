@@ -61,7 +61,7 @@ QVariant Playlist::data(const QModelIndex &index, int role) const
             int idx = MediaModel::staticMetaObject.indexOfEnumerator("MediaType");
             QMetaEnum e = MediaModel::staticMetaObject.enumerator(idx);
             QString urlBase = "image://" + QString::fromLatin1(e.valueToKey(info->type)).toLower() + "model";
-            return QUrl(urlBase + info->thumbnail);
+            return QUrl(urlBase + info->thumbnailPath);
         } else if (role == FileUrlRole) {
             return QUrl::fromLocalFile(info->filePath);
         } else if (role == FilePathRole) {

@@ -8,7 +8,7 @@
 class PictureInfo : public MediaInfo
 {
 public:
-    PictureInfo() :  MediaInfo(MediaModel::File)
+    PictureInfo(const QString &path) :  MediaInfo(MediaModel::File, path)
     { }
 
     QSize resolution;

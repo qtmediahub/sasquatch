@@ -115,7 +115,7 @@ MediaInfo *MusicModel::readMediaInfo(const QString &filePath)
         return 0;
     }
 
-    MusicInfo *info = new MusicInfo;
+    MusicInfo *info = new MusicInfo(filePath);
 
     TagLib::File *file = fileRef.file();
     if (TagLib::Tag *tag = file->tag())
@@ -124,12 +124,9 @@ MediaInfo *MusicModel::readMediaInfo(const QString &filePath)
         popuplateAudioProperties(info, audioProperties);
 
     // check if we already have a local cover art for this file
-    QFileInfo fileInfo(filePath);
-    QFileInfo thumbnailInfo = generateThumbnailFileInfo(fileInfo);
+    QFileInfo thumbnailInfo(info->thumbnailPath);
 
-    if (thumbnailInfo.exists()) {
-        info->thumbnail = thumbnailInfo.filePath();
-    } else {
+    if (!thumbnailInfo.exists()) {
         if (TagLib::MPEG::File *mpegFile = dynamic_cast<TagLib::MPEG::File *>(file)) {
             TagLib::ID3v2::Tag *id3v2Tag = mpegFile->ID3v2Tag(false);
             if (id3v2Tag) {
@@ -137,14 +134,12 @@ MediaInfo *MusicModel::readMediaInfo(const QString &filePath)
                 if (!tmp.isNull()) {
                     tmp = tmp.width() <= previewWidth() ? tmp : tmp.scaledToWidth(previewWidth(), Qt::SmoothTransformation);
                     tmp.save(thumbnailInfo.filePath());
-                    info->thumbnail = thumbnailInfo.filePath();
+                } else {
+                    info->thumbnailPath = themeResourcePath() + "/media/DefaultAudio.png";
                 }
             }
         }
     }
-
-    if (info->thumbnail.isEmpty())
-        info->thumbnail = themeResourcePath() + "/media/DefaultAudio.png";
 
     return info;
 }

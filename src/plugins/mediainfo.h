@@ -13,18 +13,19 @@ class MediaInfo : public QObject
 public:
     enum Status { NotSearched, Searching, Searched };
 
-    MediaInfo(MediaModel::MediaInfoType type);
+    MediaInfo(MediaModel::MediaInfoType type, const QString &path);
     ~MediaInfo();
 
     MediaInfo *parent;
     MediaModel::MediaInfoType type;
+    QString hash;
     QString filePath;
     QString name;
     Status status;
     QList<MediaInfo *> children;
     qint64 fileSize;
     QDateTime fileDateTime;
-    QString thumbnail;
+    QString thumbnailPath;
 };
 
 Q_DECLARE_METATYPE(MediaInfo*)

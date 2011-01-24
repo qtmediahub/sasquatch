@@ -64,9 +64,9 @@ MediaModel::MediaModel(MediaModel::MediaType type, QObject *parent)
     roleNames[MediaInfoRole] = "mediaInfo";
     setRoleNames(roleNames);
 
-    m_root = new MediaInfo(MediaModel::Root);
+    m_root = new MediaInfo(MediaModel::Root, "");
 
-    MediaInfo *addNewSource = new MediaInfo(MediaModel::AddNewSource);
+    MediaInfo *addNewSource = new MediaInfo(MediaModel::AddNewSource, "");
     addNewSource->name = tr("Add new source");
     m_root->children.append(addNewSource);
 
@@ -113,8 +113,7 @@ void MediaModel::restore()
     for (int i = 0; i < size; i++) {
         settings.setArrayIndex(i);
 
-        MediaInfo *newSearchPath = new MediaInfo(MediaModel::SearchPath);
-        newSearchPath->filePath = settings.value("path").toString();
+        MediaInfo *newSearchPath = new MediaInfo(MediaModel::SearchPath, settings.value("path").toString());
         newSearchPath->name = settings.value("name").toString();
         m_root->children.insert(m_root->children.count()-1, newSearchPath);
     }
@@ -175,8 +174,7 @@ void MediaModel::stopSearchThread()
 void MediaModel::addSearchPath(const QString &path, const QString &name)
 {
     beginInsertRows(QModelIndex(), m_root->children.count()-1, m_root->children.count()-1);
-    MediaInfo *newSearchPath = new MediaInfo(MediaModel::SearchPath);
-    newSearchPath->filePath = path;
+    MediaInfo *newSearchPath = new MediaInfo(MediaModel::SearchPath, path);
     newSearchPath->name = name;
     m_root->children.insert(m_root->children.count()-1, newSearchPath); // add before AddNewSource
     endInsertRows();
@@ -308,7 +306,7 @@ QVariant MediaModel::data(const QModelIndex &index, int role) const
         else if (info->type == Directory)
             return QUrl(urlBase + "/Directory");
         else
-            return QUrl(urlBase + info->thumbnail);
+            return QUrl(urlBase + info->thumbnailPath);
     } else if (role == FileUrlRole) {
         return QUrl::fromLocalFile(info->filePath);
     } else if (role == FilePathRole) {
@@ -493,7 +491,7 @@ void MediaModelThread::search()
             it.next();
             MediaInfo *info = 0;
             if (it.fileInfo().isDir()) {
-                info = new MediaInfo(MediaModel::Directory);
+                info = new MediaInfo(MediaModel::Directory, it.filePath());
                 dirQ.enqueue(info);
             } else if (it.fileInfo().isFile()) {
                 info = m_model->readMediaInfo(it.filePath());
@@ -502,10 +500,7 @@ void MediaModelThread::search()
             } else {
                 continue;
             }
-            info->filePath = it.filePath();
-            info->name = it.fileName();
-            info->fileSize = it.fileInfo().size();
-            info->fileDateTime = it.fileInfo().created();
+
             info->parent = currentParent;
 
             emit mediaFound(info);
@@ -540,20 +535,4 @@ void MediaModel::dump(const MediaInfo *info, int indent) const
         qDebug() << qPrintable(space) << info->children[i]->filePath;
         dump(info->children[i], indent+4);
     }
-}
-
-QFileInfo MediaModel::generateThumbnailFileInfo(const QFileInfo &fileInfo)
-{
-    // check if thumbnail folder exists
-    QFileInfo thumbnailFolderInfo(Backend::instance()->thumbnailPath());
-    if (!thumbnailFolderInfo.exists()) {
-        QDir dir;
-        dir.mkpath(thumbnailFolderInfo.absoluteFilePath());
-    }
-
-    // create hash for fileInfo
-    QString md5 = QCryptographicHash::hash(QString("file://" + fileInfo.absoluteFilePath()).toUtf8(), QCryptographicHash::Md5).toHex();
-    QFileInfo thumbnailInfo(thumbnailFolderInfo.filePath() + md5 + ".png");
-
-    return thumbnailInfo;
 }

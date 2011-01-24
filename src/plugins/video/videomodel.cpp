@@ -231,13 +231,11 @@ MediaInfo *VideoModel::readMediaInfo(const QString &filePath)
     if (!fileInfo.exists() || !supportedTypes.contains(fileInfo.suffix()))
         return 0;
 
-    VideoInfo *info = new VideoInfo;
-    QFileInfo thumbnailInfo = generateThumbnailFileInfo(fileInfo);
+    VideoInfo *info = new VideoInfo(filePath);
+    QFileInfo thumbnailInfo(info->thumbnailPath);
 
-    if (thumbnailInfo.exists() || generateThumbnail(fileInfo, thumbnailInfo))
-        info->thumbnail = thumbnailInfo.filePath();
-    else
-        info->thumbnail = themeResourcePath() + "/media/DefaultVideo.png";
+    if (!thumbnailInfo.exists() && !generateThumbnail(fileInfo, thumbnailInfo))
+        info->thumbnailPath = themeResourcePath() + "/media/DefaultVideo.png";
 
     return info;
 }

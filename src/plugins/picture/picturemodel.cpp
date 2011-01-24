@@ -65,7 +65,7 @@ MediaInfo *PictureModel::readMediaInfo(const QString &filePath)
     if (!imageReader.canRead())
         return 0;
 
-    PictureInfo *info = new PictureInfo;
+    PictureInfo *info = new PictureInfo(filePath);
     info->resolution = imageReader.size(); // ## only Qt's image readers support this!
 
     ExifReader exifReader(filePath);
@@ -97,12 +97,9 @@ MediaInfo *PictureModel::readMediaInfo(const QString &filePath)
     info->exifProperties["colorSpace"] = exifReader.colorSpace();
 
     // check if we already have a local cover art for this file
-    QFileInfo fileInfo(filePath);
-    QFileInfo thumbnailInfo = generateThumbnailFileInfo(fileInfo);
+    QFileInfo thumbnailInfo(info->thumbnailPath);
 
-    if (thumbnailInfo.exists()) {
-        info->thumbnail = thumbnailInfo.filePath();
-    } else {
+    if (!thumbnailInfo.exists()) {
         QImage image = imageReader.read();
         QImage tmp = image.width() <= previewWidth() ? image: image.scaledToWidth(previewWidth(), Qt::SmoothTransformation);
         ExifReader::Orientation orientation = static_cast<ExifReader::Orientation>(info->exifProperties["orientation"].toInt());
@@ -118,10 +115,8 @@ MediaInfo *PictureModel::readMediaInfo(const QString &filePath)
         default: break;
         }
 
-        if(tmp.save(thumbnailInfo.filePath()))
-            info->thumbnail = thumbnailInfo.filePath();
-        else
-            info->thumbnail = themeResourcePath() + "/media/DefaultPicture.png";
+        if (!tmp.save(thumbnailInfo.filePath()))
+            info->thumbnailPath = themeResourcePath() + "/media/DefaultPicture.png";
     }
 
     return info;
