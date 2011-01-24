@@ -27,13 +27,13 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "jsonparser/json.h"
 
-RpcConnection::RpcConnection(RpcConnection::Mode mode, QObject *parent)
+RpcConnection::RpcConnection(RpcConnection::Mode mode, const QHostAddress &address, qint32 port, QObject *parent)
     : QObject(parent), m_mode(mode), m_server(0), m_socket(0), m_id(1)
 {
     if (m_mode == Server) {
-        listen(QHostAddress::Any, 1234);
+        listen(address, port);
     } else if (m_mode == Client) {
-        connectToHost(QHostAddress::Any, 1234);
+        connectToHost(address, port);
     }
 }
 

@@ -119,7 +119,7 @@ Frontend::Frontend(QWidget *p)
     new QShortcut(QKeySequence(Qt::ALT + Qt::Key_Return), this, SLOT(toggleFullScreen()));
 
     RpcApi *rpcApi = new RpcApi(this);
-    RpcConnection *connection = new RpcConnection(RpcConnection::Server, this);
+    RpcConnection *connection = new RpcConnection(RpcConnection::Server, QHostAddress::Any, 1234, this);
     connection->registerObject(rpcApi);
 }
 

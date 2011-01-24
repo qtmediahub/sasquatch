@@ -35,7 +35,7 @@ public:
         Server,
         Client
     };
-    RpcConnection(Mode mode, QObject *parent = 0);
+    RpcConnection(Mode mode, const QHostAddress &address, qint32 port, QObject *parent = 0);
 
     enum ErrorCode {
         ParseError = -32700,

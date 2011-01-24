@@ -7,7 +7,7 @@ RemoteControl::RemoteControl(QWidget *parent)
     : QWidget(parent)
 {
     ui.setupUi(this);
-    m_connection = new RpcConnection(RpcConnection::Client);
+    m_connection = new RpcConnection(RpcConnection::Client, QHostAddress::Any, 1234);
 
     QSignalMapper *mapper = new QSignalMapper(this);
     #define MAPBUTTON(button, text) \
