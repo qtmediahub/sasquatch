@@ -11,7 +11,6 @@ SOURCES += main.cpp \
     qmh-config.cpp \
     frontend.cpp \
     backend.cpp \
-    rpcapi.cpp \
     qml-extensions/actionmapper.cpp \
     dataproviders/proxymodel.cpp \
     dataproviders/modelindexiterator.cpp \
@@ -25,7 +24,6 @@ HEADERS += qmh-config.h \
     global.h \
     frontend.h \
     backend.h \
-    rpcapi.h \
     plugins/qmhplugininterface.h \
     plugins/qmhplugin.h \
     dataproviders/proxymodel.h \

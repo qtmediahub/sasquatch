@@ -1,14 +1,31 @@
 #include "actionmapper.h"
 
 #include "backend.h"
+#include "frontend.h"
 
-ActionMapper::ActionMapper(QObject *p)
+class Frontend;
+
+ActionMapper::ActionMapper(Frontend *p)
     : QObject(p),
+      pFrontend(p),
       mapName("stdkeyboard"),
       mapPath(Backend::instance()->resourcePath() + "/devices/keymaps/")
 {
+    setObjectName("qmhrpc");
+
     maps = QDir(mapPath).entryList(QDir::Files);
     qWarning() << "Available keyboard maps" << maps;
+    populateMap();
+}
+
+void ActionMapper::takeAction(Action action)
+{
+    if (!pFrontend || !keyHash.contains(action))
+        return;
+    QKeyEvent keyPress(QEvent::KeyPress, keyHash[action].at(0), Qt::NoModifier);
+    qApp->sendEvent(pFrontend->centralWidget(), &keyPress);
+    QKeyEvent keyRelease(QEvent::KeyRelease, keyHash[action].at(0), Qt::NoModifier);
+    qApp->sendEvent(pFrontend->centralWidget(), &keyRelease);
 }
 
 void ActionMapper::populateMap()

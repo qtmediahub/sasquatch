@@ -24,17 +24,17 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QtDeclarative>
 #include <QDebug>
 
+#include "frontend.h"
+
 class ActionMapper : public QObject
 {
     Q_OBJECT
     Q_ENUMS(Action)
     Q_PROPERTY(QString map READ map WRITE setMap)
-    public:
-    ActionMapper(QObject *p = 0);
+public:
+    ActionMapper(Frontend *p = 0);
     enum Action { Left, Up, Right, Down, Forward, Back, Context, ContextualUp, ContextualDown, MediaPlayPause, MediaStop, MediaPrevious, MediaNext };
     bool eventMatch(QKeyEvent *event, Action action) {
-        if (keyHash.isEmpty())
-            populateMap();
         if  (keyHash.contains(action)
              && keyHash[action].indexOf(event->key()) != -1)
             event->accept();
@@ -49,12 +49,18 @@ class ActionMapper : public QObject
         event->setProperty("accepted", accepted);
         return accepted;
     }
+
     Q_INVOKABLE QStringList availableMaps() const { return maps; }
 
     QString map() const { return mapName; }
     void setMap(const QString &map) { mapName = map; populateMap(); }
 
+public slots:
+    void takeAction(double action) { takeAction(static_cast<Action>(action)); }
+    void takeAction(Action action);
+
     private:
+        Frontend *pFrontend;
         QString mapName;
         QString mapPath;
         QStringList maps;

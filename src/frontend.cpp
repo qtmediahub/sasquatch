@@ -38,8 +38,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #endif
 
 #include "qavahiservicepublisher.h"
+#include "qml-extensions/actionmapper.h"
 #include "rpc/rpcconnection.h"
-#include "rpcapi.h"
 #include "qmh-config.h"
 
 class FrontendPrivate : public QObject
@@ -61,6 +61,7 @@ public:
     const QRect defaultGeometry;
     bool overscanWorkAround;
     bool attemptingFullScreen;
+    ActionMapper *actionMap;
     Frontend *pSelf;
 };
 
@@ -70,8 +71,11 @@ FrontendPrivate::FrontendPrivate(Frontend *p)
       frontEndTranslator(0),
       defaultGeometry(0, 0, 1080, 720),
       attemptingFullScreen(false),
+      actionMap(new ActionMapper(p)),
       pSelf(p)
 {
+    actionMap->setProperty("map", "extkeyboard");
+
     resizeSettleTimer.setSingleShot(true);
     connect(&resizeSettleTimer, SIGNAL(timeout()), this, SLOT(handleResize()));
     overscanWorkAround = Config::isEnabled("overscan", false);
@@ -122,9 +126,8 @@ Frontend::Frontend(QWidget *p)
     QAvahiServicePublisher *publisher = new QAvahiServicePublisher(this);
     publisher->publish("Qt Media Hub", "_qmh._tcp", 1234, "Qt Media Hub JSON-RPCv2 interface");
 
-    RpcApi *rpcApi = new RpcApi(this);
     RpcConnection *connection = new RpcConnection(RpcConnection::Server, QHostAddress::Any, 1234, this);
-    connection->registerObject(rpcApi);
+    connection->registerObject(d->actionMap);
 }
 
 Frontend::~Frontend()
@@ -218,6 +221,7 @@ void Frontend::initialize(const QUrl &targetUrl)
         QDeclarativeView *centralWidget= new QDeclarativeView(this);
         QDeclarativeEngine *engine = centralWidget->engine();
 
+        engine->rootContext()->setContextProperty("actionmap", d->actionMap);
         engine->rootContext()->setContextProperty("frontend", this);
         engine->addPluginPath(Backend::instance()->resourcePath() % "/lib");
         engine->addImportPath(Backend::instance()->resourcePath() % "/imports");

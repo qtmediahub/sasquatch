@@ -18,7 +18,7 @@ public slots:
     void connectToService(const QHostAddress &address, int port);
 
 private slots:
-    void sendButtonPress(const QString &button);
+    void sendButtonPress(int action);
 
 private:
     Ui::RemoteControl ui;

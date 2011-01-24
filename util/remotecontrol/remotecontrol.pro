@@ -1,9 +1,9 @@
 TEMPLATE = app
 DESTDIR = ../../hub/
 DEPENDPATH += .
-INCLUDEPATH += . ../../src/3rdparty/ ../../src
+INCLUDEPATH += . ../../src/3rdparty/ ../../src ../../src/qml-extensions
 
-QT += network
+QT += network declarative
 include(../../src/rpc/rpc.pri)
 
 # avahi integration
