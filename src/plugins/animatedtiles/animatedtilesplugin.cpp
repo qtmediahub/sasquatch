@@ -7,7 +7,8 @@
 AnimatedTilesPlugin::AnimatedTilesPlugin()
 {
     this->mName = "AnimatedTiles";
-    this->mRole = "animatedTiles";
+    //This should not be an advertized plugin until it is implemented
+    //this->mRole = "animatedTiles";
 }
 
 
