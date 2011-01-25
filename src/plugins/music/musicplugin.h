@@ -12,7 +12,7 @@ class MusicPlugin : public QObject, public QMHPluginInterface
 {
     Q_OBJECT
     Q_INTERFACES(QMHPluginInterface)
-    Q_PROPERTY(QObject *musicModel READ musicModel NOTIFY musicModelChanged)
+    Q_PROPERTY(QObject *model READ model NOTIFY modelChanged)
 
 public:
     MusicPlugin();
@@ -23,11 +23,11 @@ public:
     QObject *pluginProperties() const;
 
     // accessed from QML
-    QObject *musicModel() const { return m_model; }
+    QObject *model() const { return m_model; }
 
     void registerPlugin(QDeclarativeContext *context);
 signals:
-    void musicModelChanged();
+    void modelChanged();
 
 private:
     QList<QObject *> m_childItems;

@@ -10,7 +10,7 @@ class VideoPlugin : public QObject, public QMHPluginInterface
 {
     Q_OBJECT
     Q_INTERFACES(QMHPluginInterface)
-    Q_PROPERTY(QObject *videoModel READ videoModel NOTIFY videoModelChanged)
+    Q_PROPERTY(QObject *model READ model NOTIFY modelChanged)
 
 public:
     VideoPlugin();
@@ -20,12 +20,12 @@ public:
 
     QList<QObject*> childItems() const { return m_childItems; }
     // accessed from QML
-    QObject *videoModel() const { return m_model; }
+    QObject *model() const { return m_model; }
 
     void registerPlugin(QDeclarativeContext *context);
 
 signals:
-    void videoModelChanged();
+    void modelChanged();
 
 private:
     QList<QObject *> m_childItems;

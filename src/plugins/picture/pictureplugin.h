@@ -10,7 +10,7 @@ class PicturePlugin : public QObject, public QMHPluginInterface
 {
     Q_OBJECT
     Q_INTERFACES(QMHPluginInterface)
-    Q_PROPERTY(QObject *pictureModel READ pictureModel NOTIFY pictureModelChanged)
+    Q_PROPERTY(QObject *model READ model NOTIFY modelChanged)
 
 public:
     PicturePlugin();
@@ -19,11 +19,11 @@ public:
     QObject *pluginProperties() const;
         
     // accessed from QML
-    QObject *pictureModel() const { return m_model; }
+    QObject *model() const { return m_model; }
     
     void registerPlugin(QDeclarativeContext *context);
 signals:
-    void pictureModelChanged();
+    void modelChanged();
     
 private:
     PictureModel *m_model;
