@@ -44,7 +44,7 @@ void AnimatedTilesItem::setupAT()
 
 //    scene.addItem(buttonParent); give 'this' as parent instead
     buttonParent->scale(0.75, 0.75);
-    buttonParent->setPos(200, 400);
+    buttonParent->setPos(220, 220);
     buttonParent->setZValue(65);
 
     // States

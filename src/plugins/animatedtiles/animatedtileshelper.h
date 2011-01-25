@@ -67,16 +67,11 @@ signals:
     void pressed();
 
 protected:
-    void mousePressEvent(QGraphicsSceneMouseEvent *)
-    {
-        qDebug() << "void mousePressEvent(QGraphicsSceneMouseEvent *)";
+    void mousePressEvent(QGraphicsSceneMouseEvent *) {
         emit pressed();
         update();
     }
-
-    void mouseReleaseEvent(QGraphicsSceneMouseEvent *)
-    {
-        qDebug() << "void mouseReleaseEvent(QGraphicsSceneMouseEvent *)";
+    void mouseReleaseEvent(QGraphicsSceneMouseEvent *) {
         update();
     }
 
