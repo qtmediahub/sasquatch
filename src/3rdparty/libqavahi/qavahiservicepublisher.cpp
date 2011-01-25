@@ -73,18 +73,29 @@ void QAvahiServicePublisher::publish(const Service &service)
 {
     m_services.append(service);
 
-    if (!m_group) {
-        QAPDEBUG("Creating new group");
-        m_group = avahi_entry_group_new(m_client, entry_group_callback, this /* userdata */);
+    if (avahi_client_get_state(m_client) != AVAHI_CLIENT_S_RUNNING) {
+        QAPDEBUG("Publishing later, server not running. Check if avahi-dameon is running");
+        return;
     }
 
-    if (avahi_client_get_state(m_client) == AVAHI_CLIENT_S_RUNNING)
-        doRegisterServices();
+    doPublish(m_client);
 }
 
-void QAvahiServicePublisher::doRegisterServices()
+void QAvahiServicePublisher::doPublish(AvahiClient *client)
 {
-    QAPDEBUG("Adding services");
+    QAPDEBUG("Publishing service");
+
+    if (!m_group) {
+        QAPDEBUG("Creating new group");
+        m_group = avahi_entry_group_new(client, entry_group_callback, this /* userdata */);
+
+        if (!m_group) {
+            QAPDEBUG("Failed to create group");
+            emit changeNotification(Error);
+            return;
+        }
+    }
+
     avahi_entry_group_reset(m_group);
 
     for (int i = 0; i < m_services.count(); i++) {
@@ -143,8 +154,7 @@ void QAvahiServicePublisher::clientCallback(AvahiClient *client, AvahiClientStat
     case AVAHI_CLIENT_S_RUNNING:
         QAPDEBUG("Server running");
         emit changeNotification(ServerRunning);
-        if (!m_services.isEmpty())
-            doRegisterServices();
+        doPublish(client);
         break;
     case AVAHI_CLIENT_S_COLLISION:
         QAPDEBUG("Server name Collission");
@@ -179,7 +189,7 @@ void QAvahiServicePublisher::entryGroupCallback(AvahiEntryGroup *group, AvahiEnt
             avahi_free(newName);
         }
         emit changeNotification(ServiceNameCollision);
-        doRegisterServices();
+        doPublish(m_client);
         return;
                                       }
     case AVAHI_ENTRY_GROUP_FAILURE:

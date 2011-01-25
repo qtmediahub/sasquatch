@@ -24,8 +24,7 @@ static void QABDEBUG(const char *fmt, ...)
 }
 
 QAvahiServiceBrowserModel::QAvahiServiceBrowserModel(QObject *parent)
-    : QAbstractListModel(parent), m_client(0), m_protocol(QAbstractSocket::UnknownNetworkLayerProtocol), m_browser(0), m_autoResolve(true),
-      m_browseWhenServerRunning(false)
+    : QAbstractListModel(parent), m_client(0), m_protocol(QAbstractSocket::UnknownNetworkLayerProtocol), m_browser(0), m_autoResolve(true)
 {
     qRegisterMetaType<QAvahiServiceBrowserModel::Service>();
     initialize();
@@ -50,8 +49,9 @@ void QAvahiServiceBrowserModel::clientCallback(AvahiClient *client, AvahiClientS
         m_errorString = avahi_strerror(avahi_client_errno(client));
         emit changeNotification(Error);
         // Once a client loses connection to the daemon, it doesn't seem to reconnect when the daemon
-        // reappears. Recreate the client. Note the model still contains the entries.
+        // reappears. Recreate the client.
         uninitialize();
+        resetModel();
         initialize();
         break;
     case AVAHI_CLIENT_CONNECTING:
@@ -61,10 +61,8 @@ void QAvahiServiceBrowserModel::clientCallback(AvahiClient *client, AvahiClientS
     case AVAHI_CLIENT_S_RUNNING:
         QABDEBUG("Server running");
         emit changeNotification(ServerRunning);
-        if (m_browseWhenServerRunning) {
-            doBrowse();
-            m_browseWhenServerRunning = false;
-        }
+        if (!m_serviceType.isEmpty())
+            doBrowse(client);
         break;
     case AVAHI_CLIENT_S_COLLISION:
         QABDEBUG("Server name Collission");
@@ -78,6 +76,13 @@ void QAvahiServiceBrowserModel::clientCallback(AvahiClient *client, AvahiClientS
         QABDEBUG("Unhandled state in clientCallback: %d", state);
         break;
     }
+}
+
+void QAvahiServiceBrowserModel::resetModel()
+{
+    beginResetModel();
+    m_services.clear();
+    endResetModel();
 }
 
 void QAvahiServiceBrowserModel::browser_callback(AvahiServiceBrowser *browser, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, const char *name, const char *type, const char *domain, AvahiLookupResultFlags flags, void *userdata)
@@ -115,6 +120,7 @@ void QAvahiServiceBrowserModel::browserCallback(AvahiServiceBrowser *browser, Av
         m_errorString = avahi_strerror(m_error);
         emit changeNotification(Error);
         uninitialize();
+        resetModel();
         initialize();
         break;
 
@@ -174,25 +180,22 @@ void QAvahiServiceBrowserModel::browse(const QString &serviceType, QAbstractSock
     m_serviceType = serviceType;
     m_protocol = protocol;
 
-    beginResetModel();
-    m_services.clear();
-    endResetModel();
+    resetModel();
 
-    if (m_browser) { // already browsing
+    if (m_browser) { // already browsing; remove existing browser
         avahi_service_browser_free(m_browser);
         m_browser = 0;
     }
 
     if (avahi_client_get_state(m_client) != AVAHI_CLIENT_S_RUNNING) { // server not running, we should try later
         QABDEBUG("Server is not running yet, will browse later. Check if avahi-daemon is running");
-        m_browseWhenServerRunning = true;
         return;
     }
 
-    doBrowse();
+    doBrowse(m_client);
 }
 
-void QAvahiServiceBrowserModel::doBrowse()
+void QAvahiServiceBrowserModel::doBrowse(AvahiClient *client)
 {
     int proto;
     switch (m_protocol) {
@@ -202,9 +205,15 @@ void QAvahiServiceBrowserModel::doBrowse()
     default: proto = AVAHI_PROTO_UNSPEC; break;
     }
 
-    m_browser = avahi_service_browser_new(m_client, AVAHI_IF_UNSPEC, proto, m_serviceType.toUtf8().constData(),
+    QABDEBUG("Creating browser");
+
+    m_browser = avahi_service_browser_new(client, AVAHI_IF_UNSPEC, proto, m_serviceType.toUtf8().constData(),
                                           NULL /* domain */, (AvahiLookupFlags)0, /*AVAHI_LOOKUP_USE_MULTICAST*/
                                           browser_callback, this /* userdata */);
+
+    if (!m_browser) {
+        QABDEBUG("Failed to create browser");
+    }
 }
 
 void QAvahiServiceBrowserModel::uninitialize()

@@ -116,7 +116,8 @@ private:
     void initialize();
     void uninitialize();
     int serviceIndex(const char *name, const char *type, const char *domain, AvahiIfIndex interface, AvahiProtocol protocol);
-    void doBrowse();
+    void doBrowse(AvahiClient *client);
+    void resetModel();
 
     AvahiClient *m_client;
     QString m_serviceType;
@@ -126,7 +127,6 @@ private:
     QString m_errorString;
     bool m_autoResolve;
     QList<Service> m_services;
-    bool m_browseWhenServerRunning;
 };
 
 Q_DECLARE_METATYPE(QAvahiServiceBrowserModel::Service)

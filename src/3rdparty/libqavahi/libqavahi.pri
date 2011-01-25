@@ -1,5 +1,5 @@
 QT += network
-LIBS += -lavahi-common -lavahi-core -lavahi-client -lavahi-qt4
+LIBS += -lavahi-common -lavahi-client -lavahi-qt4
 
 # Input
 SOURCES += $$PWD/qavahiservicepublisher.cpp $$PWD/qavahiservicebrowsermodel.cpp

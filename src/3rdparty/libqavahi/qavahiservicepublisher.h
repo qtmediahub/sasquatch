@@ -62,7 +62,7 @@ private:
     void entryGroupCallback(AvahiEntryGroup *group, AvahiEntryGroupState state);
     void initialize();
     void uninitialize();
-    void doRegisterServices();
+    void doPublish(AvahiClient *client);
 
     QString m_serviceName;
     AvahiClient *m_client;
