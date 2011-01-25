@@ -37,6 +37,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QGLWidget>
 #endif
 
+#include "qavahiservicepublisher.h"
 #include "rpc/rpcconnection.h"
 #include "rpcapi.h"
 #include "qmh-config.h"
@@ -117,6 +118,9 @@ Frontend::Frontend(QWidget *p)
     new QShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::ALT + Qt::Key_Down), this, SLOT(shrink()));
     new QShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::ALT + Qt::Key_Up), this, SLOT(grow()));
     new QShortcut(QKeySequence(Qt::ALT + Qt::Key_Return), this, SLOT(toggleFullScreen()));
+
+    QAvahiServicePublisher *publisher = new QAvahiServicePublisher(this);
+    publisher->publish("Qt Media Hub", "_qmh._tcp", 1234, "Qt Media Hub JSON-RPCv2 interface");
 
     RpcApi *rpcApi = new RpcApi(this);
     RpcConnection *connection = new RpcConnection(RpcConnection::Server, QHostAddress::Any, 1234, this);

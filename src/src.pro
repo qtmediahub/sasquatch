@@ -71,3 +71,8 @@ mac {
 #for() structure does not work with lupdate
 TRANSLATIONS = $$system(cat $$DESTDIR/supported_languages | while read i; do echo translations/"$i".ts; done)
 include(delaysymresolution.pri)
+
+# avahi support
+include(3rdparty/libqavahi/libqavahi.pri)
+INCLUDEPATH += 3rdparty/libqavahi/
+

@@ -4,10 +4,9 @@
 #include <QtGui>
 
 RemoteControl::RemoteControl(QWidget *parent)
-    : QWidget(parent)
+    : QWidget(parent), m_connection(0)
 {
     ui.setupUi(this);
-    m_connection = new RpcConnection(RpcConnection::Client, QHostAddress::Any, 1234);
 
     QSignalMapper *mapper = new QSignalMapper(this);
     #define MAPBUTTON(button, text) \
@@ -33,5 +32,17 @@ void RemoteControl::sendButtonPress(const QString &button)
 {
     qDebug() << "Sending button press " << button;
     m_connection->call("qmhrpc.remoteControlButtonPressed(QString)", button);
+}
+
+void RemoteControl::connectToService(const QHostAddress &address, int port)
+{
+    if (m_connection) {
+        qDebug() << "Already connected";
+        return;
+    }
+
+    show();
+    qDebug() << "Connecting to " << address.toString() << ":" << port;
+    m_connection = new RpcConnection(RpcConnection::Client, address, port);
 }
 

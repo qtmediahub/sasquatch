@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include "ui_remotecontrol.h"
+#include <QHostAddress>
 
 class RpcConnection;
 
@@ -12,6 +13,9 @@ class RemoteControl : public QWidget
 public:
     RemoteControl(QWidget *parent = 0);
     ~RemoteControl();
+
+public slots:
+    void connectToService(const QHostAddress &address, int port);
 
 private slots:
     void sendButtonPress(const QString &button);
