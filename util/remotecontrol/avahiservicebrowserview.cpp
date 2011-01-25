@@ -5,8 +5,7 @@ AvahiServiceBrowserView::AvahiServiceBrowserView(QWidget *parent)
     : QTreeView(parent)
 {
     m_browserModel = new QAvahiServiceBrowserModel(this);
-    m_browserModel->setServiceType("_qmh._tcp");
-    m_browserModel->browse();
+    m_browserModel->browse("_qmh._tcp");
     setModel(m_browserModel);
     connect(this, SIGNAL(activated(QModelIndex)), this, SLOT(handleActivated(QModelIndex)));
 }

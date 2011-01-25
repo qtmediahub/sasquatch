@@ -10,12 +10,12 @@
 #ifndef QAVAHISERVICEPUBLISHER_H
 #define QAVAHISERVICEPUBLISHER_H
 
-#include <avahi-common/thread-watch.h>
 #include <avahi-common/error.h>
 #include <avahi-common/malloc.h>
 #include <avahi-common/alternative.h>
 #include <avahi-client/client.h>
 #include <avahi-client/publish.h>
+#include <avahi-qt4/qt-watch.h>
 
 #include <QObject>
 
@@ -65,7 +65,6 @@ private:
     void doRegisterServices();
 
     QString m_serviceName;
-    AvahiThreadedPoll *m_threaded_poll;
     AvahiClient *m_client;
     AvahiEntryGroup *m_group;
     QList<Service> m_services;

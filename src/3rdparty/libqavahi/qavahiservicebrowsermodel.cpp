@@ -24,7 +24,8 @@ static void QABDEBUG(const char *fmt, ...)
 }
 
 QAvahiServiceBrowserModel::QAvahiServiceBrowserModel(QObject *parent)
-    : QAbstractListModel(parent), m_client(0), m_protocol(QAbstractSocket::UnknownNetworkLayerProtocol), m_browser(0), m_autoResolve(true)
+    : QAbstractListModel(parent), m_client(0), m_protocol(QAbstractSocket::UnknownNetworkLayerProtocol), m_browser(0), m_autoResolve(true),
+      m_browseWhenServerRunning(false)
 {
     qRegisterMetaType<QAvahiServiceBrowserModel::Service>();
     initialize();
@@ -32,26 +33,6 @@ QAvahiServiceBrowserModel::QAvahiServiceBrowserModel(QObject *parent)
 
 QAvahiServiceBrowserModel::~QAvahiServiceBrowserModel()
 {
-}
-
-void QAvahiServiceBrowserModel::setServiceType(const QString &serviceType)
-{
-    m_serviceType = serviceType;
-}
-
-QString QAvahiServiceBrowserModel::serviceType() const
-{
-    return m_serviceType;
-}
-
-void QAvahiServiceBrowserModel::setProtocol(QAbstractSocket::NetworkLayerProtocol protocol)
-{
-    m_protocol = protocol;
-}
-
-QAbstractSocket::NetworkLayerProtocol QAvahiServiceBrowserModel::protocol() const
-{
-    return m_protocol;
 }
 
 void QAvahiServiceBrowserModel::client_callback(AvahiClient *client, AvahiClientState state, void *userdata)
@@ -68,7 +49,10 @@ void QAvahiServiceBrowserModel::clientCallback(AvahiClient *client, AvahiClientS
         m_error = AVAHI_CLIENT_FAILURE;
         m_errorString = avahi_strerror(avahi_client_errno(client));
         emit changeNotification(Error);
+        // Once a client loses connection to the daemon, it doesn't seem to reconnect when the daemon
+        // reappears. Recreate the client. Note the model still contains the entries.
         uninitialize();
+        initialize();
         break;
     case AVAHI_CLIENT_CONNECTING:
         QABDEBUG("Client is connecting");
@@ -77,6 +61,10 @@ void QAvahiServiceBrowserModel::clientCallback(AvahiClient *client, AvahiClientS
     case AVAHI_CLIENT_S_RUNNING:
         QABDEBUG("Server running");
         emit changeNotification(ServerRunning);
+        if (m_browseWhenServerRunning) {
+            doBrowse();
+            m_browseWhenServerRunning = false;
+        }
         break;
     case AVAHI_CLIENT_S_COLLISION:
         QABDEBUG("Server name Collission");
@@ -127,6 +115,7 @@ void QAvahiServiceBrowserModel::browserCallback(AvahiServiceBrowser *browser, Av
         m_errorString = avahi_strerror(m_error);
         emit changeNotification(Error);
         uninitialize();
+        initialize();
         break;
 
     case AVAHI_BROWSER_NEW: {
@@ -180,11 +169,31 @@ void QAvahiServiceBrowserModel::initialize()
     }
 }
 
-void QAvahiServiceBrowserModel::browse()
+void QAvahiServiceBrowserModel::browse(const QString &serviceType, QAbstractSocket::NetworkLayerProtocol protocol)
 {
-    if (m_browser) // already browsing
-        return;
+    m_serviceType = serviceType;
+    m_protocol = protocol;
 
+    beginResetModel();
+    m_services.clear();
+    endResetModel();
+
+    if (m_browser) { // already browsing
+        avahi_service_browser_free(m_browser);
+        m_browser = 0;
+    }
+
+    if (avahi_client_get_state(m_client) != AVAHI_CLIENT_S_RUNNING) { // server not running, we should try later
+        QABDEBUG("Server is not running yet, will browse later. Check if avahi-daemon is running");
+        m_browseWhenServerRunning = true;
+        return;
+    }
+
+    doBrowse();
+}
+
+void QAvahiServiceBrowserModel::doBrowse()
+{
     int proto;
     switch (m_protocol) {
     case QAbstractSocket::IPv4Protocol: proto = AVAHI_PROTO_INET; break;
@@ -245,7 +254,7 @@ void QAvahiServiceBrowserModel::resolverCallback(AvahiServiceResolver *r, AvahiI
         QABDEBUG("Service found : name:%s type:%s domain:%s port:%d address:%s", name, type, domain, port, qPrintable(service.address.toString()));
         QABDEBUG("TXT: %s", qPrintable(service.textRecords.join(",")));
         emit resolved(idx);
-        emit dataChanged(createIndex(idx, 0), createIndex(idx, 0));
+        emit dataChanged(createIndex(idx, 0), createIndex(idx, 8));
     } else {
         QABDEBUG("Unhandled event in resolverCallback : %d", event);
     }
@@ -262,18 +271,22 @@ void QAvahiServiceBrowserModel::resolve(const QModelIndex &index)
 void QAvahiServiceBrowserModel::resolve(int idx)
 {
     Service &service = m_services[idx];
-    if (service.resolver)
+    if (service.resolver) // already resolving
         return;
 
-    AvahiServiceResolver *resolver = avahi_service_resolver_new(m_client, service.interface, service.protocol, service.name.toUtf8().constData(), 
-                                                                service.type.toUtf8().constData(), service.domain.toUtf8().constData(),
-                                                                AVAHI_PROTO_UNSPEC, (AvahiLookupFlags)0, resolver_callback, this /*userdata*/);
-    if (!resolver) {
+    if (avahi_client_get_state(m_client) != AVAHI_CLIENT_S_RUNNING) // server not running
+        QABDEBUG("Server is not running yet, cannot resolve. Check if avahi-daemon is running");
+
+    service.resolver = avahi_service_resolver_new(m_client, service.interface, service.protocol, service.name.toUtf8().constData(), 
+                                                  service.type.toUtf8().constData(), service.domain.toUtf8().constData(),
+                                                  AVAHI_PROTO_UNSPEC, (AvahiLookupFlags)0, resolver_callback, this /*userdata*/);
+
+    if (!service.resolver) {
         m_error = avahi_client_errno(m_client);
         m_errorString = avahi_strerror(m_error);
+        QABDEBUG("Cannot create resolver. %s\n", qPrintable(m_errorString));
         emit resolved(idx);
     }
-    service.resolver = resolver;
 }
 
 int QAvahiServiceBrowserModel::rowCount(const QModelIndex &parent) const

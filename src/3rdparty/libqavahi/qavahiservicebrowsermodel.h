@@ -29,12 +29,6 @@ public:
     QAvahiServiceBrowserModel(QObject *parent = 0);
     ~QAvahiServiceBrowserModel();
 
-    void setServiceType(const QString &serviceType);
-    QString serviceType() const;
-
-    void setProtocol(QAbstractSocket::NetworkLayerProtocol protocol);
-    QAbstractSocket::NetworkLayerProtocol protocol() const;
-
     void setAutoResolve(bool ar) { m_autoResolve = ar; }
     bool autoResolve() const { return m_autoResolve; }
 
@@ -88,7 +82,7 @@ public:
 
     Service serviceFromIndex(const QModelIndex &idx) const { return m_services.value(idx.row()); }
 
-    void browse();
+    void browse(const QString &serviceType, QAbstractSocket::NetworkLayerProtocol protocol = QAbstractSocket::UnknownNetworkLayerProtocol);
 
     // reimp
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
@@ -122,6 +116,7 @@ private:
     void initialize();
     void uninitialize();
     int serviceIndex(const char *name, const char *type, const char *domain, AvahiIfIndex interface, AvahiProtocol protocol);
+    void doBrowse();
 
     AvahiClient *m_client;
     QString m_serviceType;
@@ -131,6 +126,7 @@ private:
     QString m_errorString;
     bool m_autoResolve;
     QList<Service> m_services;
+    bool m_browseWhenServerRunning;
 };
 
 Q_DECLARE_METATYPE(QAvahiServiceBrowserModel::Service)

@@ -25,8 +25,9 @@ static void QAPDEBUG(const char *fmt, ...)
 // http://avahi.sourcearchive.com/documentation/0.6.25-1ubuntu2/main.html
 
 QAvahiServicePublisher::QAvahiServicePublisher(QObject *parent)
-    : QObject(parent), m_threaded_poll(0), m_client(0), m_group(0)
+    : QObject(parent), m_client(0), m_group(0)
 {
+    initialize();
 }
 
 QAvahiServicePublisher::~QAvahiServicePublisher()
@@ -36,18 +37,12 @@ QAvahiServicePublisher::~QAvahiServicePublisher()
 
 void QAvahiServicePublisher::initialize()
 {
-    if (m_threaded_poll)
-        return;
-    m_threaded_poll = avahi_threaded_poll_new();
-    m_client = avahi_client_new(avahi_threaded_poll_get(m_threaded_poll), AVAHI_CLIENT_NO_FAIL, client_callback, this /* userdata */, &m_error);
+    const AvahiPoll *poll_api = avahi_qt_poll_get();
+    m_client = avahi_client_new(poll_api, AVAHI_CLIENT_NO_FAIL, client_callback, this /* userdata */, &m_error);
     if (!m_client) {
         QAPDEBUG("Failed to create client : %s", avahi_strerror(m_error));
-        avahi_threaded_poll_free(m_threaded_poll);
-        m_threaded_poll = 0;
         m_errorString = avahi_strerror(m_error);
         emit changeNotification(Error);
-    } else {
-        avahi_threaded_poll_start(m_threaded_poll);
     }
 }
 
@@ -55,11 +50,7 @@ void QAvahiServicePublisher::uninitialize()
 {
     if (m_group) {
         avahi_entry_group_free(m_group);
-    }
-    if (m_threaded_poll) {
-        avahi_threaded_poll_quit(m_threaded_poll);
-        avahi_threaded_poll_free(m_threaded_poll);
-        m_threaded_poll = 0;
+        m_group = 0;
     }
     if (m_client) {
         avahi_client_free(m_client);
@@ -80,8 +71,6 @@ void QAvahiServicePublisher::publish(const QString &name, const QString &type, q
 
 void QAvahiServicePublisher::publish(const Service &service)
 {
-    initialize();
-
     m_services.append(service);
 
     if (!m_group) {
@@ -145,6 +134,7 @@ void QAvahiServicePublisher::clientCallback(AvahiClient *client, AvahiClientStat
         m_errorString = avahi_strerror(avahi_client_errno(client));
         emit changeNotification(Error);
         uninitialize();
+        initialize();
         break;
     case AVAHI_CLIENT_CONNECTING:
         QAPDEBUG("Client is connecting");
@@ -198,6 +188,7 @@ void QAvahiServicePublisher::entryGroupCallback(AvahiEntryGroup *group, AvahiEnt
         m_errorString = avahi_strerror(m_error);
         emit changeNotification(Error);
         uninitialize();
+        initialize();
         return;
     case AVAHI_ENTRY_GROUP_REGISTERING:
         QAPDEBUG("Registring the group");
