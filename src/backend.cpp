@@ -68,7 +68,7 @@ public:
     {
         qApp->installEventFilter(this);
 
-        inputIdleTimer.setInterval(Config::value("idle-timeout", 2*60)*1000);
+        inputIdleTimer.setInterval(Config::value("idle-timeout", 120)*1000);
         inputIdleTimer.setSingleShot(true);
         inputIdleTimer.start();
 
