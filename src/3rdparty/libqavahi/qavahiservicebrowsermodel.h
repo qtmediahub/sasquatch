@@ -122,7 +122,8 @@ private:
     AvahiClient *m_client;
     QString m_serviceType;
     QAbstractSocket::NetworkLayerProtocol m_protocol;
-    AvahiServiceBrowser *m_browser;
+    enum BrowseType { NoBrowserType, ServiceBrowser, TypeBrowser } m_browserType;
+    void *m_browser;
     int m_error;
     QString m_errorString;
     bool m_autoResolve;

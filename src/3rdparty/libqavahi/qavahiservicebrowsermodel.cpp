@@ -16,15 +16,18 @@ static void QABDEBUG(const char *fmt, ...)
 {
     static const bool debug = qgetenv("DEBUG").toInt();
     if (debug) {
+        char buf[1024];
         va_list ap;
         va_start(ap, fmt);
-        qDebug(fmt, ap);
+        vsnprintf(buf, sizeof(buf), fmt, ap);
         va_end(ap);
+        qDebug("%s", buf);
     }
 }
 
 QAvahiServiceBrowserModel::QAvahiServiceBrowserModel(QObject *parent)
-    : QAbstractListModel(parent), m_client(0), m_protocol(QAbstractSocket::UnknownNetworkLayerProtocol), m_browser(0), m_autoResolve(true)
+    : QAbstractListModel(parent), m_client(0), m_protocol(QAbstractSocket::UnknownNetworkLayerProtocol), m_browserType(NoBrowserType),
+      m_browser(0), m_autoResolve(true)
 {
     qRegisterMetaType<QAvahiServiceBrowserModel::Service>();
     initialize();
@@ -32,6 +35,41 @@ QAvahiServiceBrowserModel::QAvahiServiceBrowserModel(QObject *parent)
 
 QAvahiServiceBrowserModel::~QAvahiServiceBrowserModel()
 {
+}
+
+void QAvahiServiceBrowserModel::initialize()
+{
+    const AvahiPoll *poll_api = avahi_qt_poll_get();
+
+    m_client = avahi_client_new(poll_api, AVAHI_CLIENT_NO_FAIL,
+                                client_callback, this /* userdata */, &m_error);
+    if (!m_client) {
+        QABDEBUG("Failed to create client %s", avahi_strerror(m_error));
+        m_errorString = avahi_strerror(m_error);
+        emit changeNotification(Error);
+    }
+}
+
+void QAvahiServiceBrowserModel::uninitialize()
+{
+    if (m_browser) {
+        if (m_browserType == ServiceBrowser) {
+            avahi_service_browser_free(static_cast<AvahiServiceBrowser *>(m_browser));
+        }
+        m_browserType = NoBrowserType;
+        m_browser = 0;
+    }
+    if (m_client) {
+        avahi_client_free(m_client);
+        m_client = 0;
+    }
+}
+
+void QAvahiServiceBrowserModel::resetModel()
+{
+    beginResetModel();
+    m_services.clear();
+    endResetModel();
 }
 
 void QAvahiServiceBrowserModel::client_callback(AvahiClient *client, AvahiClientState state, void *userdata)
@@ -76,13 +114,6 @@ void QAvahiServiceBrowserModel::clientCallback(AvahiClient *client, AvahiClientS
         QABDEBUG("Unhandled state in clientCallback: %d", state);
         break;
     }
-}
-
-void QAvahiServiceBrowserModel::resetModel()
-{
-    beginResetModel();
-    m_services.clear();
-    endResetModel();
 }
 
 void QAvahiServiceBrowserModel::browser_callback(AvahiServiceBrowser *browser, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, const char *name, const char *type, const char *domain, AvahiLookupResultFlags flags, void *userdata)
@@ -162,19 +193,6 @@ void QAvahiServiceBrowserModel::browserCallback(AvahiServiceBrowser *browser, Av
 
 }
 
-void QAvahiServiceBrowserModel::initialize()
-{
-    const AvahiPoll *poll_api = avahi_qt_poll_get();
-
-    m_client = avahi_client_new(poll_api, AVAHI_CLIENT_NO_FAIL,
-                                client_callback, this /* userdata */, &m_error);
-    if (!m_client) {
-        QABDEBUG("Failed to create client %s", avahi_strerror(m_error));
-        m_errorString = avahi_strerror(m_error);
-        emit changeNotification(Error);
-    }
-}
-
 void QAvahiServiceBrowserModel::browse(const QString &serviceType, QAbstractSocket::NetworkLayerProtocol protocol)
 {
     m_serviceType = serviceType;
@@ -183,7 +201,9 @@ void QAvahiServiceBrowserModel::browse(const QString &serviceType, QAbstractSock
     resetModel();
 
     if (m_browser) { // already browsing; remove existing browser
-        avahi_service_browser_free(m_browser);
+        if (m_browserType == ServiceBrowser)
+            avahi_service_browser_free(static_cast<AvahiServiceBrowser *>(m_browser));
+        m_browserType = NoBrowserType;
         m_browser = 0;
     }
 
@@ -195,17 +215,23 @@ void QAvahiServiceBrowserModel::browse(const QString &serviceType, QAbstractSock
     doBrowse(m_client);
 }
 
+static int toAvahiProtocol(QAbstractSocket::NetworkLayerProtocol protocol)
+{
+    switch (protocol) {
+    case QAbstractSocket::IPv4Protocol: return AVAHI_PROTO_INET;
+    case QAbstractSocket::IPv6Protocol: return AVAHI_PROTO_INET6;
+    case QAbstractSocket::UnknownNetworkLayerProtocol: 
+    default: return AVAHI_PROTO_UNSPEC;
+    }
+    // never reached
+}
+
+// This function takes client as argument because it's called from clientCallback. Since
+// clientCallback maybe called from avahi_client_new, m_client may still be 0.
 void QAvahiServiceBrowserModel::doBrowse(AvahiClient *client)
 {
-    int proto;
-    switch (m_protocol) {
-    case QAbstractSocket::IPv4Protocol: proto = AVAHI_PROTO_INET; break;
-    case QAbstractSocket::IPv6Protocol: proto = AVAHI_PROTO_INET6; break;
-    case QAbstractSocket::UnknownNetworkLayerProtocol: 
-    default: proto = AVAHI_PROTO_UNSPEC; break;
-    }
-
     QABDEBUG("Creating browser");
+    int proto = toAvahiProtocol(m_protocol);
 
     m_browser = avahi_service_browser_new(client, AVAHI_IF_UNSPEC, proto, m_serviceType.toUtf8().constData(),
                                           NULL /* domain */, (AvahiLookupFlags)0, /*AVAHI_LOOKUP_USE_MULTICAST*/
@@ -213,18 +239,8 @@ void QAvahiServiceBrowserModel::doBrowse(AvahiClient *client)
 
     if (!m_browser) {
         QABDEBUG("Failed to create browser");
-    }
-}
-
-void QAvahiServiceBrowserModel::uninitialize()
-{
-    if (m_browser) {
-        avahi_service_browser_free(m_browser);
-        m_browser = 0;
-    }
-    if (m_client) {
-        avahi_client_free(m_client);
-        m_client = 0;
+    } else {
+        m_browserType = ServiceBrowser;
     }
 }
 

@@ -15,10 +15,12 @@ static void QAPDEBUG(const char *fmt, ...)
 {
     static const bool debug = qgetenv("DEBUG").toInt();
     if (debug) {
+        char buf[1024];
         va_list ap;
         va_start(ap, fmt);
-        qDebug(fmt, ap);
+        vsnprintf(buf, sizeof(buf), fmt, ap);
         va_end(ap);
+        qDebug("%s", buf);
     }
 }
 
@@ -81,6 +83,8 @@ void QAvahiServicePublisher::publish(const Service &service)
     doPublish(m_client);
 }
 
+// This function takes client as argument because it's called from clientCallback. Since
+// clientCallback maybe called from avahi_client_new, m_client may still be 0.
 void QAvahiServicePublisher::doPublish(AvahiClient *client)
 {
     QAPDEBUG("Publishing service");
