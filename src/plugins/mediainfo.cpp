@@ -1,16 +1,17 @@
 #include "mediainfo.h"
 #include "backend.h"
 
-MediaInfo::MediaInfo(MediaModel::MediaInfoType type, const QString &path)
+MediaInfo::MediaInfo(MediaModel::MediaInfoType type, const QString &path, MediaModel::MediaType mediaType)
     : parent(0)
     , type(type)
+    , mediaType(mediaType)
     , filePath(path)
     , status(NotSearched)
     , fileSize(-1)
 {
     if (type == MediaModel::Directory || type == MediaModel::SearchPath) {
         //FIXME: This should be path/../ ??
-        MediaInfo *info = new MediaInfo(MediaModel::DotDot, path + "/../");
+        MediaInfo *info = new MediaInfo(MediaModel::DotDot, path + "/../", mediaType);
         info->name = QT_TRANSLATE_NOOP("MediaModel", "..");
         info->parent = this;
         children.append(info);

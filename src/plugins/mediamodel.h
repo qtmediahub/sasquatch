@@ -150,11 +150,13 @@ public:
     int previewWidth() const;
     void setPreviewWidth(int width);
 
+public slots:
+    MediaType mediaType() { return m_type; }
+
 private slots:
     void addMedia(MediaInfo *media);
     void searchThreadFinished();
     void setCurrentScanPath(const QString &dir);
-    MediaType mediaType() { return m_type; };
 
 signals:
     void currentScanPathChanged();

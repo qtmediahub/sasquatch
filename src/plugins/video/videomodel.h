@@ -25,7 +25,7 @@
 class VideoInfo : public MediaInfo
 {
 public:
-    VideoInfo(const QString &path) :  MediaInfo(MediaModel::File, path), length(0) { }
+    VideoInfo(const QString &path) :  MediaInfo(MediaModel::File, path, MediaModel::Video), length(0) { }
 
     // video properties
     int  length;
