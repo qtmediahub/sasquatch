@@ -37,6 +37,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QGLWidget>
 #endif
 
+#include <QHostInfo>
+
 #include "qavahiservicepublisher.h"
 #include "qml-extensions/actionmapper.h"
 #include "rpc/rpcconnection.h"
@@ -124,7 +126,7 @@ Frontend::Frontend(QWidget *p)
     new QShortcut(QKeySequence(Qt::ALT + Qt::Key_Return), this, SLOT(toggleFullScreen()));
 
     QAvahiServicePublisher *publisher = new QAvahiServicePublisher(this);
-    publisher->publish("Qt Media Hub", "_qmh._tcp", 1234, "Qt Media Hub JSON-RPCv2 interface");
+    publisher->publish(QHostInfo::localHostName(), "_qmh._tcp", 1234, "Qt Media Hub JSON-RPCv2 interface");
 
     RpcConnection *connection = new RpcConnection(RpcConnection::Server, QHostAddress::Any, 1234, this);
     connection->registerObject(d->actionMap);
