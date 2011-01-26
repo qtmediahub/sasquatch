@@ -23,6 +23,9 @@ RemoteControl::RemoteControl(QWidget *parent)
     MAPBUTTON(ui.infoButton, ActionMapper::Context);
 
     connect(mapper, SIGNAL(mapped(int)), this, SLOT(sendButtonPress(int)));
+
+    m_connection = new RpcConnection(RpcConnection::Client, this);
+    connect(m_connection, SIGNAL(disconnected()), this, SIGNAL(disconnected()));
 }
 
 RemoteControl::~RemoteControl()
@@ -36,13 +39,8 @@ void RemoteControl::sendButtonPress(int action)
 
 void RemoteControl::connectToService(const QHostAddress &address, int port)
 {
-    if (m_connection) {
-        qDebug() << "Already connected";
-        return;
-    }
-
-    show();
     qDebug() << "Connecting to " << address.toString() << ":" << port;
-    m_connection = new RpcConnection(RpcConnection::Client, address, port);
+    m_connection->connectToHost(address, port);
+    show();
 }
 

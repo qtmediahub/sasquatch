@@ -36,6 +36,7 @@ public:
         Client
     };
     RpcConnection(Mode mode, const QHostAddress &address, qint32 port, QObject *parent = 0);
+    RpcConnection(Mode mode, QObject *parent = 0);
 
     enum ErrorCode {
         ParseError = -32700,
@@ -47,8 +48,6 @@ public:
         ServerErrorEnd = -32000
     };
 
-    bool waitForConnected(int msecs = 5000);
-
     void registerObject(QObject *object);
 
     int call(const QByteArray &method, 
@@ -58,10 +57,13 @@ public:
              const QVariant &arg6 = QVariant(), const QVariant &arg7 = QVariant(),
              const QVariant &arg8 = QVariant(), const QVariant &arg9 = QVariant());
 
-private:
     bool listen(const QHostAddress &address = QHostAddress::Any, quint16 port = 0);
-
     void connectToHost(const QHostAddress &address, quint16 port);
+    bool waitForConnected(int msecs = 5000);
+
+signals:
+    void connected();
+    void disconnected();
 
 private slots:
     void handleNewConnection();

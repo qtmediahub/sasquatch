@@ -17,6 +17,9 @@ public:
 public slots:
     void connectToService(const QHostAddress &address, int port);
 
+signals:
+    void disconnected();
+
 private slots:
     void sendButtonPress(int action);
 

@@ -37,6 +37,11 @@ RpcConnection::RpcConnection(RpcConnection::Mode mode, const QHostAddress &addre
     }
 }
 
+RpcConnection::RpcConnection(RpcConnection::Mode mode, QObject *parent)
+    : QObject(parent), m_mode(mode), m_server(0), m_socket(0), m_id(1)
+{
+}
+
 void RpcConnection::registerObject(QObject *object)
 {
     if (object->objectName().startsWith("rpc.")) {
@@ -48,10 +53,13 @@ void RpcConnection::registerObject(QObject *object)
 
 void RpcConnection::connectToHost(const QHostAddress &address, quint16 port)
 {
-    if (!m_socket)
+    if (!m_socket) {
         m_socket = new QTcpSocket(this);
+        connect(m_socket, SIGNAL(readyRead()), this, SLOT(handleReadyRead()));
+        connect(m_socket, SIGNAL(connected()), this, SIGNAL(connected()));
+        connect(m_socket, SIGNAL(disconnected()), this, SIGNAL(disconnected()));
+    }
     m_socket->connectToHost(address, port);
-    connect(m_socket, SIGNAL(readyRead()), this, SLOT(handleReadyRead()));
 }
 
 bool RpcConnection::waitForConnected(int msecs)
