@@ -62,6 +62,13 @@ void RpcConnection::connectToHost(const QHostAddress &address, quint16 port)
     m_socket->connectToHost(address, port);
 }
 
+void RpcConnection::disconnectFromHost()
+{
+    if (m_socket) {
+        m_socket->disconnectFromHost();
+    }
+}
+
 bool RpcConnection::waitForConnected(int msecs)
 {
     return m_socket->waitForConnected(msecs);

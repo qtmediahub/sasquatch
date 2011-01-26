@@ -61,6 +61,9 @@ public:
     void connectToHost(const QHostAddress &address, quint16 port);
     bool waitForConnected(int msecs = 5000);
 
+public slots:
+    void disconnectFromHost();
+
 signals:
     void connected();
     void disconnected();
