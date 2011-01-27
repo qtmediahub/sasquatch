@@ -13,9 +13,10 @@ DEFINES += HAVE_AVAHI
 SOURCES += avahiservicebrowserview.cpp
 HEADERS += avahiservicebrowserview.h
 
-TEMP_DIR = tmp
+TEMP_DIR = $$PWD
 OBJECTS_DIR = $$TEMP_DIR/.obj
 MOC_DIR = $$TEMP_DIR/.moc
+UI_DIR = $$TEMP_DIR/.ui
 
 FORMS += remotecontrol.ui
 

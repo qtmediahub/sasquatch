@@ -15,4 +15,6 @@ SOURCES += \
     animatedtilesplugin.cpp \
     animatedtilesitem.cpp
 
+RCC_DIR = $$PWD/.rcc
+
 RESOURCES = animatedtiles.qrc

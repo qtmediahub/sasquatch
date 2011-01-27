@@ -8,6 +8,8 @@
 *.swp
 *.rej
 *.so
+*.ui
+*.rcc
 .qmake.cache
 Makefile
 *.user
@@ -15,4 +17,5 @@ Makefile
 hub/qtmediahub
 hub/qmh
 hub/resources/lib/lib*
+hub/remotecontrol
 .directory
