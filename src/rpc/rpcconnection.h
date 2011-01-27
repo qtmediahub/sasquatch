@@ -73,10 +73,12 @@ private slots:
     void handleReadyRead();
 
 private:
-    void sendResponse(const QString &id, const QVariant &result);
-    void sendError(const QString &id, int error, const QString &message, const QString &data = QString());
+    void init();
 
-    void handleRpcCall(const QVariantMap &map);
+    void sendResponse(QTcpSocket *socket, const QString &id, const QVariant &result);
+    void sendError(QTcpSocket *socket, const QString &id, int error, const QString &message, const QString &data = QString());
+
+    void handleRpcCall(QTcpSocket *socket, const QVariantMap &map);
     void handleRpcResponse(const QVariantMap &map);
     void handleRpcError(const QVariantMap &map);
 
