@@ -20,6 +20,9 @@ public slots:
 signals:
     void disconnected();
 
+protected:
+    void closeEvent(QCloseEvent *event);
+
 private slots:
     void sendButtonPress(int action);
 

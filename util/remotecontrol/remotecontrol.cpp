@@ -45,3 +45,8 @@ void RemoteControl::connectToService(const QHostAddress &address, int port)
     show();
 }
 
+void RemoteControl::closeEvent(QCloseEvent *event)
+{
+    m_connection->disconnectFromHost();
+}
+
