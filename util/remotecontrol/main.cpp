@@ -8,8 +8,10 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
 
     RemoteControl remoteControl;
+#ifndef Q_WS_MAEMO_5
     remoteControl.setWindowFlags(Qt::WindowStaysOnTopHint|Qt::X11BypassWindowManagerHint);
     remoteControl.adjustSize();
+#endif
     QObject::connect(&remoteControl, SIGNAL(disconnected()), &remoteControl, SLOT(hide()));
 
     AvahiServiceBrowserView serviceBrowserView;
