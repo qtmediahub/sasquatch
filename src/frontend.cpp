@@ -111,6 +111,8 @@ void FrontendPrivate::resetUI()
     if (declarativeWidget) {
         QObject* coreObject = declarativeWidget->rootObject();
         coreObject->setProperty("state", "");
+        //coreObject->setProperty("focus", true);
+        QMetaObject::invokeMethod(coreObject, "resetFocus");
     }
 }
 
