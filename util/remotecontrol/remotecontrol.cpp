@@ -25,7 +25,7 @@ RemoteControl::RemoteControl(QWidget *parent)
     connect(mapper, SIGNAL(mapped(int)), this, SLOT(sendButtonPress(int)));
 
     m_connection = new RpcConnection(RpcConnection::Client, this);
-    connect(m_connection, SIGNAL(disconnected()), this, SIGNAL(disconnected()));
+    connect(m_connection, SIGNAL(clientDisconnected()), this, SIGNAL(disconnected()));
     connect(ui.quitButton, SIGNAL(clicked()), m_connection, SLOT(disconnectFromHost()));
 }
 

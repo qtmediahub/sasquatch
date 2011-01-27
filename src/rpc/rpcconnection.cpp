@@ -56,8 +56,8 @@ void RpcConnection::connectToHost(const QHostAddress &address, quint16 port)
     if (!m_socket) {
         m_socket = new QTcpSocket(this);
         connect(m_socket, SIGNAL(readyRead()), this, SLOT(handleReadyRead()));
-        connect(m_socket, SIGNAL(connected()), this, SIGNAL(connected()));
-        connect(m_socket, SIGNAL(disconnected()), this, SIGNAL(disconnected()));
+        connect(m_socket, SIGNAL(connected()), this, SIGNAL(clientConnected()));
+        connect(m_socket, SIGNAL(disconnected()), this, SIGNAL(clientDisconnected()));
     }
     m_socket->connectToHost(address, port);
 }

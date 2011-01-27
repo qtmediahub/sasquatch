@@ -65,8 +65,8 @@ public slots:
     void disconnectFromHost();
 
 signals:
-    void connected();
-    void disconnected();
+    void clientConnected();
+    void clientDisconnected();
 
 private slots:
     void handleNewConnection();
