@@ -87,6 +87,11 @@ void QAvahiServicePublisher::publish(const Service &service)
 // clientCallback maybe called from avahi_client_new, m_client may still be 0.
 void QAvahiServicePublisher::doPublish(AvahiClient *client)
 {
+    if (m_services.isEmpty()) {
+        QAPDEBUG("Nothing to publish");
+        return;
+    }
+
     QAPDEBUG("Publishing service");
 
     if (!m_group) {
