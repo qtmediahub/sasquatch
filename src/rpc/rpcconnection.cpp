@@ -153,11 +153,7 @@ void RpcConnection::handleReadyRead()
 
 void RpcConnection::handleRpcCall(QTcpSocket *socket, const QVariantMap &map)
 {
-    QVariantList list = map["params"].toList();
-    QVarLengthArray<void *, 10> args(list.count()+1);
-    for (int i = 0; i < list.count(); i++) {
-        args[i+1] = list[i].data();
-    }
+    QVariantList params = map["params"].toList();
 
     QString rpcMethod = map["method"].toString();
     int idx = rpcMethod.indexOf('.');
@@ -183,12 +179,17 @@ void RpcConnection::handleRpcCall(QTcpSocket *socket, const QVariantMap &map)
         return;
     }
 
+    QVarLengthArray<void *, 10> args(params.count()+1);
     QVariant result;
     if (mm.typeName()) {
         result = QVariant(QVariant::nameToType(mm.typeName()), (void *)0);
         args[0] = result.data();
     } else {
         args[0] = 0;
+    }
+
+    for (int i = 0; i < params.count(); i++) {
+        args[i+1] = params[i].data();
     }
 
     QMetaObject::metacall(object, QMetaObject::InvokeMetaMethod, idx, args.data());
