@@ -30,6 +30,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 RpcConnection::RpcConnection(RpcConnection::Mode mode, const QHostAddress &address, qint32 port, QObject *parent)
     : QObject(parent), m_mode(mode), m_server(0), m_socket(0), m_id(1)
 {
+    init();
     if (m_mode == Server) {
         listen(address, port);
     } else if (m_mode == Client) {
@@ -40,6 +41,20 @@ RpcConnection::RpcConnection(RpcConnection::Mode mode, const QHostAddress &addre
 RpcConnection::RpcConnection(RpcConnection::Mode mode, QObject *parent)
     : QObject(parent), m_mode(mode), m_server(0), m_socket(0), m_id(1)
 {
+    init();
+}
+
+void RpcConnection::init()
+{
+    if (m_mode == Client) {
+        m_socket = new QTcpSocket(this);
+        connect(m_socket, SIGNAL(readyRead()), this, SLOT(handleReadyRead()));
+        connect(m_socket, SIGNAL(connected()), this, SIGNAL(clientConnected()));
+        connect(m_socket, SIGNAL(disconnected()), this, SIGNAL(clientDisconnected()));
+    } else {
+        m_server = new QTcpServer(this);
+        connect(m_server, SIGNAL(newConnection()), this, SLOT(handleNewConnection()));
+    }
 }
 
 void RpcConnection::registerObject(QObject *object)
@@ -53,46 +68,37 @@ void RpcConnection::registerObject(QObject *object)
 
 void RpcConnection::connectToHost(const QHostAddress &address, quint16 port)
 {
-    if (!m_socket) {
-        m_socket = new QTcpSocket(this);
-        connect(m_socket, SIGNAL(readyRead()), this, SLOT(handleReadyRead()));
-        connect(m_socket, SIGNAL(connected()), this, SIGNAL(connected()));
-        connect(m_socket, SIGNAL(disconnected()), this, SIGNAL(disconnected()));
-    }
+    Q_ASSERT(m_mode == Client);
     m_socket->connectToHost(address, port);
 }
 
 void RpcConnection::disconnectFromHost()
 {
-    if (m_socket) {
-        m_socket->disconnectFromHost();
-    }
+    Q_ASSERT(m_mode == Client);
+    m_socket->disconnectFromHost();
 }
 
 bool RpcConnection::waitForConnected(int msecs)
 {
+    Q_ASSERT(m_mode == Client);
     return m_socket->waitForConnected(msecs);
 }
 
 bool RpcConnection::listen(const QHostAddress &address, quint16 port)
 {
-    if (!m_server) {
-        m_server = new QTcpServer(this);
-        connect(m_server, SIGNAL(newConnection()), this, SLOT(handleNewConnection()));
-    }
-
+    Q_ASSERT(m_mode == Server);
     return m_server->listen(address, port);
 }
 
 void RpcConnection::handleNewConnection()
 {
-    // ## Handle multiple connections
-    m_socket = m_server->nextPendingConnection();
-    connect(m_socket, SIGNAL(readyRead()), this, SLOT(handleReadyRead()));
+    QTcpSocket *socket = m_server->nextPendingConnection();
+    connect(socket, SIGNAL(readyRead()), this, SLOT(handleReadyRead()));
+    connect(socket, SIGNAL(disconnected()), socket, SLOT(deleteLater()));
     qDebug() << "Connected to client";
 }
 
-void RpcConnection::sendError(const QString &id, int error, const QString &message, const QString &data)
+void RpcConnection::sendError(QTcpSocket *socket, const QString &id, int error, const QString &message, const QString &data)
 {
     QVariantMap responseMap;
     responseMap.insert("jsonrpc", "2.0");
@@ -108,48 +114,46 @@ void RpcConnection::sendError(const QString &id, int error, const QString &messa
 
     struct Header { int length; } header;
     header.length = htonl(jsonRpc.length());
-    m_socket->write((const char *)&header, sizeof(header));
-    m_socket->write(jsonRpc);
-    m_socket->flush();
+    socket->write((const char *)&header, sizeof(header));
+    socket->write(jsonRpc);
+    socket->flush();
 }
 
 void RpcConnection::handleReadyRead()
 {
+    QTcpSocket *socket = qobject_cast<QTcpSocket *>(sender());
+    Q_ASSERT(socket);
     do {
         struct Header { int length; } header;
-        m_socket->read((char *)&header, sizeof(header));
+        socket->read((char *)&header, sizeof(header));
         header.length = ntohl(header.length);
-        QByteArray msg = m_socket->read(header.length); // ## assumes we got complete message
+        QByteArray msg = socket->read(header.length); // ## assumes we got complete message
 
         QString error;
         QVariantMap map = Json::parse(msg, &error).toMap();
         if (!error.isEmpty() || map["jsonrpc"].toString() != "2.0") {
             if (m_mode == Server)
-                sendError(map["id"].toString(), ParseError, "Malformatted JSON-RPC", error);
+                sendError(socket, map["id"].toString(), ParseError, "Malformatted JSON-RPC", error);
             qWarning() << "Malformatted JSON-RPC " << error;
             return;
         }
 
         if (map.contains("method")) {
-            handleRpcCall(map);
+            handleRpcCall(socket, map);
         } else if (map.contains("result")) {
             handleRpcResponse(map);
         } else if (map.contains("error")) {
             handleRpcError(map);
         } else {
-            sendError(map["id"].toString(), InvalidRequest, "Invalid request. Mot a method call, result or error");
+            sendError(socket, map["id"].toString(), InvalidRequest, "Invalid request. Mot a method call, result or error");
             qWarning() << "No idea what to do with this message" << msg;
         }
-    } while (m_socket->bytesAvailable() != 0);
+    } while (socket->bytesAvailable() != 0);
 }
 
-void RpcConnection::handleRpcCall(const QVariantMap &map)
+void RpcConnection::handleRpcCall(QTcpSocket *socket, const QVariantMap &map)
 {
-    QVariantList list = map["params"].toList();
-    QVarLengthArray<void *, 10> args(list.count()+1);
-    for (int i = 0; i < list.count(); i++) {
-        args[i+1] = list[i].data();
-    }
+    QVariantList params = map["params"].toList();
 
     QString rpcMethod = map["method"].toString();
     int idx = rpcMethod.indexOf('.');
@@ -157,24 +161,25 @@ void RpcConnection::handleRpcCall(const QVariantMap &map)
     QString method = rpcMethod.mid(idx+1);
     QObject *object = m_objects.value(objName);
     if (!object) {
-        sendError(map["id"].toString(), MethodNotFound, "No such object");
+        sendError(socket, map["id"].toString(), MethodNotFound, "No such object");
         qWarning() << "RPC object " << rpcMethod << " not found";
         return;
     }
 
     idx = object->metaObject()->indexOfMethod(method.toLatin1());
     if (idx < 0) {
-        sendError(map["id"].toString(), MethodNotFound, "No such method");
+        sendError(socket, map["id"].toString(), MethodNotFound, "No such method");
         qWarning() << "Object '" << objName << "' does not have method named " << method;
         return;
     }
     QMetaMethod mm = object->metaObject()->method(idx);
     if (mm.access() == QMetaMethod::Private || mm.methodType() == QMetaMethod::Signal) {
-        sendError(map["id"].toString(), MethodNotFound, "Method is private or is a signal");
+        sendError(socket, map["id"].toString(), MethodNotFound, "Method is private or is a signal");
         qWarning() << "Method " << method << " is a signal or has private access";
         return;
     }
 
+    QVarLengthArray<void *, 10> args(params.count()+1);
     QVariant result;
     if (mm.typeName()) {
         result = QVariant(QVariant::nameToType(mm.typeName()), (void *)0);
@@ -183,12 +188,16 @@ void RpcConnection::handleRpcCall(const QVariantMap &map)
         args[0] = 0;
     }
 
+    for (int i = 0; i < params.count(); i++) {
+        args[i+1] = params[i].data();
+    }
+
     QMetaObject::metacall(object, QMetaObject::InvokeMetaMethod, idx, args.data());
 
-    sendResponse(map["id"].toString(), args[0] ? *static_cast<QVariant *>(args[0]) : QVariant());
+    sendResponse(socket, map["id"].toString(), args[0] ? *static_cast<QVariant *>(args[0]) : QVariant());
 }
 
-void RpcConnection::sendResponse(const QString &id, const QVariant &result)
+void RpcConnection::sendResponse(QTcpSocket *socket, const QString &id, const QVariant &result)
 {
     QVariantMap responseMap;
     responseMap.insert("jsonrpc", "2.0");
@@ -198,9 +207,9 @@ void RpcConnection::sendResponse(const QString &id, const QVariant &result)
 
     struct Header { int length; } header;
     header.length = htonl(jsonRpc.length());
-    m_socket->write((const char *)&header, sizeof(header));
-    m_socket->write(jsonRpc);
-    m_socket->flush();
+    socket->write((const char *)&header, sizeof(header));
+    socket->write(jsonRpc);
+    socket->flush();
 }
 
 void RpcConnection::handleRpcResponse(const QVariantMap &map)
@@ -217,6 +226,7 @@ int RpcConnection::call(const QByteArray &method, const QVariant &arg0, const QV
                         const QVariant &arg2, const QVariant &arg3, const QVariant &arg4, const QVariant &arg5,
                         const QVariant &arg6, const QVariant &arg7, const QVariant &arg8, const QVariant &arg9)
 {
+    Q_ASSERT(m_mode == Client); // can't invoke methods in server mode since we use m_socket below
     struct Header { int length; } header;
 
     QVariantList params;
