@@ -12,6 +12,10 @@ StaticServiceBrowserView::StaticServiceBrowserView(QWidget *parent)
     }
 
     m_model = new QStandardItemModel(this);
+    QStringList headerLabels;
+    headerLabels << tr("Host Name") << tr("IP") << tr("Port");
+    m_model->setHorizontalHeaderLabels(headerLabels);
+
     QStandardItem *rootItem = m_model->invisibleRootItem();
 
     QTextStream stream(&file);
