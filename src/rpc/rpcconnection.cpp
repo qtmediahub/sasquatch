@@ -95,7 +95,7 @@ void RpcConnection::handleNewConnection()
     QTcpSocket *socket = m_server->nextPendingConnection();
     connect(socket, SIGNAL(readyRead()), this, SLOT(handleReadyRead()));
     connect(socket, SIGNAL(disconnected()), socket, SLOT(deleteLater()));
-    qDebug() << "Connected to client";
+    // qDebug() << "Connected to client";
 }
 
 void RpcConnection::sendError(QTcpSocket *socket, const QString &id, int error, const QString &message, const QString &data)
@@ -214,7 +214,7 @@ void RpcConnection::sendResponse(QTcpSocket *socket, const QString &id, const QV
 
 void RpcConnection::handleRpcResponse(const QVariantMap &map)
 {
-    qDebug() << "Response" << map;
+    // qDebug() << "Response" << map;
 }
 
 void RpcConnection::handleRpcError(const QVariantMap &map)

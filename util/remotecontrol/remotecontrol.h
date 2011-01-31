@@ -25,6 +25,7 @@ protected:
 
 private slots:
     void sendButtonPress(int action);
+    void enableButtons();
 
 private:
     Ui::RemoteControl ui;
