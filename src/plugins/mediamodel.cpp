@@ -398,10 +398,10 @@ void MediaModel::setThemeResourcePath(const QString &themePath)
     m_themePath = themePath;
 
     // add default thumbnails
-    m_defaultThumbnails.insert("/AddNewSource", QImage(m_themePath + "/media/DefaultAddSource.png"));
-    m_defaultThumbnails.insert("/DotDot", QImage(m_themePath + "/media/DefaultFolderBack.png"));
-    m_defaultThumbnails.insert("/Directory", QImage(m_themePath + "/media/DefaultFolder.png"));
-    m_defaultThumbnails.insert("/SearchPath", QImage(m_themePath + "/media/DefaultHardDisk.png"));
+    m_defaultThumbnails.insert("/AddNewSource", QImage(m_themePath + "/DefaultAddSource.png"));
+    m_defaultThumbnails.insert("/DotDot", QImage(m_themePath + "/DefaultFolderBack.png"));
+    m_defaultThumbnails.insert("/Directory", QImage(m_themePath + "/DefaultFolder.png"));
+    m_defaultThumbnails.insert("/SearchPath", QImage(m_themePath + "/DefaultHardDisk.png"));
 
     if (!m_restored)
         restore();
