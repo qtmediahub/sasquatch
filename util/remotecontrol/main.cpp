@@ -1,7 +1,11 @@
 #include <QtGui>
 
 #include "remotecontrol.h"
+#ifndef QMH_NO_AVAHI
 #include "avahiservicebrowserview.h"
+#else
+#include "staticservicebrowserview.h"
+#endif
 
 int main(int argc, char *argv[])
 {
@@ -14,7 +18,12 @@ int main(int argc, char *argv[])
 #endif
     QObject::connect(&remoteControl, SIGNAL(disconnected()), &remoteControl, SLOT(hide()));
 
+#ifndef QMH_NO_AVAHI
     AvahiServiceBrowserView serviceBrowserView;
+#else
+    StaticServiceBrowserView serviceBrowserView;
+#endif
+
     QObject::connect(&serviceBrowserView, SIGNAL(serviceSelected(QHostAddress, int)),
                      &remoteControl, SLOT(connectToService(QHostAddress, int)));
     QObject::connect(&remoteControl, SIGNAL(disconnected()), &serviceBrowserView, SLOT(show()));
