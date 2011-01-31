@@ -32,10 +32,13 @@ StaticServiceBrowserView::StaticServiceBrowserView(QWidget *parent)
         QList<QStandardItem *> columns;
         columns.append(new QStandardItem);
         columns[0]->setText(hostName);
+        columns[0]->setEditable(false);
         columns.append(new QStandardItem);
         columns[1]->setText(ip);
+        columns[1]->setEditable(false);
         columns.append(new QStandardItem);
         columns[2]->setText(port);
+        columns[2]->setEditable(false);
 
         rootItem->appendRow(columns);
     }
