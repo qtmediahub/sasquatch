@@ -17,6 +17,8 @@ include(../../src/rpc/rpc.pri)
     SOURCES += staticservicebrowserview.cpp
     HEADERS += staticservicebrowserview.h
     RESOURCES += remotecontrol.qrc
+    LIBS += -llibc
+    TARGET.CAPABILITY += NetworkServices
 }
 
 TEMP_DIR = $$PWD
@@ -30,3 +32,5 @@ FORMS += remotecontrol.ui
 SOURCES += main.cpp remotecontrol.cpp
 HEADERS += remotecontrol.h
 
+RESOURCES += \
+    remotecontrol.qrc

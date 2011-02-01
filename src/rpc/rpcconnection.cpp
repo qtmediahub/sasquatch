@@ -27,6 +27,11 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "jsonparser/json.h"
 
+#ifdef Q_OS_SYMBIAN
+#define ntohl htonl
+#define ntohs htons
+#endif
+
 RpcConnection::RpcConnection(RpcConnection::Mode mode, const QHostAddress &address, qint32 port, QObject *parent)
     : QObject(parent), m_mode(mode), m_server(0), m_socket(0), m_id(1)
 {
