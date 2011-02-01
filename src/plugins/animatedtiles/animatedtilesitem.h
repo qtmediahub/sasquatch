@@ -11,6 +11,14 @@ public:
 
     void geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry);
 
+signals:
+    void ellipseWanted();
+    void figure8Wanted();
+    void randomWanted();
+    void tiledWanted();
+    void centeredWanted();
+
+
 private:
     void setupAT();
     QGraphicsRectItem* parentItem;

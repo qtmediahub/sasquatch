@@ -95,20 +95,27 @@ void AnimatedTilesItem::setupAT()
         anim->setEasingCurve(QEasingCurve::InOutBack);
         group->addAnimation(anim);
     }
-    QAbstractTransition *trans = rootState->addTransition(ellipseButton, SIGNAL(pressed()), ellipseState);
+    QAbstractTransition *trans = rootState->addTransition(this, SIGNAL(ellipseWanted()), ellipseState);
     trans->addAnimation(group);
 
-    trans = rootState->addTransition(figure8Button, SIGNAL(pressed()), figure8State);
+    trans = rootState->addTransition(this, SIGNAL(figure8Wanted()), figure8State);
     trans->addAnimation(group);
 
-    trans = rootState->addTransition(randomButton, SIGNAL(pressed()), randomState);
+    trans = rootState->addTransition(this, SIGNAL(randomWanted()), randomState);
     trans->addAnimation(group);
 
-    trans = rootState->addTransition(tiledButton, SIGNAL(pressed()), tiledState);
+    trans = rootState->addTransition(this, SIGNAL(tiledWanted()), tiledState);
     trans->addAnimation(group);
 
-    trans = rootState->addTransition(centeredButton, SIGNAL(pressed()), centeredState);
+    trans = rootState->addTransition(this, SIGNAL(centeredWanted()), centeredState);
     trans->addAnimation(group);
+
+    connect(ellipseButton, SIGNAL(pressed()), this, SIGNAL(ellipseWanted()));
+    connect(figure8Button, SIGNAL(pressed()), this, SIGNAL(figure8Wanted()));
+    connect(randomButton, SIGNAL(pressed()), this, SIGNAL(randomWanted()));
+    connect(tiledButton, SIGNAL(pressed()), this, SIGNAL(tiledWanted()));
+    connect(centeredButton, SIGNAL(pressed()), this, SIGNAL(centeredWanted()));
+
 
     states->start();
 }
