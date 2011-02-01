@@ -31,6 +31,3 @@ FORMS += remotecontrol.ui
 # Input
 SOURCES += main.cpp remotecontrol.cpp
 HEADERS += remotecontrol.h
-
-RESOURCES += \
-    remotecontrol.qrc
