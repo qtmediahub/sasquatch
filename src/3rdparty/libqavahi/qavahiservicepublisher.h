@@ -63,6 +63,7 @@ private:
     void initialize();
     void uninitialize();
     void doPublish(AvahiClient *client);
+    void commit();
 
     QString m_serviceName;
     AvahiClient *m_client;

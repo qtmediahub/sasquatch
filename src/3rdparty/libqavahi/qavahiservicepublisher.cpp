@@ -121,7 +121,12 @@ void QAvahiServicePublisher::doPublish(AvahiClient *client)
             return;
         }
     }
+    
+    commit();
+}
 
+void QAvahiServicePublisher::commit()
+{
     m_error = avahi_entry_group_commit(m_group);
     if (m_error < 0) {
         QAPDEBUG("Failed to commit service group : %s", avahi_strerror(m_error));
