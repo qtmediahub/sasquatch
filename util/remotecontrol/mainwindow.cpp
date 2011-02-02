@@ -13,9 +13,6 @@
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent)
 {    
-#if !defined(Q_WS_MAEMO_5) && !defined(Q_OS_SYMBIAN)
-    setWindowFlags(Qt::WindowStaysOnTopHint|Qt::X11BypassWindowManagerHint);
-#endif
     setWindowTitle(tr("QtMediaHub Remote Control"));
 
     m_stackedWidget = new QStackedWidget;
@@ -55,6 +52,15 @@ MainWindow::MainWindow(QWidget *parent) :
     exitAction->setSoftKeyRole(QAction::NegativeSoftKey);
     connect(exitAction, SIGNAL(triggered()), this, SLOT(close()));
     addAction(exitAction);
+
+#if !defined(Q_WS_MAEMO_5) && !defined(Q_OS_SYMBIAN)
+    QMenuBar *menuBar = new QMenuBar;
+    QMenu *menu = menuBar->addMenu(tr("&File"));
+    menu->addAction(m_backAction);
+    menu->addAction(exitAction);
+    setMenuBar(menuBar);
+#endif
+
 
     showServiceBrowser();
 
