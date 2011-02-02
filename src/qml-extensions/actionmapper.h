@@ -33,7 +33,7 @@ class ActionMapper : public QObject
     Q_PROPERTY(QString map READ map WRITE setMap)
 public:
     ActionMapper(Frontend *p = 0);
-    enum Action { Left, Up, Right, Down, Forward, Back, Context, ContextualUp, ContextualDown, MediaPlayPause, MediaStop, MediaPrevious, MediaNext };
+    enum Action { Left, Up, Right, Down, Enter, Menu, Context, ContextualUp, ContextualDown, MediaPlayPause, MediaStop, MediaPrevious, MediaNext };
     bool eventMatch(QKeyEvent *event, Action action) {
         if  (keyHash.contains(action)
              && keyHash[action].indexOf(event->key()) != -1)

@@ -18,8 +18,8 @@ RemoteControl::RemoteControl(QWidget *parent)
     MAPBUTTON(ui.downButton, ActionMapper::Down);
     MAPBUTTON(ui.leftButton, ActionMapper::Left);
     MAPBUTTON(ui.rightButton, ActionMapper::Right);
-    MAPBUTTON(ui.okButton, ActionMapper::Forward);
-    MAPBUTTON(ui.escButton, ActionMapper::Back);
+    MAPBUTTON(ui.okButton, ActionMapper::Enter);
+    MAPBUTTON(ui.escButton, ActionMapper::Menu);
     MAPBUTTON(ui.infoButton, ActionMapper::Context);
 
     connect(mapper, SIGNAL(mapped(int)), this, SLOT(sendButtonPress(int)));
