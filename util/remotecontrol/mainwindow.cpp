@@ -53,7 +53,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(exitAction, SIGNAL(triggered()), this, SLOT(close()));
     addAction(exitAction);
 
-#if !defined(Q_WS_MAEMO_5) && !defined(Q_OS_SYMBIAN)
+#if !defined(Q_OS_SYMBIAN)
     QMenuBar *menuBar = new QMenuBar;
     QMenu *menu = menuBar->addMenu(tr("&File"));
     menu->addAction(m_backAction);
