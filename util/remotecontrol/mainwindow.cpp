@@ -57,6 +57,28 @@ MainWindow::MainWindow(QWidget *parent) :
     addAction(exitAction);
 
     showServiceBrowser();
+
+    // create network connection
+#if defined(Q_WS_MAEMO_5) && defined(Q_OS_SYMBIAN)
+    QNetworkConfigurationManager manager;
+
+    const bool selectIap = (manager.capabilities()& QNetworkConfigurationManager::CanStartAndStopInterfaces);
+    QNetworkConfiguration defaultIap = manager.defaultConfiguration();
+
+    if(!defaultIap.isValid() && (!selectIap && defaultIap.state() != QNetworkConfiguration::Active)) {
+        return;
+    }
+
+    m_session = new QNetworkSession(defaultIap,this);
+    m_session->open();
+#endif
+}
+
+void MainWindow::~MainWindow()
+{
+#if defined(Q_WS_MAEMO_5) && defined(Q_OS_SYMBIAN)
+    m_session.close();
+#endif
 }
 
 void MainWindow::showServiceBrowser()
