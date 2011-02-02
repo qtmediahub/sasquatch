@@ -233,5 +233,10 @@ void Playlist::sort(MediaInfo *info)
     emit layoutChanged();
 }
 
+int Playlist::row(const QModelIndex &idx) const
+{
+    return idx.row();
+}
+
 
 
