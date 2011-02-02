@@ -45,11 +45,6 @@ void RemoteControl::connectToService(const QHostAddress &address, int port)
 {
     qDebug() << "Connecting to " << address.toString() << ":" << port;
     m_connection->connectToHost(address, port);
-#ifdef Q_OS_SYMBIAN
-    showFullScreen();
-#else
-    show();
-#endif
 }
 
 void RemoteControl::closeEvent(QCloseEvent *event)

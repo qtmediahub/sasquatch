@@ -29,5 +29,7 @@ UI_DIR = $$TEMP_DIR/.ui
 FORMS += remotecontrol.ui
 
 # Input
-SOURCES += main.cpp remotecontrol.cpp
-HEADERS += remotecontrol.h
+SOURCES += main.cpp remotecontrol.cpp \
+    mainwindow.cpp
+HEADERS += remotecontrol.h \
+    mainwindow.h

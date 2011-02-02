@@ -21,5 +21,4 @@ void AvahiServiceBrowserView::handleActivated(const QModelIndex &index)
 {
     QAvahiServiceBrowserModel::Service service = m_browserModel->serviceFromIndex(index);
     emit serviceSelected(service.address, service.port);
-    hide();
 }

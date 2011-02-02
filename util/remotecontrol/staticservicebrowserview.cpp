@@ -50,12 +50,6 @@ StaticServiceBrowserView::StaticServiceBrowserView(QWidget *parent)
 
     for (int i = 0; i < m_model->columnCount(); i++)
         resizeColumnToContents(i);
-
-    QAction *exitAction = new QAction(this);
-    exitAction->setText(tr("Exit"));
-    exitAction->setSoftKeyRole(QAction::NegativeSoftKey);
-    connect(exitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
-    addAction(exitAction);
 }
 
 StaticServiceBrowserView::~StaticServiceBrowserView()
@@ -71,6 +65,5 @@ void StaticServiceBrowserView::handleActivated(const QModelIndex &index)
     QString port = item->child(index.row(), 2)->text();
 
     emit serviceSelected(QHostAddress(ip), port.toInt());
-    hide();
 }
 
