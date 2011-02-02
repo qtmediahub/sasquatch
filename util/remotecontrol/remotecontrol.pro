@@ -17,6 +17,7 @@ include(../../src/rpc/rpc.pri)
     SOURCES += staticservicebrowserview.cpp
     HEADERS += staticservicebrowserview.h
     RESOURCES += remotecontrol.qrc
+    FORMS += addservicedialog.ui
     LIBS += -llibc
     TARGET.CAPABILITY += NetworkServices
 }

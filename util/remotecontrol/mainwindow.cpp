@@ -7,6 +7,7 @@
 #include "avahiservicebrowserview.h"
 #else
 #include "staticservicebrowserview.h"
+#include "ui_addservicedialog.h"
 #endif
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -24,8 +25,19 @@ MainWindow::MainWindow(QWidget *parent) :
 
 #ifndef QMH_NO_AVAHI
     m_serviceBrowserView = new AvahiServiceBrowserView;
+    m_optionsAction = new QAction; // dummy
 #else
     m_serviceBrowserView = new StaticServiceBrowserView;
+
+    QMenu *menu = new QMenu;
+    menu->addAction(tr("Add Service"), this, SLOT(addService()));
+    menu->addAction(tr("Remove Service"), m_serviceBrowserView, SLOT(removeService()));
+
+    m_optionsAction = new QAction(this);
+    m_optionsAction->setText(tr("Options"));
+    m_optionsAction->setMenu(menu);
+    m_optionsAction->setSoftKeyRole(QAction::PositiveSoftKey);
+    addAction(m_optionsAction);
 #endif
     m_stackedWidget->addWidget(m_serviceBrowserView);
     connect(m_serviceBrowserView, SIGNAL(serviceSelected(QHostAddress, int)),
@@ -51,11 +63,34 @@ void MainWindow::showServiceBrowser()
     m_remoteControl->disconnectFromService();
     m_stackedWidget->setCurrentWidget(m_serviceBrowserView);
     m_backAction->setVisible(false);
+    m_optionsAction->setVisible(true);
 }
 
 void MainWindow::handleServiceSelected(const QHostAddress &address, int port)
 {
     m_remoteControl->connectToService(address, port);
     m_stackedWidget->setCurrentWidget(m_remoteControl);
+    m_optionsAction->setVisible(false);
     m_backAction->setVisible(true);
 }
+
+#ifdef QMH_NO_AVAHI
+void MainWindow::addService()
+{
+    QDialog dialog(this);
+    Ui::AddServiceDialog ui;
+    ui.setupUi(&dialog);
+    connect(ui.buttonBox, SIGNAL(accepted()), &dialog, SLOT(accept()));
+    connect(ui.buttonBox, SIGNAL(rejected()), &dialog, SLOT(reject()));
+    dialog.resize(width(), dialog.height()); // ##
+
+    if (dialog.exec() == QDialog::Accepted) {
+        QString hostname = ui.hostnameEdit->text();
+        QString ip = ui.ipEdit->text();
+        QString port = ui.portEdit->text();
+
+        if (!hostname.isEmpty() && !ip.isEmpty() && !port.isEmpty())
+            (static_cast<StaticServiceBrowserView *>(m_serviceBrowserView))->addService(hostname, ip, port);
+    }
+}
+#endif

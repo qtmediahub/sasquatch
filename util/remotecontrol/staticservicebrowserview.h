@@ -12,6 +12,10 @@ public:
     StaticServiceBrowserView(QWidget *parent = 0);
     ~StaticServiceBrowserView();
 
+public slots:
+    void addService(const QString &hostName, const QString &ip, const QString &port);
+    void removeService();
+
 signals:
     void serviceSelected(const QHostAddress &address, int port);
 
@@ -19,6 +23,7 @@ private slots:
     void handleActivated(const QModelIndex &index);
 
 private:
+    void initModelFromFile(const QString &fileName);
     QStandardItemModel *m_model;
 };
 

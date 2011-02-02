@@ -3,24 +3,41 @@
 #include <QApplication>
 #include <QTextStream>
 #include <QAction>
+#include <QMenu>
 
-static QStandardItemModel *createModelFromFile(const QString &fileName)
+StaticServiceBrowserView::StaticServiceBrowserView(QWidget *parent)
+    : QTreeView(parent)
 {
-    QStandardItemModel *model = new QStandardItemModel;
+    setSelectionBehavior(QAbstractItemView::SelectRows);
 
+    m_model = new QStandardItemModel(this);
+    initModelFromFile(":/services.conf");
+    setModel(m_model);
+    connect(this, SIGNAL(activated(QModelIndex)), this, SLOT(handleActivated(QModelIndex)));
+
+    for (int i = 0; i < m_model->columnCount(); i++)
+        resizeColumnToContents(i);
+
+    selectionModel()->select(m_model->index(0, 0), QItemSelectionModel::SelectCurrent | QItemSelectionModel::Rows);
+}
+
+StaticServiceBrowserView::~StaticServiceBrowserView()
+{
+}
+
+void StaticServiceBrowserView::initModelFromFile(const QString &fileName)
+{
     QFile file(fileName);
     if (!file.open(QFile::ReadOnly)) {
         qWarning("Failed to open static services file");
-        return model;
+        return;
     }
 
     QStringList headerLabels;
     headerLabels << StaticServiceBrowserView::tr("Host Name")
                  << StaticServiceBrowserView::tr("IP")
                  << StaticServiceBrowserView::tr("Port");
-    model->setHorizontalHeaderLabels(headerLabels);
-
-    QStandardItem *rootItem = model->invisibleRootItem();
+    m_model->setHorizontalHeaderLabels(headerLabels);
 
     QTextStream stream(&file);
     while (!stream.atEnd()) {
@@ -44,29 +61,8 @@ static QStandardItemModel *createModelFromFile(const QString &fileName)
         columns[2]->setText(port);
         columns[2]->setEditable(false);
 
-        rootItem->appendRow(columns);
+        addService(hostName, ip, port);
     }
-
-    return model;
-}
-
-StaticServiceBrowserView::StaticServiceBrowserView(QWidget *parent)
-    : QTreeView(parent)
-{
-    setSelectionBehavior(QAbstractItemView::SelectRows);
-
-    m_model = createModelFromFile(":/services.conf");
-    setModel(m_model);
-    connect(this, SIGNAL(activated(QModelIndex)), this, SLOT(handleActivated(QModelIndex)));
-
-    for (int i = 0; i < m_model->columnCount(); i++)
-        resizeColumnToContents(i);
-
-    selectionModel()->select(m_model->index(0, 0), QItemSelectionModel::SelectCurrent | QItemSelectionModel::Rows);
-}
-
-StaticServiceBrowserView::~StaticServiceBrowserView()
-{
 }
 
 void StaticServiceBrowserView::handleActivated(const QModelIndex &index)
@@ -80,3 +76,23 @@ void StaticServiceBrowserView::handleActivated(const QModelIndex &index)
     emit serviceSelected(QHostAddress(ip), port.toInt());
 }
 
+void StaticServiceBrowserView::addService(const QString &hostName, const QString &ip, const QString &port)
+{
+    QList<QStandardItem *> columns;
+    columns.append(new QStandardItem);
+    columns[0]->setText(hostName);
+    columns[0]->setEditable(false);
+    columns.append(new QStandardItem);
+    columns[1]->setText(ip);
+    columns[1]->setEditable(false);
+    columns.append(new QStandardItem);
+    columns[2]->setText(port);
+    columns[2]->setEditable(false);
+
+    m_model->appendRow(columns);
+}
+
+void StaticServiceBrowserView::removeService()
+{
+    m_model->removeRow(currentIndex().row());
+}
