@@ -4,23 +4,23 @@
 #include <QTextStream>
 #include <QAction>
 
-StaticServiceBrowserView::StaticServiceBrowserView(QWidget *parent)
-    : QTreeView(parent)
+static QStandardItemModel *createModelFromFile(const QString &fileName)
 {
-    setSelectionBehavior(QAbstractItemView::SelectRows);
+    QStandardItemModel *model = new QStandardItemModel;
 
-    QFile file(":/services.conf");
+    QFile file(fileName);
     if (!file.open(QFile::ReadOnly)) {
         qWarning("Failed to open static services file");
-        return;
+        return model;
     }
 
-    m_model = new QStandardItemModel(this);
     QStringList headerLabels;
-    headerLabels << tr("Host Name") << tr("IP") << tr("Port");
-    m_model->setHorizontalHeaderLabels(headerLabels);
+    headerLabels << StaticServiceBrowserView::tr("Host Name")
+                 << StaticServiceBrowserView::tr("IP")
+                 << StaticServiceBrowserView::tr("Port");
+    model->setHorizontalHeaderLabels(headerLabels);
 
-    QStandardItem *rootItem = m_model->invisibleRootItem();
+    QStandardItem *rootItem = model->invisibleRootItem();
 
     QTextStream stream(&file);
     while (!stream.atEnd()) {
@@ -46,14 +46,23 @@ StaticServiceBrowserView::StaticServiceBrowserView(QWidget *parent)
 
         rootItem->appendRow(columns);
     }
-    
+
+    return model;
+}
+
+StaticServiceBrowserView::StaticServiceBrowserView(QWidget *parent)
+    : QTreeView(parent)
+{
+    setSelectionBehavior(QAbstractItemView::SelectRows);
+
+    m_model = createModelFromFile(":/services.conf");
     setModel(m_model);
     connect(this, SIGNAL(activated(QModelIndex)), this, SLOT(handleActivated(QModelIndex)));
 
     for (int i = 0; i < m_model->columnCount(); i++)
         resizeColumnToContents(i);
 
-    selectionModel()->select(rootItem->child(0)->index(), QItemSelectionModel::SelectCurrent | QItemSelectionModel::Rows);
+    selectionModel()->select(m_model->index(0, 0), QItemSelectionModel::SelectCurrent | QItemSelectionModel::Rows);
 }
 
 StaticServiceBrowserView::~StaticServiceBrowserView()
