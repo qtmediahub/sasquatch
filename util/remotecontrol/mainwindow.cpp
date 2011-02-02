@@ -74,7 +74,7 @@ MainWindow::MainWindow(QWidget *parent) :
 #endif
 }
 
-void MainWindow::~MainWindow()
+MainWindow::~MainWindow()
 {
 #if defined(Q_WS_MAEMO_5) && defined(Q_OS_SYMBIAN)
     m_session.close();
