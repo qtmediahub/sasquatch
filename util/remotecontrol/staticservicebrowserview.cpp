@@ -50,17 +50,6 @@ void StaticServiceBrowserView::initModelFromFile(const QString &fileName)
         QString ip, port;
         stream >> ip >> port;
 
-        QList<QStandardItem *> columns;
-        columns.append(new QStandardItem);
-        columns[0]->setText(hostName);
-        columns[0]->setEditable(false);
-        columns.append(new QStandardItem);
-        columns[1]->setText(ip);
-        columns[1]->setEditable(false);
-        columns.append(new QStandardItem);
-        columns[2]->setText(port);
-        columns[2]->setEditable(false);
-
         addService(hostName, ip, port);
     }
 }
