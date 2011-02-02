@@ -62,14 +62,14 @@ MainWindow::MainWindow(QWidget *parent) :
 #if defined(Q_WS_MAEMO_5) || defined(Q_OS_SYMBIAN)
     QNetworkConfigurationManager manager;
 
-    const bool selectIap = (manager.capabilities()& QNetworkConfigurationManager::CanStartAndStopInterfaces);
+    const bool selectIap = (manager.capabilities() & QNetworkConfigurationManager::CanStartAndStopInterfaces);
     QNetworkConfiguration defaultIap = manager.defaultConfiguration();
 
-    if(!defaultIap.isValid() && (!selectIap && defaultIap.state() != QNetworkConfiguration::Active)) {
+    if (!defaultIap.isValid() && (!selectIap && defaultIap.state() != QNetworkConfiguration::Active)) {
         return;
     }
 
-    m_session = new QNetworkSession(defaultIap,this);
+    m_session = new QNetworkSession(defaultIap, this);
     m_session->open();
 #endif
 }
