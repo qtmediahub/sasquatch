@@ -4,7 +4,7 @@
 #include <QMainWindow>
 #include <QHostAddress>
 
-#if defined(Q_WS_MAEMO_5) && defined(Q_OS_SYMBIAN)
+#if defined(Q_WS_MAEMO_5) || defined(Q_OS_SYMBIAN)
 #include <QtNetwork>
 #endif
 
@@ -33,7 +33,7 @@ private:
     QTreeView *m_serviceBrowserView;
     RemoteControl *m_remoteControl;
     QAction *m_backAction, *m_optionsAction;
-#if defined(Q_WS_MAEMO_5) && defined(Q_OS_SYMBIAN)
+#if defined(Q_WS_MAEMO_5) || defined(Q_OS_SYMBIAN)
     QNetworkSession *m_session;
 #endif
 };

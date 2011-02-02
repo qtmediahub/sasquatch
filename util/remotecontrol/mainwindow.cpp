@@ -59,7 +59,7 @@ MainWindow::MainWindow(QWidget *parent) :
     showServiceBrowser();
 
     // create network connection
-#if defined(Q_WS_MAEMO_5) && defined(Q_OS_SYMBIAN)
+#if defined(Q_WS_MAEMO_5) || defined(Q_OS_SYMBIAN)
     QNetworkConfigurationManager manager;
 
     const bool selectIap = (manager.capabilities()& QNetworkConfigurationManager::CanStartAndStopInterfaces);
@@ -76,8 +76,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
-#if defined(Q_WS_MAEMO_5) && defined(Q_OS_SYMBIAN)
-    m_session.close();
+#if defined(Q_WS_MAEMO_5) || defined(Q_OS_SYMBIAN)
+    m_session->close();
 #endif
 }
 
