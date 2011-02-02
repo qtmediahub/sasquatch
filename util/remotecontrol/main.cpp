@@ -27,8 +27,8 @@ int main(int argc, char *argv[])
     QObject::connect(&serviceBrowserView, SIGNAL(serviceSelected(QHostAddress, int)),
                      &remoteControl, SLOT(connectToService(QHostAddress, int)));
 #ifdef Q_OS_SYMBIAN
-    QObject::connect(&remoteControl, SIGNAL(disconnected()), &serviceBrowserView, SLOT(showFullScreen()));
-    serviceBrowserView.showFullScreen();
+    QObject::connect(&remoteControl, SIGNAL(disconnected()), &serviceBrowserView, SLOT(showMaximized()));
+    serviceBrowserView.showMaximized();
 #else
     QObject::connect(&remoteControl, SIGNAL(disconnected()), &serviceBrowserView, SLOT(show()));
     serviceBrowserView.show();
