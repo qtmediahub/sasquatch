@@ -46,7 +46,7 @@ void StaticServiceBrowserView::initModelFromFile(const QString &fileName)
     while (!stream.atEnd()) {
         QString hostName;
         stream >> hostName;
-        if (hostName.startsWith('#')) {
+        if (hostName.startsWith('#') || hostName.isEmpty()) {
             stream.readLine();
             continue;
         }
