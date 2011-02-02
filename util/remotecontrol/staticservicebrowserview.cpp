@@ -7,6 +7,8 @@
 StaticServiceBrowserView::StaticServiceBrowserView(QWidget *parent)
     : QTreeView(parent)
 {
+    setSelectionBehavior(QAbstractItemView::SelectRows);
+
     QFile file(":/services.conf");
     if (!file.open(QFile::ReadOnly)) {
         qWarning("Failed to open static services file");
@@ -50,6 +52,8 @@ StaticServiceBrowserView::StaticServiceBrowserView(QWidget *parent)
 
     for (int i = 0; i < m_model->columnCount(); i++)
         resizeColumnToContents(i);
+
+    selectionModel()->select(rootItem->child(0)->index(), QItemSelectionModel::SelectCurrent | QItemSelectionModel::Rows);
 }
 
 StaticServiceBrowserView::~StaticServiceBrowserView()

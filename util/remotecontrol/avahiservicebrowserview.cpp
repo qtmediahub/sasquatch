@@ -4,6 +4,7 @@
 AvahiServiceBrowserView::AvahiServiceBrowserView(QWidget *parent)
     : QTreeView(parent)
 {
+    setSelectionBehavior(QAbstractItemView::SelectRows);
     m_browserModel = new QAvahiServiceBrowserModel(this);
     m_browserModel->browse("_qmh._tcp");
     setModel(m_browserModel);
@@ -11,6 +12,7 @@ AvahiServiceBrowserView::AvahiServiceBrowserView(QWidget *parent)
 
     for (int i = 0; i < m_browserModel->columnCount(); i++)
         resizeColumnToContents(i);
+    selectionModel()->select(rootItem->child(0)->index(), QItemSelectionModel::SelectCurrent | QItemSelectionModel::Rows);
 }
 
 AvahiServiceBrowserView::~AvahiServiceBrowserView()
