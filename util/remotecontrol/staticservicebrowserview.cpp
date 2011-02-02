@@ -45,6 +45,9 @@ StaticServiceBrowserView::StaticServiceBrowserView(QWidget *parent)
     
     setModel(m_model);
     connect(this, SIGNAL(activated(QModelIndex)), this, SLOT(handleActivated(QModelIndex)));
+
+    for (int i = 0; i < m_model->columnCount(); i++)
+        resizeColumnToContents(i);
 }
 
 StaticServiceBrowserView::~StaticServiceBrowserView()

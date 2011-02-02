@@ -8,6 +8,9 @@ AvahiServiceBrowserView::AvahiServiceBrowserView(QWidget *parent)
     m_browserModel->browse("_qmh._tcp");
     setModel(m_browserModel);
     connect(this, SIGNAL(activated(QModelIndex)), this, SLOT(handleActivated(QModelIndex)));
+
+    for (int i = 0; i < m_browserModel->columnCount(); i++)
+        resizeColumnToContents(i);
 }
 
 AvahiServiceBrowserView::~AvahiServiceBrowserView()
@@ -20,4 +23,3 @@ void AvahiServiceBrowserView::handleActivated(const QModelIndex &index)
     emit serviceSelected(service.address, service.port);
     hide();
 }
-
