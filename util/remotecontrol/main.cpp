@@ -5,6 +5,7 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
     app.setApplicationName("QMH Remote Control");
+    app.setOrganizationDomain("nokia.com");
     app.setOrganizationName("Nokia");
 
     MainWindow mainWindow;
