@@ -16,6 +16,7 @@ MainWindow::MainWindow(QWidget *parent) :
 #if !defined(Q_WS_MAEMO_5) && !defined(Q_OS_SYMBIAN)
     setWindowFlags(Qt::WindowStaysOnTopHint|Qt::X11BypassWindowManagerHint);
 #endif
+    setWindowTitle(tr("QtMediaHub Remote Control"));
 
     m_stackedWidget = new QStackedWidget;
     setCentralWidget(m_stackedWidget);
