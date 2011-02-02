@@ -24,6 +24,7 @@ private:
     QStackedWidget *m_stackedWidget;
     QTreeView *m_serviceBrowserView;
     RemoteControl *m_remoteControl;
+    QAction *m_backAction;
 };
 
 #endif // MAINWINDOW_H

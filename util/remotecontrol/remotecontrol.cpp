@@ -26,8 +26,7 @@ RemoteControl::RemoteControl(QWidget *parent)
 
     m_connection = new RpcConnection(RpcConnection::Client, this);
     connect(m_connection, SIGNAL(clientConnected()), this, SLOT(enableButtons()));
-    connect(m_connection, SIGNAL(clientDisconnected()), this, SIGNAL(disconnected()));
-    connect(ui.quitButton, SIGNAL(clicked()), m_connection, SLOT(disconnectFromHost()));
+    connect(m_connection, SIGNAL(clientDisconnected()), this, SLOT(disableButtons()));
 
     ui.buttonsFrame->setEnabled(false);
 }
@@ -47,6 +46,11 @@ void RemoteControl::connectToService(const QHostAddress &address, int port)
     m_connection->connectToHost(address, port);
 }
 
+void RemoteControl::disconnectFromService()
+{
+    m_connection->disconnectFromHost();
+}
+
 void RemoteControl::closeEvent(QCloseEvent *event)
 {
     m_connection->disconnectFromHost();
@@ -57,3 +61,7 @@ void RemoteControl::enableButtons()
     ui.buttonsFrame->setEnabled(true);
 }
 
+void RemoteControl::disableButtons()
+{
+    ui.buttonsFrame->setEnabled(false);
+}

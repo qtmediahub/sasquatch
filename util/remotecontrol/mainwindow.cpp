@@ -21,7 +21,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     m_remoteControl = new RemoteControl;
     m_stackedWidget->addWidget(m_remoteControl);
-    connect(m_remoteControl, SIGNAL(disconnected()), this, SLOT(showServiceBrowser()));
 
 #ifndef QMH_NO_AVAHI
     m_serviceBrowserView = new AvahiServiceBrowserView;
@@ -32,22 +31,31 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(m_serviceBrowserView, SIGNAL(serviceSelected(QHostAddress, int)),
             this, SLOT(handleServiceSelected(QHostAddress, int)));
 
-    m_stackedWidget->setCurrentWidget(m_serviceBrowserView);
+    m_backAction = new QAction(this);
+    m_backAction->setText(tr("Back"));
+    m_backAction->setSoftKeyRole(QAction::PositiveSoftKey);
+    connect(m_backAction, SIGNAL(triggered()), this, SLOT(showServiceBrowser()));
+    addAction(m_backAction);
 
     QAction *exitAction = new QAction(this);
     exitAction->setText(tr("Exit"));
     exitAction->setSoftKeyRole(QAction::NegativeSoftKey);
     connect(exitAction, SIGNAL(triggered()), this, SLOT(close()));
     addAction(exitAction);
+
+    showServiceBrowser();
 }
 
 void MainWindow::showServiceBrowser()
 {
+    m_remoteControl->disconnectFromService();
     m_stackedWidget->setCurrentWidget(m_serviceBrowserView);
+    m_backAction->setVisible(false);
 }
 
 void MainWindow::handleServiceSelected(const QHostAddress &address, int port)
 {
     m_remoteControl->connectToService(address, port);
     m_stackedWidget->setCurrentWidget(m_remoteControl);
+    m_backAction->setVisible(true);
 }

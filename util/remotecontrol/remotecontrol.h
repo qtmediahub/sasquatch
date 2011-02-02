@@ -16,9 +16,7 @@ public:
 
 public slots:
     void connectToService(const QHostAddress &address, int port);
-
-signals:
-    void disconnected();
+    void disconnectFromService();
 
 protected:
     void closeEvent(QCloseEvent *event);
@@ -26,6 +24,7 @@ protected:
 private slots:
     void sendButtonPress(int action);
     void enableButtons();
+    void disableButtons();
 
 private:
     Ui::RemoteControl ui;
