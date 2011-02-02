@@ -26,7 +26,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 #ifndef QMH_NO_AVAHI
     m_serviceBrowserView = new AvahiServiceBrowserView;
-    m_optionsAction = new QAction; // dummy
+    m_optionsAction = new QAction(this); // dummy
 #else
     m_serviceBrowserView = new StaticServiceBrowserView;
 
