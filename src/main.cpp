@@ -61,6 +61,7 @@ int main(int argc, char** argv)
     QApplication app(argc, argv);
     app.setApplicationName("qtmediahub");
     app.setOrganizationName("Nokia");
+    app.setOrganizationDomain("nokia.com");
 
     Config::init(argc, argv);
 
