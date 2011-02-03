@@ -158,14 +158,26 @@ int JsonLexer::parseString()
 int JsonLexer::parseNumber()
 {
     int start = m_pos;
+    bool isDouble = false;
     for (; m_pos < m_data.length(); ++m_pos) {
         const char c = m_data[m_pos];
-        if (c == '+' || c == '-' || c == '.' || c == 'e' || c == 'E' || (c >= '0' && c <= '9'))
+        if (c == '+' || c == '-' || (c >= '0' && c <= '9'))
             continue;
+        if (c == '.' || c == 'e' || c == 'E') {
+            isDouble = true;
+            continue;
+        }
         break;
     }
     QByteArray number = QByteArray::fromRawData(m_data.constData()+start, m_pos-start);
-    m_symbol = number.toDouble();
+    bool ok;
+    if (!isDouble) {
+        m_symbol = number.toInt(&ok);
+        if (!ok)
+            m_symbol = number.toLongLong(&ok);
+    }
+    if (isDouble || !ok)
+        m_symbol = number.toDouble();
     return JsonGrammar::T_NUMBER;
 }
 
