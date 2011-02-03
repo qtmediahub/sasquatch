@@ -156,6 +156,17 @@ void RpcConnection::handleReadyRead()
     } while (socket->bytesAvailable() != 0);
 }
 
+static QByteArray stringifyParamTypes(const QVariantList &params)
+{
+    QByteArray ba;
+    for (int i = 0; i < params.count(); i++) {
+        if (i)
+            ba.append(",");
+        ba.append(params[i].typeName());
+    }
+    return ba;
+}
+
 void RpcConnection::handleRpcCall(QTcpSocket *socket, const QVariantMap &map)
 {
     QVariantList params = map["params"].toList();
@@ -171,7 +182,8 @@ void RpcConnection::handleRpcCall(QTcpSocket *socket, const QVariantMap &map)
         return;
     }
 
-    idx = object->metaObject()->indexOfMethod(method.toLatin1());
+    QByteArray normalizedMethod = method.toLatin1() + "(" + stringifyParamTypes(params) + ")";
+    idx = object->metaObject()->indexOfMethod(normalizedMethod);
     if (idx < 0) {
         sendError(socket, map["id"].toString(), MethodNotFound, "No such method");
         qWarning() << "Object '" << qPrintable(objName) << "' does not have method named " << method;
@@ -219,6 +231,7 @@ void RpcConnection::sendResponse(QTcpSocket *socket, const QString &id, const QV
 
 void RpcConnection::handleRpcResponse(const QVariantMap &map)
 {
+    Q_UNUSED(map);
     // qDebug() << "Response" << map;
 }
 
@@ -227,8 +240,6 @@ void RpcConnection::handleRpcError(const QVariantMap &map)
     qDebug() << "ERROR" << map;
 }
 
-// The method argument requires the type of the arguments. For example, "method(int,double)"
-// and not just "method". This is a deviation from the JSON-RPC specification.
 int RpcConnection::call(const QByteArray &method, const QVariant &arg0, const QVariant &arg1,
                         const QVariant &arg2, const QVariant &arg3, const QVariant &arg4, const QVariant &arg5,
                         const QVariant &arg6, const QVariant &arg7, const QVariant &arg8, const QVariant &arg9)
