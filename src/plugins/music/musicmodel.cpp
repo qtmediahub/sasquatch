@@ -135,7 +135,7 @@ MediaInfo *MusicModel::readMediaInfo(const QString &filePath)
                     tmp = tmp.width() <= previewWidth() ? tmp : tmp.scaledToWidth(previewWidth(), Qt::SmoothTransformation);
                     tmp.save(thumbnailInfo.filePath());
                 } else {
-                    info->thumbnailPath = themeResourcePath() + "/media/DefaultAudio.png";
+                    info->thumbnailPath = themeResourcePath() + "DefaultAudio.png";
                 }
             }
         }

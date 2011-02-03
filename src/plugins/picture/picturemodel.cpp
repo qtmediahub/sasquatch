@@ -116,7 +116,7 @@ MediaInfo *PictureModel::readMediaInfo(const QString &filePath)
         }
 
         if (!tmp.save(thumbnailInfo.filePath()))
-            info->thumbnailPath = themeResourcePath() + "/media/DefaultPicture.png";
+            info->thumbnailPath = themeResourcePath() + "DefaultPicture.png";
     }
 
     return info;
