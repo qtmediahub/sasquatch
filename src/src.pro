@@ -56,6 +56,10 @@ gl {
     message(Not using GL acceleration)
 }
 
+avahi {
+    DEFINES += AVAHI
+}
+
 mac {
     QT += webkit\
           multimedia
