@@ -227,6 +227,8 @@ void RpcConnection::handleRpcError(const QVariantMap &map)
     qDebug() << "ERROR" << map;
 }
 
+// The method argument requires the type of the arguments. For example, "method(int,double)"
+// and not just "method". This is a deviation from the JSON-RPC specification.
 int RpcConnection::call(const QByteArray &method, const QVariant &arg0, const QVariant &arg1,
                         const QVariant &arg2, const QVariant &arg3, const QVariant &arg4, const QVariant &arg5,
                         const QVariant &arg6, const QVariant &arg7, const QVariant &arg8, const QVariant &arg9)
