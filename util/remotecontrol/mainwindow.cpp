@@ -13,9 +13,6 @@
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent)
 {    
-#if !defined(Q_WS_MAEMO_5) && !defined(Q_OS_SYMBIAN)
-    setWindowFlags(Qt::WindowStaysOnTopHint|Qt::X11BypassWindowManagerHint);
-#endif
     setWindowTitle(tr("QtMediaHub Remote Control"));
 
     m_stackedWidget = new QStackedWidget;
@@ -26,7 +23,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 #ifndef QMH_NO_AVAHI
     m_serviceBrowserView = new AvahiServiceBrowserView;
-    m_optionsAction = new QAction; // dummy
+    m_optionsAction = new QAction(this); // dummy
 #else
     m_serviceBrowserView = new StaticServiceBrowserView;
 
@@ -56,20 +53,29 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(exitAction, SIGNAL(triggered()), this, SLOT(close()));
     addAction(exitAction);
 
+#if !defined(Q_OS_SYMBIAN)
+    QMenuBar *menuBar = new QMenuBar;
+    QMenu *menu = menuBar->addMenu(tr("&File"));
+    menu->addAction(m_backAction);
+    menu->addAction(exitAction);
+    setMenuBar(menuBar);
+#endif
+
+
     showServiceBrowser();
 
     // create network connection
 #if defined(Q_WS_MAEMO_5) || defined(Q_OS_SYMBIAN)
     QNetworkConfigurationManager manager;
 
-    const bool selectIap = (manager.capabilities()& QNetworkConfigurationManager::CanStartAndStopInterfaces);
+    const bool selectIap = (manager.capabilities() & QNetworkConfigurationManager::CanStartAndStopInterfaces);
     QNetworkConfiguration defaultIap = manager.defaultConfiguration();
 
-    if(!defaultIap.isValid() && (!selectIap && defaultIap.state() != QNetworkConfiguration::Active)) {
+    if (!defaultIap.isValid() && (!selectIap && defaultIap.state() != QNetworkConfiguration::Active)) {
         return;
     }
 
-    m_session = new QNetworkSession(defaultIap,this);
+    m_session = new QNetworkSession(defaultIap, this);
     m_session->open();
 #endif
 }

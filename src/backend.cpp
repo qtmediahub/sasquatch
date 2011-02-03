@@ -66,8 +66,6 @@ public:
           logFile(qApp->applicationName().append(".log")),
           pSelf(p)
     {
-        qApp->installEventFilter(this);
-
         inputIdleTimer.setInterval(Config::value("idle-timeout", 120)*1000);
         inputIdleTimer.setSingleShot(true);
         inputIdleTimer.start();
@@ -106,7 +104,6 @@ public:
     void resetLanguage();
     void discoverSkins();
     void discoverEngines();
-    bool eventFilter(QObject *obj, QEvent *event);
 
     QSet<QString> advertizedEngineRoles;
 
@@ -203,18 +200,6 @@ void BackendPrivate::discoverEngines()
         }
     }
     resetLanguage();
-}
-
-bool BackendPrivate::eventFilter(QObject *obj, QEvent *event) {
-    if (event->type() == QEvent::MouseMove
-            || event->type() == QEvent::MouseButtonPress
-            || event->type() == QEvent::KeyPress
-            || event->type() == QEvent::KeyRelease)
-    {
-        inputIdleTimer.start();
-    }
-
-    return QObject::eventFilter(obj, event);
 }
 
 Backend::Backend(QObject *parent)
@@ -353,6 +338,18 @@ void Backend::clearComponentCache()
     if (d->qmlEngine) {
         d->qmlEngine->clearComponentCache();
     }
+}
+
+bool Backend::eventFilter(QObject *obj, QEvent *event) {
+    if (event->type() == QEvent::KeyPress
+            || event->type() == QEvent::KeyRelease
+            || event->type() == QEvent::MouseMove
+            || event->type() == QEvent::MouseButtonPress)
+    {
+        d->inputIdleTimer.start();
+    }
+
+    return QObject::eventFilter(obj, event);
 }
 
 QObject* Backend::engine(const QString &role) 

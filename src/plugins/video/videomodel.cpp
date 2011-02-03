@@ -235,7 +235,7 @@ MediaInfo *VideoModel::readMediaInfo(const QString &filePath)
     QFileInfo thumbnailInfo(info->thumbnailPath);
 
     if (!thumbnailInfo.exists() && !generateThumbnail(fileInfo, thumbnailInfo))
-        info->thumbnailPath = themeResourcePath() + "/media/DefaultVideo.png";
+        info->thumbnailPath = themeResourcePath() + "DefaultVideo.png";
 
     return info;
 }

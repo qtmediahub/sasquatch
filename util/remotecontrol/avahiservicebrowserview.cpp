@@ -12,7 +12,8 @@ AvahiServiceBrowserView::AvahiServiceBrowserView(QWidget *parent)
 
     for (int i = 0; i < m_browserModel->columnCount(); i++)
         resizeColumnToContents(i);
-    selectionModel()->select(rootItem->child(0)->index(), QItemSelectionModel::SelectCurrent | QItemSelectionModel::Rows);
+
+    selectionModel()->select(m_browserModel->index(0, 0), QItemSelectionModel::SelectCurrent | QItemSelectionModel::Rows);
 }
 
 AvahiServiceBrowserView::~AvahiServiceBrowserView()

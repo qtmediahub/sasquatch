@@ -15,6 +15,7 @@ public:
 public slots:
     void addService(const QString &hostName, const QString &ip, const QString &port);
     void removeService();
+    void save();
 
 signals:
     void serviceSelected(const QHostAddress &address, int port);

@@ -151,6 +151,7 @@ public:
         } const options[] = {
             { "", "", true, },
             { "enable-?", "", true },
+            { "use-?", "", true },
             { "", "=yes", true },
             { "", "=1", true },
             { "", "=true", true },

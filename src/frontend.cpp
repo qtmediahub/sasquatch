@@ -132,6 +132,8 @@ Frontend::Frontend(QWidget *p)
 
     RpcConnection *connection = new RpcConnection(RpcConnection::Server, QHostAddress::Any, 1234, this);
     connection->registerObject(d->actionMap);
+
+    installEventFilter(Backend::instance());
 }
 
 Frontend::~Frontend()

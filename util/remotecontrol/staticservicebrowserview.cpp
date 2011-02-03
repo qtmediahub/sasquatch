@@ -1,9 +1,5 @@
 #include "staticservicebrowserview.h"
-#include <QFile>
-#include <QApplication>
-#include <QTextStream>
-#include <QAction>
-#include <QMenu>
+#include <QtGui>
 
 StaticServiceBrowserView::StaticServiceBrowserView(QWidget *parent)
     : QTreeView(parent)
@@ -11,7 +7,12 @@ StaticServiceBrowserView::StaticServiceBrowserView(QWidget *parent)
     setSelectionBehavior(QAbstractItemView::SelectRows);
 
     m_model = new QStandardItemModel(this);
-    initModelFromFile(":/services.conf");
+    QString servicesFile = QDesktopServices::storageLocation(QDesktopServices::DataLocation) + "/services.conf";
+    if (QFile::exists(servicesFile)) {
+        initModelFromFile(servicesFile);
+    } else {
+        initModelFromFile(":/services.conf");
+    }
     setModel(m_model);
     connect(this, SIGNAL(activated(QModelIndex)), this, SLOT(handleActivated(QModelIndex)));
 
@@ -19,6 +20,8 @@ StaticServiceBrowserView::StaticServiceBrowserView(QWidget *parent)
         resizeColumnToContents(i);
 
     selectionModel()->select(m_model->index(0, 0), QItemSelectionModel::SelectCurrent | QItemSelectionModel::Rows);
+
+    save();
 }
 
 StaticServiceBrowserView::~StaticServiceBrowserView()
@@ -43,7 +46,7 @@ void StaticServiceBrowserView::initModelFromFile(const QString &fileName)
     while (!stream.atEnd()) {
         QString hostName;
         stream >> hostName;
-        if (hostName.startsWith('#')) {
+        if (hostName.startsWith('#') || hostName.isEmpty()) {
             stream.readLine();
             continue;
         }
@@ -79,9 +82,30 @@ void StaticServiceBrowserView::addService(const QString &hostName, const QString
     columns[2]->setEditable(false);
 
     m_model->appendRow(columns);
+
+    if (model()) { // ## ugly: used to distinguish if called by user or initModelFromFile
+        save();
+    }
 }
 
 void StaticServiceBrowserView::removeService()
 {
     m_model->removeRow(currentIndex().row());
+    save();
+}
+
+void StaticServiceBrowserView::save()
+{
+    QString servicesFileName = QDesktopServices::storageLocation(QDesktopServices::DataLocation) + "/services.conf";
+    QFile file(servicesFileName);
+    file.open(QFile::WriteOnly);
+    QTextStream stream(&file);
+    stream << "# Static configuration file auto-created by qmh remotecontrol" << endl;
+    QStandardItem *root = m_model->invisibleRootItem();
+    for (int i = 0; i < root->rowCount(); i++) {
+        QString hostName = root->child(i, 0)->text();
+        QString ip = root->child(i, 1)->text();
+        QString port = root->child(i, 2)->text();
+        stream << hostName << " " << ip << " " << port << endl;
+    }
 }
