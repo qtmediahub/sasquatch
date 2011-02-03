@@ -62,6 +62,9 @@ public:
     Q_INVOKABLE void log(const QString &logMsg);
     Q_INVOKABLE void clearComponentCache();
 
+protected:
+    bool eventFilter(QObject *obj, QEvent *event);
+
 signals:
     void skinPathChanged();
     void pluginPathChanged();
