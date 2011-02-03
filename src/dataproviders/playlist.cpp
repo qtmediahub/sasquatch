@@ -96,7 +96,7 @@ void Playlist::addSubTree(MediaInfo *info)
         if (i->type == MediaModel::Directory)
             addSubTree(i);
         else if (i->type == MediaModel::File)
-            append(i);
+            append(copyMediaInfo(i));
     }
 }
 
@@ -111,15 +111,24 @@ QModelIndex Playlist::add(MediaInfo *info, PlaylistRoles role, DepthRoles depth)
 
     if (role == Playlist::Replace && count() > 0) {
         beginRemoveRows(QModelIndex(), 0, count()-1);
+        qDeleteAll(content);
         content.clear();
         endRemoveRows();
     }
 
-    int pos = content.indexOf(info);
+    // check if already in playlist
+    int pos = -1;
+    for (int i = 0; i < content.count(); ++i) {
+        if (content.at(i)->hash == info->hash) {
+            pos = i;
+            break;
+        }
+    }
+
     if (pos == -1) {
         if (depth == Playlist::Single) {
             if (info->type == MediaModel::File)
-                append(info);
+                append(copyMediaInfo(info));
             else
                 addSubTree(info);
         } else if (depth == Playlist::Flat) {
@@ -127,24 +136,30 @@ QModelIndex Playlist::add(MediaInfo *info, PlaylistRoles role, DepthRoles depth)
                 sort(info);
                 foreach (MediaInfo *i, info->parent->children) {
                     if (i->type == MediaModel::File)
-                        append(i);
+                        append(copyMediaInfo(i));
                 }
             } else
-                append(info);
+                append(copyMediaInfo(info));
         } else {
             if (info->type == MediaModel::Directory || info->type == MediaModel::SearchPath)
                 addSubTree(info);
             else
-                append(info);
+                append(copyMediaInfo(info));
         }
-        pos = content.indexOf(info);
+        for (int i = 0; i < content.count(); ++i) {
+            if (content.at(i)->hash == info->hash) {
+                pos = i;
+                break;
+            }
+        }
     }
 
 #ifdef PLAYLIST_DEBUG
     dump();
 #endif
 
-    if (info->type != MediaModel::File && content.count() > 0)
+    // if we added a folder and it was not empty, return the first item
+    if (info->type == MediaModel::Directory && content.count() > 0)
         pos = 0;
 
     return index(pos);
@@ -219,10 +234,6 @@ void Playlist::append(MediaInfo *info)
 
 bool playlistNameLessThan(MediaInfo *info1, MediaInfo *info2)
 {
-    if (info1->type == MediaModel::DotDot)
-        return true;
-    if (info2->type == MediaModel::DotDot)
-        return false;
     return QString::localeAwareCompare(info1->name.toLower(), info2->name.toLower()) < 0;
 }
 
@@ -236,6 +247,19 @@ void Playlist::sort(MediaInfo *info)
 int Playlist::row(const QModelIndex &idx) const
 {
     return idx.row();
+}
+
+MediaInfo * Playlist::copyMediaInfo(MediaInfo *info)
+{
+    MediaInfo *i = new MediaInfo(info->type, info->filePath, info->mediaType);
+
+    i->hash = info->hash;
+    i->name = info->name;
+    i->fileSize = info->fileSize;
+    i->fileDateTime = info->fileDateTime;
+    i->thumbnailPath = info->thumbnailPath;
+
+    return i;
 }
 
 

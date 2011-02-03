@@ -94,6 +94,7 @@ signals:
 private:
     void append(MediaInfo *info);
     void sort(MediaInfo *info);
+    MediaInfo *copyMediaInfo(MediaInfo *info);
 
     Q_DISABLE_COPY(Playlist)
     QList<MediaInfo*> content;
