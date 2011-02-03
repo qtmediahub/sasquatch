@@ -66,10 +66,6 @@ MediaModel::MediaModel(MediaModel::MediaType type, QObject *parent)
 
     m_root = new MediaInfo(MediaModel::Root, "", type);
 
-    MediaInfo *addNewSource = new MediaInfo(MediaModel::AddNewSource, "", type);
-    addNewSource->name = tr("Add new source");
-    m_root->children.append(addNewSource);
-
     emit mediaTypeChanged();
 }
 
@@ -297,9 +293,7 @@ QVariant MediaModel::data(const QModelIndex &index, int role) const
 
     if (role == PreviewUrlRole) {
         QString urlBase = "image://" + imageBaseUrl();
-        if (info->type == AddNewSource)
-            return QUrl(urlBase + "/AddNewSource");
-        else if (info->type == DotDot)
+        if (info->type == DotDot)
             return QUrl(urlBase + "/DotDot");
         else if (info->type == SearchPath)
             return QUrl(urlBase + "/SearchPath");
@@ -398,7 +392,6 @@ void MediaModel::setThemeResourcePath(const QString &themePath)
     m_themePath = themePath;
 
     // add default thumbnails
-    m_defaultThumbnails.insert("/AddNewSource", QImage(m_themePath + "/DefaultAddSource.png"));
     m_defaultThumbnails.insert("/DotDot", QImage(m_themePath + "/DefaultFolderBack.png"));
     m_defaultThumbnails.insert("/Directory", QImage(m_themePath + "/DefaultFolder.png"));
     m_defaultThumbnails.insert("/SearchPath", QImage(m_themePath + "/DefaultHardDisk.png"));
@@ -411,27 +404,27 @@ void MediaModel::setThemeResourcePath(const QString &themePath)
 
 bool nameLessThan(MediaInfo *info1, MediaInfo *info2)
 {
-    if (info1->type == MediaModel::DotDot || info2->type == MediaModel::AddNewSource)
+    if (info1->type == MediaModel::DotDot)
         return true;
-    if (info1->type == MediaModel::AddNewSource || info2->type == MediaModel::DotDot)
+    if (info2->type == MediaModel::DotDot)
         return false;
     return QString::localeAwareCompare(info1->name.toLower(), info2->name.toLower()) < 0;
 }
 
 bool dateLessThan(MediaInfo *info1, MediaInfo *info2)
 {
-    if (info1->type == MediaModel::DotDot || info2->type == MediaModel::AddNewSource)
+    if (info1->type == MediaModel::DotDot)
         return true;
-    if (info1->type == MediaModel::AddNewSource || info2->type == MediaModel::DotDot)
+    if (info2->type == MediaModel::DotDot)
         return false;
     return info1->fileDateTime < info2->fileDateTime;
 }
 
 bool sizeLessThan(MediaInfo *info1, MediaInfo *info2)
 {
-    if (info1->type == MediaModel::DotDot || info2->type == MediaModel::AddNewSource)
+    if (info1->type == MediaModel::DotDot)
         return true;
-    if (info1->type == MediaModel::AddNewSource || info2->type == MediaModel::DotDot)
+    if (info2->type == MediaModel::DotDot)
         return false;
     return info1->fileSize < info2->fileSize;
 }
@@ -471,7 +464,7 @@ void MediaModelThread::run()
 {
     emit started();
 
-    Q_ASSERT(!m_searchPath.isEmpty() && m_searchPath != tr("/AddNewSource"));
+    Q_ASSERT(!m_searchPath.isEmpty());
 
     search();
 

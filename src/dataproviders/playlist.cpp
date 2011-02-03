@@ -219,9 +219,9 @@ void Playlist::append(MediaInfo *info)
 
 bool playlistNameLessThan(MediaInfo *info1, MediaInfo *info2)
 {
-    if (info1->type == MediaModel::DotDot || info2->type == MediaModel::AddNewSource)
+    if (info1->type == MediaModel::DotDot)
         return true;
-    if (info1->type == MediaModel::AddNewSource || info2->type == MediaModel::DotDot)
+    if (info2->type == MediaModel::DotDot)
         return false;
     return QString::localeAwareCompare(info1->name.toLower(), info2->name.toLower()) < 0;
 }

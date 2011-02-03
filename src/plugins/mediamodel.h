@@ -88,8 +88,7 @@ public:
     // this is here, so we can expose it to QML
     enum MediaInfoType {
         Deleted,
-        Root, 
-        AddNewSource, 
+        Root,
         SearchPath, 
         DotDot, 
         Directory, 
