@@ -37,7 +37,7 @@ RemoteControl::~RemoteControl()
 
 void RemoteControl::sendButtonPress(int action)
 {
-    m_connection->call("qmhrpc.takeAction(double)", static_cast<double>(action));
+    m_connection->call("qmhrpc.takeAction(int)", action);
 }
 
 void RemoteControl::connectToService(const QHostAddress &address, int port)

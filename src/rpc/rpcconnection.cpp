@@ -174,7 +174,7 @@ void RpcConnection::handleRpcCall(QTcpSocket *socket, const QVariantMap &map)
     idx = object->metaObject()->indexOfMethod(method.toLatin1());
     if (idx < 0) {
         sendError(socket, map["id"].toString(), MethodNotFound, "No such method");
-        qWarning() << "Object '" << objName << "' does not have method named " << method;
+        qWarning() << "Object '" << qPrintable(objName) << "' does not have method named " << method;
         return;
     }
     QMetaMethod mm = object->metaObject()->method(idx);

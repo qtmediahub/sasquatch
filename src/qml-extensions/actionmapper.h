@@ -56,7 +56,7 @@ public:
     void setMap(const QString &map) { mapName = map; populateMap(); }
 
 public slots:
-    void takeAction(double action) { takeAction(static_cast<Action>(action)); }
+    void takeAction(int action) { takeAction(static_cast<Action>(action)); }
     void takeAction(Action action);
 
     private:
