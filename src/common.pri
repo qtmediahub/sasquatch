@@ -5,8 +5,9 @@ OBJECTS_DIR = $$TEMP_DIR/.obj
 MOC_DIR = $$TEMP_DIR/.moc
 
 linux* {
-    message(default to using gstreamer lib to directly generate thumbnail on linux)
-    CONFIG += gstreamer avahi
+    message(Linux specific options: (*default unless adjusted in common.pri))
+    message(gstreamer)
+    message(release*)
 }
 
-CONFIG += release glviewport
+CONFIG += release

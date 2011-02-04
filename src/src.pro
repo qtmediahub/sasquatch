@@ -35,6 +35,15 @@ HEADERS += qmh-config.h \
     plugins/mediamodel.h \
     plugins/mediainfo.h
 
+linux* {
+    message(Linux specific options: (*default unless adjusted in src.pro))
+    message(avahi*)
+    message(glviewport*)
+    CONFIG += avahi
+}
+
+CONFIG += glviewport
+
 include(rpc/rpc.pri)
 
 glgs {
