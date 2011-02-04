@@ -29,6 +29,18 @@ public:
     QAvahiServiceBrowserModel(QObject *parent = 0);
     ~QAvahiServiceBrowserModel();
 
+    enum CustomRoles {
+        NameRole = Qt::UserRole + 1,
+        TypeRole,
+        DomainRole,
+        ProtocolRole,
+        InterfaceRole,
+        HostNameRole,
+        AddressRole,
+        PortRole,
+        TxtRole
+    };
+
     void setAutoResolve(bool ar) { m_autoResolve = ar; }
     bool autoResolve() const { return m_autoResolve; }
 

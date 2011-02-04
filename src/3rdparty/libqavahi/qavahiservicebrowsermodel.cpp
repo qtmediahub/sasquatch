@@ -30,6 +30,19 @@ QAvahiServiceBrowserModel::QAvahiServiceBrowserModel(QObject *parent)
       m_browser(0), m_autoResolve(true)
 {
     qRegisterMetaType<QAvahiServiceBrowserModel::Service>();
+
+    QHash<int, QByteArray> hash = QAbstractListModel::roleNames();
+    hash[NameRole] = "name";
+    hash[TypeRole] = "type";
+    hash[DomainRole] = "domain";
+    hash[ProtocolRole] = "protocol";
+    hash[InterfaceRole] = "interface";
+    hash[HostNameRole] = "hostname";
+    hash[AddressRole] = "address";
+    hash[PortRole] = "port";
+    hash[TxtRole] = "txt";
+    setRoleNames(hash);
+
     initialize();
 }
 
@@ -364,7 +377,17 @@ QVariant QAvahiServiceBrowserModel::data(const QModelIndex &index, int role) con
         if (col == 7) return service.port;
         if (col == 8) return service.textRecords.join(",");
         break;
-    default: break;
+    case NameRole: return service.name;
+    case TypeRole: return service.type;
+    case DomainRole: return service.domain;
+    case ProtocolRole: return service.protocol;
+    case InterfaceRole: return service.interface;
+    case HostNameRole: return service.hostName;
+    case AddressRole: return service.address.toString();
+    case PortRole: return service.port;
+    case TxtRole: return service.textRecords.join(",");
+    default:
+        break;
     }
     return QVariant();
 }
