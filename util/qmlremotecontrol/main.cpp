@@ -22,6 +22,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 int main(int argc, char *argv[])
 {
+#if defined(Q_OS_LINUX)
+    QApplication::setGraphicsSystem("raster");
+#endif
+
     QApplication app(argc, argv);
     app.setApplicationName("QMH Remote Control");
     app.setOrganizationDomain("nokia.com");
