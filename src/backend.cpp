@@ -26,6 +26,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "qml-extensions/qmlfilewrapper.h"
 #include "qml-extensions/actionmapper.h"
 #include "dataproviders/playlist.h"
+#include "rpc/rpcconnection.h"
 
 #include <QDir>
 #include <QString>
@@ -235,7 +236,7 @@ void Backend::initialize(QDeclarativeEngine *qmlEngine)
     qmlRegisterType<DirModel>("DirModel", 1, 0, "DirModel");
     qmlRegisterType<QMLFileWrapper>("QMLFileWrapper", 1, 0, "QMLFileWrapper");
     qmlRegisterType<Playlist>("Playlist", 1, 0, "Playlist");
-
+    qmlRegisterType<RpcConnection>("RpcConnection", 1, 0, "RpcConnection");
 
     if (qmlEngine) {
         //FIXME: We are clearly failing to keep the backend Declarative free :p
