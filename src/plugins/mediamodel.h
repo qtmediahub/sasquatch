@@ -105,7 +105,6 @@ public:
     ~MediaModel();
 
     // reimp
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
     QModelIndex index(int row, int col, const QModelIndex &parent) const;
     QModelIndex parent(const QModelIndex &idx) const;
@@ -129,6 +128,7 @@ public:
     QString themeResourcePath() const { return m_themePath; }
 
     // callable from QML
+    Q_INVOKABLE int rowCount(const QModelIndex &parent = QModelIndex()) const;
     Q_INVOKABLE void setThemeResourcePath(const QString &themePath);
     Q_INVOKABLE void addSearchPath(const QString &mediaPath, const QString &name);
     Q_INVOKABLE void removeSearchPath(int index);
