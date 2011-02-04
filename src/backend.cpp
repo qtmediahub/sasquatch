@@ -41,6 +41,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QGLFormat>
 #endif
 
+#ifndef QMH_NO_AVAHI
+#include "qavahiservicebrowsermodel.h"
+#endif
+
 #include <QDebug>
 
 Backend* Backend::pSelf = 0;
@@ -64,6 +68,7 @@ public:
           qmlEngine(0),
           backendTranslator(0),
           logFile(qApp->applicationName().append(".log")),
+          targetsModel(0),
           pSelf(p)
     {
         inputIdleTimer.setInterval(Config::value("idle-timeout", 120)*1000);
@@ -125,6 +130,8 @@ public:
     QTextStream log;
     QFileSystemWatcher resourcePathMonitor;
     QStringList skins;
+
+    QAbstractItemModel *targetsModel;
 
     Backend *pSelf;
 };
@@ -206,10 +213,10 @@ Backend::Backend(QObject *parent)
     : QObject(parent),
       d(new BackendPrivate(this))
 {
-    QFontDatabase::addApplicationFont(d->resourcePath + "/dejavu-fonts-ttf-2.32/ttf/DejaVuSans.ttf");
-    QFontDatabase::addApplicationFont(d->resourcePath + "/dejavu-fonts-ttf-2.32/ttf/DejaVuSans-Bold.ttf");
-    QFontDatabase::addApplicationFont(d->resourcePath + "/dejavu-fonts-ttf-2.32/ttf/DejaVuSans-Oblique.ttf");
-    QFontDatabase::addApplicationFont(d->resourcePath + "/dejavu-fonts-ttf-2.32/ttf/DejaVuSans-BoldOblique.ttf");
+    QFontDatabase::addApplicationFont(d->resourcePath + "/3rdparty/dejavu-fonts-ttf-2.32/ttf/DejaVuSans.ttf");
+    QFontDatabase::addApplicationFont(d->resourcePath + "/3rdparty/dejavu-fonts-ttf-2.32/ttf/DejaVuSans-Bold.ttf");
+    QFontDatabase::addApplicationFont(d->resourcePath + "/3rdparty/dejavu-fonts-ttf-2.32/ttf/DejaVuSans-Oblique.ttf");
+    QFontDatabase::addApplicationFont(d->resourcePath + "/3rdparty/dejavu-fonts-ttf-2.32/ttf/DejaVuSans-BoldOblique.ttf");
     QApplication::setFont(QFont("DejaVu Sans"));
 }
 
@@ -359,6 +366,20 @@ QObject* Backend::engine(const QString &role)
             return currentEngine;
     qWarning() << tr("Seeking a non-existant plugin, prepare to die");
     return 0;
+}
+
+QObject *Backend::targetsModel() const
+{
+    if (!d->targetsModel) {
+#ifndef QMH_NO_AVAHI
+        QAvahiServiceBrowserModel *model = new QAvahiServiceBrowserModel(const_cast<Backend *>(this));
+        model->browse("_qmh._tcp");
+        d->targetsModel = model;
+#else
+        d->targetsModel = new QStandardItemModel(const_cast<Backend *>(this));
+#endif
+    }
+    return d->targetsModel;
 }
 
 #include "backend.moc"

@@ -281,14 +281,26 @@ int JsonLexer::parseString()
 int JsonLexer::parseNumber()
 {
     int start = m_pos;
+    bool isDouble = false;
     for (; m_pos < m_data.length(); ++m_pos) {
         const char c = m_data[m_pos];
-        if (c == '+' || c == '-' || c == '.' || c == 'e' || c == 'E' || (c >= '0' && c <= '9'))
+        if (c == '+' || c == '-' || (c >= '0' && c <= '9'))
             continue;
+        if (c == '.' || c == 'e' || c == 'E') {
+            isDouble = true;
+            continue;
+        }
         break;
     }
     QByteArray number = QByteArray::fromRawData(m_data.constData()+start, m_pos-start);
-    m_symbol = number.toDouble();
+    bool ok;
+    if (!isDouble) {
+        m_symbol = number.toInt(&ok);
+        if (!ok)
+            m_symbol = number.toLongLong(&ok);
+    }
+    if (isDouble || !ok)
+        m_symbol = number.toDouble();
     return JsonGrammar::T_NUMBER;
 }
 
@@ -382,29 +394,29 @@ bool JsonParser::parse(JsonLexer *lexer)
             act = m_stateStack.at(m_tos++);
             switch (r) {
 
-#line 264 "json.g"
+#line 276 "json.g"
           case 0: { m_result = sym(1); break; } 
-#line 267 "json.g"
+#line 279 "json.g"
           case 1: { sym(1) = sym(2); break; } 
-#line 272 "json.g"
-          case 3: { sym(1) = sym(1).toMap().unite(sym(3).toMap()); break; } 
-#line 275 "json.g"
-          case 4: { sym(1) = QVariantMap(); break; } 
-#line 278 "json.g"
-          case 5: { QVariantMap map; map.insert(sym(1).toString(), sym(3)); sym(1) = map; break; } 
-#line 281 "json.g"
-          case 6: { sym(1) = QVariant(false); break; } 
 #line 284 "json.g"
-          case 7: { sym(1) = QVariant(true); break; } 
+          case 3: { sym(1) = sym(1).toMap().unite(sym(3).toMap()); break; } 
+#line 287 "json.g"
+          case 4: { sym(1) = QVariantMap(); break; } 
+#line 290 "json.g"
+          case 5: { QVariantMap map; map.insert(sym(1).toString(), sym(3)); sym(1) = map; break; } 
 #line 293 "json.g"
-          case 13: { sym(1) = sym(2); break; } 
+          case 6: { sym(1) = QVariant(false); break; } 
 #line 296 "json.g"
+          case 7: { sym(1) = QVariant(true); break; } 
+#line 305 "json.g"
+          case 13: { sym(1) = sym(2); break; } 
+#line 308 "json.g"
           case 14: { QVariantList list; list.append(sym(1)); sym(1) = list; break; } 
-#line 299 "json.g"
+#line 311 "json.g"
           case 15: { QVariantList list = sym(1).toList(); list.append(sym(3)); sym(1) = list; break; } 
-#line 302 "json.g"
+#line 314 "json.g"
           case 16: { sym(1) = QVariantList(); break; } 
-#line 304 "json.g"
+#line 316 "json.g"
 
             } // switch
             m_stateStack[m_tos] = nt_action(act, lhs[r] - TERMINAL_COUNT);

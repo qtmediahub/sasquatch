@@ -21,7 +21,7 @@ static void QABDEBUG(const char *fmt, ...)
         va_start(ap, fmt);
         vsnprintf(buf, sizeof(buf), fmt, ap);
         va_end(ap);
-        qDebug("%s", buf);
+        qDebug("QAvahiServiceBrowserModel: %s", buf);
     }
 }
 

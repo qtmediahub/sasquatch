@@ -156,6 +156,17 @@ void RpcConnection::handleReadyRead()
     } while (socket->bytesAvailable() != 0);
 }
 
+static QByteArray stringifyParamTypes(const QVariantList &params)
+{
+    QByteArray ba;
+    for (int i = 0; i < params.count(); i++) {
+        if (i)
+            ba.append(",");
+        ba.append(params[i].typeName());
+    }
+    return ba;
+}
+
 void RpcConnection::handleRpcCall(QTcpSocket *socket, const QVariantMap &map)
 {
     QVariantList params = map["params"].toList();
@@ -171,10 +182,11 @@ void RpcConnection::handleRpcCall(QTcpSocket *socket, const QVariantMap &map)
         return;
     }
 
-    idx = object->metaObject()->indexOfMethod(method.toLatin1());
+    QByteArray normalizedMethod = method.toLatin1() + "(" + stringifyParamTypes(params) + ")";
+    idx = object->metaObject()->indexOfMethod(normalizedMethod);
     if (idx < 0) {
         sendError(socket, map["id"].toString(), MethodNotFound, "No such method");
-        qWarning() << "Object '" << objName << "' does not have method named " << method;
+        qWarning() << "Object '" << qPrintable(objName) << "' does not have method named " << method;
         return;
     }
     QMetaMethod mm = object->metaObject()->method(idx);
@@ -219,6 +231,7 @@ void RpcConnection::sendResponse(QTcpSocket *socket, const QString &id, const QV
 
 void RpcConnection::handleRpcResponse(const QVariantMap &map)
 {
+    Q_UNUSED(map);
     // qDebug() << "Response" << map;
 }
 
