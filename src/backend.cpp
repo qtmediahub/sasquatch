@@ -22,7 +22,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "plugins/qmhplugin.h"
 #include "dataproviders/proxymodel.h"
 #include "dataproviders/dirmodel.h"
-#include "dataproviders/modelindexiterator.h"
 #include "qmh-config.h"
 #include "qml-extensions/qmlfilewrapper.h"
 #include "qml-extensions/actionmapper.h"
@@ -234,7 +233,6 @@ void Backend::initialize(QDeclarativeEngine *qmlEngine)
     qmlRegisterType<ProxyModel>("ProxyModel", 1, 0, "ProxyModel");
     qmlRegisterType<ProxyModelItem>("ProxyModel", 1, 0, "ProxyModelItem");
     qmlRegisterType<DirModel>("DirModel", 1, 0, "DirModel");
-    qmlRegisterType<ModelIndexIterator>("ModelIndexIterator", 1, 0, "ModelIndexIterator");
     qmlRegisterType<QMLFileWrapper>("QMLFileWrapper", 1, 0, "QMLFileWrapper");
     qmlRegisterType<Playlist>("Playlist", 1, 0, "Playlist");
 

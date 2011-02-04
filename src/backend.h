@@ -23,7 +23,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QObject>
 #include <QList>
 #include <QDateTime>
-#include <QMetaType>
 
 class QUrl;
 class BackendPrivate;
