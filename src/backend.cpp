@@ -206,10 +206,10 @@ Backend::Backend(QObject *parent)
     : QObject(parent),
       d(new BackendPrivate(this))
 {
-    QFontDatabase::addApplicationFont(d->resourcePath + "/dejavu-fonts-ttf-2.32/ttf/DejaVuSans.ttf");
-    QFontDatabase::addApplicationFont(d->resourcePath + "/dejavu-fonts-ttf-2.32/ttf/DejaVuSans-Bold.ttf");
-    QFontDatabase::addApplicationFont(d->resourcePath + "/dejavu-fonts-ttf-2.32/ttf/DejaVuSans-Oblique.ttf");
-    QFontDatabase::addApplicationFont(d->resourcePath + "/dejavu-fonts-ttf-2.32/ttf/DejaVuSans-BoldOblique.ttf");
+    QFontDatabase::addApplicationFont(d->resourcePath + "/3rdparty/dejavu-fonts-ttf-2.32/ttf/DejaVuSans.ttf");
+    QFontDatabase::addApplicationFont(d->resourcePath + "/3rdparty/dejavu-fonts-ttf-2.32/ttf/DejaVuSans-Bold.ttf");
+    QFontDatabase::addApplicationFont(d->resourcePath + "/3rdparty/dejavu-fonts-ttf-2.32/ttf/DejaVuSans-Oblique.ttf");
+    QFontDatabase::addApplicationFont(d->resourcePath + "/3rdparty/dejavu-fonts-ttf-2.32/ttf/DejaVuSans-BoldOblique.ttf");
     QApplication::setFont(QFont("DejaVu Sans"));
 }
 
