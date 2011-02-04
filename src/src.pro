@@ -56,8 +56,8 @@ gl {
     message(Not using GL acceleration)
 }
 
-avahi {
-    DEFINES += AVAHI
+!avahi {
+    DEFINES += QMH_NO_AVAHI 
 }
 
 mac {
