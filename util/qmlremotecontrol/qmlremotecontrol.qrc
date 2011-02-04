@@ -1,0 +1,12 @@
+<RCC>
+    <qresource prefix="/">
+        <file>services.conf</file>
+        <file>qmlremotecontrol.qml</file>
+        <file>media/media-overlay.png</file>
+        <file>media/MenuItemFO.png</file>
+        <file>media/MenuItemNF.png</file>
+        <file>Button.qml</file>
+        <file>media/button-focus.png</file>
+        <file>media/button-nofocus.png</file>
+    </qresource>
+</RCC>

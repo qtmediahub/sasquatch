@@ -16,4 +16,5 @@ QMAKE_CACHE=.qmake.cache
 SUBDIRS = src \
           src/plugins \
           src/3rdparty/qt-components/qt-components.pro \
-          util/remotecontrol
+          util/remotecontrol \
+          util/qmlremotecontrol
