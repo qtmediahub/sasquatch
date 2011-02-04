@@ -41,6 +41,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QGLFormat>
 #endif
 
+#ifndef QMH_NO_AVAHI
+#include "qavahiservicebrowsermodel.h"
+#endif
+
 #include <QDebug>
 
 Backend* Backend::pSelf = 0;
@@ -237,6 +241,11 @@ void Backend::initialize(QDeclarativeEngine *qmlEngine)
         d->qmlEngine = qmlEngine;
         qmlEngine->rootContext()->setContextProperty("backend", this);
         qmlEngine->rootContext()->setContextProperty("playlist", new Playlist);
+#ifndef QMH_NO_AVAHI
+        QAvahiServiceBrowserModel *targetsModel = new QAvahiServiceBrowserModel(this);
+        targetsModel->browse("_qmh._tcp");
+        qmlEngine->rootContext()->setContextProperty("targetsModel",targetsModel);
+#endif
     }
 
     d->discoverEngines();
