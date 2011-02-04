@@ -40,6 +40,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QHostInfo>
 
 #include "qml-extensions/actionmapper.h"
+#include "qml-extensions/mediaplayerhelper.h"
 #include "rpc/rpcconnection.h"
 #include "qmh-config.h"
 
@@ -67,6 +68,7 @@ public:
     bool overscanWorkAround;
     bool attemptingFullScreen;
     ActionMapper *actionMap;
+    MediaPlayerHelper *mediaPlayerHelper;
     Frontend *pSelf;
 };
 
@@ -77,6 +79,7 @@ FrontendPrivate::FrontendPrivate(Frontend *p)
       defaultGeometry(0, 0, 1080, 720),
       attemptingFullScreen(false),
       actionMap(new ActionMapper(p)),
+      mediaPlayerHelper(new MediaPlayerHelper(p)),
       pSelf(p)
 {
     actionMap->setProperty("map", "extkeyboard");
@@ -137,6 +140,7 @@ Frontend::Frontend(QWidget *p)
 
     RpcConnection *connection = new RpcConnection(RpcConnection::Server, QHostAddress::Any, 1234, this);
     connection->registerObject(d->actionMap);
+    connection->registerObject(d->mediaPlayerHelper);
 
     installEventFilter(Backend::instance());
 }
@@ -233,6 +237,7 @@ void Frontend::initialize(const QUrl &targetUrl)
         QDeclarativeEngine *engine = centralWidget->engine();
 
         engine->rootContext()->setContextProperty("actionmap", d->actionMap);
+        engine->rootContext()->setContextProperty("mediaPlayerHelper", d->mediaPlayerHelper);
         engine->rootContext()->setContextProperty("frontend", this);
         engine->addPluginPath(Backend::instance()->resourcePath() % "/lib");
         engine->addImportPath(Backend::instance()->resourcePath() % "/imports");
