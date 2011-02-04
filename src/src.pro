@@ -78,3 +78,12 @@ include(delaysymresolution.pri)
 include(3rdparty/libqavahi/libqavahi.pri)
 INCLUDEPATH += 3rdparty/libqavahi/
 
+
+unix:!symbian {
+    maemo5 {
+        target.path = /opt/usr/bin
+    } else {
+        target.path = /usr/local/bin
+    }
+    INSTALLS += target
+}
