@@ -23,6 +23,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QObject>
 #include <QList>
 #include <QDateTime>
+#include <QMetaType>
 
 class QUrl;
 class BackendPrivate;
@@ -37,6 +38,7 @@ class Backend : public QObject
     Q_PROPERTY(QString resourcePath READ resourcePath NOTIFY resourcePathChanged)
     Q_PROPERTY(bool transforms READ transforms NOTIFY backendChanged)
     Q_PROPERTY(QList<QObject*> engines READ engines NOTIFY enginesChanged)
+    Q_PROPERTY(QObject *targetsModel READ targetsModel NOTIFY targetsModelChanged)
 
 public:
     static Backend *instance();
@@ -62,6 +64,8 @@ public:
     Q_INVOKABLE void log(const QString &logMsg);
     Q_INVOKABLE void clearComponentCache();
 
+    QObject *targetsModel() const;
+
 protected:
     bool eventFilter(QObject *obj, QEvent *event);
 
@@ -73,6 +77,7 @@ signals:
     void enginesChanged();
     void inputIdle();
     void inputActive();
+    void targetsModelChanged();
 
 private:
     QObject* engine(const QString &role);

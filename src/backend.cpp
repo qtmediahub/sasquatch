@@ -68,6 +68,7 @@ public:
           qmlEngine(0),
           backendTranslator(0),
           logFile(qApp->applicationName().append(".log")),
+          targetsModel(0),
           pSelf(p)
     {
         inputIdleTimer.setInterval(Config::value("idle-timeout", 120)*1000);
@@ -129,6 +130,8 @@ public:
     QTextStream log;
     QFileSystemWatcher resourcePathMonitor;
     QStringList skins;
+
+    QAbstractItemModel *targetsModel;
 
     Backend *pSelf;
 };
@@ -241,11 +244,6 @@ void Backend::initialize(QDeclarativeEngine *qmlEngine)
         d->qmlEngine = qmlEngine;
         qmlEngine->rootContext()->setContextProperty("backend", this);
         qmlEngine->rootContext()->setContextProperty("playlist", new Playlist);
-#ifndef QMH_NO_AVAHI
-        QAvahiServiceBrowserModel *targetsModel = new QAvahiServiceBrowserModel(this);
-        targetsModel->browse("_qmh._tcp");
-        qmlEngine->rootContext()->setContextProperty("targetsModel",targetsModel);
-#endif
     }
 
     d->discoverEngines();
@@ -368,6 +366,20 @@ QObject* Backend::engine(const QString &role)
             return currentEngine;
     qWarning() << tr("Seeking a non-existant plugin, prepare to die");
     return 0;
+}
+
+QObject *Backend::targetsModel() const
+{
+    if (!d->targetsModel) {
+#ifndef QMH_NO_AVAHI
+        QAvahiServiceBrowserModel *model = new QAvahiServiceBrowserModel(const_cast<Backend *>(this));
+        model->browse("_qmh._tcp");
+        d->targetsModel = model;
+#else
+        d->targetsModel = new QStandardItemModel(const_cast<Backend *>(this));
+#endif
+    }
+    return d->targetsModel;
 }
 
 #include "backend.moc"
