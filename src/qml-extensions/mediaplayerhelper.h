@@ -26,6 +26,8 @@ signals:
     void togglePlayPauseRequested();
     void nextRequested();
     void previousRequested();
+    void volumeUpRequested();
+    void volumeDownRequested();
 
     void playRemoteSourceRequested(MediaInfo *mediaInfo, int position);
 
@@ -37,6 +39,8 @@ public slots:
     void togglePlayPause() { emit togglePlayPauseRequested(); }
     void next() { emit nextRequested(); }
     void previous() { emit previousRequested(); }
+    void volumeUp() { emit volumeUpRequested(); }
+    void volumeDown() { emit volumeDownRequested(); }
 
 private:
     MediaInfo *m_mediaInfo; // ToBeRemoved
