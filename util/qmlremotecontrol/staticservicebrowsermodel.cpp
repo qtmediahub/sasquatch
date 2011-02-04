@@ -17,7 +17,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 ****************************************************************************/
 
-#include "staticservicebrowserview.h"
+#include "staticservicebrowsermodel.h"
 #include <QtGui>
 
 StaticServiceBrowserModel::StaticServiceBrowserModel(QWidget *parent)
