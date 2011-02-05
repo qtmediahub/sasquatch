@@ -169,16 +169,16 @@ void MediaModel::stopSearchThread()
 
 void MediaModel::addSearchPath(const QString &path, const QString &name)
 {
-    beginInsertRows(QModelIndex(), m_root->children.count()-1, m_root->children.count()-1);
+    beginInsertRows(QModelIndex(), m_root->children.count(), m_root->children.count());
     MediaInfo *newSearchPath = new MediaInfo(MediaModel::SearchPath, path, m_type);
     newSearchPath->name = name;
-    m_root->children.insert(m_root->children.count()-1, newSearchPath); // add before AddNewSource
+    m_root->children.insert(m_root->children.count(), newSearchPath);
     endInsertRows();
 
     QSettings settings;
     settings.beginGroup(typeToString(m_type) + "model");
-    settings.beginWriteArray("searchpaths", m_root->children.count()-1 /* ignore the 'Add search path' */);
-    settings.setArrayIndex(m_root->children.count()-2);
+    settings.beginWriteArray("searchpaths", m_root->children.count());
+    settings.setArrayIndex(m_root->children.count());
     settings.setValue("path", path);
     settings.setValue("name", name);
     settings.endArray();
