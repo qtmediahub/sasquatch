@@ -8,7 +8,7 @@ class Frontend;
 ActionMapper::ActionMapper(Frontend *p)
     : QObject(p),
       pFrontend(p),
-      mapName("stdkeyboard"),
+      mapName(""),
       mapPath(Backend::instance()->resourcePath() + "/devices/keymaps/")
 {
     setObjectName("qmhrpc");
@@ -30,6 +30,14 @@ void ActionMapper::takeAction(Action action)
 
 void ActionMapper::populateMap()
 {
+    keyHash.clear();
+    loadMapFromDisk(mapPath + "stdkeyboard");
+    if (!mapName.isEmpty())
+        loadMapFromDisk(mapPath + mapName);
+}
+
+void ActionMapper::loadMapFromDisk(const QString &mapFilePath)
+{
     const QMetaObject &ActionMO = ActionMapper::staticMetaObject;
     int enumIndex = ActionMO.indexOfEnumerator("Action");
     QMetaEnum actionEnum = ActionMO.enumerator(enumIndex);
@@ -37,7 +45,7 @@ void ActionMapper::populateMap()
     enumIndex = staticQtMetaObject.indexOfEnumerator("Key");
     QMetaEnum keyEnum = staticQtMetaObject.enumerator(enumIndex);
 
-    QFile mapFile(mapPath + mapName);
+    QFile mapFile(mapFilePath);
     if (mapFile.exists()
         && mapFile.open(QIODevice::ReadOnly))
     {
@@ -67,7 +75,6 @@ void ActionMapper::populateMap()
         else
             qWarning("All keys mapped correctly");
     } else {
-        mapName = "stdkeyboard";
-        populateMap();
+        qWarning() << "Could not load extended map: " << mapFilePath;
     }
 }
