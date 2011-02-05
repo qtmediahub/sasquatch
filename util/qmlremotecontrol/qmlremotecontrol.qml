@@ -165,50 +165,77 @@ Rectangle {
             anchors.horizontalCenter: parent.horizontalCenter
         }
 
-        Button {
-            id: up
-            text: "^"
-            width: controlView.buttonWidth
+        ImageButton {
+            id: volumeDown
+            image: "scroll-left"
+            anchors.margins: 10
+            anchors.top: controlTitle.bottom
+            anchors.right: volumeMuteToggle.left
+            onClicked: rpcClient.call("qmhrpc.takeAction", 7)
+        }
+        ImageButton {
+            id: volumeMuteToggle
+            image: "VolumeIcon"
+            hasFocusImage: false
             anchors.margins: 10
             anchors.top: controlTitle.bottom
             anchors.horizontalCenter: parent.horizontalCenter
-            onClicked: rpcClient.call("qmhrpc.takeAction", 1)
+//            onClicked: rpcClient.call("qmhrpc.takeAction", 4)
         }
-        Button {
-            id: down
-            text: "V"
-            width: controlView.buttonWidth
+        ImageButton {
+            id: volumeUp
+            image: "scroll-right"
             anchors.margins: 10
+            anchors.top: controlTitle.bottom
+            anchors.left: volumeMuteToggle.right
+            onClicked: rpcClient.call("qmhrpc.takeAction", 8)
+        }
+
+
+        ImageButton {
+            id: up
+            image: "scroll-up"
+            anchors.bottom: ok.top
+            anchors.horizontalCenter: parent.horizontalCenter
+            onClicked: rpcClient.call("qmhrpc.takeAction", 1)
+            width: parent.width/4
+            height: width
+        }
+        ImageButton {
+            id: down
+            image: "scroll-down"
             anchors.top: ok.bottom
             anchors.horizontalCenter: parent.horizontalCenter
             onClicked: rpcClient.call("qmhrpc.takeAction", 3)
+            width: parent.width/4
+            height: width
         }
-        Button {
+        ImageButton {
             id: left
-            text: "<"
-            width: controlView.buttonWidth
-            anchors.margins: 10
-            anchors.top: up.bottom
+            image: "scroll-left"
+            anchors.verticalCenter: ok.verticalCenter
             anchors.right: ok.left
             onClicked: rpcClient.call("qmhrpc.takeAction", 0)
+            width: parent.width/4
+            height: width
         }
-        Button {
+        ImageButton {
             id: right
-            text: ">"
-            width: controlView.buttonWidth
-            anchors.margins: 10
-            anchors.top: up.bottom
+            image: "scroll-right"
+            anchors.verticalCenter: ok.verticalCenter
             anchors.left: ok.right
             onClicked: rpcClient.call("qmhrpc.takeAction", 2)
+            width: parent.width/4
+            height: width
         }
-        Button {
+        ImageButton {
             id: ok
-            text: "O"
-            width: controlView.buttonWidth
-            anchors.margins: 10
-            anchors.top: up.bottom
+            image: "ok"
+            anchors.verticalCenter: parent.verticalCenter
             anchors.horizontalCenter: parent.horizontalCenter
             onClicked: rpcClient.call("qmhrpc.takeAction", 4)
+            width: parent.width/4
+            height: width
         }
 
         Button {
@@ -228,6 +255,7 @@ Rectangle {
             anchors.right: parent.right
             onClicked: rpcClient.call("qmhrpc.takeAction", 6)
         }
+
 
         Button {
             id: targets
