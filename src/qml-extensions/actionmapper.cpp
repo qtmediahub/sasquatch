@@ -3,6 +3,8 @@
 #include "backend.h"
 #include "frontend.h"
 
+#include "qmh-config.h"
+
 class Frontend;
 
 ActionMapper::ActionMapper(Frontend *p)
@@ -31,7 +33,8 @@ void ActionMapper::takeAction(Action action)
 void ActionMapper::populateMap()
 {
     keyHash.clear();
-    loadMapFromDisk(mapPath + "stdkeyboard");
+    if (Config::isEnabled("std-kbd-map", true))
+        loadMapFromDisk(mapPath + "stdkeyboard");
     if (!mapName.isEmpty())
         loadMapFromDisk(mapPath + mapName);
 }
@@ -57,9 +60,9 @@ void ActionMapper::loadMapFromDisk(const QString &mapFilePath)
             QList<int> keys;
             foreach(const QString &key, keyStrings)
             {
-                int keyIndex = keyEnum.keyToValue(key.toAscii().constData());
+                int keyIndex = keyEnum.keyToValue(QString("Key_").append(key).toAscii().constData());
                 if(keyIndex == -1)
-                    qWarning() << "Key does not exist" << key;
+                    qWarning() << "Qt Key does not exist: Key_" << key;
                 else
                     keys << keyIndex;
             }
