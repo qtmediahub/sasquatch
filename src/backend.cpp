@@ -403,7 +403,7 @@ QObject *Backend::targetsModel() const
     if (!d->targetsModel) {
 #ifndef QMH_NO_AVAHI
         QAvahiServiceBrowserModel *model = new QAvahiServiceBrowserModel(const_cast<Backend *>(this));
-        model->browse("_qmh._tcp", QAbstractSocket::IPv4Protocol);
+        model->browse("_qmh._tcp", QAvahiServiceBrowserModel::HideIPv6);
         d->targetsModel = model;
 #else
         d->targetsModel = new QStandardItemModel(const_cast<Backend *>(this));
