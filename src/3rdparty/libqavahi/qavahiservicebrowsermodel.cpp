@@ -26,8 +26,8 @@ static void QABDEBUG(const char *fmt, ...)
 }
 
 QAvahiServiceBrowserModel::QAvahiServiceBrowserModel(QObject *parent)
-    : QAbstractListModel(parent), m_client(0), m_protocol(QAbstractSocket::UnknownNetworkLayerProtocol), m_browserType(NoBrowserType),
-      m_browser(0), m_autoResolve(true)
+    : QAbstractListModel(parent), m_client(0), m_options(0), m_browserType(NoBrowserType),
+      m_browser(0), m_autoResolve(true), m_showUnresolvedEntries(true)
 {
     qRegisterMetaType<QAvahiServiceBrowserModel::Service>();
 
@@ -82,6 +82,7 @@ void QAvahiServiceBrowserModel::resetModel()
 {
     beginResetModel();
     m_services.clear();
+    m_rowToServiceIndex.clear();
     endResetModel();
 }
 
@@ -147,7 +148,6 @@ int QAvahiServiceBrowserModel::serviceIndex(const char *name, const char *type, 
 
 void QAvahiServiceBrowserModel::browserCallback(AvahiServiceBrowser *browser, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, const char *name, const char *type, const char *domain, AvahiLookupResultFlags flags)
 {
-    Q_UNUSED(flags);
     AvahiClient *client = avahi_service_browser_get_client(browser);
 
     Service service;
@@ -156,6 +156,7 @@ void QAvahiServiceBrowserModel::browserCallback(AvahiServiceBrowser *browser, Av
     service.domain = domain;
     service.protocol = protocol;
     service.interface = interface;
+    service.flags = flags;
 
     switch (event) {
     case AVAHI_BROWSER_FAILURE:
@@ -169,25 +170,40 @@ void QAvahiServiceBrowserModel::browserCallback(AvahiServiceBrowser *browser, Av
         break;
 
     case AVAHI_BROWSER_NEW: {
-        QABDEBUG("New service name:%s type:%s domain:%s", name, type, domain);
-        beginInsertRows(QModelIndex(), m_services.count(), m_services.count()+1);
-        m_services.append(service);
-        endInsertRows();
+        QABDEBUG("New service name:%s type:%s domain:%s flags:0x%x", name, type, domain, flags);
+        if (m_showUnresolvedEntries) {
+            if (!(m_options & HideLocal) || !service.isLocal()) {
+                beginInsertRows(QModelIndex(), m_rowToServiceIndex.count(), m_rowToServiceIndex.count()+1);
+                m_services.append(service);
+                m_rowToServiceIndex.append(m_services.count()-1);
+                endInsertRows();
+            }
+        } else {
+            m_services.append(service);
+        }
         if (m_autoResolve)
-            resolve(m_services.count()-1);
+            resolve(&m_services.last());
                             }
         break;
 
     case AVAHI_BROWSER_REMOVE: {
         QABDEBUG("Remove service");
-        int idx = serviceIndex(name, type, domain, interface, protocol);
+        const int idx = serviceIndex(name, type, domain, interface, protocol);
+        const int row = m_rowToServiceIndex.indexOf(idx);
         if (idx == -1) {
             qWarning() << "Removing non-existent service";
             return;
         }
-        beginRemoveRows(QModelIndex(), idx, idx);
-        m_services.removeAt(idx);
-        endRemoveRows();
+        if (row == -1) {
+            m_services.removeAt(idx);
+        } else {
+            beginRemoveRows(QModelIndex(), row, row);
+            m_services.removeAt(idx);
+            QList<int>::iterator it = m_rowToServiceIndex.erase(m_rowToServiceIndex.begin() + row);
+            for (; it != m_rowToServiceIndex.end(); ++it)
+                --(*it);
+            endRemoveRows();
+        }
         break;
                                }
 
@@ -206,10 +222,10 @@ void QAvahiServiceBrowserModel::browserCallback(AvahiServiceBrowser *browser, Av
 
 }
 
-void QAvahiServiceBrowserModel::browse(const QString &serviceType, QAbstractSocket::NetworkLayerProtocol protocol)
+void QAvahiServiceBrowserModel::browse(const QString &serviceType, int options)
 {
     m_serviceType = serviceType;
-    m_protocol = protocol;
+    m_options = options;
 
     resetModel();
 
@@ -228,15 +244,14 @@ void QAvahiServiceBrowserModel::browse(const QString &serviceType, QAbstractSock
     doBrowse(m_client);
 }
 
-static int toAvahiProtocol(QAbstractSocket::NetworkLayerProtocol protocol)
+static int toAvahiProtocol(int options)
 {
-    switch (protocol) {
-    case QAbstractSocket::IPv4Protocol: return AVAHI_PROTO_INET;
-    case QAbstractSocket::IPv6Protocol: return AVAHI_PROTO_INET6;
-    case QAbstractSocket::UnknownNetworkLayerProtocol: 
-    default: return AVAHI_PROTO_UNSPEC;
-    }
-    // never reached
+    if (options & QAvahiServiceBrowserModel::HideIPv4)
+        return AVAHI_PROTO_INET6;
+    else if (options & QAvahiServiceBrowserModel::HideIPv6)
+        return AVAHI_PROTO_INET;
+    else
+        return AVAHI_PROTO_UNSPEC;
 }
 
 // This function takes client as argument because it's called from clientCallback. Since
@@ -244,7 +259,7 @@ static int toAvahiProtocol(QAbstractSocket::NetworkLayerProtocol protocol)
 void QAvahiServiceBrowserModel::doBrowse(AvahiClient *client)
 {
     QABDEBUG("Creating browser");
-    int proto = toAvahiProtocol(m_protocol);
+    int proto = toAvahiProtocol(m_options);
 
     m_browser = avahi_service_browser_new(client, AVAHI_IF_UNSPEC, proto, m_serviceType.toUtf8().constData(),
                                           NULL /* domain */, (AvahiLookupFlags)0, /*AVAHI_LOOKUP_USE_MULTICAST*/
@@ -272,9 +287,11 @@ void QAvahiServiceBrowserModel::resolverCallback(AvahiServiceResolver *r, AvahiI
     int idx = serviceIndex(name, type, domain, interface, protocol);
     Q_ASSERT(idx != -1);
     Service &service = m_services[idx];
+    int row = m_rowToServiceIndex.indexOf(idx);
 
     if (event == AVAHI_RESOLVER_FAILURE) {
         QABDEBUG("Failed to resolve");
+        service.resolved = false;
         emit resolved(idx);
     } else if (event == AVAHI_RESOLVER_FOUND) {
         service.hostName = host_name;
@@ -284,15 +301,24 @@ void QAvahiServiceBrowserModel::resolverCallback(AvahiServiceResolver *r, AvahiI
             service.address = QHostAddress((quint8 *)address->data.ipv6.address);
         }
         service.port = port;
+        service.textRecords.clear();
         for (AvahiStringList *l = txt; l != NULL; l = avahi_string_list_get_next(l)) {
             service.textRecords.append((const char *)l->text);
         }
         service.flags = flags;
-
-        QABDEBUG("Service found : name:%s type:%s domain:%s port:%d address:%s", name, type, domain, port, qPrintable(service.address.toString()));
+        service.resolved = true;
+        QABDEBUG("Service found : name:%s type:%s domain:%s port:%d address:%s flags:0x%x", name, type, domain, port, qPrintable(service.address.toString()), service.flags);
         QABDEBUG("TXT: %s", qPrintable(service.textRecords.join(",")));
-        emit resolved(idx);
-        emit dataChanged(createIndex(idx, 0), createIndex(idx, 8));
+        if (row != -1) {
+            emit resolved(row);
+            emit dataChanged(createIndex(row, 0), createIndex(row, 8));
+        } else if (!(m_options & HideLocal) || !service.isLocal()) {
+            QList<int>::iterator it = qLowerBound(m_rowToServiceIndex.begin(), m_rowToServiceIndex.end(), idx);
+            const int loc = it - m_rowToServiceIndex.begin();
+            beginInsertRows(QModelIndex(), loc, loc+1);
+            m_rowToServiceIndex.insert(it, idx);
+            endInsertRows();
+        }
     } else {
         QABDEBUG("Unhandled event in resolverCallback : %d", event);
     }
@@ -308,16 +334,8 @@ void QAvahiServiceBrowserModel::resolve(const QModelIndex &index)
 
 void QAvahiServiceBrowserModel::resolve(int idx)
 {
-    Service &service = m_services[idx];
-    if (service.resolver) // already resolving
-        return;
-
-    if (avahi_client_get_state(m_client) != AVAHI_CLIENT_S_RUNNING) // server not running
-        QABDEBUG("Server is not running yet, cannot resolve. Check if avahi-daemon is running");
-
-    service.resolver = avahi_service_resolver_new(m_client, service.interface, service.protocol, service.name.toUtf8().constData(), 
-                                                  service.type.toUtf8().constData(), service.domain.toUtf8().constData(),
-                                                  AVAHI_PROTO_UNSPEC, (AvahiLookupFlags)0, resolver_callback, this /*userdata*/);
+    Service &service = m_services[m_rowToServiceIndex.value(idx)];
+    resolve(&service);
 
     if (!service.resolver) {
         m_error = avahi_client_errno(m_client);
@@ -327,11 +345,24 @@ void QAvahiServiceBrowserModel::resolve(int idx)
     }
 }
 
+void QAvahiServiceBrowserModel::resolve(Service *service)
+{
+    if (service->resolver) // already resolving
+        return;
+
+    if (avahi_client_get_state(m_client) != AVAHI_CLIENT_S_RUNNING) // server not running
+        QABDEBUG("Server is not running yet, cannot resolve. Check if avahi-daemon is running");
+
+    service->resolver = avahi_service_resolver_new(m_client, service->interface, service->protocol, service->name.toUtf8().constData(), 
+                                                  service->type.toUtf8().constData(), service->domain.toUtf8().constData(),
+                                                  AVAHI_PROTO_UNSPEC, (AvahiLookupFlags)0, resolver_callback, this /*userdata*/);
+}
+
 int QAvahiServiceBrowserModel::rowCount(const QModelIndex &parent) const
 {
     if (parent.isValid())
         return 0;
-    return m_services.count();
+    return m_rowToServiceIndex.count();
 }
 
 int QAvahiServiceBrowserModel::columnCount(const QModelIndex &parent) const
@@ -363,7 +394,8 @@ QVariant QAvahiServiceBrowserModel::data(const QModelIndex &index, int role) con
 {
     if (!index.isValid())
         return QVariant();
-    const QAvahiServiceBrowserModel::Service &service = m_services.at(index.row());
+    const int row = m_rowToServiceIndex.value(index.row());
+    const QAvahiServiceBrowserModel::Service &service = m_services.at(row);
     const int col = index.column();
     switch (role) {
     case Qt::DisplayRole: 

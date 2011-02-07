@@ -29,6 +29,12 @@ public:
     QAvahiServiceBrowserModel(QObject *parent = 0);
     ~QAvahiServiceBrowserModel();
 
+    enum Options {
+        HideLocal = 1,
+        HideIPv4 = 2,
+        HideIPv6 = 4
+    };
+
     enum CustomRoles {
         NameRole = Qt::UserRole + 1,
         TypeRole,
@@ -44,8 +50,11 @@ public:
     void setAutoResolve(bool ar) { m_autoResolve = ar; }
     bool autoResolve() const { return m_autoResolve; }
 
+    void setShowUnresolved(bool s) { m_showUnresolvedEntries = s; }
+    bool showUnresolved() const { return m_showUnresolvedEntries; }
+
     struct Service {
-        Service() : protocol(-1), interface(-1), port(0), flags(0), resolver(0) { }
+        Service() : protocol(-1), interface(-1), port(0), flags(0), resolved(false), resolver(0) { }
 
         QString name;
         QString type;
@@ -66,6 +75,7 @@ public:
         bool isStatic() const { return flags & AVAHI_LOOKUP_RESULT_STATIC; }
         bool isFromWanDns() const { return flags & AVAHI_LOOKUP_RESULT_WIDE_AREA; }
 
+        bool resolved;
         bool isValid() const { return protocol != -1 && interface != -1 && !address.isNull() && port != 0; }
 
         bool operator==(const Service &other) const {
@@ -94,7 +104,7 @@ public:
 
     Service serviceFromIndex(const QModelIndex &idx) const { return m_services.value(idx.row()); }
 
-    void browse(const QString &serviceType, QAbstractSocket::NetworkLayerProtocol protocol = QAbstractSocket::UnknownNetworkLayerProtocol);
+    void browse(const QString &serviceType, int options = 0);
 
     // reimp
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
@@ -130,16 +140,18 @@ private:
     int serviceIndex(const char *name, const char *type, const char *domain, AvahiIfIndex interface, AvahiProtocol protocol);
     void doBrowse(AvahiClient *client);
     void resetModel();
+    void resolve(Service *service);
 
     AvahiClient *m_client;
     QString m_serviceType;
-    QAbstractSocket::NetworkLayerProtocol m_protocol;
+    int m_options;
     enum BrowseType { NoBrowserType, ServiceBrowser, TypeBrowser } m_browserType;
     void *m_browser;
     int m_error;
     QString m_errorString;
-    bool m_autoResolve;
+    bool m_autoResolve, m_showUnresolvedEntries;
     QList<Service> m_services;
+    QList<int> m_rowToServiceIndex;
 };
 
 Q_DECLARE_METATYPE(QAvahiServiceBrowserModel::Service)
