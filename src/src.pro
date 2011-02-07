@@ -1,5 +1,7 @@
 include(common.pri)
 
+linux*: include(qtsingleapplication/qtsingleapplication.pri)
+
 DESTDIR = ../hub
 TEMPLATE = app
 TARGET = qmh
