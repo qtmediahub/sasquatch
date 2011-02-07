@@ -2,7 +2,7 @@
 
 This file is part of the QtMediaHub project on http://www.gitorious.org.
 
-Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).*
+Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).*
 All rights reserved.
 
 Contact:  Nokia Corporation (qt-info@nokia.com)**
@@ -17,28 +17,24 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 ****************************************************************************/
 
-#include <QtGui>
-#include "mainwindow.h"
+import QtQuick 1.0
 
-int main(int argc, char *argv[])
-{
-#if defined(Q_OS_LINUX)
-    QApplication::setGraphicsSystem("raster");
-#endif
+Image {
+    id: root
+    property string image
+    property bool hasFocusImage : true
 
-    QApplication app(argc, argv);
-    app.setApplicationName("QMH Remote Control");
-    app.setOrganizationDomain("nokia.com");
-    app.setOrganizationName("Nokia");
+    signal clicked()
 
-    MainWindow mainWindow;
-    mainWindow.setSource(QUrl("qrc:/qmlremotecontrol.qml"));
+    source: image != "" ? "qrc:/media/" + image + ((mouseArea.containsMouse || activeFocus) && hasFocusImage ? "-focus.png" : ".png") : ""
+    anchors.margins: 10
+    smooth: true
 
-#if defined(Q_OS_SYMBIAN) || defined(Q_WS_MAEMO5)
-    mainWindow.showMaximized();
-#else
-    mainWindow.show();
-#endif
-
-    return app.exec();
+    MouseArea {
+        id: mouseArea
+        anchors.fill: parent
+        hoverEnabled: hasFocusImage
+        onClicked: root.clicked()
+    }
 }
+

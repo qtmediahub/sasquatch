@@ -23,6 +23,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #ifdef GL
 #include <QGLFormat>
 #endif
+#ifdef QT_SINGLE_APPLICATION
+#include "qtsingleapplication.h"
+#endif
 
 #include "backend.h"
 #include "frontend.h"
@@ -31,37 +34,53 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 int main(int argc, char** argv)
 {
     QApplication::setGraphicsSystem("raster");
+
 #ifdef GL
     //Purely for experimentation
     QGLFormat format;
     //should suffice
     format.setDepth(false);
-    //plan b: russian roulette
+//    plan b: russian roulette
 //    format.setStencil(false);
+
 #ifdef Q_OS_MAC
     format.setSampleBuffers(true);
 #else
     format.setSampleBuffers(false);
-#endif
-    //FIXME: Should be configurable, but Config
-    //blocked by instantiation of QApplication
-    //vsync
-    format.setSwapInterval(1);
-    //no vsync
-    //format.setSwapInterval(0);
+#endif //Q_OS_MAC
+
+//    //FIXME: Should be configurable, but Config
+//    blocked by instantiation of QApplication
+//    //vsync
+//    format.setSwapInterval(1);
+//    //no vsync
+//    format.setSwapInterval(0);
 //    format.setDoubleBuffer(false);
 //    format.setAlpha(false);
 //    format.setDirectRendering(false);
+
     QGLFormat::setDefaultFormat(format);
+
 #ifdef GLGS
     if (Config::isEnabled("use-gl", true))
         QApplication::setGraphicsSystem("opengl");
-#endif
-#endif
+#endif //GLGS
+#endif //GL
+
+#ifdef QT_SINGLE_APPLICATION
+    QtSingleApplication app(argc, argv);
+#else
     QApplication app(argc, argv);
+#endif //QT_SINGLE_APPLICATION
+
     app.setApplicationName("qtmediahub");
     app.setOrganizationName("Nokia");
     app.setOrganizationDomain("nokia.com");
+
+    if (!Config::isEnabled("multi-instance", false) && app.isRunning()) {
+        qWarning() << app.applicationName() << "is already running, aborting";
+        return false;
+    }
 
     Config::init(argc, argv);
 

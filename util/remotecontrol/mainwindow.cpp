@@ -74,11 +74,14 @@ MainWindow::MainWindow(QWidget *parent) :
 
 #if !defined(Q_OS_SYMBIAN)
     QMenuBar *menuBar = new QMenuBar;
-    QMenu *menu = menuBar->addMenu(tr("&File"));
-    menu->addAction(m_backAction);
-    menu->addAction(exitAction);
-    setMenuBar(menuBar);
+    QMenu *fileMenu = menuBar->addMenu(tr("&File"));
+#ifdef QMH_NO_AVAHI
+    fileMenu->addAction(m_optionsAction);
 #endif
+    fileMenu->addAction(m_backAction);
+    fileMenu->addAction(exitAction);
+    setMenuBar(menuBar);
+#endif //QMH_NO_AVAHI
 
 
     showServiceBrowser();

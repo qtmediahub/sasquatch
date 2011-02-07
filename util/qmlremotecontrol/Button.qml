@@ -33,7 +33,6 @@ Image {
         id: mouseArea
         anchors.fill: parent
         hoverEnabled: true
-
         onClicked: root.clicked()
     }
 

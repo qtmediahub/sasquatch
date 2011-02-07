@@ -8,5 +8,18 @@
         <file>Button.qml</file>
         <file>media/button-focus.png</file>
         <file>media/button-nofocus.png</file>
+        <file>media/scroll-down-focus.png</file>
+        <file>media/scroll-down.png</file>
+        <file>media/scroll-left-focus.png</file>
+        <file>media/scroll-left.png</file>
+        <file>media/scroll-right-focus.png</file>
+        <file>media/scroll-right.png</file>
+        <file>media/scroll-up-focus.png</file>
+        <file>media/scroll-up.png</file>
+        <file>media/ok-focus.png</file>
+        <file>media/ok.png</file>
+        <file>media/VolumeIcon-Mute.png</file>
+        <file>media/VolumeIcon.png</file>
+        <file>ImageButton.qml</file>
     </qresource>
 </RCC>

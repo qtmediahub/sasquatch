@@ -60,6 +60,8 @@ public slots:
     void takeAction(Action action);
 
 private:
+    void loadMapFromDisk(const QString &mapFilePath);
+
     Frontend *pFrontend;
     QString mapName;
     QString mapPath;

@@ -1,5 +1,7 @@
 include(common.pri)
 
+linux*: include(qtsingleapplication/qtsingleapplication.pri)
+
 DESTDIR = ../hub
 TEMPLATE = app
 TARGET = qmh
@@ -34,6 +36,15 @@ HEADERS += qmh-config.h \
     dataproviders/playlist.h \
     plugins/mediamodel.h \
     plugins/mediainfo.h
+
+linux* {
+    message(Linux specific options: (*default unless adjusted in src.pro))
+    message(avahi*)
+    message(glviewport*)
+    CONFIG += avahi
+}
+
+CONFIG += glviewport
 
 include(rpc/rpc.pri)
 
