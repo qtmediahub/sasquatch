@@ -146,6 +146,16 @@ int QAvahiServiceBrowserModel::serviceIndex(const char *name, const char *type, 
     return -1;
 }
 
+static bool shouldAdd(int options, const QAvahiServiceBrowserModel::Service &service)
+{
+    if ((options & QAvahiServiceBrowserModel::HideLocal) && service.isLocal())
+        return false;
+
+    if ((options & QAvahiServiceBrowserModel::HideSameLocalClient) && service.isSameLocalClient())
+        return false;
+
+    return true;
+}
 void QAvahiServiceBrowserModel::browserCallback(AvahiServiceBrowser *browser, AvahiIfIndex interface, AvahiProtocol protocol, AvahiBrowserEvent event, const char *name, const char *type, const char *domain, AvahiLookupResultFlags flags)
 {
     AvahiClient *client = avahi_service_browser_get_client(browser);
@@ -172,7 +182,7 @@ void QAvahiServiceBrowserModel::browserCallback(AvahiServiceBrowser *browser, Av
     case AVAHI_BROWSER_NEW: {
         QABDEBUG("New service name:%s type:%s domain:%s flags:0x%x", name, type, domain, flags);
         if (m_showUnresolvedEntries) {
-            if (!(m_options & HideLocal) || !service.isLocal()) {
+            if (shouldAdd(m_options, service)) {
                 beginInsertRows(QModelIndex(), m_rowToServiceIndex.count(), m_rowToServiceIndex.count()+1);
                 m_services.append(service);
                 m_rowToServiceIndex.append(m_services.count()-1);
@@ -312,7 +322,7 @@ void QAvahiServiceBrowserModel::resolverCallback(AvahiServiceResolver *r, AvahiI
         if (row != -1) {
             emit resolved(row);
             emit dataChanged(createIndex(row, 0), createIndex(row, 8));
-        } else if (!(m_options & HideLocal) || !service.isLocal()) {
+        } else if (shouldAdd(m_options, service)) {
             QList<int>::iterator it = qLowerBound(m_rowToServiceIndex.begin(), m_rowToServiceIndex.end(), idx);
             const int loc = it - m_rowToServiceIndex.begin();
             beginInsertRows(QModelIndex(), loc, loc+1);

@@ -32,7 +32,8 @@ public:
     enum Options {
         HideLocal = 1,
         HideIPv4 = 2,
-        HideIPv6 = 4
+        HideIPv6 = 4,
+        HideSameLocalClient = 8
     };
 
     enum CustomRoles {
