@@ -28,6 +28,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "dataproviders/playlist.h"
 #include "rpc/rpcconnection.h"
 
+#ifndef QMH_NO_AVAHI
+#include "qavahiservicebrowsermodel.h"
+#endif
+
 #include <QDir>
 #include <QString>
 #include <QPluginLoader>
@@ -39,10 +43,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #ifdef GL
 #include <QGLFormat>
-#endif
-
-#ifndef QMH_NO_AVAHI
-#include "qavahiservicebrowsermodel.h"
 #endif
 
 #include <QDebug>
@@ -103,8 +103,10 @@ public:
         backendTranslator = 0;
         qDeleteAll(pluginTranslators.begin(), pluginTranslators.end());
     }
+
 public slots:
     void handleDirChanged(const QString &dir);
+
 public:
     void resetLanguage();
     void discoverSkins();
@@ -132,6 +134,11 @@ public:
     QStringList skins;
 
     QAbstractItemModel *targetsModel;
+
+#if defined(Q_WS_S60) || defined(Q_WS_MAEMO)
+    QNetworkConfigurationManager mgr;
+    QNetworkSession *session;
+#endif
 
     Backend *pSelf;
 };
@@ -213,6 +220,26 @@ Backend::Backend(QObject *parent)
     : QObject(parent),
       d(new BackendPrivate(this))
 {
+#if defined(Q_WS_S60) || defined(Q_WS_MAEMO)
+    // Set Internet Access Point
+    QList<QNetworkConfiguration> activeConfigs = d->mgr.allConfigurations();
+    if (activeConfigs.count() <= 0)
+        return;
+
+    QNetworkConfiguration cfg = activeConfigs.at(0);
+    foreach(QNetworkConfiguration config, activeConfigs) {
+        if (config.type() == QNetworkConfiguration::UserChoice) {
+            cfg = config;
+            break;
+        }
+    }
+
+    session = new QNetworkSession(cfg);
+    session->open();
+    if (!session->waitForOpened(-1))
+        return;
+#endif
+
     QFontDatabase::addApplicationFont(d->resourcePath + "/3rdparty/dejavu-fonts-ttf-2.32/ttf/DejaVuSans.ttf");
     QFontDatabase::addApplicationFont(d->resourcePath + "/3rdparty/dejavu-fonts-ttf-2.32/ttf/DejaVuSans-Bold.ttf");
     QFontDatabase::addApplicationFont(d->resourcePath + "/3rdparty/dejavu-fonts-ttf-2.32/ttf/DejaVuSans-Oblique.ttf");
@@ -222,6 +249,10 @@ Backend::Backend(QObject *parent)
 
 Backend::~Backend()
 {
+#if defined(Q_WS_S60) || defined(Q_WS_MAEMO)
+    session->close();
+#endif
+
     delete d;
     d = 0;
 }

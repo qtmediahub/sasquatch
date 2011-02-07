@@ -154,7 +154,6 @@ Frontend::~Frontend()
     else
         Config::setValue("window-geometry", geometry());
 
-
     delete d;
     d = 0;
     //Can't decide whether this is filthy or not
