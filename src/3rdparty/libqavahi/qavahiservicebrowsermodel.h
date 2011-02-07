@@ -51,9 +51,6 @@ public:
     void setAutoResolve(bool ar) { m_autoResolve = ar; }
     bool autoResolve() const { return m_autoResolve; }
 
-    void setShowUnresolved(bool s) { m_showUnresolvedEntries = s; }
-    bool showUnresolved() const { return m_showUnresolvedEntries; }
-
     struct Service {
         Service() : protocol(-1), interface(-1), port(0), flags(0), resolved(false), resolver(0) { }
 
@@ -150,7 +147,7 @@ private:
     void *m_browser;
     int m_error;
     QString m_errorString;
-    bool m_autoResolve, m_showUnresolvedEntries;
+    bool m_autoResolve;
     QList<Service> m_services;
     QList<int> m_rowToServiceIndex;
 };

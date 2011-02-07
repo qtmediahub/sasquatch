@@ -27,7 +27,7 @@ static void QABDEBUG(const char *fmt, ...)
 
 QAvahiServiceBrowserModel::QAvahiServiceBrowserModel(QObject *parent)
     : QAbstractListModel(parent), m_client(0), m_options(0), m_browserType(NoBrowserType),
-      m_browser(0), m_autoResolve(true), m_showUnresolvedEntries(true)
+      m_browser(0), m_autoResolve(true)
 {
     qRegisterMetaType<QAvahiServiceBrowserModel::Service>();
 
@@ -181,13 +181,11 @@ void QAvahiServiceBrowserModel::browserCallback(AvahiServiceBrowser *browser, Av
 
     case AVAHI_BROWSER_NEW: {
         QABDEBUG("New service name:%s type:%s domain:%s flags:0x%x", name, type, domain, flags);
-        if (m_showUnresolvedEntries) {
-            if (shouldAdd(m_options, service)) {
-                beginInsertRows(QModelIndex(), m_rowToServiceIndex.count(), m_rowToServiceIndex.count()+1);
-                m_services.append(service);
-                m_rowToServiceIndex.append(m_services.count()-1);
-                endInsertRows();
-            }
+        if (shouldAdd(m_options, service)) { // ## test if flags is reliable at this point
+            beginInsertRows(QModelIndex(), m_rowToServiceIndex.count(), m_rowToServiceIndex.count()+1);
+            m_services.append(service);
+            m_rowToServiceIndex.append(m_services.count()-1);
+            endInsertRows();
         } else {
             m_services.append(service);
         }
