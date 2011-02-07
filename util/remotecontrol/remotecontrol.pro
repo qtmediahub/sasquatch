@@ -13,13 +13,17 @@ include(../../src/rpc/rpc.pri)
     SOURCES += avahiservicebrowserview.cpp
     HEADERS += avahiservicebrowserview.h
 } else {
+    LIBS += -llibc
+    TARGET.CAPABILITY += NetworkServices
+    CONFIG += no-avahi
+}
+
+no-avahi {
     DEFINES += QMH_NO_AVAHI
     SOURCES += staticservicebrowserview.cpp
     HEADERS += staticservicebrowserview.h
     RESOURCES += remotecontrol.qrc
     FORMS += addservicedialog.ui
-    LIBS += -llibc
-    TARGET.CAPABILITY += NetworkServices
 }
 
 TEMP_DIR = $$PWD
