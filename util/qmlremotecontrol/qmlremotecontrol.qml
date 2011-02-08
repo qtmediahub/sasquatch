@@ -98,6 +98,7 @@ Rectangle {
             id: targetsTitle
             text: qsTr("Select Target")
             color: "lightgray"
+            horizontalAlignment: Text.AlignHCenter
             width: parent.width
             font.pointSize: 20
             font.weight: Font.Light
