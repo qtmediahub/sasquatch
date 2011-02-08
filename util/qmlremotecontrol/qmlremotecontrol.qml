@@ -126,6 +126,8 @@ Rectangle {
                 Text {
                     id: sourceText
                     anchors.verticalCenter: parent.verticalCenter
+                    anchors.left: parent.left
+                    anchors.leftMargin: 15
                     z: 1 // ensure it is above the background
                     text: model.display
                     font.pointSize: 10
