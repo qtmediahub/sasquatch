@@ -65,6 +65,25 @@ Rectangle {
                 target: controlView.anchors
                 leftMargin: -controlView.width
             }
+            PropertyChanges {
+                target: waitView.anchors
+                leftMargin: -waitView.width
+            }
+        },
+        State {
+            name: "inProgress"
+            PropertyChanges {
+                target: waitView.anchors
+                leftMargin: 0
+            }
+            PropertyChanges {
+                target: controlView.anchors
+                leftMargin: -controlView.width
+            }
+            PropertyChanges {
+                target: targetsView.anchors
+                leftMargin: -targetsView.width
+            }
         },
         State {
             name: "control"
@@ -75,6 +94,10 @@ Rectangle {
             PropertyChanges {
                 target: controlView.anchors
                 leftMargin: 0
+            }
+            PropertyChanges {
+                target: waitView.anchors
+                leftMargin: -waitView.width
             }
         }
     ]
@@ -100,7 +123,6 @@ Rectangle {
             color: "lightgray"
             horizontalAlignment: Text.AlignHCenter
             width: parent.width
-            font.pointSize: 10
             font.weight: Font.Light
         }
 
@@ -130,7 +152,6 @@ Rectangle {
                     anchors.leftMargin: 15
                     z: 1 // ensure it is above the background
                     text: model.display
-                    font.pointSize: 10
                     font.weight: Font.Light
                     color: "white"
                 }
@@ -141,6 +162,7 @@ Rectangle {
                     onEntered: ListView.view.currentIndex = index
                     onClicked: {
                         controlTitle.text = "Connected to "+model.display
+                        root.state = "inProgress"
                         rpcClient.connectToHost(model.address, model.port)
                     }
                 }
@@ -158,6 +180,30 @@ Rectangle {
     }
 
     Item {
+        id: waitView
+
+        anchors.top: parent.top
+        anchors.left: parent.left
+        width: parent.width
+        height: parent.height
+        clip: true
+
+        BusyIndicator {
+            anchors.centerIn: parent
+            on: root.state == "inProgress"
+        }
+
+        Button {
+            id: stopButton
+            text: "Stop"
+            anchors.margins: 10
+            anchors.bottom: parent.bottom
+            anchors.horizontalCenter: parent.horizontalCenter
+            onClicked: root.state = "targets"
+        }
+    }
+
+    Item {
         id: controlView
 
         anchors.top: parent.top
@@ -171,7 +217,6 @@ Rectangle {
         Text {
             id: controlTitle
             color: "lightgray"
-            font.pointSize: 10
             font.weight: Font.Light
             anchors.top: parent.top
             anchors.horizontalCenter: parent.horizontalCenter
@@ -248,6 +293,21 @@ Rectangle {
             onClicked: rpcClient.call("qmhrpc.takeAction", 4)
             width: parent.width/4
             height: width
+
+            SequentialAnimation{
+                id: pulseAnimation
+                property int myDuration : 800
+                running: root.state == "control"
+                loops: Animation.Infinite
+                ParallelAnimation {
+                    PropertyAnimation { target: ok; property: "opacity"; to: 1.0; duration: pulseAnimation.myDuration }
+                    PropertyAnimation { target: ok; property: "scale"; to: 1.1; duration: pulseAnimation.myDuration}
+                }
+                ParallelAnimation {
+                    PropertyAnimation { target: ok; property: "opacity"; to: 0.5; duration: pulseAnimation.myDuration }
+                    PropertyAnimation { target: ok; property: "scale"; to: 1.0; duration: pulseAnimation.myDuration }
+                }
+            }
         }
 
         Button {

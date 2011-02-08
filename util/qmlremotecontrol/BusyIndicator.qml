@@ -2,7 +2,7 @@
 
 This file is part of the QtMediaHub project on http://www.gitorious.org.
 
-Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).*
+Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).*
 All rights reserved.
 
 Contact:  Nokia Corporation (qt-info@nokia.com)**
@@ -17,22 +17,17 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 ****************************************************************************/
 
-#include <QtGui>
-#include "mainwindow.h"
+import QtQuick 1.0
 
-int main(int argc, char *argv[])
-{
-    QApplication app(argc, argv);
-    app.setApplicationName("QMH Remote Control");
-    app.setOrganizationDomain("nokia.com");
-    app.setOrganizationName("Nokia");
+Image {
+    id: root
+    property bool on: false
 
-    MainWindow mainWindow;
-#if defined(Q_OS_SYMBIAN) || defined(Q_WS_MAEMO_5)
-    mainWindow.showMaximized();
-#else
-    mainWindow.show();
-#endif
+    source: "qrc:/media/busy.png"
+    visible: root.on
+    smooth: true
 
-    return app.exec();
+    NumberAnimation on rotation {
+        running: root.on; from: 0; to: 360; loops: Animation.Infinite; duration: 1200
+    }
 }
