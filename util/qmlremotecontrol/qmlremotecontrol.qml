@@ -17,7 +17,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 ****************************************************************************/
 
-import QtQuick 1.0
+import Qt 4.7
 import RpcConnection 1.0
 
 Rectangle {
@@ -126,6 +126,8 @@ Rectangle {
                 Text {
                     id: sourceText
                     anchors.verticalCenter: parent.verticalCenter
+                    anchors.left: parent.left
+                    anchors.leftMargin: 15
                     z: 1 // ensure it is above the background
                     text: model.display
                     font.pointSize: 10

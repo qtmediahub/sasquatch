@@ -68,12 +68,12 @@ public:
         qint32 port;
         QStringList textRecords;
         int flags;
-        bool isCached() const { return flags & AVAHI_LOOKUP_RESULT_CACHED; }
-        bool isLocal() const { return flags & AVAHI_LOOKUP_RESULT_LOCAL; }
-        bool isFromMulticastDns() const { return flags & AVAHI_LOOKUP_RESULT_MULTICAST; }
-        bool isSameLocalClient() const { return flags & AVAHI_LOOKUP_RESULT_OUR_OWN; }
-        bool isStatic() const { return flags & AVAHI_LOOKUP_RESULT_STATIC; }
-        bool isFromWanDns() const { return flags & AVAHI_LOOKUP_RESULT_WIDE_AREA; }
+        bool isCached() const { return flags & AVAHI_LOOKUP_RESULT_CACHED /* 1 */; }
+        bool isLocal() const { return flags & AVAHI_LOOKUP_RESULT_LOCAL /* 8 */; }
+        bool isFromMulticastDns() const { return flags & AVAHI_LOOKUP_RESULT_MULTICAST /* 4 */; }
+        bool isSameLocalClient() const { return flags & AVAHI_LOOKUP_RESULT_OUR_OWN /* 16 */; }
+        bool isStatic() const { return flags & AVAHI_LOOKUP_RESULT_STATIC /* 32 */; }
+        bool isFromWanDns() const { return flags & AVAHI_LOOKUP_RESULT_WIDE_AREA /* 2 */; }
 
         bool resolved;
         bool isValid() const { return protocol != -1 && interface != -1 && !address.isNull() && port != 0; }
