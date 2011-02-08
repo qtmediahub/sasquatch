@@ -18,8 +18,6 @@ public:
     MusicPlugin();
     ~MusicPlugin() {}
 
-    QList<QObject*> childItems() const;
-
     QObject *pluginProperties() const;
 
     // accessed from QML
@@ -30,7 +28,6 @@ signals:
     void modelChanged();
 
 private:
-    QList<QObject *> m_childItems;
     MusicModel *m_model;
 };
 

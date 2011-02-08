@@ -4,6 +4,12 @@
 
 PicturePlugin::PicturePlugin()
 {
+    setActionList(
+                QStringList()
+                << "Files"
+                << "Addons"
+                << "Library");
+
     m_model = new PictureModel(this);
 
     setName(tr("Pictures"));
