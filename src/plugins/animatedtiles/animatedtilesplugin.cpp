@@ -1,5 +1,5 @@
 #include <QtPlugin>
-\
+
 #include "animatedtilesplugin.h"
 #include "animatedtilesitem.h"
 
