@@ -29,12 +29,14 @@ public:
     QAvahiServiceBrowserModel(QObject *parent = 0);
     ~QAvahiServiceBrowserModel();
 
-    enum Options {
+    enum Option {
+        NoOptions = 0,
         HideLocal = 1,
         HideIPv4 = 2,
         HideIPv6 = 4,
         HideSameLocalClient = 8
     };
+    Q_DECLARE_FLAGS(Options, Option)
 
     enum CustomRoles {
         NameRole = Qt::UserRole + 1,
@@ -102,7 +104,7 @@ public:
 
     Service serviceFromIndex(const QModelIndex &idx) const { return m_services.value(idx.row()); }
 
-    void browse(const QString &serviceType, int options = 0);
+    void browse(const QString &serviceType, Options options = 0);
 
     // reimp
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
@@ -142,7 +144,7 @@ private:
 
     AvahiClient *m_client;
     QString m_serviceType;
-    int m_options;
+    Options m_options;
     enum BrowseType { NoBrowserType, ServiceBrowser, TypeBrowser } m_browserType;
     void *m_browser;
     int m_error;
@@ -152,6 +154,7 @@ private:
     QList<int> m_rowToServiceIndex;
 };
 
+Q_DECLARE_OPERATORS_FOR_FLAGS(QAvahiServiceBrowserModel::Options)
 Q_DECLARE_METATYPE(QAvahiServiceBrowserModel::Service)
 
 #endif // QAVAHISERVICEBROWSERMODEL_H

@@ -26,7 +26,7 @@ static void QABDEBUG(const char *fmt, ...)
 }
 
 QAvahiServiceBrowserModel::QAvahiServiceBrowserModel(QObject *parent)
-    : QAbstractListModel(parent), m_client(0), m_options(0), m_browserType(NoBrowserType),
+    : QAbstractListModel(parent), m_client(0), m_options(QAvahiServiceBrowserModel::NoOptions), m_browserType(NoBrowserType),
       m_browser(0), m_autoResolve(true)
 {
     qRegisterMetaType<QAvahiServiceBrowserModel::Service>();
@@ -146,7 +146,7 @@ int QAvahiServiceBrowserModel::serviceIndex(const char *name, const char *type, 
     return -1;
 }
 
-static bool shouldAdd(int options, const QAvahiServiceBrowserModel::Service &service)
+static bool shouldAdd(QAvahiServiceBrowserModel::Options options, const QAvahiServiceBrowserModel::Service &service)
 {
     if ((options & QAvahiServiceBrowserModel::HideLocal) && service.isLocal())
         return false;
@@ -230,7 +230,7 @@ void QAvahiServiceBrowserModel::browserCallback(AvahiServiceBrowser *browser, Av
 
 }
 
-void QAvahiServiceBrowserModel::browse(const QString &serviceType, int options)
+void QAvahiServiceBrowserModel::browse(const QString &serviceType, QAvahiServiceBrowserModel::Options options)
 {
     m_serviceType = serviceType;
     m_options = options;
@@ -252,7 +252,7 @@ void QAvahiServiceBrowserModel::browse(const QString &serviceType, int options)
     doBrowse(m_client);
 }
 
-static int toAvahiProtocol(int options)
+static int toAvahiProtocol(QAvahiServiceBrowserModel::Options options)
 {
     if (options & QAvahiServiceBrowserModel::HideIPv4)
         return AVAHI_PROTO_INET6;
