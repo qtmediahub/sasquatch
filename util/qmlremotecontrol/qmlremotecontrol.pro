@@ -17,7 +17,8 @@ include(../../src/rpc/rpc.pri)
 } else {
     FORMS +=
     LIBS += -llibc
-    TARGET.CAPABILITY += NetworkServices
+    TARGET.UID3 = 0xA000D7D1
+    TARGET.CAPABILITY += LocalServices NetworkServices ReadUserData WriteUserData UserEnvironment
 }
 
 no-avahi {

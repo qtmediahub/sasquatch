@@ -23,19 +23,13 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 // Qt Includes
 #include <QtGui>
 #include <QtDeclarative>
-#include <QtNetwork>
 
 class MainWindow : public QDeclarativeView
 {
 public:
     MainWindow(QWidget *parent = 0);
-    ~MainWindow();
 
 private:
-#if defined(Q_WS_S60) || defined(Q_WS_MAEMO)
-    QNetworkConfigurationManager mgr;
-    QNetworkSession *session;
-#endif
     QObject *m_targetsModel;
 };
 
