@@ -11,6 +11,7 @@ class QMHPluginInterface
 public:
     QMHPluginInterface()
         : mVisualElement(0),
+          mActionMap(0),
           mName("Skin Plugin"),
           mRole("undefined") { /**/ }
 
@@ -21,8 +22,6 @@ public:
 
     QString role() const { return mRole; }
     void setRole(const QString &role) { mRole = role; }
-
-    virtual QList<QObject*> childItems() const { return QList<QObject*>(); }
 
     QObject* visualElement() const { return mVisualElement; }
     void setVisualElement(QObject *element) { mVisualElement = element; }
@@ -35,6 +34,12 @@ public:
             mVisualElementProperties.removeLast();
     }
 
+    QObject* actionMap() const { return mActionMap; }
+    void setActionMap(QObject *map) { mActionMap = map; }
+
+    QStringList actionList() const { return mActionList; }
+    void setActionList(const QStringList& actions) { mActionList = actions; }
+
     virtual bool dependenciesSatisfied() const { return true; }
 
     virtual void registerPlugin(QDeclarativeContext *context) { Q_UNUSED(context); }
@@ -44,7 +49,9 @@ public:
 
 protected:
     QObject *mVisualElement;
+    QObject *mActionMap;
     QStringList mVisualElementProperties;
+    QStringList mActionList;
     QString mName;
     QString mRole;
 };

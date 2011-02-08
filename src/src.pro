@@ -39,9 +39,11 @@ HEADERS += qmh-config.h \
 
 linux* {
     message(Linux specific options: (*default unless adjusted in src.pro))
-    message(avahi*)
     message(glviewport*)
-    CONFIG += avahi
+    !no-avahi {
+        message(avahi*)
+        CONFIG += avahi
+    }
 }
 
 CONFIG += glviewport
@@ -67,8 +69,8 @@ gl {
     message(Not using GL acceleration)
 }
 
-!avahi {
-    DEFINES += QMH_NO_AVAHI 
+no-avahi {
+    DEFINES += QMH_NO_AVAHI
 }
 
 mac {
@@ -85,9 +87,11 @@ mac {
 TRANSLATIONS = $$system(cat $$DESTDIR/supported_languages | while read i; do echo translations/"$i".ts; done)
 include(delaysymresolution.pri)
 
-# avahi support
-include(3rdparty/libqavahi/libqavahi.pri)
-INCLUDEPATH += 3rdparty/libqavahi/
+!no-avahi {
+    # avahi support
+    include(3rdparty/libqavahi/libqavahi.pri)
+    INCLUDEPATH += 3rdparty/libqavahi/
+}
 
 
 unix:!symbian {

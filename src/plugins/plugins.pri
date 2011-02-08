@@ -10,11 +10,9 @@ MOC_DIR=.moc
 INCLUDEPATH += $${PROJECTROOT}/src/plugins $${PROJECTROOT}/src
 
 HEADERS += \
-    ../submenuentry.h \
     ../mediainfo.h
 
 SOURCES += \
-    ../submenuentry.cpp \
     ../mediainfo.cpp
 
 #Wouldn't it be nice?

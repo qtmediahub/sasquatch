@@ -6,12 +6,15 @@ INCLUDEPATH += . ../../src/3rdparty/ ../../src ../../src/qml-extensions
 QT += network declarative
 include(../../src/rpc/rpc.pri)
 
+
 !symbian {
-    # avahi integration
-    INCLUDEPATH +=  ../../src/3rdparty/libqavahi/
-    include(../../src/3rdparty/libqavahi/libqavahi.pri)
-    SOURCES += avahiservicebrowserview.cpp
-    HEADERS += avahiservicebrowserview.h
+    !no-avahi {
+        # avahi integration
+        INCLUDEPATH +=  ../../src/3rdparty/libqavahi/
+        include(../../src/3rdparty/libqavahi/libqavahi.pri)
+        SOURCES += avahiservicebrowserview.cpp
+        HEADERS += avahiservicebrowserview.h
+    }
 } else {
     LIBS += -llibc
     TARGET.CAPABILITY += NetworkServices

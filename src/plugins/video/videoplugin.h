@@ -18,7 +18,6 @@ public:
 
     QObject *pluginProperties() const;
 
-    QList<QObject*> childItems() const { return m_childItems; }
     // accessed from QML
     QObject *model() const { return m_model; }
 
@@ -28,7 +27,6 @@ signals:
     void modelChanged();
 
 private:
-    QList<QObject *> m_childItems;
     VideoModel *m_model;
 };
 

@@ -1,6 +1,6 @@
 TEMPLATE = subdirs
 
-QMAKE_CACHE=.qmake.cache
+QMAKE_CACHE=$${OUT_PWD}/.qmake.cache
 
 !exists($$QMAKE_CACHE) {
     message(creating .qmake.cache)

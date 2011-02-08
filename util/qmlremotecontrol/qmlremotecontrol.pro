@@ -7,19 +7,24 @@ QT += network declarative
 include(../../src/rpc/rpc.pri)
 
 !symbian {
-    # avahi integration
-    INCLUDEPATH +=  ../../src/3rdparty/libqavahi/
-    include(../../src/3rdparty/libqavahi/libqavahi.pri)
-    SOURCES +=
-    HEADERS +=
+    !no-avahi {
+        # avahi integration
+        INCLUDEPATH +=  ../../src/3rdparty/libqavahi/
+        include(../../src/3rdparty/libqavahi/libqavahi.pri)
+        SOURCES +=
+        HEADERS +=
+    }
 } else {
-    DEFINES += QMH_NO_AVAHI
-    SOURCES += staticservicebrowsermodel.cpp
-    HEADERS += staticservicebrowsermodel.h
     FORMS +=
     LIBS += -llibc
     TARGET.UID3 = 0xA000D7D1
     TARGET.CAPABILITY += LocalServices NetworkServices ReadUserData WriteUserData UserEnvironment
+}
+
+no-avahi {
+    DEFINES += QMH_NO_AVAHI
+    SOURCES += staticservicebrowsermodel.cpp
+    HEADERS += staticservicebrowsermodel.h
 }
 
 TEMP_DIR = $$PWD

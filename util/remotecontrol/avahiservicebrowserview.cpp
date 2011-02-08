@@ -25,7 +25,7 @@ AvahiServiceBrowserView::AvahiServiceBrowserView(QWidget *parent)
 {
     setSelectionBehavior(QAbstractItemView::SelectRows);
     m_browserModel = new QAvahiServiceBrowserModel(this);
-    m_browserModel->browse("_qmh._tcp");
+    m_browserModel->browse("_qmh._tcp", QAvahiServiceBrowserModel::HideIPv6);
     setModel(m_browserModel);
     connect(this, SIGNAL(activated(QModelIndex)), this, SLOT(handleActivated(QModelIndex)));
 
