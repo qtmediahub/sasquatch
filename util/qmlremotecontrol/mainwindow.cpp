@@ -59,7 +59,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 #ifndef QMH_NO_AVAHI
     QAvahiServiceBrowserModel *model = new QAvahiServiceBrowserModel(this);
-    model->browse("_qmh._tcp");
+    model->browse("_qmh._tcp", QAvahiServiceBrowserModel::HideIPv6);
     m_targetsModel = model;
 #else
     m_targetsModel = new StaticServiceBrowserModel(this);
