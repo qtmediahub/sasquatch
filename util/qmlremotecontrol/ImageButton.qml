@@ -26,7 +26,7 @@ Image {
 
     signal clicked()
 
-    source: image != "" ? "qrc:/media/" + image + ((mouseArea.containsMouse || activeFocus) && hasFocusImage ? "-focus.png" : ".png") : ""
+    source: image != "" ? "qrc:/media/" + image + (mouseArea.containsMouse && mouseArea.pressed && hasFocusImage ? "-focus.png" : ".png") : ""
     anchors.margins: 10
     smooth: true
 
