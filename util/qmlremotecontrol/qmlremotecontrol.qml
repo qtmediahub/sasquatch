@@ -65,6 +65,25 @@ Rectangle {
                 target: controlView.anchors
                 leftMargin: -controlView.width
             }
+            PropertyChanges {
+                target: waitView.anchors
+                leftMargin: -waitView.width
+            }
+        },
+        State {
+            name: "inProgress"
+            PropertyChanges {
+                target: waitView.anchors
+                leftMargin: 0
+            }
+            PropertyChanges {
+                target: controlView.anchors
+                leftMargin: -controlView.width
+            }
+            PropertyChanges {
+                target: targetsView.anchors
+                leftMargin: -targetsView.width
+            }
         },
         State {
             name: "control"
@@ -75,6 +94,10 @@ Rectangle {
             PropertyChanges {
                 target: controlView.anchors
                 leftMargin: 0
+            }
+            PropertyChanges {
+                target: waitView.anchors
+                leftMargin: -waitView.width
             }
         }
     ]
@@ -139,6 +162,7 @@ Rectangle {
                     onEntered: ListView.view.currentIndex = index
                     onClicked: {
                         controlTitle.text = "Connected to "+model.display
+                        root.state = "inProgress"
                         rpcClient.connectToHost(model.address, model.port)
                     }
                 }
@@ -152,6 +176,30 @@ Rectangle {
             anchors.bottom: parent.bottom
             anchors.horizontalCenter: parent.horizontalCenter
             onClicked: Qt.quit();
+        }
+    }
+
+    Item {
+        id: waitView
+
+        anchors.top: parent.top
+        anchors.left: parent.left
+        width: parent.width
+        height: parent.height
+        clip: true
+
+        BusyIndicator {
+            anchors.centerIn: parent
+            on: root.state == "inProgress"
+        }
+
+        Button {
+            id: stopButton
+            text: "Stop"
+            anchors.margins: 10
+            anchors.bottom: parent.bottom
+            anchors.horizontalCenter: parent.horizontalCenter
+            onClicked: root.state = "targets"
         }
     }
 
