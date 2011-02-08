@@ -248,6 +248,21 @@ Rectangle {
             onClicked: rpcClient.call("qmhrpc.takeAction", 4)
             width: parent.width/4
             height: width
+
+            SequentialAnimation{
+                id: pulseAnimation
+                property int myDuration : 800
+                running: root.state == "control"
+                loops: Animation.Infinite
+                ParallelAnimation {
+                    PropertyAnimation { target: ok; property: "opacity"; to: 1.0; duration: pulseAnimation.myDuration }
+                    PropertyAnimation { target: ok; property: "scale"; to: 1.1; duration: pulseAnimation.myDuration}
+                }
+                ParallelAnimation {
+                    PropertyAnimation { target: ok; property: "opacity"; to: 0.5; duration: pulseAnimation.myDuration }
+                    PropertyAnimation { target: ok; property: "scale"; to: 1.0; duration: pulseAnimation.myDuration }
+                }
+            }
         }
 
         Button {
