@@ -10,9 +10,6 @@ class AnimatedTilesPlugin : public QObject, public QMHPluginInterface
 
 public:
     AnimatedTilesPlugin();
-
-    void registerPlugin(QDeclarativeContext *context);
-
 };
 
 #endif // ANIMATEDTILESPLUGIN_H
