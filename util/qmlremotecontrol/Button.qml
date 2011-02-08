@@ -40,7 +40,6 @@ Image {
         id: textLabel
         anchors.centerIn: parent
         color: "lightgray"
-        font.pointSize: 10
         font.weight: Font.Light
     }
 }

@@ -100,7 +100,6 @@ Rectangle {
             color: "lightgray"
             horizontalAlignment: Text.AlignHCenter
             width: parent.width
-            font.pointSize: 10
             font.weight: Font.Light
         }
 
@@ -130,7 +129,6 @@ Rectangle {
                     anchors.leftMargin: 15
                     z: 1 // ensure it is above the background
                     text: model.display
-                    font.pointSize: 10
                     font.weight: Font.Light
                     color: "white"
                 }
@@ -171,7 +169,6 @@ Rectangle {
         Text {
             id: controlTitle
             color: "lightgray"
-            font.pointSize: 10
             font.weight: Font.Light
             anchors.top: parent.top
             anchors.horizontalCenter: parent.horizontalCenter
