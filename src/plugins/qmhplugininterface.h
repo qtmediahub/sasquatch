@@ -11,6 +11,7 @@ class QMHPluginInterface
 public:
     QMHPluginInterface()
         : mVisualElement(0),
+          mActionMap(0),
           mName("Skin Plugin"),
           mRole("undefined") { /**/ }
 
@@ -33,6 +34,9 @@ public:
             mVisualElementProperties.removeLast();
     }
 
+    QObject* actionMap() const { return mActionMap; }
+    void setActionMap(QObject *map) { mActionMap = map; }
+
     QStringList actionList() const { return mActionList; }
     void setActionList(const QStringList& actions) { mActionList = actions; }
 
@@ -45,6 +49,7 @@ public:
 
 protected:
     QObject *mVisualElement;
+    QObject *mActionMap;
     QStringList mVisualElementProperties;
     QStringList mActionList;
     QString mName;

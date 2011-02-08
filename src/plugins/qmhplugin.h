@@ -28,6 +28,7 @@ class QMHPlugin : public QObject
     Q_PROPERTY(QString role READ role WRITE setRole NOTIFY pluginChanged)
     Q_PROPERTY(QObject* visualElement READ visualElement WRITE setVisualElement NOTIFY pluginChanged)
     Q_PROPERTY(QStringList visualElementProperties READ visualElementProperties WRITE setVisualElementProperties NOTIFY pluginChanged)
+    Q_PROPERTY(QObject* actionMap READ actionMap WRITE setActionMap NOTIFY pluginChanged)
     Q_PROPERTY(QStringList actionList READ actionList WRITE setActionList NOTIFY pluginChanged)
     Q_PROPERTY(QObject* pluginProperties READ pluginProperties NOTIFY pluginChanged)
 
@@ -50,6 +51,9 @@ public:
 
     QStringList visualElementProperties() const { return mInterface->visualElementProperties(); }
     void setVisualElementProperties(const QStringList& properties) { mInterface->setVisualElementProperties(properties); }
+
+    QObject* actionMap() const { return mInterface->actionMap(); }
+    void setActionMap(QObject *map) { mInterface->setActionMap(map); }
 
     QStringList actionList() const { return mInterface->actionList(); }
     void setActionList(const QStringList& actions) { mInterface->setActionList(actions); }
