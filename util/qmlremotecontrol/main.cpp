@@ -34,7 +34,7 @@ int main(int argc, char *argv[])
     MainWindow mainWindow;
     mainWindow.setSource(QUrl("qrc:/qmlremotecontrol.qml"));
 
-#if defined(Q_OS_SYMBIAN) || defined(Q_WS_MAEMO5)
+#if defined(Q_OS_SYMBIAN) || defined(Q_WS_MAEMO_5)
     mainWindow.showFullScreen();
 #else
     mainWindow.show();
