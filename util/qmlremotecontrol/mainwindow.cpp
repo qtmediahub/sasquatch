@@ -30,26 +30,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 MainWindow::MainWindow(QWidget *parent)
     : QDeclarativeView(parent)
 {
-#if defined(Q_WS_S60) || defined(Q_WS_MAEMO)
-    // Set Internet Access Point
-    QList<QNetworkConfiguration> activeConfigs = mgr.allConfigurations();
-    if (activeConfigs.count() <= 0)
-        return;
-
-    QNetworkConfiguration cfg = activeConfigs.at(0);
-    foreach(QNetworkConfiguration config, activeConfigs) {
-        if (config.type() == QNetworkConfiguration::UserChoice) {
-            cfg = config;
-            break;
-        }
-    }
-
-    session = new QNetworkSession(cfg);
-    session->open();
-    if (!session->waitForOpened(-1))
-        return;
-#endif
-
     setAttribute(Qt::WA_OpaquePaintEvent);
     setAttribute(Qt::WA_NoSystemBackground);
     setViewportUpdateMode(QGraphicsView::MinimalViewportUpdate);
@@ -69,9 +49,3 @@ MainWindow::MainWindow(QWidget *parent)
     engine()->rootContext()->setContextProperty("targetsModel", m_targetsModel);
 }
 
-MainWindow::~MainWindow()
-{
-#if defined(Q_WS_S60) || defined(Q_WS_MAEMO)
-    session->close();
-#endif
-}

@@ -13,8 +13,14 @@ QMAKE_CACHE=.qmake.cache
     system(echo "CONFIG-=qt_framework" >> $$QMAKE_CACHE)
 }
 
-SUBDIRS = src \
-          src/plugins \
-          src/3rdparty/qt-components/qt-components.pro \
-          util/remotecontrol \
-          util/qmlremotecontrol
+SUBDIRS = util/qmlremotecontrol
+
+# due to wrong deploysteps in creator for symbian,
+# comment SUBDIRS below out
+SUBDIRS += \
+    src \
+    src/plugins \
+    src/3rdparty/qt-components/qt-components.pro \
+    util/remotecontrol \
+
+

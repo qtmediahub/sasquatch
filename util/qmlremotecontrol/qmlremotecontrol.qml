@@ -99,7 +99,7 @@ Rectangle {
             text: qsTr("Select Target")
             color: "lightgray"
             width: parent.width
-            font.pointSize: 20
+            font.pointSize: 10
             font.weight: Font.Light
         }
 
@@ -127,7 +127,7 @@ Rectangle {
                     anchors.verticalCenter: parent.verticalCenter
                     z: 1 // ensure it is above the background
                     text: model.display
-                    font.pointSize: 16
+                    font.pointSize: 10
                     font.weight: Font.Light
                     color: "white"
                 }
@@ -142,6 +142,15 @@ Rectangle {
                     }
                 }
             }
+        }
+
+        Button {
+            id: exitButton
+            text: "Exit"
+            anchors.margins: 10
+            anchors.bottom: parent.bottom
+            anchors.horizontalCenter: parent.horizontalCenter
+            onClicked: Qt.quit();
         }
     }
 
@@ -159,7 +168,7 @@ Rectangle {
         Text {
             id: controlTitle
             color: "lightgray"
-            font.pointSize: 20
+            font.pointSize: 10
             font.weight: Font.Light
             anchors.top: parent.top
             anchors.horizontalCenter: parent.horizontalCenter

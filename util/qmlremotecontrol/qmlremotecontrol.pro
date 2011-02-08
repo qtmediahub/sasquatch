@@ -18,7 +18,8 @@ include(../../src/rpc/rpc.pri)
     HEADERS += staticservicebrowsermodel.h
     FORMS +=
     LIBS += -llibc
-    TARGET.CAPABILITY += NetworkServices
+    TARGET.UID3 = 0xA000D7D1
+    TARGET.CAPABILITY += LocalServices NetworkServices ReadUserData WriteUserData UserEnvironment
 }
 
 TEMP_DIR = $$PWD
