@@ -36,6 +36,8 @@ public:
 
     explicit CustomCursor(QObject *parent = 0);
 
+    Q_INVOKABLE void enableCursor(bool enable = true, bool temporary = true);
+
     QString defaultCursorPath() const;
     void setDefaultCursorPath(const QString &path);
 
@@ -64,6 +66,8 @@ private:
     QCursor m_defaultCursor;
     QCursor m_clickedCursor;
     QCursor m_blankCursor;
+
+    QObject *m_EventSink;
 };
 
 #endif // CUSTOMCURSOR_H

@@ -10,7 +10,8 @@ class QMHPluginInterface
 {
 public:
     QMHPluginInterface()
-        : mVisualElement(0),
+        : mAdvertized(true),
+          mVisualElement(0),
           mActionMap(0),
           mName("Skin Plugin"),
           mRole("undefined") { /**/ }
@@ -22,6 +23,9 @@ public:
 
     QString role() const { return mRole; }
     void setRole(const QString &role) { mRole = role; }
+
+    bool advertized() const { return mAdvertized; }
+    void setAdvertized(bool advertized) { mAdvertized = advertized; }
 
     QObject* visualElement() const { return mVisualElement; }
     void setVisualElement(QObject *element) { mVisualElement = element; }
@@ -48,6 +52,7 @@ public:
     virtual QObject *pluginProperties() const { return 0; }
 
 protected:
+    bool mAdvertized;
     QObject *mVisualElement;
     QObject *mActionMap;
     QStringList mVisualElementProperties;

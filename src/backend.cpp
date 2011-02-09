@@ -344,17 +344,24 @@ bool Backend::transforms() const
 
 void Backend::advertizeEngine(QMHPlugin *engine) 
 {
-    QString role = engine->property("role").toString();
+    //Advertize to main menu
+    //Advertize to QML context
+    QString role = engine->role();
     if (role.isEmpty())
         return;
     if (d->advertizedEngineRoles.contains(role)) {
         qWarning() << tr("Duplicate engine found for role %1").arg(role);
         return;
+    } else {
+        d->advertizedEngineRoles << role;
     }
-    d->advertizedEngines << engine;
+
+    if (engine->advertized())
+        d->advertizedEngines << engine;
+
     if (d->qmlEngine)
         d->qmlEngine->rootContext()->setContextProperty(role % "Engine", engine);
-    d->advertizedEngineRoles << role;
+
     emit enginesChanged();
 }
 

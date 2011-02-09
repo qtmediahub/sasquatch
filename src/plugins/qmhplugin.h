@@ -46,6 +46,9 @@ public:
     QString role() const { return mInterface->role(); }
     void setRole(const QString &role) { mInterface->setRole(role); }
 
+    bool advertized() const { return mInterface->advertized(); }
+    void setAdvertized(bool advertized) { mInterface->setAdvertized(advertized); }
+
     QObject* visualElement() const { return mInterface->visualElement(); }
     void setVisualElement(QObject *element) { mInterface->setVisualElement(element); }
 

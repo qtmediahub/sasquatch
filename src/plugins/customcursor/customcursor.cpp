@@ -42,12 +42,18 @@ CustomCursor::CustomCursor(QObject *parent) :
     m_timer(0),
     m_clickedTimer(0),
     m_currentBehavior(Blank),
-    m_blankCursor(Qt::BlankCursor)
+    m_blankCursor(Qt::BlankCursor),
+    m_EventSink(new MouseEventHorizon(this))
 {
     qApp->setOverrideCursor(m_blankCursor);
 
-    if (Config::isEnabled("cursor", false))
-    {
+    enableCursor(Config::isEnabled("mouse", false));
+}
+
+void CustomCursor::enableCursor(bool enable, bool temporary) {
+    qApp->removeEventFilter(m_EventSink);
+    qApp->removeEventFilter(this);
+    if (enable) {
         m_clickedTimer = new QTimer(this);
         m_clickedTimer->setSingleShot(true);
         m_clickedTimer->setInterval(200);
@@ -56,8 +62,10 @@ CustomCursor::CustomCursor(QObject *parent) :
         qApp->installEventFilter(this);
         setIdleTimeout(Config::value("hideIdleCursorTimeout", 2));
     } else {
-        qApp->installEventFilter(new MouseEventHorizon(this));
+        qApp->installEventFilter(m_EventSink);
     }
+    if (!temporary)
+        Config::setEnabled("mouse", enable);
 }
 
 QString CustomCursor::defaultCursorPath() const {
