@@ -20,7 +20,5 @@ SUBDIRS = util/qmlremotecontrol
 SUBDIRS += \
     src \
     src/plugins \
-    src/3rdparty/qt-components/qt-components.pro \
-    util/remotecontrol \
-
+    src/3rdparty/qt-components/qt-components.pro
 
