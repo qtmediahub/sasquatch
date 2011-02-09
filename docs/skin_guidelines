@@ -1,7 +1,0 @@
-We have opted to break QML files into:
-
-properties
-functions
-instances
-
-Please adhere or object, but do not ignore
