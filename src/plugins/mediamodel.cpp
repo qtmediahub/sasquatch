@@ -30,6 +30,7 @@
 #include <QSettings>
 
 #include "mediainfo.h"
+#include "qmh-config.h"
 
 static QString typeToString(MediaModel::MediaType type)
 {
@@ -66,6 +67,8 @@ MediaModel::MediaModel(MediaModel::MediaType type, QObject *parent)
 
     m_root = new MediaInfo(MediaModel::Root, "", type);
 
+    m_flat = !Config::isEnabled("treemediamodel");
+ 
     emit mediaTypeChanged();
 }
 
@@ -477,8 +480,13 @@ void MediaModelThread::search()
     QString currentSearchPath = m_searchPath;
     MediaInfo *currentParent = m_mediaInfo;
 
+    QDir::Filters filters = QDir::Files | QDir::NoDotAndDotDot;
+    if (!m_model->m_flat)
+        filters |= QDir::AllDirs;
+    QDirIterator::IteratorFlags flags = m_model->m_flat ? QDirIterator::Subdirectories : QDirIterator::NoIteratorFlags;
+
     while (true) {
-        QDirIterator it(currentSearchPath, QDir::Files | QDir::AllDirs | QDir::NoDotAndDotDot, QDirIterator::NoIteratorFlags);
+        QDirIterator it(currentSearchPath, filters, flags);
         emit progress(currentSearchPath);
         while (!m_stop && it.hasNext()) {
             it.next();

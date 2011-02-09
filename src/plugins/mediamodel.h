@@ -180,6 +180,7 @@ private:
     bool m_restored;
     QString m_currentScanPath;
     int m_previewWidth;
+    bool m_flat;
     friend class MediaModelThread;
 };
 
