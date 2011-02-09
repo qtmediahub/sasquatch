@@ -23,13 +23,36 @@ Item {
     id: root
     clip: true
 
+    states: [
+        State {
+            name: "visible"
+            PropertyChanges {
+                target: stopButton
+                scale: 1
+            }
+            PropertyChanges {
+                target: busyIndicator
+                scale: 1
+            }
+        }
+    ]
+
+    transitions: [
+        Transition {
+            NumberAnimation { properties: "scale" }
+        }
+    ]
+
     BusyIndicator {
+        id: busyIndicator
+        scale: 0
         anchors.centerIn: parent
         on: qmlRemote.state == "inProgress"
     }
 
     Button {
         id: stopButton
+        scale: 0
         text: "Stop"
         anchors.margins: 10
         anchors.bottom: parent.bottom

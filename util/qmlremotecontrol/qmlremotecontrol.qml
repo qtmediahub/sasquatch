@@ -63,22 +63,22 @@ Rectangle {
             }
             PropertyChanges {
                 target: controlView.anchors
-                leftMargin: -controlView.width
+                rightMargin: -controlView.width
             }
             PropertyChanges {
-                target: busyView.anchors
-                leftMargin: -busyView.width
+                target: busyView
+                state: ""
             }
         },
         State {
             name: "inProgress"
             PropertyChanges {
-                target: busyView.anchors
-                leftMargin: 0
+                target: busyView
+                state: "visible"
             }
             PropertyChanges {
                 target: controlView.anchors
-                leftMargin: -controlView.width
+                rightMargin: -controlView.width
             }
             PropertyChanges {
                 target: targetsView.anchors
@@ -93,18 +93,18 @@ Rectangle {
             }
             PropertyChanges {
                 target: controlView.anchors
-                leftMargin: 0
+                rightMargin: 0
             }
             PropertyChanges {
-                target: busyView.anchors
-                leftMargin: -busyView.width
+                target: busyView
+                state: ""
             }
         }
     ]
 
     transitions: [
         Transition {
-            NumberAnimation { properties: "leftMargin"; }
+            NumberAnimation { properties: "leftMargin, rightMargin"; }
         }
     ]
 
@@ -120,17 +120,14 @@ Rectangle {
     BusyView {
         id: busyView
 
-        anchors.top: parent.top
-        anchors.left: parent.left
-        width: parent.width
-        height: parent.height
+        anchors.fill: parent
     }
 
     ControlView {
         id: controlView
 
         anchors.top: parent.top
-        anchors.left: parent.left
+        anchors.right: parent.right
         width: parent.width
         height: parent.height
     }
