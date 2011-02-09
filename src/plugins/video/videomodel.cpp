@@ -204,15 +204,12 @@ static bool generateThumbnailGstreamer(const QFileInfo &fileInfo, const QFileInf
 
 static bool generateThumbnail(const QFileInfo &fileInfo, const QFileInfo &thumbnailInfo)
 {
+    if (!Config::isEnabled("video-thumbnails", true))
+        return false;
 #ifdef THUMBNAIL_GSTREAMER
-    if (!Config::isEnabled("video-thumbnails", true))
-        return false;
-    else
-        return generateThumbnailGstreamer(fileInfo, thumbnailInfo);
+    return generateThumbnailGstreamer(fileInfo, thumbnailInfo);
 #else
-    if (!Config::isEnabled("video-thumbnails", true))
-        return false;
-    else if (generateThumbnailGstreamerProcess(fileInfo, thumbnailInfo))
+    if (generateThumbnailGstreamerProcess(fileInfo, thumbnailInfo))
         return true;
     else if (generateThumbnailMplayerProcess(fileInfo, thumbnailInfo))
         return true;
