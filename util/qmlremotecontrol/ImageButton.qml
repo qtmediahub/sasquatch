@@ -30,11 +30,20 @@ Image {
     anchors.margins: 10
     smooth: true
 
+    Timer {
+        id: holdTimer
+        interval: 25
+        repeat: true
+        onTriggered: root.clicked()
+    }
+
     MouseArea {
         id: mouseArea
         anchors.fill: parent
         hoverEnabled: hasFocusImage
-        onClicked: root.clicked()
+        onPressed: root.clicked()
+        onPressAndHold: holdTimer.start()
+        onReleased: holdTimer.stop()
     }
 }
 
