@@ -1,7 +1,0 @@
-#0 Get the demo presentable at CES
-
-#1 Remove Component.onCompleted instantiation of optional items.
-
-    There must be some way of catching a QML instantiation error and
-    proceeding gracefully
-
