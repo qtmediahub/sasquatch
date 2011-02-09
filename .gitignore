@@ -17,4 +17,5 @@ hub/qtmediahub
 hub/qmh
 hub/resources/lib/lib*
 hub/remotecontrol
+hub/qmlremotecontrol
 .directory
