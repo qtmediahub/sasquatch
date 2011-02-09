@@ -17,11 +17,11 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 ****************************************************************************/
 
-import Qt 4.7
+import QtQuick 1.0
 import RpcConnection 1.0
 
 Rectangle {
-    id: root
+    id: qmlRemote
     height: 640
     width: 360
     color: "black"
@@ -40,11 +40,11 @@ Rectangle {
         property int position
 
         onClientConnected: {
-            root.state = "control"
+            qmlRemote.state = "control"
         }
 
         onClientDisconnected: {
-            root.state = "targets"
+            qmlRemote.state = "targets"
         }
 
         function send(ip, port, src, pos) {
@@ -66,14 +66,14 @@ Rectangle {
                 leftMargin: -controlView.width
             }
             PropertyChanges {
-                target: waitView.anchors
-                leftMargin: -waitView.width
+                target: busyView.anchors
+                leftMargin: -busyView.width
             }
         },
         State {
             name: "inProgress"
             PropertyChanges {
-                target: waitView.anchors
+                target: busyView.anchors
                 leftMargin: 0
             }
             PropertyChanges {
@@ -96,8 +96,8 @@ Rectangle {
                 leftMargin: 0
             }
             PropertyChanges {
-                target: waitView.anchors
-                leftMargin: -waitView.width
+                target: busyView.anchors
+                leftMargin: -busyView.width
             }
         }
     ]
@@ -108,234 +108,30 @@ Rectangle {
         }
     ]
 
-    Item {
+    TargetsView {
         id: targetsView
 
         anchors.top: parent.top
         anchors.left: parent.left
         width: parent.width
         height: parent.height
-        clip: true
-
-        Text {
-            id: targetsTitle
-            text: qsTr("Select Target")
-            color: "lightgray"
-            horizontalAlignment: Text.AlignHCenter
-            width: parent.width
-            font.weight: Font.Light
-        }
-
-        ListView {
-            id: targetsList
-            model: targetsModel
-
-            anchors.top: targetsTitle.bottom
-            anchors.topMargin: 20
-            anchors.bottom: targetsView.bottom
-            anchors.bottomMargin: 20
-            width: parent.width
-            clip: true
-
-            delegate: Item {
-                width: ListView.view.width
-                height: sourceText.height + 8
-                Image {
-                    id: backgroundImage
-                    anchors.fill: parent;
-                    source: "qrc:/media/" + (ListView.isCurrentItem ? "MenuItemFO.png" : "MenuItemNF.png");
-                }
-                Text {
-                    id: sourceText
-                    anchors.verticalCenter: parent.verticalCenter
-                    anchors.left: parent.left
-                    anchors.leftMargin: 15
-                    z: 1 // ensure it is above the background
-                    text: model.display
-                    font.weight: Font.Light
-                    color: "white"
-                }
-
-                MouseArea {
-                    anchors.fill: parent;
-                    hoverEnabled: true
-                    onEntered: ListView.view.currentIndex = index
-                    onClicked: {
-                        controlTitle.text = "Connected to "+model.display
-                        root.state = "inProgress"
-                        rpcClient.connectToHost(model.address, model.port)
-                    }
-                }
-            }
-        }
-
-        Button {
-            id: exitButton
-            text: "Exit"
-            anchors.margins: 10
-            anchors.bottom: parent.bottom
-            anchors.horizontalCenter: parent.horizontalCenter
-            onClicked: Qt.quit();
-        }
     }
 
-    Item {
-        id: waitView
+    BusyView {
+        id: busyView
 
         anchors.top: parent.top
         anchors.left: parent.left
         width: parent.width
         height: parent.height
-        clip: true
-
-        BusyIndicator {
-            anchors.centerIn: parent
-            on: root.state == "inProgress"
-        }
-
-        Button {
-            id: stopButton
-            text: "Stop"
-            anchors.margins: 10
-            anchors.bottom: parent.bottom
-            anchors.horizontalCenter: parent.horizontalCenter
-            onClicked: root.state = "targets"
-        }
     }
 
-    Item {
+    ControlView {
         id: controlView
 
         anchors.top: parent.top
         anchors.left: parent.left
         width: parent.width
         height: parent.height
-        clip: true
-
-        property int buttonWidth : 70
-
-        Text {
-            id: controlTitle
-            color: "lightgray"
-            font.weight: Font.Light
-            anchors.top: parent.top
-            anchors.horizontalCenter: parent.horizontalCenter
-        }
-
-        ImageButton {
-            id: volumeDown
-            image: "scroll-left"
-            anchors.margins: 10
-            anchors.top: controlTitle.bottom
-            anchors.right: volumeMuteToggle.left
-            onClicked: rpcClient.call("qmhrpc.takeAction", 7)
-        }
-        ImageButton {
-            id: volumeMuteToggle
-            image: "VolumeIcon"
-            hasFocusImage: false
-            anchors.margins: 10
-            anchors.top: controlTitle.bottom
-            anchors.horizontalCenter: parent.horizontalCenter
-//            onClicked: rpcClient.call("qmhrpc.takeAction", 4)
-        }
-        ImageButton {
-            id: volumeUp
-            image: "scroll-right"
-            anchors.margins: 10
-            anchors.top: controlTitle.bottom
-            anchors.left: volumeMuteToggle.right
-            onClicked: rpcClient.call("qmhrpc.takeAction", 8)
-        }
-
-
-        ImageButton {
-            id: up
-            image: "scroll-up"
-            anchors.bottom: ok.top
-            anchors.horizontalCenter: parent.horizontalCenter
-            onClicked: rpcClient.call("qmhrpc.takeAction", 1)
-            width: parent.width/4
-            height: width
-        }
-        ImageButton {
-            id: down
-            image: "scroll-down"
-            anchors.top: ok.bottom
-            anchors.horizontalCenter: parent.horizontalCenter
-            onClicked: rpcClient.call("qmhrpc.takeAction", 3)
-            width: parent.width/4
-            height: width
-        }
-        ImageButton {
-            id: left
-            image: "scroll-left"
-            anchors.verticalCenter: ok.verticalCenter
-            anchors.right: ok.left
-            onClicked: rpcClient.call("qmhrpc.takeAction", 0)
-            width: parent.width/4
-            height: width
-        }
-        ImageButton {
-            id: right
-            image: "scroll-right"
-            anchors.verticalCenter: ok.verticalCenter
-            anchors.left: ok.right
-            onClicked: rpcClient.call("qmhrpc.takeAction", 2)
-            width: parent.width/4
-            height: width
-        }
-        ImageButton {
-            id: ok
-            image: "ok"
-            anchors.verticalCenter: parent.verticalCenter
-            anchors.horizontalCenter: parent.horizontalCenter
-            onClicked: rpcClient.call("qmhrpc.takeAction", 4)
-            width: parent.width/4
-            height: width
-
-            SequentialAnimation{
-                id: pulseAnimation
-                property int myDuration : 800
-                running: root.state == "control"
-                loops: Animation.Infinite
-                ParallelAnimation {
-                    PropertyAnimation { target: ok; property: "opacity"; to: 1.0; duration: pulseAnimation.myDuration }
-                    PropertyAnimation { target: ok; property: "scale"; to: 1.1; duration: pulseAnimation.myDuration}
-                }
-                ParallelAnimation {
-                    PropertyAnimation { target: ok; property: "opacity"; to: 0.5; duration: pulseAnimation.myDuration }
-                    PropertyAnimation { target: ok; property: "scale"; to: 1.0; duration: pulseAnimation.myDuration }
-                }
-            }
-        }
-
-        Button {
-            id: menu
-            text: "Menu"
-            anchors.margins: 10
-            anchors.top: down.bottom
-            anchors.left: parent.left
-            onClicked: rpcClient.call("qmhrpc.takeAction", 5)
-        }
-
-        Button {
-            id: context
-            text: "Context"
-            anchors.margins: 10
-            anchors.top: down.bottom
-            anchors.right: parent.right
-            onClicked: rpcClient.call("qmhrpc.takeAction", 6)
-        }
-
-
-        Button {
-            id: targets
-            text: "Targets"
-            anchors.margins: 10
-            anchors.bottom: parent.bottom
-            anchors.horizontalCenter: parent.horizontalCenter
-            onClicked: rpcClient.disconnectFromHost()
-        }
     }
 }

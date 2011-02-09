@@ -54,5 +54,8 @@ RESOURCES += qmlremotecontrol.qrc
 OTHER_FILES += \
     qmlremotecontrol.qml \
     Button.qml \
-    ImageButton.qml
-
+    ImageButton.qml \
+    ControlView.qml \
+    BusyView.qml \
+    BusyIndicator.qml \
+    TargetsView.qml

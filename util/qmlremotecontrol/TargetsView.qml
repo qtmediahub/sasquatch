@@ -19,32 +19,73 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 import QtQuick 1.0
 
-Image {
+Item {
     id: root
-    property string image
-    property bool hasFocusImage : true
-    property bool triggerOnHold : true
 
-    signal clicked()
+    anchors.top: parent.top
+    anchors.left: parent.left
+    width: parent.width
+    height: parent.height
+    clip: true
 
-    source: image != "" ? "qrc:/media/" + image + (mouseArea.containsMouse && mouseArea.pressed && hasFocusImage ? "-focus.png" : ".png") : ""
-    anchors.margins: 10
-    smooth: true
-
-    Timer {
-        id: holdTimer
-        interval: 25
-        repeat: true
-        onTriggered: root.clicked()
+    Text {
+        id: targetsTitle
+        text: qsTr("Select Target")
+        color: "lightgray"
+        horizontalAlignment: Text.AlignHCenter
+        width: parent.width
+        font.weight: Font.Light
     }
 
-    MouseArea {
-        id: mouseArea
-        anchors.fill: parent
-        hoverEnabled: hasFocusImage
-        onPressed: root.clicked()
-        onPressAndHold: triggerOnHold ? holdTimer.start() : undefined
-        onReleased: triggerOnHold ? holdTimer.stop() : undefined
+    ListView {
+        id: targetsList
+        model: targetsModel
+
+        anchors.top: targetsTitle.bottom
+        anchors.topMargin: 20
+        anchors.bottom: root.bottom
+        anchors.bottomMargin: 20
+        width: parent.width
+        clip: true
+
+        delegate: Item {
+            width: ListView.view.width
+            height: sourceText.height + 8
+            Image {
+                id: backgroundImage
+                anchors.fill: parent;
+                source: "qrc:/media/" + (ListView.isCurrentItem ? "MenuItemFO.png" : "MenuItemNF.png");
+            }
+            Text {
+                id: sourceText
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.left: parent.left
+                anchors.leftMargin: 15
+                z: 1 // ensure it is above the background
+                text: model.display
+                font.weight: Font.Light
+                color: "white"
+            }
+
+            MouseArea {
+                anchors.fill: parent;
+                hoverEnabled: true
+                onEntered: ListView.view.currentIndex = index
+                onClicked: {
+                    controlView.title = "Connected to "+model.display
+                    qmlRemote.state = "inProgress"
+                    rpcClient.connectToHost(model.address, model.port)
+                }
+            }
+        }
+    }
+
+    Button {
+        id: exitButton
+        text: "Exit"
+        anchors.margins: 10
+        anchors.bottom: parent.bottom
+        anchors.horizontalCenter: parent.horizontalCenter
+        onClicked: Qt.quit();
     }
 }
-

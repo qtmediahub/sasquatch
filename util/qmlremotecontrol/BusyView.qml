@@ -19,32 +19,21 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 import QtQuick 1.0
 
-Image {
+Item {
     id: root
-    property string image
-    property bool hasFocusImage : true
-    property bool triggerOnHold : true
+    clip: true
 
-    signal clicked()
-
-    source: image != "" ? "qrc:/media/" + image + (mouseArea.containsMouse && mouseArea.pressed && hasFocusImage ? "-focus.png" : ".png") : ""
-    anchors.margins: 10
-    smooth: true
-
-    Timer {
-        id: holdTimer
-        interval: 25
-        repeat: true
-        onTriggered: root.clicked()
+    BusyIndicator {
+        anchors.centerIn: parent
+        on: qmlRemote.state == "inProgress"
     }
 
-    MouseArea {
-        id: mouseArea
-        anchors.fill: parent
-        hoverEnabled: hasFocusImage
-        onPressed: root.clicked()
-        onPressAndHold: triggerOnHold ? holdTimer.start() : undefined
-        onReleased: triggerOnHold ? holdTimer.stop() : undefined
+    Button {
+        id: stopButton
+        text: "Stop"
+        anchors.margins: 10
+        anchors.bottom: parent.bottom
+        anchors.horizontalCenter: parent.horizontalCenter
+        onClicked: qmlRemote.state = "targets"
     }
 }
-
