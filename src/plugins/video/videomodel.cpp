@@ -223,7 +223,15 @@ MediaInfo *VideoModel::readMediaInfo(const QString &filePath)
     QFileInfo fileInfo(filePath);
     //FIXME: query supported extensions from underlying media framework
     static QStringList supportedTypes;
-    supportedTypes << "avi" << "ogg" << "mp4" << "mpeg" << "mpg" << "mov" << "ogv" << "wmv";
+    supportedTypes << "avi"
+                   << "ogg"
+                   << "mp4"
+                   << "mpeg"
+                   << "mpg"
+                   << "mov"
+                   << "ogv"
+                   << "wmv"
+                   << "mkv";
 
     if (!fileInfo.exists() || !supportedTypes.contains(fileInfo.suffix()))
         return 0;
