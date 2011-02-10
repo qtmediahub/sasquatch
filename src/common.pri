@@ -6,8 +6,9 @@ MOC_DIR = $$TEMP_DIR/.moc
 
 linux* {
     message(Linux specific options: (*default unless adjusted in common.pri))
-    message(gstreamer)
+    message(gstreamer*)
     message(release*)
+    CONFIG += gstreamer
 }
 
 CONFIG += release
