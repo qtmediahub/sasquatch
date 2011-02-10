@@ -15,8 +15,9 @@ include(../../src/rpc/rpc.pri)
         HEADERS +=
     }
 } else {
+    CONFIG += no-avahi
     FORMS +=
-    LIBS += -llibc
+    LIBS += -llibc -lcone -leikcore -lavkon
     TARGET.UID3 = 0xA000D7D1
     TARGET.CAPABILITY += LocalServices NetworkServices ReadUserData WriteUserData UserEnvironment
 }
