@@ -1,7 +1,7 @@
 QT += network
 LIBS += -lavahi-common -lavahi-client
 
-maemo5|meego {
+maemo5|meegoesque {
     message(Building for platform without system avahi-qt4)
     # Build the avahi-qt package statically for maemo5 since avahi-qt4
     # package doesn't seem to be available for fremantle
