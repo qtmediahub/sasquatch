@@ -1,16 +1,18 @@
 import QtQuick 1.0
 
-Item {
+Rectangle {
     id: addTargetDialog
-    width: grid.width
-    height: grid.height
+    width: grid.width + 20
+    height: grid.height + 20
     anchors.centerIn: parent
+    color: "gray"
 
     Grid {
         id: grid
         columns: 2
         rows: 4
         spacing: 4
+        anchors.centerIn: parent
 
         Text { text: qsTr("Hostname:"); color: "white"  } 
         TextInput { id: hostNameInput; focus: true; width: 100 }
