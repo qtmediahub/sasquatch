@@ -82,7 +82,7 @@ Item {
 
     Button {
         id: exitButton
-        text: "Exit"
+        text: qsTr("Exit")
         anchors.margins: 10
         anchors.bottom: parent.bottom
         anchors.horizontalCenter: parent.horizontalCenter
