@@ -111,7 +111,7 @@ MediaInfo *MusicModel::readMediaInfo(const QString &filePath)
     
     TagLib::FileRef fileRef(fileName.constData());
     if (fileRef.isNull()) {
-        // qDebug() << "Dropping " << info.path;
+        // qDebug() << "Dropping " << filePath;
         return 0;
     }
 
@@ -134,13 +134,13 @@ MediaInfo *MusicModel::readMediaInfo(const QString &filePath)
                 if (!tmp.isNull()) {
                     tmp = tmp.width() <= previewWidth() ? tmp : tmp.scaledToWidth(previewWidth(), Qt::SmoothTransformation);
                     tmp.save(thumbnailInfo.filePath());
-                } else {
-                    info->thumbnailPath = themeResourcePath() + "DefaultAudio.png";
+                    return info;
                 }
             }
         }
     }
 
+    info->thumbnailPath = themeResourcePath() + "DefaultAudio.png";
     return info;
 }
 
