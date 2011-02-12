@@ -182,7 +182,7 @@ void QAvahiServiceBrowserModel::browserCallback(AvahiServiceBrowser *browser, Av
     case AVAHI_BROWSER_NEW: {
         QABDEBUG("New service name:%s type:%s domain:%s flags:0x%x", name, type, domain, flags);
         if (shouldAdd(m_options, service)) { // ## test if flags is reliable at this point
-            beginInsertRows(QModelIndex(), m_rowToServiceIndex.count(), m_rowToServiceIndex.count()+1);
+            beginInsertRows(QModelIndex(), m_rowToServiceIndex.count(), m_rowToServiceIndex.count());
             m_services.append(service);
             m_rowToServiceIndex.append(m_services.count()-1);
             endInsertRows();
@@ -323,7 +323,7 @@ void QAvahiServiceBrowserModel::resolverCallback(AvahiServiceResolver *r, AvahiI
         } else if (shouldAdd(m_options, service)) {
             QList<int>::iterator it = qLowerBound(m_rowToServiceIndex.begin(), m_rowToServiceIndex.end(), idx);
             const int loc = it - m_rowToServiceIndex.begin();
-            beginInsertRows(QModelIndex(), loc, loc+1);
+            beginInsertRows(QModelIndex(), loc, loc);
             m_rowToServiceIndex.insert(it, idx);
             endInsertRows();
         }
