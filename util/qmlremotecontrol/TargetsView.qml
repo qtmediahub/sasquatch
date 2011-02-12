@@ -88,9 +88,16 @@ Item {
 
         Button {
             id: addButton
-            text: qsTr("Add Target")
+            text: qsTr("Add")
             visible: !!targetsModel.editable
             onClicked: addTargetDialog.opacity = 1
+        }
+
+        Button {
+            id: removeButton
+            text: qsTr("Remove")
+            visible: !!targetsModel.editable
+            onClicked: targetsModel.removeService(targetsList.currentIndex)
         }
 
         Button {

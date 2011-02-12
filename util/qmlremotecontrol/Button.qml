@@ -24,7 +24,7 @@ Image {
     property alias text: textLabel.text
     signal clicked()
 
-    width: 150
+    width: 100
     height: textLabel.height+10
 
     source: "qrc:/media/" + (mouseArea.containsMouse || activeFocus ? "button-focus.png" : "button-nofocus.png")

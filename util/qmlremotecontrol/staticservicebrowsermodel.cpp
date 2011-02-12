@@ -77,6 +77,17 @@ void StaticServiceBrowserModel::addService(const QString &hostName, const QStrin
     save();
 }
 
+void StaticServiceBrowserModel::removeService(int i)
+{
+    if (i < 0 || i >= m_model.count())
+        return;
+    beginRemoveRows(QModelIndex(), i, i);
+    m_model.removeAt(i);
+    endRemoveRows();
+
+    save();
+}
+
 void StaticServiceBrowserModel::save()
 {
     QString servicesFileName = QDesktopServices::storageLocation(QDesktopServices::DataLocation) + "/services.conf";

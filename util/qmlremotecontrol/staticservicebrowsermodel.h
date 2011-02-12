@@ -46,6 +46,7 @@ public:
 
 public slots:
     void addService(const QString &hostName, const QString &ip, const QString &port);
+    void removeService(int i);
     void save();
 
 private:
