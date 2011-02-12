@@ -52,6 +52,7 @@ public slots:
 private:
     void initModelFromFile(const QString &fileName);
     QList<QStringList> m_model;
+    bool m_initing;
 };
 
 #endif // STATICSERVICEBROWSERVIEW
