@@ -11,12 +11,9 @@ include(../../src/rpc/rpc.pri)
         # avahi integration
         INCLUDEPATH +=  ../../src/3rdparty/libqavahi/
         include(../../src/3rdparty/libqavahi/libqavahi.pri)
-        SOURCES +=
-        HEADERS +=
     }
 } else {
     CONFIG += no-avahi
-    FORMS +=
     LIBS += -llibc -lcone -leikcore -lavkon
     TARGET.UID3 = 0xA000D7D1
     TARGET.CAPABILITY += LocalServices NetworkServices ReadUserData WriteUserData UserEnvironment
