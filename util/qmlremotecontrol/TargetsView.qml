@@ -80,12 +80,31 @@ Item {
         }
     }
 
-    Button {
-        id: exitButton
-        text: qsTr("Exit")
+    Row {
         anchors.margins: 10
         anchors.bottom: parent.bottom
         anchors.horizontalCenter: parent.horizontalCenter
-        onClicked: Qt.quit();
+        spacing: 10
+
+        Button {
+            id: addButton
+            text: qsTr("Add Target")
+            visible: !!targetsModel.editable
+            onClicked: addTargetDialog.opacity = 1
+        }
+
+        Button {
+            id: exitButton
+            text: qsTr("Exit")
+            onClicked: Qt.quit();
+        }
+    }
+
+    AddTargetDialog {
+        id: addTargetDialog
+        opacity: 0
+        z: 1
+        Behavior on opacity { NumberAnimation { } }
     }
 }
+

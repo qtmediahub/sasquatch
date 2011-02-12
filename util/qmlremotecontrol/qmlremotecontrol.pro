@@ -56,4 +56,6 @@ OTHER_FILES += \
     ControlView.qml \
     BusyView.qml \
     BusyIndicator.qml \
-    TargetsView.qml
+    TargetsView.qml \
+    AddTargetDialog.qml
+
