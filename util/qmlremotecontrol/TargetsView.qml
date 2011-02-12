@@ -112,6 +112,7 @@ Item {
         opacity: 0
         z: 1
         Behavior on opacity { NumberAnimation { } }
+        onClosed: opacity = 0
     }
 }
 

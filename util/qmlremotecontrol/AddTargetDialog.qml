@@ -6,6 +6,7 @@ Rectangle {
     height: grid.height + 20
     anchors.centerIn: parent
     color: "gray"
+    signal closed()
 
     Grid {
         id: grid
@@ -25,10 +26,10 @@ Rectangle {
             id: okButton; text: qsTr("OK"); 
             onClicked: { 
                 targetsModel.addService(hostNameInput.text, ipInput.text, portInput.text) 
-                addTargetDialog.opacity = 0
+                addTargetDialog.closed()
             }
         }
-        Button { id: cancelButton; text: qsTr("Cancel"); onClicked: addTargetDialog.opacity = 0 }
+        Button { id: cancelButton; text: qsTr("Cancel"); onClicked: addTargetDialog.closed() }
     }
 }
 
