@@ -70,10 +70,7 @@ void StaticServiceBrowserModel::addService(const QString &hostName, const QStrin
     QStringList list;
     list << hostName << ip << port;
 
-    int start = m_model.count()-1 < 0 ? 0 : m_model.count()-1;
-    int end = m_model.count() < 0 ? 1 : m_model.count();
-
-    emit beginInsertRows(QModelIndex(), start, end);
+    emit beginInsertRows(QModelIndex(), m_model.count(), m_model.count());
     m_model.append(list);
     emit endInsertRows();
 
