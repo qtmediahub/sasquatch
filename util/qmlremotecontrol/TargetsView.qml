@@ -28,6 +28,11 @@ Item {
     height: parent.height
     clip: true
 
+    QtObject {
+        id: pimpl
+        property int textPointSize: 16
+    }
+
     Text {
         id: targetsTitle
         text: qsTr("Select Target")
@@ -35,6 +40,7 @@ Item {
         horizontalAlignment: Text.AlignHCenter
         width: parent.width
         font.weight: Font.Light
+        font.pointSize: pimpl.textPointSize
     }
 
     ListView {
@@ -64,6 +70,7 @@ Item {
                 z: 1 // ensure it is above the background
                 text: model.display
                 font.weight: Font.Light
+                font.pointSize: pimpl.textPointSize
                 color: "white"
             }
 

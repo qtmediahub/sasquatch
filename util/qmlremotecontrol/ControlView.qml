@@ -24,7 +24,6 @@ Item {
 
     clip: true
 
-    property int buttonWidth : 70
     property alias title : controlTitle.text
 
     Text {
@@ -42,6 +41,8 @@ Item {
         anchors.top: controlTitle.bottom
         anchors.right: volumeMuteToggle.left
         onClicked: rpcClient.call("qmhrpc.takeAction", 8)
+        width: parent.width/4
+        height: width
     }
     ImageButton {
         id: volumeMuteToggle
@@ -51,6 +52,8 @@ Item {
         anchors.top: controlTitle.bottom
         anchors.horizontalCenter: parent.horizontalCenter
 //            onClicked: rpcClient.call("qmhrpc.takeAction", 4)
+        width: parent.width/4
+        height: width
     }
     ImageButton {
         id: volumeUp
@@ -59,6 +62,8 @@ Item {
         anchors.top: controlTitle.bottom
         anchors.left: volumeMuteToggle.right
         onClicked: rpcClient.call("qmhrpc.takeAction", 7)
+        width: parent.width/4
+        height: width
     }
 
 
@@ -68,7 +73,7 @@ Item {
         anchors.bottom: ok.top
         anchors.horizontalCenter: parent.horizontalCenter
         onClicked: rpcClient.call("qmhrpc.takeAction", 1)
-        width: parent.width/4
+        width: parent.width/3
         height: width
     }
     ImageButton {
@@ -77,7 +82,7 @@ Item {
         anchors.top: ok.bottom
         anchors.horizontalCenter: parent.horizontalCenter
         onClicked: rpcClient.call("qmhrpc.takeAction", 3)
-        width: parent.width/4
+        width: parent.width/3
         height: width
     }
     ImageButton {
@@ -86,7 +91,7 @@ Item {
         anchors.verticalCenter: ok.verticalCenter
         anchors.right: ok.left
         onClicked: rpcClient.call("qmhrpc.takeAction", 0)
-        width: parent.width/4
+        width: parent.width/3
         height: width
     }
     ImageButton {
@@ -95,7 +100,7 @@ Item {
         anchors.verticalCenter: ok.verticalCenter
         anchors.left: ok.right
         onClicked: rpcClient.call("qmhrpc.takeAction", 2)
-        width: parent.width/4
+        width: parent.width/3
         height: width
     }
     ImageButton {
@@ -104,7 +109,7 @@ Item {
         anchors.verticalCenter: parent.verticalCenter
         anchors.horizontalCenter: parent.horizontalCenter
         onClicked: rpcClient.call("qmhrpc.takeAction", 4)
-        width: parent.width/4
+        width: parent.width/3
         height: width
         triggerOnHold: false
 
@@ -127,7 +132,7 @@ Item {
     Button {
         id: back
         text: "Back"
-        anchors.margins: 10
+        anchors.margins: 5
         anchors.top: down.bottom
         anchors.left: parent.left
         onClicked: rpcClient.call("qmhrpc.takeAction", 5)
@@ -136,7 +141,7 @@ Item {
     Button {
         id: context
         text: "Context"
-        anchors.margins: 10
+        anchors.margins: 5
         anchors.top: down.bottom
         anchors.right: parent.right
         onClicked: rpcClient.call("qmhrpc.takeAction", 6)
@@ -146,7 +151,7 @@ Item {
     Button {
         id: targets
         text: "Targets"
-        anchors.margins: 10
+        anchors.margins: 5
         anchors.bottom: parent.bottom
         anchors.horizontalCenter: parent.horizontalCenter
         onClicked: rpcClient.disconnectFromHost()

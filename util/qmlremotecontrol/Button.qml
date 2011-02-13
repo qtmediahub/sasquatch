@@ -24,7 +24,7 @@ Image {
     property alias text: textLabel.text
     signal clicked()
 
-    width: 100
+    width: 110
     height: textLabel.height+10
 
     source: "qrc:/media/" + (mouseArea.containsMouse || activeFocus ? "button-focus.png" : "button-nofocus.png")
@@ -41,6 +41,7 @@ Image {
         anchors.centerIn: parent
         color: "lightgray"
         font.weight: Font.Light
+        font.pointSize: 11
     }
 }
 
