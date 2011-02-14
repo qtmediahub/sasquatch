@@ -21,7 +21,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QtGui>
 
 StaticServiceBrowserModel::StaticServiceBrowserModel(QWidget *parent)
-    : QAbstractListModel(parent)
+    : QAbstractListModel(parent), m_initing(true)
 {
     QHash<int, QByteArray> roleNames = QAbstractListModel::roleNames();
     roleNames[Qt::DisplayRole] = "display";
@@ -30,12 +30,15 @@ StaticServiceBrowserModel::StaticServiceBrowserModel(QWidget *parent)
     setRoleNames(roleNames);
 
     QString servicesFile = QDesktopServices::storageLocation(QDesktopServices::DataLocation) + "/services.conf";
+    QDir storageLocation(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
+    storageLocation.mkpath(".");
     if (QFile::exists(servicesFile)) {
         initModelFromFile(servicesFile);
     } else {
         initModelFromFile(":/services.conf");
+        save();
     }
-    save();
+    m_initing = false;
 }
 
 StaticServiceBrowserModel::~StaticServiceBrowserModel()
@@ -70,12 +73,21 @@ void StaticServiceBrowserModel::addService(const QString &hostName, const QStrin
     QStringList list;
     list << hostName << ip << port;
 
-    int start = m_model.count()-1 < 0 ? 0 : m_model.count()-1;
-    int end = m_model.count() < 0 ? 1 : m_model.count();
-
-    emit beginInsertRows(QModelIndex(), start, end);
+    emit beginInsertRows(QModelIndex(), m_model.count(), m_model.count());
     m_model.append(list);
     emit endInsertRows();
+
+    if (!m_initing)
+        save();
+}
+
+void StaticServiceBrowserModel::removeService(int i)
+{
+    if (i < 0 || i >= m_model.count())
+        return;
+    beginRemoveRows(QModelIndex(), i, i);
+    m_model.removeAt(i);
+    endRemoveRows();
 
     save();
 }
@@ -93,6 +105,7 @@ void StaticServiceBrowserModel::save()
         QString port = m_model.at(i).at(2);
         stream << hostName << " " << ip << " " << port << endl;
     }
+    qDebug() << servicesFileName;
 }
 
 QVariant StaticServiceBrowserModel::data(const QModelIndex &index, int role) const

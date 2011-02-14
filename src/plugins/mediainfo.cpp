@@ -16,7 +16,7 @@ MediaInfo::MediaInfo(MediaModel::MediaInfoType type, const QString &path, MediaM
         info->parent = this;
         children.append(info);
     }
-    if(!filePath.isEmpty())
+    if (!filePath.isEmpty())
     {
         QFileInfo fo(filePath);
         name = fo.fileName();

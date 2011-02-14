@@ -27,6 +27,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 class StaticServiceBrowserModel : public QAbstractListModel
 {
     Q_OBJECT
+    Q_PROPERTY(bool editable READ editable CONSTANT)
+
 public:
     StaticServiceBrowserModel(QWidget *parent = 0);
     ~StaticServiceBrowserModel();
@@ -40,14 +42,17 @@ public:
     int rowCount(const QModelIndex &parent) const { return m_model.count(); }
     int count() const { return rowCount(QModelIndex()); }
     Q_INVOKABLE QVariant data(const QModelIndex &index, int role) const;
+    bool editable() const { return true; }
 
 public slots:
     void addService(const QString &hostName, const QString &ip, const QString &port);
+    void removeService(int i);
     void save();
 
 private:
     void initModelFromFile(const QString &fileName);
     QList<QStringList> m_model;
+    bool m_initing;
 };
 
 #endif // STATICSERVICEBROWSERVIEW

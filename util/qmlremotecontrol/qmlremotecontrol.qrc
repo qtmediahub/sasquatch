@@ -26,5 +26,6 @@
         <file>ControlView.qml</file>
         <file>BusyView.qml</file>
         <file>TargetsView.qml</file>
+        <file>AddTargetDialog.qml</file>
     </qresource>
 </RCC>

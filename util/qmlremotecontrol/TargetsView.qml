@@ -28,6 +28,11 @@ Item {
     height: parent.height
     clip: true
 
+    QtObject {
+        id: pimpl
+        property int textPointSize: 16
+    }
+
     Text {
         id: targetsTitle
         text: qsTr("Select Target")
@@ -35,6 +40,7 @@ Item {
         horizontalAlignment: Text.AlignHCenter
         width: parent.width
         font.weight: Font.Light
+        font.pointSize: pimpl.textPointSize
     }
 
     ListView {
@@ -64,6 +70,7 @@ Item {
                 z: 1 // ensure it is above the background
                 text: model.display
                 font.weight: Font.Light
+                font.pointSize: pimpl.textPointSize
                 color: "white"
             }
 
@@ -80,12 +87,39 @@ Item {
         }
     }
 
-    Button {
-        id: exitButton
-        text: "Exit"
+    Row {
         anchors.margins: 10
         anchors.bottom: parent.bottom
         anchors.horizontalCenter: parent.horizontalCenter
-        onClicked: Qt.quit();
+        spacing: 10
+
+        Button {
+            id: addButton
+            text: qsTr("Add")
+            visible: !!targetsModel.editable
+            onClicked: addTargetDialog.opacity = 1
+        }
+
+        Button {
+            id: removeButton
+            text: qsTr("Remove")
+            visible: !!targetsModel.editable
+            onClicked: targetsModel.removeService(targetsList.currentIndex)
+        }
+
+        Button {
+            id: exitButton
+            text: qsTr("Exit")
+            onClicked: Qt.quit();
+        }
+    }
+
+    AddTargetDialog {
+        id: addTargetDialog
+        opacity: 0
+        z: 1
+        Behavior on opacity { NumberAnimation { } }
+        onClosed: opacity = 0
     }
 }
+

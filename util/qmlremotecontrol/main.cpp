@@ -45,17 +45,17 @@ int main(int argc, char *argv[])
           appUi->SetOrientationL(CAknAppUi::EAppUiOrientationPortrait);
 #endif
 
-MainWindow mainWindow;
-mainWindow.setSource(QUrl("qrc:/qmlremotecontrol.qml"));
+    MainWindow mainWindow;
+    mainWindow.setSource(QUrl("qrc:/qmlremotecontrol.qml"));
 
 #if defined(Q_WS_MAEMO_5)
-mainWindow.setAttribute(Qt::WA_Maemo5PortraitOrientation, true);
+    mainWindow.setAttribute(Qt::WA_Maemo5PortraitOrientation, true);
 #endif
 
 #if defined(Q_OS_SYMBIAN) || defined(Q_WS_MAEMO_5)
-mainWindow.showFullScreen();
+    mainWindow.showFullScreen();
 #else
-mainWindow.show();
+    mainWindow.show();
 #endif
 
 return app.exec();
