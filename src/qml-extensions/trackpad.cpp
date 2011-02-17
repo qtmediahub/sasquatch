@@ -33,19 +33,12 @@ void Trackpad::moveBy(int x, int y)
 
 void Trackpad::click()
 {
-#if 0
     QPoint globalPos = QCursor::pos();
     QDeclarativeView *view = qobject_cast<QDeclarativeView *>(m_frontend->centralWidget());
-    QPoint localPos = view->viewport()->mapFromGlobal(localPos);
+    QPoint localPos = view->viewport()->mapFromGlobal(globalPos);
     QMouseEvent mousePress(QEvent::MouseButtonPress, localPos, globalPos, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
     qApp->sendEvent(view->viewport(), &mousePress);
     QMouseEvent mouseRelease(QEvent::MouseButtonRelease, localPos, globalPos, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
     qApp->sendEvent(view->viewport(), &mouseRelease);
-#else
-    QKeyEvent keyPress(QEvent::KeyPress, Qt::Key_Enter, Qt::NoModifier);
-    qApp->sendEvent(m_frontend->centralWidget(), &keyPress);
-    QKeyEvent keyRelease(QEvent::KeyRelease, Qt::Key_Enter, Qt::NoModifier);
-    qApp->sendEvent(m_frontend->centralWidget(), &keyRelease);
-#endif
 }
 
