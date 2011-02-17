@@ -65,8 +65,11 @@ public slots:
              const QVariant &arg6 = QVariant(), const QVariant &arg7 = QVariant(),
              const QVariant &arg8 = QVariant(), const QVariant &arg9 = QVariant());
 
+#if QT_VERSION <= QT_VERSION_CHECK(4, 7, 0)
     // ## This is a workaround for QML/4.7.0 which is unable to convert int to QVariant
     int call(const QByteArray &method, int arg0) { return call(method, QVariant(arg0)); }
+    int call(const QByteArray &method, bool arg0) { return call(method, QVariant(arg0)); }
+#endif
 
 signals:
     void clientConnected();
