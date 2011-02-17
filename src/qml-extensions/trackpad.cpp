@@ -24,6 +24,10 @@ void Trackpad::setEnabled(bool e)
 
 void Trackpad::moveBy(int x, int y)
 {
-    qDebug() << "moveby " << x << y;
+    QDeclarativeView *view = qobject_cast<QDeclarativeView *>(m_frontend->centralWidget());
+    QDeclarativeExpression expression(view->rootContext(), 0, QString("cursor.moveBy(%1,%2)").arg(x).arg(y));
+    expression.evaluate();
+    if (expression.hasError())
+        qWarning() << "Failed to enable/disable cursor";
 }
 
