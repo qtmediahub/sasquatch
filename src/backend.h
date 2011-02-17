@@ -49,6 +49,7 @@ public:
     QString language() const;
 
     QList<QObject*> engines() const;
+    QList<QObject *> allEngines() const;
     QStringList skins() const;
 
     QString skinPath() const;
@@ -64,6 +65,7 @@ public:
     Q_INVOKABLE void clearComponentCache();
 
     QObject *targetsModel() const;
+    QObject *engineByName(const QString &name);
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event);
@@ -79,7 +81,7 @@ signals:
     void targetsModelChanged();
 
 private:
-    QObject* engine(const QString &role);
+    QObject* engineByRole(const QString &role);
 
     explicit Backend(QObject *parent = 0);
     static Backend *pSelf;

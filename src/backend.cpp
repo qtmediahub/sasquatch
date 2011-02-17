@@ -114,7 +114,8 @@ public:
 
     QSet<QString> advertizedEngineRoles;
 
-    QList<QObject*> advertizedEngines;
+    QList<QObject*> advertizedEngines; // all advertized engines have a 'role'
+    QList<QObject*> allEngines;
 
     const QString platformOffset;
 
@@ -165,7 +166,7 @@ void BackendPrivate::resetLanguage()
 
     qDeleteAll(pluginTranslators.begin(), pluginTranslators.end());
 
-    foreach(QObject *pluginObject, advertizedEngines) {
+    foreach(QObject *pluginObject, allEngines) {
         QMHPlugin *plugin = qobject_cast<QMHPlugin*>(pluginObject);
         QTranslator *pluginTranslator = new QTranslator(this);
         pluginTranslator->load(baseTranslationPath % plugin->role() % "_" % language % ".qm");
@@ -208,8 +209,10 @@ void BackendPrivate::discoverEngines()
         else {
             QMHPlugin *plugin = new QMHPlugin(qobject_cast<QMHPluginInterface*>(pluginLoader.instance()), this);
             plugin->setParent(this);
-            if(qmlEngine)
+            if (qmlEngine)
                 plugin->registerPlugin(qmlEngine->rootContext());
+
+            allEngines << plugin;
             Backend::instance()->advertizeEngine(plugin);
         }
     }
@@ -289,7 +292,12 @@ QString Backend::language() const
     //return QString("bob");
 }
 
-QList<QObject*> Backend::engines() const
+QList<QObject *> Backend::allEngines() const
+{
+    return d->allEngines;
+}
+
+QList<QObject *> Backend::engines() const
 {
     return d->advertizedEngines;
 }
@@ -396,12 +404,21 @@ bool Backend::eventFilter(QObject *obj, QEvent *event) {
     return QObject::eventFilter(obj, event);
 }
 
-QObject* Backend::engine(const QString &role) 
+QObject *Backend::engineByRole(const QString &role) 
 {
     foreach (QObject *currentEngine, d->advertizedEngines)
         if (qobject_cast<QMHPlugin*>(currentEngine)->role() == role)
             return currentEngine;
     qWarning() << tr("Seeking a non-existant plugin, prepare to die");
+    return 0;
+}
+
+QObject *Backend::engineByName(const QString &name)
+{
+    foreach (QObject *currentEngine, d->allEngines)
+        if (qobject_cast<QMHPlugin*>(currentEngine)->name() == name)
+            return currentEngine;
+
     return 0;
 }
 
