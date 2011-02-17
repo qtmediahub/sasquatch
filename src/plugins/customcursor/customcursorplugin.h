@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QDeclarativeItem>
+#include <QDeclarativeContext>
 
 #include "qmhplugininterface.h"
 #include "customcursor.h"
@@ -20,7 +21,7 @@ public:
     }
     ~CustomCursorPlugin() {}
 
-    void registerPlugin(QDeclarativeContext *context) { Q_UNUSED(context); qmlRegisterType<CustomCursor>("CustomCursor", 1, 0, "CustomCursor"); }
+    void registerPlugin(QDeclarativeContext *context) { context->setContextProperty("cursor", new CustomCursor(this)); }
 };
 
 #endif // CUSTOMCURSORPLUGIN_H
