@@ -34,38 +34,11 @@ Item {
         anchors.horizontalCenter: parent.horizontalCenter
     }
 
-    ImageButton {
-        id: volumeDown
-        image: "scroll-left"
-        anchors.margins: 10
+    VolumeControl {
+        id: volumeControl
         anchors.top: controlTitle.bottom
-        anchors.right: volumeMuteToggle.left
-        onClicked: rpcClient.call("qmhrpc.takeAction", 8)
-        width: parent.width/4
-        height: width
+        width: parent.width
     }
-    ImageButton {
-        id: volumeMuteToggle
-        image: "VolumeIcon"
-        hasFocusImage: false
-        anchors.margins: 10
-        anchors.top: controlTitle.bottom
-        anchors.horizontalCenter: parent.horizontalCenter
-//            onClicked: rpcClient.call("qmhrpc.takeAction", 4)
-        width: parent.width/4
-        height: width
-    }
-    ImageButton {
-        id: volumeUp
-        image: "scroll-right"
-        anchors.margins: 10
-        anchors.top: controlTitle.bottom
-        anchors.left: volumeMuteToggle.right
-        onClicked: rpcClient.call("qmhrpc.takeAction", 7)
-        width: parent.width/4
-        height: width
-    }
-
 
     ImageButton {
         id: up
