@@ -65,7 +65,9 @@ public slots:
              const QVariant &arg6 = QVariant(), const QVariant &arg7 = QVariant(),
              const QVariant &arg8 = QVariant(), const QVariant &arg9 = QVariant());
 
-    // ## This is a workaround for QML/4.7.0 which is unable to convert int to QVariant
+    // ## This is a workaround for QML/4.7.0 which is unable to convert (js)int to (c++)QVariant
+    // ## In addition, having multiple call() does not work. It's all trial and error
+    // The sad situation is that N900 won't get any updates after 4.7.0
     int call(const QByteArray &method, int arg0) { return call(method, QVariant(arg0)); }
 
 signals:
