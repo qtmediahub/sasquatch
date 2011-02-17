@@ -297,7 +297,7 @@ QList<QObject *> Backend::allEngines() const
     return d->allEngines;
 }
 
-QList<QObject *> Backend::engines() const
+QList<QObject *> Backend::advertizedEngines() const
 {
     return d->advertizedEngines;
 }
@@ -370,7 +370,7 @@ void Backend::advertizeEngine(QMHPlugin *engine)
     if (d->qmlEngine)
         d->qmlEngine->rootContext()->setContextProperty(role % "Engine", engine);
 
-    emit enginesChanged();
+    emit advertizedEnginesChanged();
 }
 
 void Backend::openUrlExternally(const QUrl & url) const

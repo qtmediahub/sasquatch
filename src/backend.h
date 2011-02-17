@@ -36,7 +36,7 @@ class Backend : public QObject
     Q_PROPERTY(QString pluginPath READ pluginPath NOTIFY pluginPathChanged)
     Q_PROPERTY(QString resourcePath READ resourcePath NOTIFY resourcePathChanged)
     Q_PROPERTY(bool transforms READ transforms NOTIFY backendChanged)
-    Q_PROPERTY(QList<QObject*> engines READ engines NOTIFY enginesChanged)
+    Q_PROPERTY(QList<QObject*> advertizedEngines READ advertizedEngines NOTIFY advertizedEnginesChanged)
     Q_PROPERTY(QObject *targetsModel READ targetsModel NOTIFY targetsModelChanged)
 
 public:
@@ -48,7 +48,7 @@ public:
 
     QString language() const;
 
-    QList<QObject*> engines() const;
+    QList<QObject*> advertizedEngines() const;
     QList<QObject *> allEngines() const;
     QStringList skins() const;
 
@@ -75,7 +75,7 @@ signals:
     void pluginPathChanged();
     void resourcePathChanged();
     void backendChanged();
-    void enginesChanged();
+    void advertizedEnginesChanged();
     void inputIdle();
     void inputActive();
     void targetsModelChanged();
