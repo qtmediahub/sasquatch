@@ -28,5 +28,6 @@
         <file>TargetsView.qml</file>
         <file>AddTargetDialog.qml</file>
         <file>VolumeControl.qml</file>
+        <file>RemoteControlButtons.qml</file>
     </qresource>
 </RCC>
