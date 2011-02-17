@@ -131,7 +131,7 @@ Item {
 
     Button {
         id: back
-        text: "Back"
+        text: qsTr("Back")
         anchors.margins: 5
         anchors.top: down.bottom
         anchors.left: parent.left
@@ -140,7 +140,7 @@ Item {
 
     Button {
         id: context
-        text: "Context"
+        text: qsTr("Context")
         anchors.margins: 5
         anchors.top: down.bottom
         anchors.right: parent.right
@@ -150,7 +150,7 @@ Item {
 
     Button {
         id: targets
-        text: "Targets"
+        text: qsTr("Targets")
         anchors.margins: 5
         anchors.bottom: parent.bottom
         anchors.horizontalCenter: parent.horizontalCenter
