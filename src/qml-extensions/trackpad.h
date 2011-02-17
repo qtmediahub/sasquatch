@@ -13,8 +13,10 @@ public:
     explicit Trackpad(Frontend *frontend = 0);
     ~Trackpad();
 
-    Q_INVOKABLE void setEnabled(bool enable);
-    Q_INVOKABLE void moveBy(int x, int y);
+public slots:
+    void setEnabled(bool enable);
+    void moveBy(int x, int y);
+    void click();
 
 private:
     Frontend *m_frontend;
