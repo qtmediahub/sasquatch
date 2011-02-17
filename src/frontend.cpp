@@ -41,6 +41,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "qml-extensions/actionmapper.h"
 #include "qml-extensions/mediaplayerhelper.h"
+#include "qml-extensions/trackpad.h"
 #include "rpc/rpcconnection.h"
 #include "qmh-config.h"
 
@@ -69,6 +70,7 @@ public:
     bool attemptingFullScreen;
     ActionMapper *actionMap;
     MediaPlayerHelper *mediaPlayerHelper;
+    Trackpad *trackpad;
     Frontend *pSelf;
 };
 
@@ -80,6 +82,7 @@ FrontendPrivate::FrontendPrivate(Frontend *p)
       attemptingFullScreen(false),
       actionMap(new ActionMapper(p)),
       mediaPlayerHelper(new MediaPlayerHelper(p)),
+      trackpad(new Trackpad(p)),
       pSelf(p)
 {
     actionMap->setProperty("map", "extkeyboard");
@@ -141,6 +144,7 @@ Frontend::Frontend(QWidget *p)
     RpcConnection *connection = new RpcConnection(RpcConnection::Server, QHostAddress::Any, 1234, this);
     connection->registerObject(d->actionMap);
     connection->registerObject(d->mediaPlayerHelper);
+    connection->registerObject(d->trackpad);
 
     installEventFilter(Backend::instance());
 }
@@ -237,6 +241,7 @@ void Frontend::initialize(const QUrl &targetUrl)
 
         engine->rootContext()->setContextProperty("actionmap", d->actionMap);
         engine->rootContext()->setContextProperty("mediaPlayerHelper", d->mediaPlayerHelper);
+        engine->rootContext()->setContextProperty("trackpad", d->trackpad);
         engine->rootContext()->setContextProperty("frontend", this);
         engine->addPluginPath(Backend::instance()->resourcePath() % "/lib");
         engine->addImportPath(Backend::instance()->resourcePath() % "/imports");

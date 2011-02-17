@@ -21,10 +21,31 @@ import QtQuick 1.0
 
 Item {
     id: root
+    property alias title : controlTitle.text
 
     clip: true
+    state: "showingButtons"
 
-    property alias title : controlTitle.text
+    states: [
+        State {
+            name: "showingButtons"
+            PropertyChanges {
+                target: remoteControlButtons
+                x: 0
+            }
+        },
+        State {
+            name: "showingTrackpad"
+            PropertyChanges {
+                target: remoteControlButtons
+                x: -remoteControlButtons.width
+            }
+        }
+    ]
+
+    transitions: Transition {
+        NumberAnimation { properties: "x" }
+    }
 
     Text {
         id: controlTitle
@@ -42,18 +63,40 @@ Item {
 
     RemoteControlButtons {
         id: remoteControlButtons
+        clip: true
         width: parent.width
         anchors.margins: 5
         anchors.top: volumeControl.bottom
-        anchors.bottom: targets.top
+        anchors.bottom: row.top
     }
 
-    Button {
-        id: targets
-        text: qsTr("Targets")
+    Trackpad {
+        id: trackpad
+        width: parent.width
+        anchors.margins: 5
+        anchors.top: volumeControl.bottom
+        anchors.bottom: row.top
+        anchors.left: remoteControlButtons.right
+    }
+
+    Row {
+        id: row
         anchors.margins: 5
         anchors.bottom: parent.bottom
         anchors.horizontalCenter: parent.horizontalCenter
-        onClicked: rpcClient.disconnectFromHost()
+        spacing: 5
+
+        Button {
+            id: showTrackpad
+            text: root.state == "showingTrackpad" ? qsTr("Buttons") : qsTr("Trackpad")
+            onClicked: root.state = root.state == "showingTrackpad" ? "showingButtons" : "showingTrackpad"
+        }
+
+        Button {
+            id: targets
+            text: qsTr("Targets")
+            onClicked: rpcClient.disconnectFromHost()
+        }
     }
 }
+

@@ -69,6 +69,8 @@ public slots:
     // ## In addition, having multiple call() does not work. It's all trial and error
     // The sad situation is that N900 won't get any updates after 4.7.0
     int call(const QByteArray &method, int arg0) { return call(method, QVariant(arg0)); }
+    int callBool(const QByteArray &method, bool arg0) { return call(method, QVariant(arg0)); }
+    int call2(const QByteArray &method, int arg0, int arg1) { return call(method, QVariant(arg0), QVariant(arg1)); }
 
 signals:
     void clientConnected();

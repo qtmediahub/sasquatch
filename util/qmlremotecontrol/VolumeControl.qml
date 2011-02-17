@@ -1,6 +1,8 @@
 import QtQuick 1.1
 
 Item {
+    height: width/4 + 10
+
     ImageButton {
         id: volumeDown
         image: "scroll-left"

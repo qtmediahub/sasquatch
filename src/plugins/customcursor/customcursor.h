@@ -37,6 +37,7 @@ public:
     explicit CustomCursor(QObject *parent = 0);
 
     Q_INVOKABLE void enableCursor(bool enable = true, bool temporary = true);
+    Q_INVOKABLE void moveBy(int dx, int dy);
 
     QString defaultCursorPath() const;
     void setDefaultCursorPath(const QString &path);

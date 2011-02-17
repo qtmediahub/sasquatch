@@ -68,6 +68,11 @@ void CustomCursor::enableCursor(bool enable, bool temporary) {
         Config::setEnabled("mouse", enable);
 }
 
+void CustomCursor::moveBy(int dx, int dy) {
+    QPoint pos = QCursor::pos();
+    QCursor::setPos(pos.x() + dx, pos.y() + dy);
+}
+
 QString CustomCursor::defaultCursorPath() const {
     return m_defaultCursorPath;
 }
