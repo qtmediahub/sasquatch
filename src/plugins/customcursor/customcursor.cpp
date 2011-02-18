@@ -62,7 +62,7 @@ void CustomCursor::enableCursor(bool enable, bool temporary) {
         qApp->installEventFilter(this);
         setIdleTimeout(Config::value("hideIdleCursorTimeout", 2));
     } else {
-        qApp->installEventFilter(m_EventSink);
+//        qApp->installEventFilter(m_EventSink);
     }
     if (!temporary)
         Config::setEnabled("mouse", enable);
