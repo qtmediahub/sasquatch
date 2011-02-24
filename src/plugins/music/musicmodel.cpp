@@ -140,6 +140,7 @@ MediaInfo *MusicModel::readMediaInfo(const QString &filePath)
         }
     }
 
+    // TODO: file names should no be hardcoded
     info->thumbnailPath = themeResourcePath() + "DefaultAudio.png";
     return info;
 }

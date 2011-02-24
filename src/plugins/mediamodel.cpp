@@ -395,6 +395,7 @@ void MediaModel::setThemeResourcePath(const QString &themePath)
     m_themePath = themePath;
 
     // add default thumbnails
+    // TODO: file names should no be hardcoded
     m_defaultThumbnails.insert("/DotDot", QImage(m_themePath + "/DefaultFolderBack.png"));
     m_defaultThumbnails.insert("/Directory", QImage(m_themePath + "/DefaultFolder.png"));
     m_defaultThumbnails.insert("/SearchPath", QImage(m_themePath + "/DefaultHardDisk.png"));
