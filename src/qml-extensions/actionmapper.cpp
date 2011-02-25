@@ -29,13 +29,14 @@ class Frontend;
 ActionMapper::ActionMapper(Frontend *p)
     : QObject(p),
       pFrontend(p),
-      mapName(""),
       mapPath(Backend::instance()->resourcePath() + "/devices/keymaps/")
 {
     setObjectName("qmhrpc");
 
     maps = QDir(mapPath).entryList(QDir::Files);
     qWarning() << "Available keyboard maps" << maps;
+
+    mapName = Config::value("keymap", "").toString();
     populateMap();
 }
 
@@ -52,13 +53,12 @@ void ActionMapper::takeAction(Action action)
 void ActionMapper::populateMap()
 {
     keyHash.clear();
-    if (Config::isEnabled("std-kbd-map", true))
+
+    if (!loadMapFromDisk(mapPath + mapName))
         loadMapFromDisk(mapPath + "stdkeyboard");
-    if (!mapName.isEmpty())
-        loadMapFromDisk(mapPath + mapName);
 }
 
-void ActionMapper::loadMapFromDisk(const QString &mapFilePath)
+bool ActionMapper::loadMapFromDisk(const QString &mapFilePath)
 {
     const QMetaObject &ActionMO = ActionMapper::staticMetaObject;
     int enumIndex = ActionMO.indexOfEnumerator("Action");
@@ -71,6 +71,8 @@ void ActionMapper::loadMapFromDisk(const QString &mapFilePath)
     if (mapFile.exists()
         && mapFile.open(QIODevice::ReadOnly))
     {
+        qWarning() << "Load keymap" << mapFilePath;
+
         QTextStream mapStream(&mapFile);
         while(!mapStream.atEnd())
         {
@@ -81,22 +83,25 @@ void ActionMapper::loadMapFromDisk(const QString &mapFilePath)
             {
                 int keyIndex = keyEnum.keyToValue(QString("Key_").append(key).toAscii().constData());
                 if(keyIndex == -1)
-                    qWarning() << "Qt Key does not exist: Key_" << key;
+                    qWarning() << "\tQt Key does not exist: Key_" << key;
                 else
                     keys << keyIndex;
             }
             int index =
                 actionEnum.keyToValue(mapping[0].toAscii().constData());
             if (index == -1)
-                qWarning() << "Mapped action is not defined in ActionMapper, skipping: " << mapping[0];
+                qWarning() << "\tMapped action is not defined in ActionMapper, skipping: " << mapping[0];
             else
                 keyHash[static_cast<Action>(index)] = keys;
         }
         if(actionEnum.keyCount() != keyHash.size())
-            qWarning("Certain actions have not been mapped");
+            qWarning("\tCertain actions have not been mapped");
         else
-            qWarning("All keys mapped correctly");
+            qWarning("\tAll keys mapped correctly");
     } else {
-        qWarning() << "Could not load extended map: " << mapFilePath;
+        qWarning() << "Could not load keymap: " << mapFilePath;
+        return false;
     }
+
+    return true;
 }

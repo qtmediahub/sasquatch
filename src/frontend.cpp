@@ -85,8 +85,6 @@ FrontendPrivate::FrontendPrivate(Frontend *p)
       trackpad(new Trackpad(p)),
       pSelf(p)
 {
-    actionMap->setProperty("map", "extkeyboard");
-
     resizeSettleTimer.setSingleShot(true);
     connect(&resizeSettleTimer, SIGNAL(timeout()), this, SLOT(handleResize()));
     overscanWorkAround = Config::isEnabled("overscan", false);
