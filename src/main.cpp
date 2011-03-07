@@ -77,10 +77,12 @@ int main(int argc, char** argv)
     app.setOrganizationName("Nokia");
     app.setOrganizationDomain("nokia.com");
 
+#ifdef QT_SINGLE_APPLICATION
     if (!Config::isEnabled("multi-instance", false) && app.isRunning()) {
         qWarning() << app.applicationName() << "is already running, aborting";
         return false;
     }
+#endif //QT_SINGLE_APPLICATION
 
     Config::init(argc, argv);
 
