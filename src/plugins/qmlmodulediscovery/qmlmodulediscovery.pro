@@ -3,6 +3,7 @@
 ######################################################################
 
 include(../plugins.pri)
+include($${PROJECTROOT}/src/delaysymresolution.pri)
 
 HEADERS += qmlmodulediscoveryplugin.h qmlmodulediscovery.h
 SOURCES += qmlmodulediscoveryplugin.cpp qmlmodulediscovery.cpp
