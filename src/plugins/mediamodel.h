@@ -82,7 +82,8 @@ public:
     enum MediaType {
         Music,
         Picture,
-        Video
+        Video,
+        Radio
     };
 
     // this is here, so we can expose it to QML
