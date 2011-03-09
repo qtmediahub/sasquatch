@@ -299,7 +299,14 @@ QList<QObject *> Backend::allEngines() const
 
 QList<QObject *> Backend::advertizedEngines() const
 {
-    return d->advertizedEngines;
+    QList<QObject *> ret;
+    foreach(QObject *engine, d->advertizedEngines) {
+        QMHPlugin *plugin = qobject_cast<QMHPlugin*>(engine);
+        if (plugin && plugin->visualElement())
+            ret << engine;
+    }
+
+    return ret;
 }
 
 QStringList Backend::skins() const
