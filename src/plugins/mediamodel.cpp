@@ -38,6 +38,7 @@ static QString typeToString(MediaModel::MediaType type)
     case MediaModel::Music: return "music";
     case MediaModel::Video: return "video";
     case MediaModel::Picture: return "picture";
+    case MediaModel::Radio: return "radio";
     default: qWarning() << "Unknown media type " << type; return "unknown";
     }
 }

@@ -52,16 +52,44 @@ QVariant RadioModel::data(MediaInfo *mediaInfo, int role) const
     }
 }
 
-static bool readPLS(RadioInfo *info)
+static RadioInfo *readPLS(QFileInfo fileInfo)
 {
+    QSettings settings(fileInfo.filePath(), QSettings::IniFormat);
+    QStringList keys = settings.allKeys();
 
+    if (!keys.contains("playlist/NumberOfEntries"))
+        return 0;
+
+    if (settings.value("playlist/NumberOfEntries", 0).toInt() <= 0)
+        return 0;
+
+    // currently only choose first title
+    if (!keys.contains("playlist/File1") || !keys.contains("playlist/Title1") || !keys.contains("playlist/Length1") )
+        return 0;
+
+    QString file = settings.value("playlist/File1", "").toString();
+    QString title = settings.value("playlist/Title1", "").toString();
+    int length = settings.value("playlist/Length1", "").toInt();
+
+    RadioInfo *info = new RadioInfo(fileInfo.filePath());
+    info->filePath = file;
+    info->name = title;
+    info->length = length;
+
+    return info;
 }
 
-static bool readASX(RadioInfo *info)
+// TDB
+static RadioInfo *readASX(QFileInfo fileInfo)
 {
-
+    return 0;
 }
 
+// TDBs
+static RadioInfo *readXSPF(QFileInfo fileInfo)
+{
+    return 0;
+}
 
 MediaInfo *RadioModel::readMediaInfo(const QString &filePath)
 {
@@ -73,8 +101,11 @@ MediaInfo *RadioModel::readMediaInfo(const QString &filePath)
     if (!fileInfo.exists() || !supportedTypes.contains(fileInfo.suffix()))
         return 0;
 
-    RadioInfo *info = new RadioInfo(filePath);
-    info->thumbnailPath = themeResourcePath() + "DefaultVideo.png";
+    RadioInfo *info = readPLS(fileInfo);
+    if (!info)
+        return 0;
+
+    info->thumbnailPath = themeResourcePath() + "DefaultAudio.png";
 
     return info;
 }
