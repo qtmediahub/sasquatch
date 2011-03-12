@@ -377,6 +377,7 @@ void Backend::advertizeEngine(QMHPlugin *engine)
     if (d->qmlEngine)
         d->qmlEngine->rootContext()->setContextProperty(role % "Engine", engine);
 
+    connect(engine, SIGNAL(pluginChanged()), this, SIGNAL(advertizedEnginesChanged()));
     emit advertizedEnginesChanged();
 }
 
