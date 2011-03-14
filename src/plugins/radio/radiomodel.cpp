@@ -21,6 +21,7 @@
 
 #include <QFileInfo>
 #include <QProcess>
+#include <QXmlStreamReader>
 
 #include "qmh-config.h"
 
@@ -79,10 +80,61 @@ static RadioInfo *readPLS(QFileInfo fileInfo)
     return info;
 }
 
-// TDB
 static RadioInfo *readASX(QFileInfo fileInfo)
 {
-    return 0;
+    QFile file(fileInfo.filePath());
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+        return 0;
+
+    QString title;
+    QString uri;
+    QString banner;
+
+    QXmlStreamReader reader(&file);
+    while(!reader.atEnd() && !reader.hasError()) {
+        QXmlStreamReader::TokenType token = reader.readNext();
+        if(token == QXmlStreamReader::StartDocument)
+            continue;
+
+        if(token == QXmlStreamReader::StartElement) {
+            if(reader.name() == "entry") {
+                continue;
+            }
+
+            if(reader.name() == "Banner" && reader.attributes().hasAttribute("href")) {
+                banner = reader.attributes().value("href").toString();
+                continue;
+            }
+
+            if(reader.name() == "title") {
+                reader.readNext();
+                if(reader.tokenType() == QXmlStreamReader::Characters)
+                    title = reader.text().toString();
+                continue;
+            }
+            if(reader.name() == "ref" && reader.attributes().hasAttribute("href")) {
+                uri = reader.attributes().value("href").toString();
+                continue;
+            }
+        }
+
+        if (title != "" && uri != "")
+            break;
+    }
+
+    if(reader.hasError() || title == "" || uri == "") {
+        reader.clear();
+        return 0;
+    }
+
+    reader.clear();
+
+    RadioInfo *info = new RadioInfo(fileInfo.filePath());
+    info->filePath = uri;
+    info->name = title;
+    info->thumbnailPath = banner;
+
+    return info;
 }
 
 // TDBs
@@ -96,16 +148,22 @@ MediaInfo *RadioModel::readMediaInfo(const QString &filePath)
     QFileInfo fileInfo(filePath);
     //FIXME: query supported extensions from underlying media framework
     static QStringList supportedTypes;
-    supportedTypes << "pls";
+    supportedTypes << "pls" << "asx";
 
     if (!fileInfo.exists() || !supportedTypes.contains(fileInfo.suffix()))
         return 0;
 
-    RadioInfo *info = readPLS(fileInfo);
+    RadioInfo *info = 0;
+    if (fileInfo.suffix() == "pls")
+        info = readPLS(fileInfo);
+    else if (fileInfo.suffix() == "asx")
+        info = readASX(fileInfo);
+
     if (!info)
         return 0;
 
-    info->thumbnailPath = themeResourcePath() + "DefaultAudio.png";
+    if (info->thumbnailPath == "")
+        info->thumbnailPath = themeResourcePath() + "DefaultAudio.png";
 
     return info;
 }
