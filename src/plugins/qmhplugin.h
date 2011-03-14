@@ -41,25 +41,25 @@ public:
     ~QMHPlugin() { delete mInterface; }
 
     QString name() const { return mInterface->name(); }
-    void setName(const QString &name) { mInterface->setName(name); }
+    void setName(const QString &name) { mInterface->setName(name); emit pluginChanged(); }
 
     QString role() const { return mInterface->role(); }
-    void setRole(const QString &role) { mInterface->setRole(role); }
+    void setRole(const QString &role) { mInterface->setRole(role); emit pluginChanged(); }
 
     bool advertized() const { return mInterface->advertized(); }
-    void setAdvertized(bool advertized) { mInterface->setAdvertized(advertized); }
+    void setAdvertized(bool advertized) { mInterface->setAdvertized(advertized); emit pluginChanged(); }
 
     QObject* visualElement() const { return mInterface->visualElement(); }
-    void setVisualElement(QObject *element) { mInterface->setVisualElement(element); }
+    void setVisualElement(QObject *element) { mInterface->setVisualElement(element); emit pluginChanged(); }
 
     QStringList visualElementProperties() const { return mInterface->visualElementProperties(); }
-    void setVisualElementProperties(const QStringList& properties) { mInterface->setVisualElementProperties(properties); }
+    void setVisualElementProperties(const QStringList& properties) { mInterface->setVisualElementProperties(properties); emit pluginChanged(); }
 
     QObject* actionMap() const { return mInterface->actionMap(); }
-    void setActionMap(QObject *map) { mInterface->setActionMap(map); }
+    void setActionMap(QObject *map) { mInterface->setActionMap(map); emit pluginChanged(); }
 
     QStringList actionList() const { return mInterface->actionList(); }
-    void setActionList(const QStringList& actions) { mInterface->setActionList(actions); }
+    void setActionList(const QStringList& actions) { mInterface->setActionList(actions); emit pluginChanged(); }
 
     //These plugins should be equally usable from html
     void registerPlugin(QDeclarativeContext *context = 0) { mInterface->registerPlugin(context); }
