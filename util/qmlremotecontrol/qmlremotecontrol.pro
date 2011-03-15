@@ -1,26 +1,33 @@
 TEMPLATE = app
-DESTDIR = ../../hub/
+DESTDIR = $${PROJECTROOT}/hub/
 DEPENDPATH += .
-INCLUDEPATH += . ../../src/3rdparty/ ../../src ../../src/qml-extensions
+INCLUDEPATH += . $${PROJECTROOT}/src/3rdparty/ $${PROJECTROOT}/src $${PROJECTROOT}/src/qml-extensions
 
 QT += network declarative
-include(../../src/rpc/rpc.pri)
+include($${PROJECTROOT}/src/rpc/rpc.pri)
 
-!symbian {
-    !no-avahi {
-        # avahi integration
-        INCLUDEPATH +=  ../../src/3rdparty/libqavahi/
-        include(../../src/3rdparty/libqavahi/libqavahi.pri)
+unix:!symbian {
+    maemo5 {
+        target.path = /opt/usr/bin
+    } else {
+        target.path = /usr/local/bin
     }
-} else {
-    CONFIG += no-avahi
+    INSTALLS += target
+}
+
+linux* {
+    CONFIG += avahi
+}
+
+symbian {
     LIBS += -llibc -lcone -leikcore -lavkon
     TARGET.UID3 = 0xA000D7D1
     TARGET.CAPABILITY += LocalServices NetworkServices ReadUserData WriteUserData UserEnvironment
 }
 
-no-avahi {
-    DEFINES += QMH_NO_AVAHI
+avahi {
+    DEFINES += QMH_AVAHI
+} else {
     SOURCES += staticservicebrowsermodel.cpp
     HEADERS += staticservicebrowsermodel.h
 }
@@ -37,15 +44,6 @@ SOURCES += main.cpp \
     mainwindow.cpp
 HEADERS += \
     mainwindow.h
-
-unix:!symbian {
-    maemo5 {
-        target.path = /opt/usr/bin
-    } else {
-        target.path = /usr/local/bin
-    }
-    INSTALLS += target
-}
 
 RESOURCES += qmlremotecontrol.qrc
 

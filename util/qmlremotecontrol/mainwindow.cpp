@@ -19,7 +19,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "mainwindow.h"
 
-#ifndef QMH_NO_AVAHI
+#ifdef QMH_AVAHI
 #include "qavahiservicebrowsermodel.h"
 #else
 #include "staticservicebrowsermodel.h"
@@ -37,7 +37,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(engine(), SIGNAL(quit()), QApplication::instance(), SLOT(quit()));
 
-#ifndef QMH_NO_AVAHI
+#ifdef QMH_AVAHI
     QAvahiServiceBrowserModel *model = new QAvahiServiceBrowserModel(this);
     model->browse("_qmh._tcp", QAvahiServiceBrowserModel::HideIPv6);
     m_targetsModel = model;
