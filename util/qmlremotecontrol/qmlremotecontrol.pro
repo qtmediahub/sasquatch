@@ -27,6 +27,8 @@ symbian {
 
 avahi {
     DEFINES += QMH_AVAHI
+    INCLUDEPATH += . $${PROJECTROOT}/src/3rdparty/libqavahi
+    include($${PROJECTROOT}/src/3rdparty/libqavahi/libqavahi.pri)
 } else {
     SOURCES += staticservicebrowsermodel.cpp
     HEADERS += staticservicebrowsermodel.h
