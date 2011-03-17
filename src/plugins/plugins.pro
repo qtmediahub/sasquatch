@@ -6,5 +6,6 @@ SUBDIRS = music \
           picture \
           qmlmodulediscovery \
           customcursor \
-          animatedtiles
+          animatedtiles \
+          appstore
 #          terminalmode
