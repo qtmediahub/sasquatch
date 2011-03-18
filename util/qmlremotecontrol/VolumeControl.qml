@@ -17,7 +17,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 ****************************************************************************/
 
-import QtQuick 1.1
+import QtQuick 1.0
 
 Item {
     height: width/4 + 10
@@ -37,7 +37,7 @@ Item {
         hasFocusImage: false
         anchors.margins: 10
         anchors.horizontalCenter: parent.horizontalCenter
-//            onClicked: rpcClient.call("qmhrpc.takeAction", 4)
+        onClicked: rpcClient.call("qmhrpc.takeAction", 4)
         width: parent.width/4
         height: width
     }

@@ -44,6 +44,7 @@ FORMS +=
 # Input
 SOURCES += main.cpp \
     mainwindow.cpp
+
 HEADERS += \
     mainwindow.h
 
@@ -57,5 +58,7 @@ OTHER_FILES += \
     BusyView.qml \
     BusyIndicator.qml \
     TargetsView.qml \
-    AddTargetDialog.qml
+    AddTargetDialog.qml \
+    RemoteControlButtons.qml \
+    VolumeControl.qml
 
