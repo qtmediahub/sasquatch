@@ -80,8 +80,10 @@ Item {
                 onEntered: ListView.view.currentIndex = index
                 onClicked: {
                     controlView.title = "Connected to "+model.display
-                    qmlRemote.state = "inProgress"
-                    rpcClient.connectToHost(model.address, model.port)
+                    if (qmlRemote.state == "targets") {
+                        qmlRemote.state = "inProgress"
+                        rpcClient.connectToHost(model.address, model.port)
+                    }
                 }
             }
         }
