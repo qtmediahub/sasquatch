@@ -47,7 +47,7 @@ CustomCursor::CustomCursor(QObject *parent) :
 {
     qApp->setOverrideCursor(m_blankCursor);
 
-    enableCursor(Config::isEnabled("mouse", false));
+    enableCursor(Config::isEnabled("mouse", true));
 }
 
 void CustomCursor::enableCursor(bool enable, bool temporary) {
@@ -62,7 +62,8 @@ void CustomCursor::enableCursor(bool enable, bool temporary) {
         qApp->installEventFilter(this);
         setIdleTimeout(Config::value("hideIdleCursorTimeout", 2));
     } else {
-//        qApp->installEventFilter(m_EventSink);
+        if (!Config::isEnabled("touch", false))
+            qApp->installEventFilter(m_EventSink);
     }
     if (!temporary)
         Config::setEnabled("mouse", enable);
