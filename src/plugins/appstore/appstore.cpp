@@ -91,7 +91,7 @@ AppInfo * AppStore::readApplicationFolder(const QFileInfo &fileInfo)
                                    , content.value("Version", "").toString()
                                    , content.value("Exec", "").toString()
                                    , content.value("Uuid", "").toString()
-                                   , content.value("Category", "").toString()
+                                   , content.value("Categories", "").toString()
                                    );
     return appInfo;
 }
