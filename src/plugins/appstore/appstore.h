@@ -45,12 +45,16 @@ public:
 
 public slots:
     void setPath(const QString &path) { mPath = path;/* searchPath();*/ }
+    void refresh();
 
 signals:
+    void installAppProgress(quint32 userId, const QString &appUuid, int progress);
+    void installAppFinished(quint32 userId, const QString &appUuid);
+    void installAppFailed(quint32 userId, const QString &appUuid, const QString &error);
+
     void appsChanged();
 
 private:
-    void refresh();
     AppInfo *readApplicationFolder(const QFileInfo &fileInfo);
 
     AppInstallerInterface *installer;

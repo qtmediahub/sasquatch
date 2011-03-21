@@ -26,6 +26,12 @@ AppStore::AppStore(QDeclarativeItem *parent)
 {
     installer = new AppInstallerInterface("com.nokia.appstore.installer", "/", QDBusConnection::sessionBus(), this);
 
+    connect(installer, SIGNAL(installAppFinished(quint32,QString)), this, SIGNAL(installAppFinished(quint32,QString)));
+    connect(installer, SIGNAL(installAppFailed(quint32,QString,QString)), this, SIGNAL(installAppFailed(quint32,QString,QString)));
+    connect(installer, SIGNAL(installAppProgress(quint32,QString,int)), this, SIGNAL(installAppProgress(quint32,QString,int)));
+
+    connect(installer, SIGNAL(installAppFinished(quint32,QString)), this, SLOT(refresh()));
+
     refresh();
 }
 
