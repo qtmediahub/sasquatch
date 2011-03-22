@@ -20,35 +20,32 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 import QtQuick 1.0
 
 Item {
-    height: width/4 + 10
+    id: root
+    width: 200
+    height: 48
+    property int value: 50
+    BorderImage {
+        anchors.centerIn: parent
+        id: bar
+        source: "qrc:/images/navpad_bar.png"
+        width: Math.min(root.value*(root.width/100), root.width); height: 100
+        border.left: 8; border.top: 0
+        border.right: 8; border.bottom: 0
 
-    ImageButton {
-        id: volumeDown
-        image: "scroll-left"
-        anchors.margins: 10
-        anchors.right: volumeMuteToggle.left
-        onClicked: rpcClient.call("qmhrpc.takeAction", 8)
-        width: parent.width/4
-        height: width
+        Behavior on width {
+            NumberAnimation { duration: 150}
+        }
     }
-    ImageButton {
-        id: volumeMuteToggle
-        image: "VolumeIcon"
-        hasFocusImage: false
-        anchors.margins: 10
-        anchors.horizontalCenter: parent.horizontalCenter
-        onClicked: rpcClient.call("qmhrpc.takeAction", 4)
-        width: parent.width/4
-        height: width
+    Text {
+        id: volumeText
+        anchors.centerIn: parent
+        text: qsTr("Volume")
+        font.weight: Font.Light
+        font.pointSize: 16
+        color: "white"
     }
-    ImageButton {
-        id: volumeUp
-        image: "scroll-right"
-        anchors.margins: 10
-        anchors.left: volumeMuteToggle.right
-        onClicked: rpcClient.call("qmhrpc.takeAction", 7)
-        width: parent.width/4
-        height: width
+    MouseArea {
+        anchors.fill: parent
+        onMousePositionChanged: root.value = mouse.x*(100.0/root.width)
     }
 }
-
