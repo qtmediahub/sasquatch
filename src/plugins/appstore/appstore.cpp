@@ -57,7 +57,11 @@ void AppStore::refresh()
     QDirIterator it(appsDir);
     while (it.hasNext()) {
         it.next();
-        QFileInfo fileInfo= it.fileInfo();
+        QFileInfo fileInfo = it.fileInfo();
+
+        // ignore tmp folders
+        if (fileInfo.fileName().endsWith('-') || fileInfo.fileName().endsWith('+'))
+            continue;
 
         AppInfo *info = readApplicationFolder(fileInfo);
         if (info)
