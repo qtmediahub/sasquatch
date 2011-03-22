@@ -21,7 +21,7 @@ import QtQuick 1.0
 
 BorderImage {
     id: trackpad
-    source: "media/trackpad.png"
+    source: "qrc:/images/trackpad.png"
     smooth: true
     border { top: 20; left: 20; right: 20; bottom: 20 }
 

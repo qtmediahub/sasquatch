@@ -49,15 +49,20 @@ Item {
 
     Text {
         id: controlTitle
-        color: "lightgray"
-        font.weight: Font.Light
         anchors.top: parent.top
         anchors.horizontalCenter: parent.horizontalCenter
+        font.weight: Font.Light
+        font.pointSize: 16
+        color:  "#FCFCFC"
+        style: Text.Sunken
+        styleColor: "#000000"
+        font.family: "Verdana"
     }
 
     VolumeControl {
         id: volumeControl
         anchors.top: controlTitle.bottom
+        anchors.topMargin: 10
         width: parent.width
     }
 
@@ -67,7 +72,8 @@ Item {
         width: parent.width
         anchors.margins: 5
         anchors.top: volumeControl.bottom
-        anchors.bottom: row.top
+        anchors.bottom: targets.top
+        anchors.left: remoteControlButtons.right
     }
 
     Trackpad {
@@ -75,28 +81,26 @@ Item {
         width: parent.width
         anchors.margins: 5
         anchors.top: volumeControl.bottom
-        anchors.bottom: row.top
+        anchors.bottom: targets.top
         anchors.left: remoteControlButtons.right
     }
 
-    Row {
-        id: row
-        anchors.margins: 5
+    Button {
+        id: targets
+        text: qsTr("Targets")
+        onClicked: rpcClient.disconnectFromHost()
         anchors.bottom: parent.bottom
-        anchors.horizontalCenter: parent.horizontalCenter
-        spacing: 5
+        anchors.left: parent.left
+        anchors.margins: 10
+    }
 
-        Button {
-            id: showTrackpad
-            text: root.state == "showingTrackpad" ? qsTr("Buttons") : qsTr("Trackpad")
-            onClicked: root.state = root.state == "showingTrackpad" ? "showingButtons" : "showingTrackpad"
-        }
-
-        Button {
-            id: targets
-            text: qsTr("Targets")
-            onClicked: rpcClient.disconnectFromHost()
-        }
+    Button {
+        id: showTrackpad
+        text: root.state == "showingTrackpad" ? qsTr("Buttons") : qsTr("Trackpad")
+        onClicked: root.state = root.state == "showingTrackpad" ? "showingButtons" : "showingTrackpad"
+        anchors.bottom: parent.bottom
+        anchors.right: parent.right
+        anchors.margins: 10
     }
 }
 

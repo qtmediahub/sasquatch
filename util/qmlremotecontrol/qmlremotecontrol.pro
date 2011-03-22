@@ -53,12 +53,13 @@ RESOURCES += qmlremotecontrol.qrc
 OTHER_FILES += \
     qmlremotecontrol.qml \
     Button.qml \
-    ImageButton.qml \
     ControlView.qml \
     BusyView.qml \
     BusyIndicator.qml \
     TargetsView.qml \
     AddTargetDialog.qml \
     RemoteControlButtons.qml \
-    VolumeControl.qml
+    KeyGrid.qml \
+    VolumeControl.qml \
+    Trackpad.qml
 

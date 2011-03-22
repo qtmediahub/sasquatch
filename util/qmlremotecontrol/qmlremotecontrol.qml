@@ -31,7 +31,7 @@ Rectangle {
     Image {
         id: background
         anchors.fill: parent
-        source: "qrc:/media/media-overlay.png"
+        source: "qrc:/images/media-overlay.png"
     }
 
     RpcConnection {

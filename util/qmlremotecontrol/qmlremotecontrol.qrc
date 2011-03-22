@@ -2,28 +2,8 @@
     <qresource prefix="/">
         <file>services.conf</file>
         <file>qmlremotecontrol.qml</file>
-        <file>media/media-overlay.png</file>
-        <file>media/MenuItemFO.png</file>
-        <file>media/MenuItemNF.png</file>
         <file>Button.qml</file>
-        <file>media/button-focus.png</file>
-        <file>media/button-nofocus.png</file>
-        <file>media/scroll-down-focus.png</file>
-        <file>media/scroll-down.png</file>
-        <file>media/scroll-left-focus.png</file>
-        <file>media/scroll-left.png</file>
-        <file>media/scroll-right-focus.png</file>
-        <file>media/scroll-right.png</file>
-        <file>media/scroll-up-focus.png</file>
-        <file>media/scroll-up.png</file>
-        <file>media/ok-focus.png</file>
-        <file>media/ok.png</file>
-        <file>media/VolumeIcon-Mute.png</file>
-        <file>media/VolumeIcon.png</file>
-        <file>ImageButton.qml</file>
         <file>BusyIndicator.qml</file>
-        <file>media/busy.png</file>
-        <file>media/trackpad.png</file>
         <file>ControlView.qml</file>
         <file>BusyView.qml</file>
         <file>TargetsView.qml</file>
@@ -31,5 +11,19 @@
         <file>VolumeControl.qml</file>
         <file>RemoteControlButtons.qml</file>
         <file>Trackpad.qml</file>
+        <file>KeyGrid.qml</file>
+        <file>images/navpad_bar.png</file>
+        <file>images/navpad_button.png</file>
+        <file>images/navpad_center.png</file>
+        <file>images/navpad_control.png</file>
+        <file>images/navpad_down.png</file>
+        <file>images/navpad_left.png</file>
+        <file>images/navpad_right.png</file>
+        <file>images/navpad_up.png</file>
+        <file>images/busy.png</file>
+        <file>images/MenuItemFO.png</file>
+        <file>images/MenuItemNF.png</file>
+        <file>images/media-overlay.png</file>
+        <file>images/trackpad.png</file>
     </qresource>
 </RCC>
