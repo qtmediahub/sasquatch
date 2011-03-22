@@ -75,6 +75,24 @@ public slots:
 
         return asyncCallWithArgumentList(QLatin1String("deleteApp"), argumentList);
     }
+
+    inline QString appDirectory()
+    {
+        QDBusReply<QString> reply = call(QLatin1String("appDirectory"));
+        if (reply.error().isValid())
+            return QString();
+        else
+            return reply.value();
+    }
+
+    inline QString docDirectory()
+    {
+        QDBusReply<QString> reply = call(QLatin1String("docDirectory"));
+        if (reply.error().isValid())
+            return QString();
+        else
+            return reply.value();
+    }
 };
 
 #endif // APPINSTALLERINTERFACE_H

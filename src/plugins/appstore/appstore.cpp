@@ -48,8 +48,11 @@ void AppStore::deleteApp(const QString &name, const QString &appUuidStr, bool ke
 
 void AppStore::refresh()
 {
-    // TODO: fix hardcoded path
-    QDir appsDir("/home/jzellner/projects/qtmediahub/hub/resources/apps/");
+    QString appDirectoryPath = installer->appDirectory();
+    if (appDirectoryPath == "")
+        appDirectoryPath = QDir::homePath() + ".config/nokia/apps";
+
+    QDir appsDir(appDirectoryPath);
     appsDir.setFilter(QDir::NoDotAndDotDot | QDir::Dirs | QDir::NoSymLinks);
 
     // empty list
