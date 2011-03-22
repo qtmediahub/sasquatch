@@ -20,6 +20,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 import QtQuick 1.0
 
 Item {
+    id: root
 
     Item {
         width: parent.width
@@ -41,8 +42,9 @@ Item {
             id: back
             text: qsTr("Back")
             anchors.margins: 20
-            anchors.top: navKeys.bottom
+            anchors.bottom: navKeys.top
             anchors.left: parent.left
+            width: root.width/2.0 - anchors.margins*2
             onClicked: rpcClient.call("qmhrpc.takeAction", 5)
         }
 
@@ -50,8 +52,9 @@ Item {
             id: context
             text: qsTr("Context")
             anchors.margins: 20
-            anchors.top: navKeys.bottom
+            anchors.bottom: navKeys.top
             anchors.right: parent.right
+            width: root.width/2.0 - anchors.margins*2
             onClicked: rpcClient.call("qmhrpc.takeAction", 6)
         }
     }

@@ -30,7 +30,7 @@ BorderImage {
     border.left: 16; border.top: 8
     border.right: 16; border.bottom: 8
 
-    source: "images/navpad_button.png"
+    source: "qrc:/images/MenuItemFO.png"
 
     MouseArea {
         id: mouseArea

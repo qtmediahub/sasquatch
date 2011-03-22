@@ -92,6 +92,7 @@ Item {
         anchors.bottom: parent.bottom
         anchors.left: parent.left
         anchors.margins: 10
+        width: root.width/2.0 - anchors.margins*2.0
     }
 
     Button {
@@ -101,6 +102,7 @@ Item {
         anchors.bottom: parent.bottom
         anchors.right: parent.right
         anchors.margins: 10
+        width: root.width/2.0 - anchors.margins*2.0
     }
 }
 

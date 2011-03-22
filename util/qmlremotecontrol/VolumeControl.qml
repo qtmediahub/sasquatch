@@ -27,7 +27,7 @@ Item {
     BorderImage {
         anchors.centerIn: parent
         id: bar
-        source: "images/navpad_bar.png"
+        source: "qrc:/images/navpad_bar.png"
         width: Math.min(root.value*(root.width/100), root.width); height: 100
         border.left: 8; border.top: 0
         border.right: 8; border.bottom: 0
