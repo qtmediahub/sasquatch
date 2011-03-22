@@ -33,6 +33,7 @@ class AppStore : public QDeclarativeItem
     Q_OBJECT
     Q_PROPERTY(QString path READ path WRITE setPath)
     Q_PROPERTY(QList<QObject*> apps READ apps NOTIFY appsChanged)
+    Q_PROPERTY(bool showStoreItem READ showStoreItem WRITE setShowStoreItem NOTIFY showStoreItemChanged)
 
 public:
     AppStore(QDeclarativeItem *parent = 0);
@@ -42,9 +43,11 @@ public:
 
     QString path() const { return mPath; }
     QList<QObject*> apps() const { return mApps; }
+    bool showStoreItem() const { return mShowStoreItem; }
 
 public slots:
     void setPath(const QString &path) { mPath = path;/* searchPath();*/ }
+    void setShowStoreItem(bool show) { mShowStoreItem = show; emit showStoreItemChanged(); }
     void refresh();
 
 signals:
@@ -53,13 +56,16 @@ signals:
     void installAppFailed(quint32 userId, const QString &appUuid, const QString &error);
 
     void appsChanged();
+    void showStoreItemChanged();
 
 private:
     AppInfo *readApplicationFolder(const QFileInfo &fileInfo);
+    void addStoreItem();
 
     AppInstallerInterface *installer;
     QString mPath;
     QList<QObject*> mApps;
+    bool mShowStoreItem;
 };
 
 #endif // APPSTORE_H

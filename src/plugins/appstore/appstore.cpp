@@ -23,6 +23,7 @@
 
 AppStore::AppStore(QDeclarativeItem *parent)
     : QDeclarativeItem(parent)
+    , mShowStoreItem(true)
 {
     installer = new AppInstallerInterface("com.nokia.appstore.installer", "/", QDBusConnection::sessionBus(), this);
 
@@ -47,12 +48,17 @@ void AppStore::deleteApp(const QString &name, const QString &appUuidStr, bool ke
 
 void AppStore::refresh()
 {
+    // TODO: fix hardcoded path
     QDir appsDir("/home/jzellner/projects/qtmediahub/hub/resources/apps/");
     appsDir.setFilter(QDir::NoDotAndDotDot | QDir::Dirs | QDir::NoSymLinks);
 
     // empty list
     while (!mApps.isEmpty())
          delete mApps.takeFirst();
+
+    // add dummy app store item
+    if (mShowStoreItem)
+        addStoreItem();
 
     QDirIterator it(appsDir);
     while (it.hasNext()) {
@@ -104,4 +110,10 @@ AppInfo * AppStore::readApplicationFolder(const QFileInfo &fileInfo)
                                    , content.value("Categories", "").toString()
                                    );
     return appInfo;
+}
+
+void AppStore::addStoreItem()
+{
+    AppInfo *info = new AppInfo("__appStore" , tr("App Store"), "__appStore", tr("start Application Store"), "1.0", "__appStore", "0", "");
+    mApps << info;
 }
