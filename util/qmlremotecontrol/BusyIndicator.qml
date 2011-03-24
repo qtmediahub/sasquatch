@@ -23,7 +23,7 @@ Image {
     id: root
     property bool on: false
 
-    source: "qrc:/media/busy.png"
+    source: "qrc:/images/busy.png"
     visible: root.on
     smooth: true
 

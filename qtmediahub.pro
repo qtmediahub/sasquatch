@@ -1,3 +1,5 @@
+include(src/common.pri)
+
 TEMPLATE = subdirs
 
 QMAKE_CACHE=$${OUT_PWD}/.qmake.cache

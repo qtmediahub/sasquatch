@@ -36,11 +36,14 @@ Item {
     Text {
         id: targetsTitle
         text: qsTr("Select Target")
-        color: "lightgray"
         horizontalAlignment: Text.AlignHCenter
         width: parent.width
         font.weight: Font.Light
-        font.pointSize: pimpl.textPointSize
+        font.pointSize: 16
+        color:  "#FCFCFC"
+        style: Text.Sunken
+        styleColor: "#000000"
+        font.family: "Verdana"
     }
 
     ListView {
@@ -60,7 +63,7 @@ Item {
             Image {
                 id: backgroundImage
                 anchors.fill: parent;
-                source: "qrc:/media/" + (ListView.isCurrentItem ? "MenuItemFO.png" : "MenuItemNF.png");
+                source: "qrc:/images/" + (ListView.isCurrentItem ? "MenuItemFO.png" : "MenuItemNF.png");
             }
             Text {
                 id: sourceText
@@ -80,8 +83,10 @@ Item {
                 onEntered: ListView.view.currentIndex = index
                 onClicked: {
                     controlView.title = "Connected to "+model.display
-                    qmlRemote.state = "inProgress"
-                    rpcClient.connectToHost(model.address, model.port)
+                    if (qmlRemote.state == "targets") {
+                        qmlRemote.state = "inProgress"
+                        rpcClient.connectToHost(model.address, model.port)
+                    }
                 }
             }
         }

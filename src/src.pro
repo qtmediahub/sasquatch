@@ -1,12 +1,62 @@
 include(common.pri)
 
-linux*: include(qtsingleapplication/qtsingleapplication.pri)
-
 DESTDIR = ../hub
 TEMPLATE = app
 TARGET = qmh
 DEPENDPATH += .
 INCLUDEPATH += .
+
+#global options
+CONFIG += glviewport
+#end global options
+
+#platform options
+linux* {
+    include(qtsingleapplication/qtsingleapplication.pri)
+    message(Linux specific options: (*default unless adjusted in src.pro))
+    message(glviewport*)
+}
+
+mac {
+    QT += webkit\
+          multimedia
+          
+    CONFIG += mobility
+
+    MOBILITY += multimedia\
+                systeminfo
+}
+
+unix:!symbian {
+    maemo5 {
+        target.path = /opt/usr/bin
+    } else {
+        target.path = /usr/local/bin
+    }
+    INSTALLS += target
+}
+#end platform options
+
+#painting options
+glgs {
+    CONFIG += gl
+    message(Using the OpenGL graphics system: I hope you know what you are doing)
+    DEFINES += GLGS
+}
+
+glviewport {
+    CONFIG += gl
+    message(Using an OpenGL viewport)
+    DEFINES += GLVIEWPORT
+}
+
+gl {
+    DEFINES += GL
+    QT += opengl
+} else {
+    message(Not using GL acceleration)
+}
+#end painting options
 
 # Input
 SOURCES += main.cpp \
@@ -39,68 +89,15 @@ HEADERS += qmh-config.h \
     plugins/mediamodel.h \
     plugins/mediainfo.h
 
-linux* {
-    message(Linux specific options: (*default unless adjusted in src.pro))
-    message(glviewport*)
-    !no-avahi {
-        message(avahi*)
-        CONFIG += avahi
-    }
-}
-
-CONFIG += glviewport
-
 include(rpc/rpc.pri)
-
-glgs {
-    CONFIG += gl
-    message(Using the OpenGL graphics system: I hope you know what you are doing)
-    DEFINES += GLGS
-}
-
-glviewport {
-    CONFIG += gl
-    message(Using an OpenGL viewport)
-    DEFINES += GLVIEWPORT
-}
-
-gl {
-    DEFINES += GL
-    QT += opengl
-} else {
-    message(Not using GL acceleration)
-}
-
-no-avahi {
-    DEFINES += QMH_NO_AVAHI
-}
-
-mac {
-    QT += webkit\
-          multimedia
-          
-    CONFIG += mobility
-
-    MOBILITY += multimedia\
-                systeminfo
-}
 
 #for() structure does not work with lupdate
 TRANSLATIONS = $$system(cat $$DESTDIR/supported_languages | while read i; do echo translations/"$i".ts; done)
 include(delaysymresolution.pri)
 
-!no-avahi {
+avahi {
+    DEFINES += QMH_AVAHI
     # avahi support
     include(3rdparty/libqavahi/libqavahi.pri)
     INCLUDEPATH += 3rdparty/libqavahi/
-}
-
-
-unix:!symbian {
-    maemo5 {
-        target.path = /opt/usr/bin
-    } else {
-        target.path = /usr/local/bin
-    }
-    INSTALLS += target
 }

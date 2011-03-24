@@ -28,7 +28,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "dataproviders/playlist.h"
 #include "rpc/rpcconnection.h"
 
-#ifndef QMH_NO_AVAHI
+#ifdef QMH_AVAHI
 #include "qavahiservicebrowsermodel.h"
 #endif
 
@@ -433,7 +433,7 @@ QObject *Backend::engineByName(const QString &name)
 QObject *Backend::targetsModel() const
 {
     if (!d->targetsModel) {
-#ifndef QMH_NO_AVAHI
+#ifdef QMH_AVAHI
         QAvahiServiceBrowserModel *model = new QAvahiServiceBrowserModel(const_cast<Backend *>(this));
         model->setAutoResolve(true);
         model->browse("_qmh._tcp", QAvahiServiceBrowserModel::HideIPv6 | QAvahiServiceBrowserModel::HideLocal);

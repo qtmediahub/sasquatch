@@ -9,6 +9,10 @@ linux* {
     message(gstreamer*)
     message(release*)
     CONFIG += gstreamer
+    !no-avahi {
+        message(avahi*)
+        CONFIG += avahi
+    }
 }
 
 CONFIG += release

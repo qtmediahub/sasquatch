@@ -45,7 +45,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "rpc/rpcconnection.h"
 #include "qmh-config.h"
 
-#ifndef QMH_NO_AVAHI
+#ifdef QMH_AVAHI
 #include "qavahiservicepublisher.h"
 #endif
 
@@ -134,7 +134,7 @@ Frontend::Frontend(QWidget *p)
     new QShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::ALT + Qt::Key_Up), this, SLOT(grow()));
     new QShortcut(QKeySequence(Qt::ALT + Qt::Key_Return), this, SLOT(toggleFullScreen()));
 
-#ifndef QMH_NO_AVAHI
+#ifdef QMH_AVAHI
     QAvahiServicePublisher *publisher = new QAvahiServicePublisher(this);
     publisher->publish(QHostInfo::localHostName(), "_qmh._tcp", 1234, "Qt Media Hub JSON-RPCv2 interface");
 #endif

@@ -19,15 +19,18 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 import QtQuick 1.0
 
-Image {
+BorderImage {
     id: root
+
     property alias text: textLabel.text
     signal clicked()
 
     width: 110
     height: textLabel.height+10
+    border.left: 16; border.top: 8
+    border.right: 16; border.bottom: 8
 
-    source: "qrc:/media/" + (mouseArea.containsMouse || activeFocus ? "button-focus.png" : "button-nofocus.png")
+    source: "qrc:/images/MenuItemFO.png"
 
     MouseArea {
         id: mouseArea
@@ -39,9 +42,12 @@ Image {
     Text {
         id: textLabel
         anchors.centerIn: parent
-        color: "lightgray"
         font.weight: Font.Light
-        font.pointSize: 11
+        font.pointSize: 16
+        color:  "#FCFCFC"
+        style: mouseArea.pressed ? Text.Sunken : Text.Normal
+        styleColor: "#000000"
+        font.family: "Verdana"
     }
 }
 
