@@ -25,30 +25,30 @@ AppStore::AppStore(QDeclarativeItem *parent)
     : QDeclarativeItem(parent)
     , mShowStoreItem(true)
 {
-    installer = new AppInstallerInterface("com.nokia.appstore.installer", "/", QDBusConnection::sessionBus(), this);
+    mInstaller = new AppInstallerInterface("com.nokia.appstore.installer", "/", QDBusConnection::sessionBus(), this);
 
-    connect(installer, SIGNAL(installAppFinished(quint32,QString)), this, SIGNAL(installAppFinished(quint32,QString)));
-    connect(installer, SIGNAL(installAppFailed(quint32,QString,QString)), this, SIGNAL(installAppFailed(quint32,QString,QString)));
-    connect(installer, SIGNAL(installAppProgress(quint32,QString,int)), this, SIGNAL(installAppProgress(quint32,QString,int)));
+    connect(mInstaller, SIGNAL(installAppFinished(quint32,QString)), this, SIGNAL(installAppFinished(quint32,QString)));
+    connect(mInstaller, SIGNAL(installAppFailed(quint32,QString,QString)), this, SIGNAL(installAppFailed(quint32,QString,QString)));
+    connect(mInstaller, SIGNAL(installAppProgress(quint32,QString,int)), this, SIGNAL(installAppProgress(quint32,QString,int)));
 
-    connect(installer, SIGNAL(installAppFinished(quint32,QString)), this, SLOT(refresh()));
+    connect(mInstaller, SIGNAL(installAppFinished(quint32,QString)), this, SLOT(refresh()));
 
     refresh();
 }
 
 void AppStore::installApp(const QString &name, const QString &appUuidStr, const QString &uri)
 {
-    installer->installApp(getuid(), appUuidStr, uri, name, 0, QStringList());
+    mInstaller->installApp(getuid(), appUuidStr, uri, name, 0, QStringList());
 }
 
 void AppStore::deleteApp(const QString &name, const QString &appUuidStr, bool keepDocuments)
 {
-    installer->deleteApp(getuid(), appUuidStr, keepDocuments);
+    mInstaller->deleteApp(getuid(), appUuidStr, keepDocuments);
 }
 
 void AppStore::refresh()
 {
-    QString appDirectoryPath = installer->appDirectory();
+    QString appDirectoryPath = mInstaller->appDirectory();
     if (appDirectoryPath == "")
         appDirectoryPath = QDir::homePath() + ".config/nokia/apps";
 

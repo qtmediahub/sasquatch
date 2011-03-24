@@ -40,6 +40,7 @@ public:
 
     Q_INVOKABLE void installApp(const QString &name, const QString &appUuidStr, const QString &uri);
     Q_INVOKABLE void deleteApp(const QString &name, const QString &appUuidStr, bool keepDocuments);
+    Q_INVOKABLE bool localInstaller() const { return mInstaller->isValid(); }
 
     QString path() const { return mPath; }
     QList<QObject*> apps() const { return mApps; }
@@ -62,7 +63,7 @@ private:
     AppInfo *readApplicationFolder(const QFileInfo &fileInfo);
     void addStoreItem();
 
-    AppInstallerInterface *installer;
+    AppInstallerInterface *mInstaller;
     QString mPath;
     QList<QObject*> mApps;
     bool mShowStoreItem;
