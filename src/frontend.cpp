@@ -127,6 +127,9 @@ Frontend::Frontend(QWidget *p)
     : QWidget(p),
       d(new FrontendPrivate(this))
 {
+    setAttribute(Qt::WA_OpaquePaintEvent);
+    setAttribute(Qt::WA_NoSystemBackground);
+
     setSkin(Config::value("last-skin", "").toString());
     connect(this, SIGNAL(resetUI()), d, SLOT(resetUI()));
     new QShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::ALT + Qt::Key_Backspace), this, SIGNAL(resetUI()));
@@ -275,6 +278,8 @@ void Frontend::initialize(const QUrl &targetUrl)
         centralWidget->setSource(targetUrl);
 
     }
+    d->centralWidget->setAttribute(Qt::WA_OpaquePaintEvent);
+    d->centralWidget->setAttribute(Qt::WA_NoSystemBackground);
 }
 
 void Frontend::resetLanguage()
