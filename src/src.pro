@@ -27,6 +27,12 @@ mac {
                 systeminfo
 }
 
+# This is needed for Maemo5 to recognize minimization of the application window
+# Thanks quit coding!
+maemo5 {
+    QT += dbus
+}
+
 unix:!symbian {
     maemo5 {
         target.path = /opt/usr/bin

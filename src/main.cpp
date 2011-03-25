@@ -83,11 +83,17 @@ int main(int argc, char** argv)
         return false;
     }
 #endif //QT_SINGLE_APPLICATION
-
     Config::init(argc, argv);
 
+    QPixmap splashPixmap(Backend::instance()->resourcePath() % "/images/splash.png");
+    QSplashScreen splash(splashPixmap);
+
+    if (Config::isEnabled("splashscreen", true)) {
+        splash.show();
+    }
+
     QNetworkProxy proxy;
-    if(Config::isEnabled("proxy", false)) {
+    if (Config::isEnabled("proxy", false)) {
         QString proxyHost(Config::value("proxy-host", "localhost").toString());
         int proxyPort = Config::value("proxy-port", 8080);
         proxy.setType(QNetworkProxy::HttpProxy);
@@ -106,6 +112,7 @@ int main(int argc, char** argv)
     } else {
         gui.show();
     }
+    splash.finish(&gui);
 
     return app.exec();
 }

@@ -1,0 +1,11 @@
+[Desktop Entry]
+Encoding=UTF-8
+Version=1.0
+Name=Qt Media Hub
+Comment=QML proof of concept media player
+Exec=/usr/bin/qtmediahub
+Icon=qmh
+Terminal=false
+Type=Application
+StartupWMClass=qmh
+X-Osso-Type=application/x-executable
