@@ -1,0 +1,14 @@
+Right=Right
+Down=Down
+Left=Left
+Up=Up
+Enter=Return,Enter
+Menu=Escape
+Back=Backspace
+Context=Meta
+MediaPlayPause=Space,MediaTogglePlayPause
+MediaStop=MediaStop
+MediaPrevious=MediaPrevious
+MediaNext=MediaNext
+ContextualUp=Plus,VolumeUp
+ContextualDown=Minus,VolumeDown

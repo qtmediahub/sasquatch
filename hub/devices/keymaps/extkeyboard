@@ -1,0 +1,6 @@
+ContextualUp=VolumeUp,Plus
+ContextualDown=VolumeDown,Minus
+MediaPlayPause=MediaPlay,MediaTogglePlayPause
+MediaStop=MediaStop
+MediaPrevious=MediaPrevious
+MediaNext=MediaNext
