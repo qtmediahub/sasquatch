@@ -59,7 +59,7 @@ public:
           platformOffset("/../../.."),
       #endif
           basePath(QCoreApplication::applicationDirPath() + platformOffset),
-          skinPath(basePath % "/skins"),
+          skinPath(basePath % "/../../skins"),
           pluginPath(basePath % "/plugins"),
           resourcePath(basePath % "/resources"),
           // Use "large" instead of appName to fit freedesktop spec
