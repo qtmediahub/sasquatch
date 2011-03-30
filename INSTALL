@@ -36,3 +36,12 @@ hub/skins/ stores the skins
 Building:
 1. qmake -r in the top level
 2. Run hub/qtmediahub
+
+
+Options:
+
+ -keymap <keymap>
+ -last-skin <skin>
+ -plugins <folder>
+ -resources <folder>
+ -skins <folder>

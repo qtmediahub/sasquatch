@@ -59,9 +59,6 @@ public:
           platformOffset("/../../.."),
       #endif
           basePath(QCoreApplication::applicationDirPath() + platformOffset),
-          skinPath(basePath % "/skins"),
-          pluginPath(basePath % "/plugins"),
-          resourcePath(basePath % "/resources"),
           // Use "large" instead of appName to fit freedesktop spec
           thumbnailPath(Config::value("thumbnail-path", QDir::homePath() + "/.thumbnails/" + qApp->applicationName() + "/")),
           inputIdleTimer(this),
@@ -71,6 +68,11 @@ public:
           targetsModel(0),
           pSelf(p)
     {
+        // setup extra paths and make it absolute so qml does not try to resolve relative paths
+        skinPath = QDir(Config::value("skins", QString(basePath % "/skins"))).absolutePath();
+        pluginPath = QDir(Config::value("plugins", QString(basePath % "/plugins"))).absolutePath();
+        resourcePath = QDir(Config::value("resources", QString(basePath % "/resources"))).absolutePath();
+
         inputIdleTimer.setInterval(Config::value("idle-timeout", 120)*1000);
         inputIdleTimer.setSingleShot(true);
         inputIdleTimer.start();
@@ -120,9 +122,9 @@ public:
     const QString platformOffset;
 
     const QString basePath;
-    const QString skinPath;
-    const QString pluginPath;
-    const QString resourcePath;
+    QString skinPath;
+    QString pluginPath;
+    QString resourcePath;
     const QString thumbnailPath;
 
     QTimer inputIdleTimer;
