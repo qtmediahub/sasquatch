@@ -17,48 +17,37 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 ****************************************************************************/
 
-#ifndef FRONT_END
-#define FRONT_END
+#ifndef SKIN_H
+#define SKIN_H
 
-#include <QWidget>
-#include <QUrl>
-#include <QDeclarativeItem>
+#include <QObject>
 
-class FrontendPrivate;
+class SkinPrivate;
 
-/*Logic abstracting what is handling the rendering and resolution selection*/
-
-class Frontend : public QWidget
+class Skin : public QObject
 {
-Q_OBJECT
+    Q_OBJECT
+    Q_PROPERTY(QString name READ name NOTIFY skinChanged)
+    Q_PROPERTY(QString path READ path NOTIFY skinChanged)
+    Q_PROPERTY(QString config READ config NOTIFY skinChanged)
+
 public:
-    Frontend(QWidget *p = 0);
-    ~Frontend();
+    Skin(QString name, QString path, QObject *parent = 0);
+    ~Skin();
 
-    void paintEvent(QPaintEvent *e);
-    void resizeEvent(QResizeEvent *e);
-
-    void setSkin(const QString &name);
-    QString skinPath() const;
-    void initialize(const QUrl &url);
-    void resetLanguage();
-
-    QWidget *centralWidget() const;
-
-    Q_INVOKABLE QObject *focusItem() const;
-    Q_INVOKABLE void applyWebViewFocusFix(QDeclarativeItem *item); // See https://bugs.webkit.org/show_bug.cgi?id=51094
+    QString name() const;
+    QString path() const;
+    QString config() const;
 
 signals:
-    void resetUI();
-public slots:
-    void toggleFullScreen();
-    void showFullScreen();
-    void showNormal();
-    void grow();
-    void shrink();
+    void skinChanged();
 
 private:
-    FrontendPrivate *d;
+    QString mPath;
+    QString mName;
+    QString mConfig;
+
+    SkinPrivate *d;
 };
 
-#endif
+#endif // SKIN_H

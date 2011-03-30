@@ -27,6 +27,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "qml-extensions/actionmapper.h"
 #include "dataproviders/playlist.h"
 #include "rpc/rpcconnection.h"
+#include "skin.h"
 
 #ifdef QMH_AVAHI
 #include "qavahiservicebrowsermodel.h"
@@ -69,7 +70,12 @@ public:
           pSelf(p)
     {
         // setup extra paths and make it absolute so qml does not try to resolve relative paths
-        skinPath = QDir(Config::value("skins", QString(basePath % "/skins"))).absolutePath();
+        skinPaths << "/usr/share/qtmediahub/skins/";
+        skinPaths << QDir::homePath() + "/.qtmediahub/skins/";
+        QDir skinPath(Config::value("skins", QString(basePath % "/skins")));
+        if (skinPath.exists())
+            skinPaths << skinPath.absolutePath();
+
         pluginPath = QDir(Config::value("plugins", QString(basePath % "/plugins"))).absolutePath();
         resourcePath = QDir(Config::value("resources", QString(basePath % "/resources"))).absolutePath();
 
@@ -87,7 +93,8 @@ public:
                 this,
                 SLOT(handleDirChanged(const QString &)));
 
-        resourcePathMonitor.addPath(skinPath);
+        foreach (QString skinPath, skinPaths)
+            resourcePathMonitor.addPath(skinPath);
         resourcePathMonitor.addPath(pluginPath);
 
         QFileInfo thumbnailFolderInfo(thumbnailPath);
@@ -122,10 +129,12 @@ public:
     const QString platformOffset;
 
     const QString basePath;
-    QString skinPath;
     QString pluginPath;
     QString resourcePath;
     const QString thumbnailPath;
+
+    QStringList skinPaths;
+    QList<QObject *> skins;
 
     QTimer inputIdleTimer;
     QDeclarativeEngine *qmlEngine;
@@ -134,7 +143,6 @@ public:
     QFile logFile;
     QTextStream log;
     QFileSystemWatcher resourcePathMonitor;
-    QStringList skins;
 
     QAbstractItemModel *targetsModel;
 
@@ -151,7 +159,7 @@ void BackendPrivate::handleDirChanged(const QString &dir)
     if(dir == pluginPath) {
         qWarning() << "Changes in plugin path, probably about to eat your poodle";
         discoverEngines();
-    } else if(dir == skinPath) {
+    } else if(skinPaths.contains(dir)) {
         qWarning() << "Changes in skin path, repopulating skins";
         discoverSkins();
     }
@@ -181,13 +189,20 @@ void BackendPrivate::discoverSkins()
 {
     skins.clear();
 
-    QStringList potentialSkins = QDir(skinPath).entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+    foreach (QString skinPath, skinPaths) {
+        QStringList potentialSkins = QDir(skinPath).entryList(QDir::Dirs | QDir::NoDotAndDotDot);
 
-    foreach(const QString &currentPath, potentialSkins)
-        if(QFile(skinPath % "/" % currentPath % "/" % currentPath).exists())
-            skins << currentPath;
+        foreach(const QString &currentPath, potentialSkins) {
+            if(QFile(skinPath % "/" % currentPath % "/" % currentPath).exists()) {
+                Skin *skin = new Skin(currentPath, skinPath % "/" % currentPath % "/");
+                skins << skin;
+            }
+        }
+    }
 
-    qWarning() << "Available skins" << skins;
+    qWarning() << "Available skins:";
+    foreach(QObject *skin, skins)
+        qWarning() << "\t" << qobject_cast<Skin*>(skin)->name();
 }
 
 void BackendPrivate::discoverEngines()
@@ -311,7 +326,7 @@ QList<QObject *> Backend::advertizedEngines() const
     return ret;
 }
 
-QStringList Backend::skins() const
+QList<QObject *> Backend::skins() const
 {
     return d->skins;
 }
@@ -328,11 +343,6 @@ void Backend::destroy()
 {
     delete pSelf;
     pSelf = 0;
-}
-
-QString Backend::skinPath() const 
-{
-    return d->skinPath;
 }
 
 QString Backend::pluginPath() const 

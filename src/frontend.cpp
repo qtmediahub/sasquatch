@@ -44,6 +44,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "qml-extensions/trackpad.h"
 #include "rpc/rpcconnection.h"
 #include "qmh-config.h"
+#include "skin.h"
 
 #ifdef QMH_AVAHI
 #include "qavahiservicepublisher.h"
@@ -63,7 +64,7 @@ public slots:
 public:
     QGraphicsView *centralWidget;
     QTranslator *frontEndTranslator;
-    QString skin;
+    Skin *skin;
     QTimer resizeSettleTimer;
     const QRect defaultGeometry;
     bool overscanWorkAround;
@@ -190,16 +191,25 @@ void Frontend::setSkin(const QString &name)
     resolutionHash["720"] = "1280x720";
 
     Backend *backend = Backend::instance();
-    QString skinName(name);
+    Skin *skin = 0;
+    Skin *defaultSkin = 0;
+    QString defaultSkinName = Config::value("default-skin", "confluence").toString();
 
-    if (!backend->skins().contains(skinName)) {
-        skinName = Config::value("default-skin", "confluence").toString();
+    foreach (QObject *o, backend->skins()) {
+        Skin *s = qobject_cast<Skin*>(o);
+        if (s->name() == name)
+            skin = s;
+        if (s->name() == defaultSkinName)
+            defaultSkin = s;
     }
 
-    QFile skinConfig(backend->skinPath() % "/" % skinName % "/" % skinName);
-    if (!skinConfig.exists()) {
+    if (!skin)
+        skin = defaultSkin;
+
+    if (!skin)
         qFatal("Something has gone horribly awry, you want for skins");
-    }
+
+    QFile skinConfig(skin->config());
     if (skinConfig.open(QIODevice::ReadOnly))
     {
         QHash<QString, QString> fileForResolution;
@@ -207,11 +217,15 @@ void Frontend::setSkin(const QString &name)
         while(!skinStream.atEnd())
         {
             QStringList resolutionToFile = skinStream.readLine().split(":");
-            QString resolution =
-                    resolutionHash.contains(resolutionToFile.at(0))
-                    ? resolutionHash[resolutionToFile.at(0)]
-                    : resolutionToFile.at(0);
-            fileForResolution[resolution] = resolutionToFile.at(1);
+            if (resolutionToFile.count() == 2) {
+                QString resolution =
+                        resolutionHash.contains(resolutionToFile.at(0))
+                        ? resolutionHash[resolutionToFile.at(0)]
+                        : resolutionToFile.at(0);
+                fileForResolution[resolution] = resolutionToFile.at(1);
+            } else {
+                qWarning() << "bad line in skin configuration";
+            }
         }
 
         QString urlPath =
@@ -219,12 +233,12 @@ void Frontend::setSkin(const QString &name)
                 ? fileForResolution[nativeResolutionString]
                 : fileForResolution[Config::value("fallback-resolution", "default").toString()];
 
-        d->skin = skinName;
+        d->skin = skin;
 
-        initialize(QUrl::fromLocalFile(Backend::instance()->skinPath() % "/" % skinName % "/" % urlPath));
+        initialize(QUrl::fromLocalFile(skin->path() % "/" % urlPath));
     }
     else {
-        qWarning() << "Can't read" << skinName;
+        qWarning() << "Can't read" << skin->name();
     }
 }
 
@@ -244,9 +258,10 @@ void Frontend::initialize(const QUrl &targetUrl)
         engine->rootContext()->setContextProperty("mediaPlayerHelper", d->mediaPlayerHelper);
         engine->rootContext()->setContextProperty("trackpad", d->trackpad);
         engine->rootContext()->setContextProperty("frontend", this);
+        engine->rootContext()->setContextProperty("skin", d->skin);
         engine->addPluginPath(Backend::instance()->resourcePath() % "/lib");
         engine->addImportPath(Backend::instance()->resourcePath() % "/imports");
-        engine->addImportPath(Backend::instance()->skinPath());
+        engine->addImportPath(d->skin->path());
 
         if (Config::isEnabled("smooth-scaling", true))
             centralWidget->setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing);
@@ -290,7 +305,7 @@ void Frontend::resetLanguage()
     delete d->frontEndTranslator;
     d->frontEndTranslator = new QTranslator(this);
     //FIXME: this clearly needs some heuristics
-    d->frontEndTranslator->load(backend->skinPath() % "/confluence/translations/" % "confluence_" % language % ".qm");
+    d->frontEndTranslator->load(d->skin->path() % "/confluence/translations/" % "confluence_" % language % ".qm");
     qApp->installTranslator(d->frontEndTranslator);
 }
 

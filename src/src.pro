@@ -75,7 +75,8 @@ SOURCES += main.cpp \
     dataproviders/proxymodel.cpp \
     dataproviders/playlist.cpp \
     plugins/mediamodel.cpp \
-    plugins/mediainfo.cpp
+    plugins/mediainfo.cpp \
+    skin.cpp
 
 QT += declarative script network
 
@@ -93,7 +94,8 @@ HEADERS += qmh-config.h \
     qml-extensions/trackpad.h \
     dataproviders/playlist.h \
     plugins/mediamodel.h \
-    plugins/mediainfo.h
+    plugins/mediainfo.h \
+    skin.h
 
 include(rpc/rpc.pri)
 

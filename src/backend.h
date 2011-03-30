@@ -32,7 +32,7 @@ class QDeclarativeEngine;
 class Backend : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QString skinPath READ skinPath NOTIFY skinPathChanged)
+    Q_PROPERTY(QList<QObject*> skins READ skins NOTIFY skinsChanged)
     Q_PROPERTY(QString pluginPath READ pluginPath NOTIFY pluginPathChanged)
     Q_PROPERTY(QString resourcePath READ resourcePath NOTIFY resourcePathChanged)
     Q_PROPERTY(bool transforms READ transforms NOTIFY backendChanged)
@@ -48,11 +48,10 @@ public:
 
     QString language() const;
 
-    QList<QObject*> advertizedEngines() const;
+    QList<QObject *> advertizedEngines() const;
     QList<QObject *> allEngines() const;
-    QStringList skins() const;
+    QList<QObject *> skins() const;
 
-    QString skinPath() const;
     QString pluginPath() const;
     QString resourcePath() const;
     QString thumbnailPath() const;
@@ -71,7 +70,7 @@ protected:
     bool eventFilter(QObject *obj, QEvent *event);
 
 signals:
-    void skinPathChanged();
+    void skinsChanged();
     void pluginPathChanged();
     void resourcePathChanged();
     void backendChanged();

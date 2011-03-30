@@ -17,48 +17,55 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 ****************************************************************************/
 
-#ifndef FRONT_END
-#define FRONT_END
+#include "skin.h"
 
-#include <QWidget>
-#include <QUrl>
-#include <QDeclarativeItem>
-
-class FrontendPrivate;
-
-/*Logic abstracting what is handling the rendering and resolution selection*/
-
-class Frontend : public QWidget
+class SkinPrivate : public QObject
 {
-Q_OBJECT
+    Q_OBJECT
 public:
-    Frontend(QWidget *p = 0);
-    ~Frontend();
+    SkinPrivate(Skin *p);
 
-    void paintEvent(QPaintEvent *e);
-    void resizeEvent(QResizeEvent *e);
-
-    void setSkin(const QString &name);
-    QString skinPath() const;
-    void initialize(const QUrl &url);
-    void resetLanguage();
-
-    QWidget *centralWidget() const;
-
-    Q_INVOKABLE QObject *focusItem() const;
-    Q_INVOKABLE void applyWebViewFocusFix(QDeclarativeItem *item); // See https://bugs.webkit.org/show_bug.cgi?id=51094
-
-signals:
-    void resetUI();
-public slots:
-    void toggleFullScreen();
-    void showFullScreen();
-    void showNormal();
-    void grow();
-    void shrink();
-
-private:
-    FrontendPrivate *d;
+public:
+    QString path;
+    QString name;
+    QString config;
+    Skin *pSelf;
 };
 
-#endif
+SkinPrivate::SkinPrivate(Skin *p)
+    : QObject(p)
+    , pSelf(p)
+{
+}
+
+Skin::Skin(QString name, QString path, QObject *parent)
+    : QObject(parent)
+    , d(new SkinPrivate(this))
+{
+    d->name = name;
+    d->path = path;
+    d->config = path + "/" + name;
+}
+
+Skin::~Skin()
+{
+    delete d;
+    d = 0;
+}
+
+QString Skin::name() const
+{
+    return d->name;
+}
+
+QString Skin::path() const
+{
+    return d->path;
+}
+
+QString Skin::config() const
+{
+    return d->config;
+}
+
+#include "skin.moc"
