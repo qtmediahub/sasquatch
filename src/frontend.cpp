@@ -292,9 +292,9 @@ void Frontend::initialize(const QUrl &targetUrl)
         d->centralWidget = centralWidget;
         centralWidget->setSource(targetUrl);
 
+        d->centralWidget->setAttribute(Qt::WA_OpaquePaintEvent);
+        d->centralWidget->setAttribute(Qt::WA_NoSystemBackground);
     }
-    d->centralWidget->setAttribute(Qt::WA_OpaquePaintEvent);
-    d->centralWidget->setAttribute(Qt::WA_NoSystemBackground);
 }
 
 void Frontend::resetLanguage()
