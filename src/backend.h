@@ -52,6 +52,7 @@ public:
     QList<QObject *> allEngines() const;
     QList<QObject *> skins() const;
 
+    QString basePath() const;
     QString pluginPath() const;
     QString resourcePath() const;
     QString thumbnailPath() const;

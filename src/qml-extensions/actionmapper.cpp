@@ -29,7 +29,7 @@ class Frontend;
 ActionMapper::ActionMapper(Frontend *p)
     : QObject(p),
       pFrontend(p),
-      mapPath(Backend::instance()->resourcePath() + "/devices/keymaps/")
+      mapPath(Backend::instance()->basePath() + "/devices/keymaps/")
 {
     setObjectName("qmhrpc");
 

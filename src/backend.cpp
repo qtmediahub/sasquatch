@@ -260,11 +260,14 @@ Backend::Backend(QObject *parent)
         return;
 #endif
 
-    QFontDatabase::addApplicationFont(d->resourcePath + "/3rdparty/dejavu-fonts-ttf-2.32/ttf/DejaVuSans.ttf");
-    QFontDatabase::addApplicationFont(d->resourcePath + "/3rdparty/dejavu-fonts-ttf-2.32/ttf/DejaVuSans-Bold.ttf");
-    QFontDatabase::addApplicationFont(d->resourcePath + "/3rdparty/dejavu-fonts-ttf-2.32/ttf/DejaVuSans-Oblique.ttf");
-    QFontDatabase::addApplicationFont(d->resourcePath + "/3rdparty/dejavu-fonts-ttf-2.32/ttf/DejaVuSans-BoldOblique.ttf");
-    QApplication::setFont(QFont("DejaVu Sans"));
+    QString dejavuPath(d->resourcePath % "/3rdparty/dejavu-fonts-ttf-2.32/ttf/");
+    if (QDir(dejavuPath).exists()) {
+        QFontDatabase::addApplicationFont(dejavuPath % "DejaVuSans.ttf");
+        QFontDatabase::addApplicationFont(dejavuPath % "DejaVuSans-Bold.ttf");
+        QFontDatabase::addApplicationFont(dejavuPath % "DejaVuSans-Oblique.ttf");
+        QFontDatabase::addApplicationFont(dejavuPath % "DejaVuSans-BoldOblique.ttf");
+        QApplication::setFont(QFont("DejaVu Sans"));
+    }
 }
 
 Backend::~Backend()
@@ -343,6 +346,11 @@ void Backend::destroy()
 {
     delete pSelf;
     pSelf = 0;
+}
+
+QString Backend::basePath() const 
+{
+    return d->basePath;
 }
 
 QString Backend::pluginPath() const 
