@@ -3,16 +3,14 @@
 ######################################################################
 
 include(../plugins.pri)
+include(../mediaplugin.pri)
 include($${PROJECTROOT}/src/delaysymresolution.pri)
 include(../../3rdparty/taglib/taglib.pri)
 
 INCLUDEPATH += ../../3rdparty/taglib/ ../../3rdparty/
 
-QT += declarative
-
 HEADERS += musicplugin.h \
            ../mediamodel.h \
-           ../mediainfo.h \
            musicmodel.h
 
 SOURCES += musicplugin.cpp \

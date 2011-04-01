@@ -3,15 +3,13 @@
 ######################################################################
 
 include(../plugins.pri)
+include(../mediaplugin.pri)
 include($${PROJECTROOT}/src/delaysymresolution.pri)
 include(../../3rdparty/libexif-0.6.19/libexif/libexif.pri)
-
-QT += declarative
 
 HEADERS += pictureplugin.h \
            picturemodel.h \
            ../mediamodel.h \
-           ../mediainfo.h \
            exifreader.h
 
 SOURCES += pictureplugin.cpp \

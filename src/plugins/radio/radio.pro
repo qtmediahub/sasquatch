@@ -3,14 +3,12 @@
 ######################################################################
 
 include(../plugins.pri)
+include(../mediaplugin.pri)
 include($${PROJECTROOT}/src/delaysymresolution.pri)
-
-QT += declarative
 
 HEADERS += \
         radioplugin.h \
         ../mediamodel.h \
-        ../mediainfo.h \
         radiomodel.h
 
 SOURCES += \

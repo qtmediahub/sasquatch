@@ -3,9 +3,8 @@
 ######################################################################
 
 include(../plugins.pri)
+include(../mediaplugin.pri)
 include($${PROJECTROOT}/src/delaysymresolution.pri)
-
-QT += declarative
 
 gstreamer {
     message(Using gstreamer for thumbnails)
@@ -18,7 +17,6 @@ gstreamer {
 HEADERS += \
         videoplugin.h \
         ../mediamodel.h \
-        ../mediainfo.h \
         videomodel.h
 
 SOURCES += \
