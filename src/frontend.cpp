@@ -138,8 +138,8 @@ Frontend::Frontend(QWidget *p)
     setAttribute(Qt::WA_NoSystemBackground);
 
     setSkin(Config::value("last-skin", "").toString());
-    connect(this, SIGNAL(resetUI()), d, SLOT(resetUI()));
-    new QShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::ALT + Qt::Key_Backspace), this, SIGNAL(resetUI()));
+    connect(this, SIGNAL(resettingUI()), d, SLOT(resetUI()));
+    new QShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::ALT + Qt::Key_Backspace), this, SIGNAL(resettingUI()));
     new QShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::ALT + Qt::Key_Down), this, SLOT(shrink()));
     new QShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::ALT + Qt::Key_Up), this, SLOT(grow()));
     new QShortcut(QKeySequence(Qt::ALT + Qt::Key_Return), this, SLOT(toggleFullScreen()));
