@@ -277,7 +277,6 @@ void Frontend::initialize(const QUrl &targetUrl)
         engine->rootContext()->setContextProperty("frontend", this);
         engine->rootContext()->setContextProperty("skin", d->skin);
         engine->rootContext()->setContextProperty("backend", Backend::instance());
-        engine->rootContext()->setContextProperty("playlist", new Playlist);
         engine->addPluginPath(Backend::instance()->resourcePath() % "/lib");
         engine->addImportPath(Backend::instance()->resourcePath() % "/imports");
         engine->addImportPath(d->skin->path());
