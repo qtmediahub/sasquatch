@@ -19,12 +19,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "backend.h"
 #include "plugins/qmhplugin/qmhplugin.h"
-#include "dataproviders/proxymodel.h"
-#include "dataproviders/dirmodel.h"
+
 #include "qmh-config.h"
-#include "qml-extensions/qmlfilewrapper.h"
-#include "qml-extensions/actionmapper.h"
-#include "dataproviders/playlist.h"
 #include "rpc/rpcconnection.h"
 #include "skin.h"
 
@@ -62,13 +58,12 @@ public:
           // Use "large" instead of appName to fit freedesktop spec
           thumbnailPath(Config::value("thumbnail-path", QDir::homePath() + "/.thumbnails/" + qApp->applicationName() + "/")),
           inputIdleTimer(this),
-          qmlEngine(0),
           backendTranslator(0),
           logFile(qApp->applicationName().append(".log")),
           targetsModel(0),
           pSelf(p)
     {
-        // setup extra paths and make it absolute so qml does not try to resolve relative paths
+        // TODO: check install prefix
         skinPaths << "/usr/share/qtmediahub/skins/";
         skinPaths << QDir::homePath() + "/.qtmediahub/skins/";
         QDir skinPath(Config::value("skins", QString(basePath % "/skins")));
@@ -136,7 +131,6 @@ public:
     QList<QObject *> skins;
 
     QTimer inputIdleTimer;
-    QDeclarativeEngine *qmlEngine;
     QTranslator *backendTranslator;
     QList<QTranslator*> pluginTranslators;
     QFile logFile;
@@ -223,9 +217,6 @@ void BackendPrivate::discoverEngines()
             qWarning() << tr("Plugin %1 has an undefined role").arg(qualifiedFileName);
         else {
             plugin->setParent(this);
-            if (qmlEngine)
-                plugin->registerPlugin(qmlEngine->rootContext());
-
             allEngines << plugin;
             Backend::instance()->advertizeEngine(plugin);
         }
@@ -277,30 +268,12 @@ Backend::~Backend()
     d = 0;
 }
 
-void Backend::initialize(QDeclarativeEngine *qmlEngine)
+void Backend::initialize()
 {
-    // register dataproviders to QML
-    qmlRegisterType<ActionMapper>("ActionMapper", 1, 0, "ActionMapper");
-    qmlRegisterType<QMHPlugin>("QMHPlugin", 1, 0, "QMHPlugin");
-    qmlRegisterType<ProxyModel>("ProxyModel", 1, 0, "ProxyModel");
-    qmlRegisterType<ProxyModelItem>("ProxyModel", 1, 0, "ProxyModelItem");
-    qmlRegisterType<DirModel>("DirModel", 1, 0, "DirModel");
-    qmlRegisterType<QMLFileWrapper>("QMLFileWrapper", 1, 0, "QMLFileWrapper");
-    qmlRegisterType<Playlist>("Playlist", 1, 0, "Playlist");
-    qmlRegisterType<RpcConnection>("RpcConnection", 1, 0, "RpcConnection");
-
-    if (qmlEngine) {
-        //FIXME: We are clearly failing to keep the backend Declarative free :p
-        d->qmlEngine = qmlEngine;
-        qmlEngine->rootContext()->setContextProperty("backend", this);
-        qmlEngine->rootContext()->setContextProperty("playlist", new Playlist);
-    }
-
     d->discoverEngines();
 }
 
-
-QString Backend::language() const 
+QString Backend::language() const
 {
     //FIXME: derive from locale
     //Allow override
@@ -316,11 +289,9 @@ QList<QMHPlugin *> Backend::allEngines() const
 
 QList<QObject *> Backend::advertizedEngines() const
 {
-    //FIXME: WTFBBQ: advertizedEngines returns a subset of d->advertizedEngines. Hello?
     QList<QObject *> ret;
     foreach(QMHPlugin *engine, d->advertizedEngines) {
-        if (engine->visualElement())
-            ret << engine;
+        ret << engine;
     }
 
     return ret;
@@ -345,27 +316,27 @@ void Backend::destroy()
     pSelf = 0;
 }
 
-QString Backend::basePath() const 
+QString Backend::basePath() const
 {
     return d->basePath;
 }
 
-QString Backend::pluginPath() const 
+QString Backend::pluginPath() const
 {
     return d->pluginPath;
 }
 
-QString Backend::resourcePath() const 
+QString Backend::resourcePath() const
 {
     return d->resourcePath;
 }
 
-QString Backend::thumbnailPath() const 
+QString Backend::thumbnailPath() const
 {
     return d->thumbnailPath;
 }
 
-bool Backend::transforms() const 
+bool Backend::transforms() const
 {
 #ifdef GL
     return (QGLFormat::hasOpenGL() && Config::isEnabled("transforms", true));
@@ -377,7 +348,6 @@ bool Backend::transforms() const
 void Backend::advertizeEngine(QMHPlugin *engine)
 {
     //Advertize to main menu
-    //Advertize to QML context
     QString role = engine->role();
     if (role.isEmpty())
         return;
@@ -390,9 +360,6 @@ void Backend::advertizeEngine(QMHPlugin *engine)
 
     if (engine->advertized())
         d->advertizedEngines << engine;
-
-    if (d->qmlEngine)
-        d->qmlEngine->rootContext()->setContextProperty(role % "Engine", engine);
 
     connect(engine, SIGNAL(pluginChanged()), this, SIGNAL(advertizedEnginesChanged()));
     emit advertizedEnginesChanged();
@@ -407,14 +374,6 @@ void Backend::log(const QString &logMsg)
 {
     qDebug() << logMsg;
     d->log << logMsg << endl;
-}
-
-// again dependent on declarative, needs to be fixed
-void Backend::clearComponentCache() 
-{
-    if (d->qmlEngine) {
-        d->qmlEngine->clearComponentCache();
-    }
 }
 
 bool Backend::eventFilter(QObject *obj, QEvent *event) {

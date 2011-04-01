@@ -38,7 +38,7 @@ public:
     void paintEvent(QPaintEvent *e);
     void resizeEvent(QResizeEvent *e);
 
-    void setSkin(const QString &name);
+    Q_INVOKABLE void setSkin(const QString &name);
     QString skinPath() const;
     void initialize(const QUrl &url);
     void resetLanguage();

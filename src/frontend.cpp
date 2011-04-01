@@ -46,6 +46,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "qmh-config.h"
 #include "skin.h"
 
+#include "dataproviders/proxymodel.h"
+#include "dataproviders/dirmodel.h"
+#include "qml-extensions/qmlfilewrapper.h"
+#include "dataproviders/playlist.h"
+#include "plugins/qmhplugin/qmhplugin.h"
+
 #ifdef QMH_AVAHI
 #include "qavahiservicepublisher.h"
 #endif
@@ -254,11 +260,24 @@ void Frontend::initialize(const QUrl &targetUrl)
         QDeclarativeView *centralWidget= new QDeclarativeView(this);
         QDeclarativeEngine *engine = centralWidget->engine();
 
+        // register dataproviders to QML
+        qmlRegisterType<ActionMapper>("ActionMapper", 1, 0, "ActionMapper");
+        qmlRegisterType<QMHPlugin>("QMHPlugin", 1, 0, "QMHPlugin");
+        qmlRegisterType<ProxyModel>("ProxyModel", 1, 0, "ProxyModel");
+        qmlRegisterType<ProxyModelItem>("ProxyModel", 1, 0, "ProxyModelItem");
+        qmlRegisterType<DirModel>("DirModel", 1, 0, "DirModel");
+        qmlRegisterType<QMLFileWrapper>("QMLFileWrapper", 1, 0, "QMLFileWrapper");
+        qmlRegisterType<Playlist>("Playlist", 1, 0, "Playlist");
+        qmlRegisterType<RpcConnection>("RpcConnection", 1, 0, "RpcConnection");
+
+        // attach global context properties
         engine->rootContext()->setContextProperty("actionmap", d->actionMap);
         engine->rootContext()->setContextProperty("mediaPlayerHelper", d->mediaPlayerHelper);
         engine->rootContext()->setContextProperty("trackpad", d->trackpad);
         engine->rootContext()->setContextProperty("frontend", this);
         engine->rootContext()->setContextProperty("skin", d->skin);
+        engine->rootContext()->setContextProperty("backend", Backend::instance());
+        engine->rootContext()->setContextProperty("playlist", new Playlist);
         engine->addPluginPath(Backend::instance()->resourcePath() % "/lib");
         engine->addImportPath(Backend::instance()->resourcePath() % "/imports");
         engine->addImportPath(d->skin->path());
@@ -286,7 +305,15 @@ void Frontend::initialize(const QUrl &targetUrl)
         }
         centralWidget->rootContext()->setContextProperty("config", Config::instance());
 
-        Backend::instance()->initialize(engine);
+        Backend::instance()->initialize();
+
+        foreach (QMHPlugin *plugin, Backend::instance()->allEngines())
+            plugin->registerPlugin(centralWidget->rootContext());
+
+        foreach (QObject *p, Backend::instance()->advertizedEngines()) {
+            QMHPlugin *plugin = qobject_cast<QMHPlugin *>(p);
+            centralWidget->rootContext()->setContextProperty(plugin->role() % "Engine", plugin);
+        }
 
         resetLanguage();
         d->centralWidget = centralWidget;

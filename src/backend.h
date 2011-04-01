@@ -27,7 +27,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 class QUrl;
 class BackendPrivate;
 class QMHPlugin;
-class QDeclarativeEngine;
 
 class Backend : public QObject
 {
@@ -44,7 +43,7 @@ public:
     static void destroy();
 
     ~Backend();
-    void initialize(QDeclarativeEngine *engine = 0);
+    void initialize();
 
     QString language() const;
 
@@ -62,7 +61,6 @@ public:
     Q_INVOKABLE void advertizeEngine(QMHPlugin *engine);
     Q_INVOKABLE void openUrlExternally(const QUrl &url) const;
     Q_INVOKABLE void log(const QString &logMsg);
-    Q_INVOKABLE void clearComponentCache();
 
     QObject *targetsModel() const;
     QObject *engineByName(const QString &name);
