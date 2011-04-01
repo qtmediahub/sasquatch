@@ -258,6 +258,7 @@ void Frontend::initialize(const QUrl &targetUrl)
     if (targetUrl.path().right(3) == "qml")
     {
         QDeclarativeView *centralWidget= new QDeclarativeView(this);
+        centralWidget->setAutoFillBackground(false);
         QDeclarativeEngine *engine = centralWidget->engine();
 
         // register dataproviders to QML
@@ -296,7 +297,11 @@ void Frontend::initialize(const QUrl &targetUrl)
         if (Config::isEnabled("use-gl", true))
         {
 #ifdef GLVIEWPORT
-            centralWidget->setViewport(new QGLWidget());
+            QGLWidget *viewport = new QGLWidget(centralWidget);
+            viewport->setAttribute(Qt::WA_OpaquePaintEvent);
+            viewport->setAttribute(Qt::WA_NoSystemBackground);
+            viewport->setAutoFillBackground(false);
+            centralWidget->setViewport(viewport);
 #endif
             centralWidget->setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
         } else {
