@@ -1,6 +1,7 @@
 TEMPLATE = subdirs
 
-SUBDIRS = music \
+SUBDIRS = qmhplugin\
+          music \
           video \
           radio \
           picture \

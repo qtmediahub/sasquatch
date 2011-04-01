@@ -12,16 +12,14 @@ public:
 
 MusicPlugin::MusicPlugin()
 {
-    setActionList(
-                QStringList()
-                << "Files"
+    mActionList << "Files"
                 << "Addons"
-                << "Library");
+                << "Library";
 
     m_model = new MusicModel(this);
 
-    setName(tr("Music"));
-    setRole("music");
+    mName = tr("Music");
+    mRole = "music";
 }
 
 QObject *MusicPlugin::pluginProperties() const

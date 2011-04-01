@@ -5,19 +5,19 @@
 #include <QDeclarativeItem>
 #include <QDeclarativeContext>
 
-#include "qmhplugininterface.h"
+#include "qmhplugin.h"
 #include "customcursor.h"
 #include "qmh-config.h"
 
-class CustomCursorPlugin : public QObject, public QMHPluginInterface
+class CustomCursorPlugin : public QMHPlugin
 {
     Q_OBJECT
-    Q_INTERFACES(QMHPluginInterface)
+    Q_INTERFACES(QMHPlugin)
 
 public:
     CustomCursorPlugin() {
-        setName(tr("CustomCursor"));
-        setRole("");
+        mName = tr("CustomCursor");
+        mAdvertized = false;
     }
     ~CustomCursorPlugin() {}
 

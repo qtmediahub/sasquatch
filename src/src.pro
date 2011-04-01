@@ -109,3 +109,7 @@ avahi {
     include(3rdparty/libqavahi/libqavahi.pri)
     INCLUDEPATH += 3rdparty/libqavahi/
 }
+
+QMAKE_LIBDIR += $$PROJECTROOT/hub/plugins
+LIBS += -lqmhplugin
+QMAKE_LFLAGS += -Wl,--rpath=$$PROJECTROOT/hub/plugins

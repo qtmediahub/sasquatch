@@ -3,15 +3,15 @@
 
 #include <QObject>
 
-#include "qmhplugininterface.h"
+#include "qmhplugin.h"
 #include "musicmodel.h"
 
 class QDeclarativeContext;
 
-class MusicPlugin : public QObject, public QMHPluginInterface
+class MusicPlugin : public QMHPlugin
 {
     Q_OBJECT
-    Q_INTERFACES(QMHPluginInterface)
+    Q_INTERFACES(QMHPlugin)
     Q_PROPERTY(QObject *model READ model NOTIFY modelChanged)
 
 public:

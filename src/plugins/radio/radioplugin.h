@@ -3,13 +3,13 @@
 
 #include <QObject>
 #include <QDeclarativeContext>
-#include "qmhplugininterface.h"
+#include "qmhplugin.h"
 #include "radiomodel.h"
 
-class RadioPlugin : public QObject, public QMHPluginInterface
+class RadioPlugin : public QMHPlugin
 {
     Q_OBJECT
-    Q_INTERFACES(QMHPluginInterface)
+    Q_INTERFACES(QMHPlugin)
     Q_PROPERTY(QObject *model READ model NOTIFY modelChanged)
 
 public:

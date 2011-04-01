@@ -4,16 +4,14 @@
 
 PicturePlugin::PicturePlugin()
 {
-    setActionList(
-                QStringList()
-                << "Files"
+    mActionList << "Files"
                 << "Addons"
-                << "Library");
+                << "Library";
 
     m_model = new PictureModel(this);
 
-    setName(tr("Pictures"));
-    setRole("picture");
+    mName = tr("Pictures");
+    mRole = "picture";
 }
 
 QObject *PicturePlugin::pluginProperties() const

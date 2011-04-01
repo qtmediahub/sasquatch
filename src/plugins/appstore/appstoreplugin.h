@@ -22,13 +22,13 @@
 
 #include <QObject>
 
-#include "qmhplugininterface.h"
+#include "qmhplugin.h"
 #include "appstore.h"
 
-class AppStorePlugin : public QObject, public QMHPluginInterface
+class AppStorePlugin : public QMHPlugin
 {
     Q_OBJECT
-    Q_INTERFACES(QMHPluginInterface)
+    Q_INTERFACES(QMHPlugin)
 
 public:
     AppStorePlugin() { setRole(""); }

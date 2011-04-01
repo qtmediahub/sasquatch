@@ -3,16 +3,16 @@
 
 #include <QObject>
 
-#include "qmhplugininterface.h"
+#include "qmhplugin.h"
 #include "qmlmodulediscovery.h"
 
-class QMLModuleDiscoveryPlugin : public QObject, public QMHPluginInterface
+class QMLModuleDiscoveryPlugin : public QMHPlugin
 {
     Q_OBJECT
-    Q_INTERFACES(QMHPluginInterface)
+    Q_INTERFACES(QMHPlugin)
 
 public:
-    QMLModuleDiscoveryPlugin() { setRole(""); }
+    QMLModuleDiscoveryPlugin() {}
     ~QMLModuleDiscoveryPlugin() {}
 
     QList<QObject*> childItems() const { return mChildItems; }

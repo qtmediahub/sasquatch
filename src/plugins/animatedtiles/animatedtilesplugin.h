@@ -1,12 +1,12 @@
 #ifndef ANIMATEDTILESPLUGIN_H
 #define ANIMATEDTILESPLUGIN_H
 
-#include "qmhplugininterface.h"
+#include "qmhplugin.h"
 
-class AnimatedTilesPlugin : public QObject, public QMHPluginInterface
+class AnimatedTilesPlugin : public QMHPlugin
 {
     Q_OBJECT
-    Q_INTERFACES(QMHPluginInterface)
+    Q_INTERFACES(QMHPlugin)
 
 public:
     AnimatedTilesPlugin();

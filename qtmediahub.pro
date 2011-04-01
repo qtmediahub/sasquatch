@@ -1,5 +1,7 @@
 include(src/common.pri)
 
+CONFIG += ordered
+
 TEMPLATE = subdirs
 
 QMAKE_CACHE=$${OUT_PWD}/.qmake.cache
@@ -20,7 +22,6 @@ SUBDIRS = util/qmlremotecontrol
 # due to wrong deploysteps in creator for symbian,
 # comment SUBDIRS below out
 SUBDIRS += \
-    src \
     src/plugins \
+    src \
     src/3rdparty/qt-components/qt-components.pro
-

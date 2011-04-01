@@ -4,16 +4,14 @@
 
 RadioPlugin::RadioPlugin()
 {
-    setActionList(
-                QStringList()
-                << "Files"
+    mActionList << "Files"
                 << "Addons"
-                << "Library");
+                << "Library";
 
     m_model = new RadioModel(this);
 
-    setName(tr("Radio"));
-    setRole("radio");
+    mName = tr("Radio");
+    mRole = "radio";
 }
 
 QObject *RadioPlugin::pluginProperties() const

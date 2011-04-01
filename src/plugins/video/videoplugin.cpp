@@ -4,16 +4,14 @@
 
 VideoPlugin::VideoPlugin()
 {
-    setActionList(
-                QStringList()
-                << "Files"
+    mActionList << "Files"
                 << "Addons"
-                << "Library");
+                << "Library";
 
     m_model = new VideoModel(this);
 
-    setName(tr("Video"));
-    setRole("video");
+    mName = tr("Video");
+    mRole = "video";
 }
 
 QObject *VideoPlugin::pluginProperties() const

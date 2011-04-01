@@ -18,8 +18,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 ****************************************************************************/
 
 #include "backend.h"
-#include "plugins/qmhplugininterface.h"
-#include "plugins/qmhplugin.h"
+#include "plugins/qmhplugin/qmhplugin.h"
 #include "dataproviders/proxymodel.h"
 #include "dataproviders/dirmodel.h"
 #include "qmh-config.h"
@@ -123,8 +122,8 @@ public:
 
     QSet<QString> advertizedEngineRoles;
 
-    QList<QObject*> advertizedEngines; // all advertized engines have a 'role'
-    QList<QObject*> allEngines;
+    QList<QMHPlugin*> advertizedEngines;
+    QList<QMHPlugin*> allEngines;
 
     const QString platformOffset;
 
@@ -176,8 +175,7 @@ void BackendPrivate::resetLanguage()
 
     qDeleteAll(pluginTranslators.begin(), pluginTranslators.end());
 
-    foreach(QObject *pluginObject, allEngines) {
-        QMHPlugin *plugin = qobject_cast<QMHPlugin*>(pluginObject);
+    foreach(QMHPlugin *plugin, allEngines) {
         QTranslator *pluginTranslator = new QTranslator(this);
         pluginTranslator->load(baseTranslationPath % plugin->role() % "_" % language % ".qm");
         pluginTranslators << pluginTranslator;
@@ -216,15 +214,14 @@ void BackendPrivate::discoverEngines()
             continue;
         }
 
-        QMHPluginInterface* pluginInterface = qobject_cast<QMHPluginInterface*>(pluginLoader.instance());
-        if (!pluginInterface)
+        QMHPlugin *plugin = qobject_cast<QMHPlugin*>(pluginLoader.instance());
+        if (!plugin)
             qWarning() << tr("Invalid QMH plugin present: %1").arg(qualifiedFileName);
-        else if (!pluginInterface->dependenciesSatisfied())
+        else if (!plugin->dependenciesSatisfied())
             qWarning() << tr("Can't meet dependencies for %1").arg(qualifiedFileName);
-        else if (pluginInterface->role() == "undefined")
+        else if (plugin->role() == "undefined")
             qWarning() << tr("Plugin %1 has an undefined role").arg(qualifiedFileName);
         else {
-            QMHPlugin *plugin = new QMHPlugin(qobject_cast<QMHPluginInterface*>(pluginLoader.instance()), this);
             plugin->setParent(this);
             if (qmlEngine)
                 plugin->registerPlugin(qmlEngine->rootContext());
@@ -312,17 +309,17 @@ QString Backend::language() const
     //return QString("bob");
 }
 
-QList<QObject *> Backend::allEngines() const
+QList<QMHPlugin *> Backend::allEngines() const
 {
     return d->allEngines;
 }
 
 QList<QObject *> Backend::advertizedEngines() const
 {
+    //FIXME: WTFBBQ: advertizedEngines returns a subset of d->advertizedEngines. Hello?
     QList<QObject *> ret;
-    foreach(QObject *engine, d->advertizedEngines) {
-        QMHPlugin *plugin = qobject_cast<QMHPlugin*>(engine);
-        if (plugin && plugin->visualElement())
+    foreach(QMHPlugin *engine, d->advertizedEngines) {
+        if (engine->visualElement())
             ret << engine;
     }
 
@@ -377,7 +374,7 @@ bool Backend::transforms() const
 #endif
 }
 
-void Backend::advertizeEngine(QMHPlugin *engine) 
+void Backend::advertizeEngine(QMHPlugin *engine)
 {
     //Advertize to main menu
     //Advertize to QML context

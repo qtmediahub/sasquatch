@@ -3,13 +3,13 @@
 
 #include <QObject>
 
-#include "qmhplugininterface.h"
+#include "qmhplugin.h"
 #include "picturemodel.h"
 
-class PicturePlugin : public QObject, public QMHPluginInterface
+class PicturePlugin : public QMHPlugin
 {
     Q_OBJECT
-    Q_INTERFACES(QMHPluginInterface)
+    Q_INTERFACES(QMHPlugin)
     Q_PROPERTY(QObject *model READ model NOTIFY modelChanged)
 
 public:

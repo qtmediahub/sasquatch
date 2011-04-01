@@ -49,7 +49,7 @@ public:
     QString language() const;
 
     QList<QObject *> advertizedEngines() const;
-    QList<QObject *> allEngines() const;
+    QList<QMHPlugin *> allEngines() const;
     QList<QObject *> skins() const;
 
     QString basePath() const;
