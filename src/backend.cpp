@@ -117,7 +117,7 @@ public:
 
     QSet<QString> advertizedEngineRoles;
 
-    QList<QMHPlugin*> advertizedEngines;
+    QList<QObject*> advertizedEngines;
     QList<QMHPlugin*> allEngines;
 
     const QString platformOffset;
@@ -289,12 +289,7 @@ QList<QMHPlugin *> Backend::allEngines() const
 
 QList<QObject *> Backend::advertizedEngines() const
 {
-    QList<QObject *> ret;
-    foreach(QMHPlugin *engine, d->advertizedEngines) {
-        ret << engine;
-    }
-
-    return ret;
+    return d->advertizedEngines;
 }
 
 QList<QObject *> Backend::skins() const
@@ -351,12 +346,6 @@ void Backend::advertizeEngine(QMHPlugin *engine)
     QString role = engine->role();
     if (role.isEmpty())
         return;
-    if (d->advertizedEngineRoles.contains(role)) {
-        qWarning() << tr("Duplicate engine found for role %1").arg(role);
-        return;
-    } else {
-        d->advertizedEngineRoles << role;
-    }
 
     if (engine->advertized())
         d->advertizedEngines << engine;
