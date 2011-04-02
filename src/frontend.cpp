@@ -314,9 +314,17 @@ void Frontend::initialize(const QUrl &targetUrl)
         foreach (QMHPlugin *plugin, Backend::instance()->allEngines())
             plugin->registerPlugin(centralWidget->rootContext());
 
-        foreach (QObject *p, Backend::instance()->advertizedEngines()) {
-            QMHPlugin *plugin = qobject_cast<QMHPlugin *>(p);
-            centralWidget->rootContext()->setContextProperty(plugin->role() % "Engine", plugin);
+        {
+            const QMetaObject &PluginMO = QMHPlugin::staticMetaObject;
+            int enumIndex = PluginMO.indexOfEnumerator("PluginRole");
+            QMetaEnum roleEnum = PluginMO.enumerator(enumIndex);
+
+            foreach (QObject *p, Backend::instance()->advertizedEngines()) {
+                QMHPlugin *plugin = qobject_cast<QMHPlugin *>(p);
+                if (plugin && plugin->role() < QMHPlugin::SingletonRoles) {
+                    centralWidget->rootContext()->setContextProperty(QString(roleEnum.valueToKey(plugin->role())).toLower() + "Engine", plugin);
+                }
+            }
         }
 
         resetLanguage();

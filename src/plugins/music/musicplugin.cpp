@@ -19,7 +19,7 @@ MusicPlugin::MusicPlugin()
     m_model = new MusicModel(this);
 
     mName = tr("Music");
-    mRole = "music";
+    mRole = Music;
 }
 
 QObject *MusicPlugin::pluginProperties() const

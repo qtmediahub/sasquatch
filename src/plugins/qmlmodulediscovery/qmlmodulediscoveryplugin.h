@@ -12,7 +12,7 @@ class QMLModuleDiscoveryPlugin : public QMHPlugin
     Q_INTERFACES(QMHPlugin)
 
 public:
-    QMLModuleDiscoveryPlugin() {}
+    QMLModuleDiscoveryPlugin() { mRole = Unadvertized; }
     ~QMLModuleDiscoveryPlugin() {}
 
     QList<QObject*> childItems() const { return mChildItems; }

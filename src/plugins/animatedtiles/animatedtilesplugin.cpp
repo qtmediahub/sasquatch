@@ -6,9 +6,8 @@
 
 AnimatedTilesPlugin::AnimatedTilesPlugin()
 {
-    setName("AnimatedTiles");
-    //This should not be an advertized plugin until it is implemented
-    //setRole("animatedTiles");
+    mName = tr("AnimatedTiles");
+    mRole = Application;
 
     qmlRegisterType<AnimatedTilesItem>("AnimatedTiles", 1, 0, "AnimatedTiles");
 }

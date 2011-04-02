@@ -4,7 +4,7 @@ DESTDIR = ../hub
 TEMPLATE = app
 TARGET = qmh
 DEPENDPATH += .
-INCLUDEPATH += .
+INCLUDEPATH += . ./plugins/qmhplugin
 
 #global options
 CONFIG += glviewport
@@ -93,6 +93,7 @@ HEADERS += qmh-config.h \
     qml-extensions/mediaplayerhelper.h \
     qml-extensions/trackpad.h \
     dataproviders/playlist.h \
+    plugins/qmhplugin/qmhplugin.h \
     plugins/mediamodel.h \
     plugins/mediainfo.h \
     skin.h

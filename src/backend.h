@@ -24,9 +24,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QList>
 #include <QDateTime>
 
+#include "qmhplugin.h"
+
 class QUrl;
 class BackendPrivate;
-class QMHPlugin;
 
 class Backend : public QObject
 {
@@ -79,7 +80,7 @@ signals:
     void targetsModelChanged();
 
 private:
-    QObject* engineByRole(const QString &role);
+    QObject* engineByRole(QMHPlugin::PluginRole);
 
     explicit Backend(QObject *parent = 0);
     static Backend *pSelf;

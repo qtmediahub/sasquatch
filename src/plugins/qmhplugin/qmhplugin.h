@@ -9,8 +9,9 @@ class QDeclarativeContext;
 class QMHPlugin : public QObject
 {
     Q_OBJECT
+    Q_ENUMS(PluginRole)
     Q_PROPERTY(QString name READ name WRITE setName NOTIFY pluginChanged)
-    Q_PROPERTY(QString role READ role WRITE setRole NOTIFY pluginChanged)
+    Q_PROPERTY(PluginRole role READ role WRITE setRole NOTIFY pluginChanged)
     Q_PROPERTY(QObject* visualElement READ visualElement WRITE setVisualElement NOTIFY pluginChanged)
     Q_PROPERTY(QStringList visualElementProperties READ visualElementProperties WRITE setVisualElementProperties NOTIFY pluginChanged)
     Q_PROPERTY(QObject* actionMap READ actionMap WRITE setActionMap NOTIFY pluginChanged)
@@ -18,9 +19,11 @@ class QMHPlugin : public QObject
     Q_PROPERTY(QObject* pluginProperties READ pluginProperties NOTIFY pluginChanged)
 
 public:
+    enum PluginRole { Undefined, Unadvertized, Music, Video, Picture, Dashboard, Weather, SingletonRoles, Store, Web, Application, Game, Map, RoleCount };
+
     QMHPlugin(QObject *parent = 0)
         : QObject(parent),
-          mAdvertized(true),
+          mRole(Undefined),
           mVisualElement(0),
           mActionMap(0)
     {}
@@ -30,11 +33,8 @@ public:
     QString name() const { return mName; }
     void setName(const QString &name) { mName = name; emit pluginChanged(); }
 
-    QString role() const { return mRole; }
-    void setRole(const QString &role) { mRole = role; emit pluginChanged(); }
-
-    bool advertized() const { return mAdvertized; }
-    void setAdvertized(bool advertized) { mAdvertized = advertized; emit pluginChanged(); }
+    PluginRole role() { return mRole; }
+    void setRole(PluginRole role) { mRole = role; emit pluginChanged(); }
 
     QObject* visualElement() const { return mVisualElement; }
     void setVisualElement(QObject *element) { mVisualElement = element; emit pluginChanged(); }
@@ -62,8 +62,7 @@ signals:
 
 protected:
     QString mName;
-    QString mRole;
-    bool mAdvertized;
+    PluginRole mRole;
     QObject *mVisualElement;
     QStringList mVisualElementProperties;
     QObject *mActionMap;

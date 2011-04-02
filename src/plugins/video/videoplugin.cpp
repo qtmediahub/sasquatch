@@ -11,7 +11,7 @@ VideoPlugin::VideoPlugin()
     m_model = new VideoModel(this);
 
     mName = tr("Video");
-    mRole = "video";
+    mRole = Video;
 }
 
 QObject *VideoPlugin::pluginProperties() const

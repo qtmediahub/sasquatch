@@ -31,7 +31,7 @@ class AppStorePlugin : public QMHPlugin
     Q_INTERFACES(QMHPlugin)
 
 public:
-    AppStorePlugin() { setRole(""); }
+    AppStorePlugin() { setRole(Unadvertized); }
     ~AppStorePlugin() {}
 
     QList<QObject*> childItems() const { return mChildItems; }

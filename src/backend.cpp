@@ -18,7 +18,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 ****************************************************************************/
 
 #include "backend.h"
-#include "plugins/qmhplugin/qmhplugin.h"
+#include "qmhplugin.h"
 
 #include "qmh-config.h"
 #include "rpc/rpcconnection.h"
@@ -169,12 +169,14 @@ void BackendPrivate::resetLanguage()
 
     qDeleteAll(pluginTranslators.begin(), pluginTranslators.end());
 
+    //FixMe: translation should be tied to filename (not role!)
+    /*
     foreach(QMHPlugin *plugin, allEngines) {
         QTranslator *pluginTranslator = new QTranslator(this);
         pluginTranslator->load(baseTranslationPath % plugin->role() % "_" % language % ".qm");
         pluginTranslators << pluginTranslator;
         qApp->installTranslator(pluginTranslator);
-    }
+    }*/
 }
 
 void BackendPrivate::discoverSkins()
@@ -201,6 +203,7 @@ void BackendPrivate::discoverEngines()
 {
     foreach(const QString fileName, QDir(pluginPath).entryList(QDir::Files)) {
         QString qualifiedFileName(pluginPath % "/" % fileName);
+
         QPluginLoader pluginLoader(qualifiedFileName);
 
         if (!pluginLoader.load()) {
@@ -213,7 +216,7 @@ void BackendPrivate::discoverEngines()
             qWarning() << tr("Invalid QMH plugin present: %1").arg(qualifiedFileName);
         else if (!plugin->dependenciesSatisfied())
             qWarning() << tr("Can't meet dependencies for %1").arg(qualifiedFileName);
-        else if (plugin->role() == "undefined")
+        else if (plugin->role() < QMHPlugin::Unadvertized || plugin->role() >= QMHPlugin::RoleCount)
             qWarning() << tr("Plugin %1 has an undefined role").arg(qualifiedFileName);
         else {
             plugin->setParent(this);
@@ -343,11 +346,7 @@ bool Backend::transforms() const
 void Backend::advertizeEngine(QMHPlugin *engine)
 {
     //Advertize to main menu
-    QString role = engine->role();
-    if (role.isEmpty())
-        return;
-
-    if (engine->advertized())
+    if (engine->role() > QMHPlugin::Unadvertized)
         d->advertizedEngines << engine;
 
     connect(engine, SIGNAL(pluginChanged()), this, SIGNAL(advertizedEnginesChanged()));
@@ -377,7 +376,7 @@ bool Backend::eventFilter(QObject *obj, QEvent *event) {
     return QObject::eventFilter(obj, event);
 }
 
-QObject *Backend::engineByRole(const QString &role) 
+QObject *Backend::engineByRole(QMHPlugin::PluginRole role)
 {
     foreach (QObject *currentEngine, d->advertizedEngines)
         if (qobject_cast<QMHPlugin*>(currentEngine)->role() == role)

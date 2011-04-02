@@ -17,7 +17,7 @@ class CustomCursorPlugin : public QMHPlugin
 public:
     CustomCursorPlugin() {
         mName = tr("CustomCursor");
-        mAdvertized = false;
+        mRole = Unadvertized;
     }
     ~CustomCursorPlugin() {}
 

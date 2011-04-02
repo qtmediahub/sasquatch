@@ -11,7 +11,7 @@ RadioPlugin::RadioPlugin()
     m_model = new RadioModel(this);
 
     mName = tr("Radio");
-    mRole = "radio";
+    mRole = Application;
 }
 
 QObject *RadioPlugin::pluginProperties() const
