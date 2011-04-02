@@ -16,7 +16,7 @@ Makefile
 hub/qtmediahub
 hub/qmh
 hub/resources
-skins/*
+skins
 hub/remotecontrol
 hub/qmlremotecontrol
 .directory
