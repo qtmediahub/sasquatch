@@ -66,7 +66,7 @@ public:
         // TODO: check install prefix
         skinPaths << "/usr/share/qtmediahub/skins/";
         skinPaths << QDir::homePath() + "/.qtmediahub/skins/";
-        skinPaths << Config::value("skins", QString(basePath % "/skins"));
+        skinPaths << QDir(Config::value("skins", QString(basePath % "/skins"))).absolutePath();
         if (!qgetenv("QMH_SKINPATH").isEmpty())
             skinPaths << QDir(qgetenv("QMH_SKINPATH")).absolutePath();
 
