@@ -82,14 +82,14 @@ public:
         logFile.open(QIODevice::Text|QIODevice::ReadWrite);
         log.setDevice(&logFile);
 
-        connect(&resourcePathMonitor,
+        connect(&pathMonitor,
                 SIGNAL(directoryChanged(const QString &)),
                 this,
                 SLOT(handleDirChanged(const QString &)));
 
         foreach (QString skinPath, skinPaths)
-            resourcePathMonitor.addPath(skinPath);
-        resourcePathMonitor.addPath(pluginPath);
+            pathMonitor.addPath(skinPath);
+        pathMonitor.addPath(pluginPath);
 
         QFileInfo thumbnailFolderInfo(thumbnailPath);
         if (!thumbnailFolderInfo.exists()) {
@@ -135,7 +135,7 @@ public:
     QList<QTranslator*> pluginTranslators;
     QFile logFile;
     QTextStream log;
-    QFileSystemWatcher resourcePathMonitor;
+    QFileSystemWatcher pathMonitor;
 
     QAbstractItemModel *targetsModel;
 
