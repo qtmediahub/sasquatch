@@ -66,9 +66,7 @@ public:
         // TODO: check install prefix
         skinPaths << "/usr/share/qtmediahub/skins/";
         skinPaths << QDir::homePath() + "/.qtmediahub/skins/";
-        QDir skinPath(Config::value("skins", QString(basePath % "/skins")));
-        if (skinPath.exists())
-            skinPaths << skinPath.absolutePath();
+        skinPaths << Config::value("skins", QString(basePath % "/skins"));
 
         pluginPath = QDir(Config::value("plugins", QString(basePath % "/plugins"))).absolutePath();
         resourcePath = QDir(Config::value("resources", QString(basePath % "/resources"))).absolutePath();
@@ -87,8 +85,10 @@ public:
                 this,
                 SLOT(handleDirChanged(const QString &)));
 
-        foreach (QString skinPath, skinPaths)
-            pathMonitor.addPath(skinPath);
+        foreach (QString skinPath, skinPaths) {
+            if (QDir(skinPath).exists())
+                pathMonitor.addPath(skinPath);
+        }
         pathMonitor.addPath(pluginPath);
 
         QFileInfo thumbnailFolderInfo(thumbnailPath);
