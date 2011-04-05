@@ -181,6 +181,7 @@ void BackendPrivate::resetLanguage()
 
 void BackendPrivate::discoverSkins()
 {
+    qDeleteAll(skins);
     skins.clear();
 
     foreach (QString skinPath, skinPaths) {
@@ -188,7 +189,7 @@ void BackendPrivate::discoverSkins()
 
         foreach(const QString &currentPath, potentialSkins) {
             if(QFile(skinPath % "/" % currentPath % "/" % currentPath).exists()) {
-                Skin *skin = new Skin(currentPath, skinPath % "/" % currentPath % "/");
+                Skin *skin = new Skin(currentPath, skinPath % "/" % currentPath % "/", this);
                 skins << skin;
             }
         }
