@@ -67,9 +67,14 @@ public:
         skinPaths << "/usr/share/qtmediahub/skins/";
         skinPaths << QDir::homePath() + "/.qtmediahub/skins/";
         skinPaths << Config::value("skins", QString(basePath % "/skins"));
+        if (!qgetenv("QMH_SKINPATH").isEmpty())
+            skinPaths << QDir(qgetenv("QMH_SKINPATH")).absolutePath();
 
         pluginPath = QDir(Config::value("plugins", QString(basePath % "/plugins"))).absolutePath();
-        resourcePath = QDir(Config::value("resources", QString(basePath % "/resources"))).absolutePath();
+        if (!qgetenv("QMH_PLUGINPATH").isEmpty())
+            resourcePath = QDir(qgetenv("QMH_PLUGINPATH")).absolutePath();
+        else
+            resourcePath = QDir(Config::value("resources", QString(basePath % "/resources"))).absolutePath();
 
         inputIdleTimer.setInterval(Config::value("idle-timeout", 120)*1000);
         inputIdleTimer.setSingleShot(true);
