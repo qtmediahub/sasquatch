@@ -7,6 +7,9 @@ SUBDIRS = qmhplugin\
           picture \
           qmlmodulediscovery \
           customcursor \
-          animatedtiles \
-          appstore
+          animatedtiles
 #          terminalmode
+
+dbus {
+    SUBDIRS += appstore
+}

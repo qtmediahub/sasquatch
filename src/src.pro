@@ -113,4 +113,7 @@ avahi {
 
 QMAKE_LIBDIR += $$PROJECTROOT/hub/plugins
 LIBS += -lqmhplugin
-QMAKE_LFLAGS += -Wl,--rpath=$$PROJECTROOT/hub/plugins
+
+linux* {
+    QMAKE_LFLAGS += -Wl,--rpath=$$PROJECTROOT/hub/plugins
+}
