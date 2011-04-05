@@ -36,7 +36,7 @@ ActionMapper::ActionMapper(Frontend *p)
     maps = QDir(mapPath).entryList(QDir::Files);
     qWarning() << "Available keyboard maps" << maps;
 
-    mapName = Config::value("keymap", "").toString();
+    mapName = Config::value("keymap", "stdkeyboard").toString();
     populateMap();
 }
 
@@ -54,8 +54,7 @@ void ActionMapper::populateMap()
 {
     keyHash.clear();
 
-    if (!loadMapFromDisk(mapPath + mapName))
-        loadMapFromDisk(mapPath + "stdkeyboard");
+    loadMapFromDisk(mapPath + mapName);
 }
 
 bool ActionMapper::loadMapFromDisk(const QString &mapFilePath)
