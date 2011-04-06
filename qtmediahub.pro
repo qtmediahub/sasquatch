@@ -21,8 +21,4 @@ SUBDIRS = util/qmlremotecontrol
 
 # due to wrong deploysteps in creator for symbian,
 # comment SUBDIRS below out
-SUBDIRS += \
-    src \
-    src/plugins \
-    src/3rdparty/qt-components/qt-components.pro \
-    src/main/main.pro
+SUBDIRS += src

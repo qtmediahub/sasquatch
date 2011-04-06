@@ -19,7 +19,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <QApplication>
 #include <QWidget>
-#include <QNetworkProxy>
 #ifdef GL
 #include <QGLFormat>
 #endif
@@ -52,7 +51,7 @@ int main(int argc, char** argv)
 //    //FIXME: Should be configurable, but Config
 //    blocked by instantiation of QApplication
 //    //vsync
-//    format.setSwapInterval(1);
+    format.setSwapInterval(1);
 //    //no vsync
 //    format.setSwapInterval(0);
 //    format.setDoubleBuffer(false);
@@ -90,20 +89,6 @@ int main(int argc, char** argv)
 
     if (Config::isEnabled("splashscreen", true)) {
         splash.show();
-    }
-
-    QNetworkProxy proxy;
-    if (Config::isEnabled("proxy", false)) {
-        QString proxyHost(Config::value("proxy-host", "localhost").toString());
-        int proxyPort = Config::value("proxy-port", 8080);
-        proxy.setType(QNetworkProxy::HttpProxy);
-        proxy.setHostName(proxyHost);
-        proxy.setPort(proxyPort);
-        QNetworkProxy::setApplicationProxy(proxy);
-        qWarning() << "Using proxy host"
-                   << proxyHost
-                   << "on port"
-                   << proxyPort;
     }
 
     Frontend gui;

@@ -2,8 +2,7 @@ TEMPLATE = app
 TARGET = qmh
 DESTDIR = $${PROJECTROOT}/hub
 DEPENDPATH += .
-INCLUDEPATH += /src/
-QT += network declarative
+INCLUDEPATH += $${PROJECTROOT}/src/
 
 LIBS += -lqmhcore
 QMAKE_LIBDIR += $${PROJECTROOT}/hub/lib

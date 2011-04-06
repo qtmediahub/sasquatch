@@ -36,6 +36,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QFileSystemModel>
 #include <QDesktopServices>
 #include <QFileSystemWatcher>
+#include <QNetworkProxy>
 
 #ifdef GL
 #include <QGLFormat>
@@ -63,6 +64,20 @@ public:
           targetsModel(0),
           pSelf(p)
     {
+        QNetworkProxy proxy;
+        if (Config::isEnabled("proxy", false)) {
+            QString proxyHost(Config::value("proxy-host", "localhost").toString());
+            int proxyPort = Config::value("proxy-port", 8080);
+            proxy.setType(QNetworkProxy::HttpProxy);
+            proxy.setHostName(proxyHost);
+            proxy.setPort(proxyPort);
+            QNetworkProxy::setApplicationProxy(proxy);
+            qWarning() << "Using proxy host"
+                << proxyHost
+                << "on port"
+                << proxyPort;
+        }
+
         // TODO: check install prefix
         skinPaths << "/usr/share/qtmediahub/skins/";
         skinPaths << QDir::homePath() + "/.qtmediahub/skins/";

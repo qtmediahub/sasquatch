@@ -25,6 +25,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QList>
 #include <QVariant>
 
+#include <QDeclarativeItem>
 #include <QDeclarativeView>
 #include <QDeclarativeEngine>
 #include <QDeclarativeContext>

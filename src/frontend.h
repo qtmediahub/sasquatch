@@ -22,8 +22,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <QWidget>
 #include <QUrl>
-#include <QDeclarativeItem>
 
+class QDeclarativeItem;
 class FrontendPrivate;
 
 /*Logic abstracting what is handling the rendering and resolution selection*/
