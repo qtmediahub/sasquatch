@@ -50,7 +50,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "dataproviders/dirmodel.h"
 #include "qml-extensions/qmlfilewrapper.h"
 #include "dataproviders/playlist.h"
-#include "plugins/qmhplugin/qmhplugin.h"
+#include "qmhplugin.h"
 
 #ifdef QMH_AVAHI
 #include "qavahiservicepublisher.h"

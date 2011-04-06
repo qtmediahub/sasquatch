@@ -4,7 +4,6 @@
 
 include(../plugins.pri)
 include(../mediaplugin.pri)
-include($${PROJECTROOT}/src/delaysymresolution.pri)
 
 HEADERS += \
         radioplugin.h \

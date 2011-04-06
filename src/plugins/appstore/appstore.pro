@@ -3,7 +3,6 @@
 ######################################################################
 
 include(../plugins.pri)
-include($${PROJECTROOT}/src/delaysymresolution.pri)
 
 HEADERS += appstoreplugin.h appstore.h \
     appinstallerinterface.h \

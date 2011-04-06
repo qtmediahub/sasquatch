@@ -4,7 +4,6 @@
 
 include(../plugins.pri)
 include(../mediaplugin.pri)
-include($${PROJECTROOT}/src/delaysymresolution.pri)
 include(../../3rdparty/libexif-0.6.19/libexif/libexif.pri)
 
 HEADERS += pictureplugin.h \

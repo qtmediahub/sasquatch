@@ -1,8 +1,8 @@
 include(common.pri)
 
 DESTDIR = ../hub
-TEMPLATE = app
-TARGET = qmh
+TEMPLATE = lib
+TARGET = qmhcore
 DEPENDPATH += .
 INCLUDEPATH += . ./plugins/qmhplugin
 
@@ -65,8 +65,7 @@ gl {
 #end painting options
 
 # Input
-SOURCES += main.cpp \
-    qmh-config.cpp \
+SOURCES += qmh-config.cpp \
     frontend.cpp \
     backend.cpp \
     qml-extensions/actionmapper.cpp \
@@ -84,6 +83,7 @@ HEADERS += qmh-config.h \
     global.h \
     frontend.h \
     backend.h \
+    qmhplugin.h \
     dataproviders/proxymodel.h \
     dataproviders/dirmodel.h \
     qml-extensions/qmlfilewrapper.h \
@@ -91,7 +91,6 @@ HEADERS += qmh-config.h \
     qml-extensions/mediaplayerhelper.h \
     qml-extensions/trackpad.h \
     dataproviders/playlist.h \
-    plugins/qmhplugin/qmhplugin.h \
     plugins/mediamodel.h \
     plugins/mediainfo.h \
     skin.h
@@ -100,7 +99,6 @@ include(rpc/rpc.pri)
 
 #for() structure does not work with lupdate
 TRANSLATIONS = $$system(cat $$DESTDIR/supported_languages | while read i; do echo translations/"$i".ts; done)
-include(delaysymresolution.pri)
 
 avahi {
     DEFINES += QMH_AVAHI
@@ -110,7 +108,6 @@ avahi {
 }
 
 QMAKE_LIBDIR += $$PROJECTROOT/hub/plugins
-LIBS += -lqmhplugin
 
 linux* {
     QMAKE_LFLAGS += -Wl,--rpath=$$PROJECTROOT/hub/plugins

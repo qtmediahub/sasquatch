@@ -4,6 +4,9 @@ TEMPLATE = lib
 DESTDIR = ../../../hub/plugins
 CONFIG += plugin
 
+QMAKE_LIBDIR += ../../../hub
+LIBS += -lqmhcore
+
 OBJECTS_DIR=.obj
 MOC_DIR=.moc
 
