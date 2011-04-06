@@ -1,15 +1,15 @@
 TEMPLATE = app
 TARGET = qmh
-DESTDIR = ../../hub
+DESTDIR = $${PROJECTROOT}/hub
 DEPENDPATH += .
-INCLUDEPATH += . ..
+INCLUDEPATH += /src/
 QT += network declarative
 
 LIBS += -lqmhcore
-QMAKE_LIBDIR += ../../hub
+QMAKE_LIBDIR += $${PROJECTROOT}/hub/lib
 
 linux* {
-    include(../3rdparty/qtsingleapplication/qtsingleapplication.pri)
+    include($${PROJECTROOT}/src/3rdparty/qtsingleapplication/qtsingleapplication.pri)
 }
 
 # Input

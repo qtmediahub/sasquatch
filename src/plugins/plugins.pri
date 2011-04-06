@@ -1,10 +1,10 @@
 include($$PROJECTROOT/src/common.pri)
 
 TEMPLATE = lib
-DESTDIR = ../../../hub/plugins
+DESTDIR = $$PROJECTROOT/hub/plugins
 CONFIG += plugin
 
-QMAKE_LIBDIR += ../../../hub
+QMAKE_LIBDIR += $$PROJECTROOT/hub/lib
 LIBS += -lqmhcore
 
 OBJECTS_DIR=.obj
