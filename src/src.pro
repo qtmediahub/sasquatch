@@ -12,7 +12,6 @@ CONFIG += glviewport
 
 #platform options
 linux* {
-    include(qtsingleapplication/qtsingleapplication.pri)
     message(Linux specific options: (*default unless adjusted in src.pro))
     message(glviewport*)
 }
