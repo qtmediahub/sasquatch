@@ -9,6 +9,6 @@ SUBDIRS = music \
           animatedtiles
 #          terminalmode
 
-dbus {
+contains(QT_CONFIG, dbus) {
     SUBDIRS += appstore
 }
