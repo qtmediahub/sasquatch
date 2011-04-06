@@ -71,8 +71,9 @@ public:
             skinPaths << QDir(qgetenv("QMH_SKINPATH")).absolutePath();
 
         pluginPath = QDir(Config::value("plugins", QString(basePath % "/plugins"))).absolutePath();
-        if (!qgetenv("QMH_PLUGINPATH").isEmpty())
-            resourcePath = QDir(qgetenv("QMH_PLUGINPATH")).absolutePath();
+
+        if (!qgetenv("QMH_RESOURCEPATH").isEmpty())
+            resourcePath = QDir(qgetenv("QMH_RESOURCEPATH")).absolutePath();
         else
             resourcePath = QDir(Config::value("resources", QString(basePath % "/resources"))).absolutePath();
 
