@@ -84,8 +84,6 @@ HEADERS += qmh-config.h \
     global.h \
     frontend.h \
     backend.h \
-    plugins/qmhplugininterface.h \
-    plugins/qmhplugin.h \
     dataproviders/proxymodel.h \
     dataproviders/dirmodel.h \
     qml-extensions/qmlfilewrapper.h \
