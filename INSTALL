@@ -1,12 +1,12 @@
 QtMediaHub requires:
-  * Qt >= 4.7.1
+  * Qt >= 4.7.1 (may depend on used skin)
   * Qt Mobility (1.2/master)
-  * Qt 3D
+  * Qt 3D (optional)
 
 The core engine, skins and resources are placed in separate respositories.
 
 Core engine - This contains the backend and the launcher. Available at 
-git@gitorious.org:qtmediahub/qtmediahub.git
+git@gitorious.org:qtmediahub/qtmediahub-core.git
 
 Resources - This contains resource files. For example, programs that may appear
 in the Dashboard etc. Available at git@gitorious.org:qtmediahub/resources.git
@@ -20,7 +20,7 @@ to clone since they contains lots of images and hence are stored as separate rep
 You need at least one skin checked out to have a functional QtMediaHub.
 
 Checking out the code:
-1. git clone git@gitorious.org:qtmediahub/qtmediahub.git
+1. git clone git@gitorious.org:qtmediahub/qtmediahub-core.git
 
 hub/ is like the install folder. After building QtMediaHub, you can just copy over hub/ to
 whatever device.
