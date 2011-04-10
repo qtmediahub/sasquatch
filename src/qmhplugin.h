@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QStringList>
+#include <QMetaEnum>
 
 class QDeclarativeContext;
 
@@ -12,6 +13,7 @@ class QMHPlugin : public QObject
     Q_ENUMS(PluginRole)
     Q_PROPERTY(QString name READ name WRITE setName NOTIFY pluginChanged)
     Q_PROPERTY(PluginRole role READ role WRITE setRole NOTIFY pluginChanged)
+    Q_PROPERTY(QString roleName READ roleName NOTIFY pluginChanged)
     Q_PROPERTY(QObject* visualElement READ visualElement WRITE setVisualElement NOTIFY pluginChanged)
     Q_PROPERTY(QStringList visualElementProperties READ visualElementProperties WRITE setVisualElementProperties NOTIFY pluginChanged)
     Q_PROPERTY(QObject* actionMap READ actionMap WRITE setActionMap NOTIFY pluginChanged)
@@ -33,8 +35,16 @@ public:
     QString name() const { return mName; }
     void setName(const QString &name) { mName = name; emit pluginChanged(); }
 
-    PluginRole role() { return mRole; }
+    PluginRole role() const { return mRole; }
     void setRole(PluginRole role) { mRole = role; emit pluginChanged(); }
+
+    QString roleName() const {
+        const QMetaObject &PluginMO = QMHPlugin::staticMetaObject;
+        int enumIndex = PluginMO.indexOfEnumerator("PluginRole");
+        QMetaEnum roleEnum = PluginMO.enumerator(enumIndex);
+
+        return QString(roleEnum.key(role()));
+    }
 
     QObject* visualElement() const { return mVisualElement; }
     void setVisualElement(QObject *element) { mVisualElement = element; emit pluginChanged(); }
