@@ -213,8 +213,12 @@ void Frontend::setSkin(const QString &name)
     if (!skin)
         skin = defaultSkin;
 
-    if (!skin)
-        qFatal("Something has gone horribly awry, you want for skins");
+    if (!skin) {
+        qDebug()
+            << "No skins available, running headless" << endl
+            << "Please read the INSTALL document available here:" << endl
+            << "http://gitorious.org/qtmediahub/qtmediahub-core/blobs/master/INSTALL";
+    }
 
     QFile skinConfig(skin->config());
     if (skinConfig.open(QIODevice::ReadOnly))
