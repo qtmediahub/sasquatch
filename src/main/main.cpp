@@ -84,14 +84,15 @@ int main(int argc, char** argv)
 #endif //QT_SINGLE_APPLICATION
     Config::init(argc, argv);
 
-    QPixmap splashPixmap(Backend::instance()->resourcePath() % "/images/splash.png");
-    QSplashScreen splash(splashPixmap);
+    Frontend gui;
+    QSplashScreen splash;
 
     if (Config::isEnabled("splashscreen", true)) {
+        QPixmap splashPixmap(Backend::instance()->resourcePath() % "/images/splash.png");
+        splash.setPixmap(splashPixmap);
         splash.show();
     }
 
-    Frontend gui;
     if (Config::isEnabled("fullscreen", true)) {
         gui.showFullScreen();
     } else {
