@@ -320,7 +320,7 @@ void Frontend::initialize(const QUrl &targetUrl)
             int enumIndex = PluginMO.indexOfEnumerator("PluginRole");
             QMetaEnum roleEnum = PluginMO.enumerator(enumIndex);
 
-            foreach (QObject *p, Backend::instance()->advertizedEngines()) {
+            foreach (QObject *p, Backend::instance()->allEngines()) {
                 QMHPlugin *plugin = qobject_cast<QMHPlugin *>(p);
                 if (plugin && plugin->role() < QMHPlugin::SingletonRoles) {
                     centralWidget->rootContext()->setContextProperty(QString(roleEnum.valueToKey(plugin->role())).toLower() + "Engine", plugin);

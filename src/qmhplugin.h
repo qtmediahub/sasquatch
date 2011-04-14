@@ -47,7 +47,11 @@ public:
     }
 
     QObject* visualElement() const { return mVisualElement; }
-    void setVisualElement(QObject *element) { mVisualElement = element; emit pluginChanged(); }
+    void setVisualElement(QObject *element) {
+        mVisualElement = element;
+        emit visualElementChanged(this);
+        emit pluginChanged();
+    }
 
     //Not constraining to pairs, this should go in any case
     QStringList visualElementProperties() const { return mVisualElementProperties; }
@@ -69,6 +73,7 @@ public:
 
 signals:
     void pluginChanged();
+    void visualElementChanged(QMHPlugin *plugin);
 
 protected:
     QString mName;

@@ -243,7 +243,7 @@ void BackendPrivate::discoverEngines()
         else {
             plugin->setParent(this);
             allEngines << plugin;
-            Backend::instance()->advertizeEngine(plugin);
+            connect(plugin, SIGNAL(visualElementChanged(QMHPlugin*)), Backend::instance(), SLOT(advertizeEngine(QMHPlugin*)));
         }
     }
     resetLanguage();
@@ -367,6 +367,14 @@ bool Backend::transforms() const
 
 void Backend::advertizeEngine(QMHPlugin *engine)
 {
+    if (d->advertizedEngines.contains(engine)) {
+        if (engine->visualElement() == 0) {
+            d->advertizedEngines.removeOne(engine);
+            emit advertizedEnginesChanged();
+        }
+        return;
+    }
+
     //Advertize to main menu
     if (engine->role() > QMHPlugin::Unadvertized)
         d->advertizedEngines << engine;
