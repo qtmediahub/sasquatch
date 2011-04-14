@@ -13,3 +13,5 @@ linux* {
 
 # Input
 SOURCES += main.cpp
+
+RESOURCES = main.qrc
