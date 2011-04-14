@@ -15,8 +15,6 @@ Makefile
 *.log
 hub/qtmediahub
 hub/qmh
-hub/resources
-skins
 hub/remotecontrol
 hub/qmlremotecontrol
 .directory

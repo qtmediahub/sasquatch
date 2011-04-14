@@ -88,7 +88,7 @@ int main(int argc, char** argv)
     QSplashScreen splash;
 
     if (Config::isEnabled("splashscreen", true)) {
-        QPixmap splashPixmap(Backend::instance()->resourcePath() % "/images/splash.png");
+        QPixmap splashPixmap(Backend::instance()->resourcePath() % "/images/splash.jpg");
         splash.setPixmap(splashPixmap);
         splash.show();
     }
