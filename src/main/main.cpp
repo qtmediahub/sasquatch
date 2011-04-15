@@ -89,6 +89,10 @@ int main(int argc, char** argv)
         QPixmap splashPixmap(":/images/splash.jpg");
         splash.setPixmap(splashPixmap);
         splash.show();
+#ifdef Q_WS_X11
+        //Get him on screen on sleepy X11
+        sleep(2);
+#endif
     }
 
     Frontend gui;
