@@ -101,7 +101,7 @@ FrontendPrivate::FrontendPrivate(Frontend *p)
 FrontendPrivate::~FrontendPrivate()
 {
     Config::setValue("fullscreen", attemptingFullScreen);
-    Config::setValue("last-skin", skin);
+    Config::setValue("last-skin", skin->name());
 
     delete centralWidget;
     centralWidget = 0;
