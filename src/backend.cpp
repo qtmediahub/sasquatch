@@ -62,6 +62,7 @@ public:
           inputIdleTimer(this),
           backendTranslator(0),
           logFile(qApp->applicationName().append(".log")),
+          systray(0),
           targetsModel(0),
           pSelf(p)
     {
@@ -137,6 +138,7 @@ public:
         qDeleteAll(skins.begin(), skins.end());
 
         delete backendTranslator;
+        delete systray;
         delete targetsModel;
 
 #if defined(Q_WS_S60) || defined(Q_WS_MAEMO)
@@ -176,6 +178,7 @@ public:
     QTextStream log;
     QFileSystemWatcher pathMonitor;
 
+    QSystemTrayIcon *systray;
     QAbstractItemModel *targetsModel;
 
 #if defined(Q_WS_S60) || defined(Q_WS_MAEMO)
@@ -234,9 +237,15 @@ void BackendPrivate::discoverSkins()
         }
     }
 
-    qWarning() << "Available skins:";
-    foreach(QObject *skin, skins)
-        qWarning() << "\t" << qobject_cast<Skin*>(skin)->name();
+    if (skins.isEmpty()) {
+        qWarning() << "No skins are found in your skin paths" \
+                   << "If you don't intend to run this without skins" \
+                   << "Please read the INSTALL doc for further details";
+    } else {
+        qWarning() << "Available skins:";
+        foreach(QObject *skin, skins)
+            qWarning() << "\t" << qobject_cast<Skin*>(skin)->name();
+    }
 }
 
 void BackendPrivate::discoverEngines()
@@ -333,8 +342,8 @@ void Backend::initialize()
         splash.finish(d->frontend);
     }
     if (Config::isEnabled("system-tray", false)) {
-        QSystemTrayIcon *systray = new QSystemTrayIcon(QIcon(":/images/petite-ganesh-22x22.jpg"), this);
-        systray->setVisible(true);
+        d->systray = new QSystemTrayIcon(QIcon(":/images/petite-ganesh-22x22.jpg"), this);
+        d->systray->setVisible(true);
     }
 }
 
