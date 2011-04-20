@@ -238,9 +238,11 @@ void BackendPrivate::discoverSkins()
     }
 
     if (skins.isEmpty()) {
-        qWarning() << "No skins are found in your skin paths" \
-                   << "If you don't intend to run this without skins" \
-                   << "Please read the INSTALL doc for further details";
+        qWarning() << "No skins are found in your skin paths"<< endl \
+                   << "If you don't intend to run this without skins"<< endl \
+                   << "Please read the INSTALL doc available here:" \
+                   << "http://gitorious.org/qtmediahub/qtmediahub-core/blobs/master/INSTALL" \
+                   << "for further details";
     } else {
         qWarning() << "Available skins:";
         foreach(QObject *skin, skins)

@@ -19,6 +19,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "skin.h"
 
+#include <QFileInfo>
+#include <QDir>
+
 class SkinPrivate : public QObject
 {
     Q_OBJECT
@@ -45,6 +48,16 @@ Skin::Skin(QString name, QString path, QObject *parent)
     d->name = name;
     d->path = path;
     d->config = path + "/" + name;
+}
+
+Skin::Skin(QString config, QObject *parent)
+    : QObject(parent)
+    , d(new SkinPrivate(this))
+{
+    QFileInfo fileInfo(config);
+    d->name = fileInfo.fileName();
+    d->path = fileInfo.absoluteDir().absolutePath();
+    d->config = config;
 }
 
 Skin::~Skin()

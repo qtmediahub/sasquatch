@@ -33,6 +33,7 @@ class Skin : public QObject
 
 public:
     Skin(QString name, QString path, QObject *parent = 0);
+    Skin(QString config, QObject *parent);
     ~Skin();
 
     QString name() const;

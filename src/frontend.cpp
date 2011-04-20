@@ -223,10 +223,7 @@ void Frontend::setSkin(const QString &name)
         skin = defaultSkin;
 
     if (!skin) {
-        qDebug()
-            << "No skins available, running headless" << endl
-            << "Please read the INSTALL document available here:" << endl
-            << "http://gitorious.org/qtmediahub/qtmediahub-core/blobs/master/INSTALL";
+        skin = new Skin(QFileDialog::getOpenFileName(this, tr("Select a suitable skin")), this);
     }
 
     QFile skinConfig(skin->config());
