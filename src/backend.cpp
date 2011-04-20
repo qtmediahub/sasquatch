@@ -332,6 +332,10 @@ void Backend::initialize()
 
         splash.finish(d->frontend);
     }
+    if (Config::isEnabled("system-tray", false)) {
+        QSystemTrayIcon *systray = new QSystemTrayIcon(QIcon(":/images/petite-ganesh-22x22.jpg"), this);
+        systray->setVisible(true);
+    }
 }
 
 QString Backend::language() const
