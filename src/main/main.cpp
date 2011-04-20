@@ -87,5 +87,9 @@ int main(int argc, char** argv)
 
     Backend::instance();
 
-    return app.exec();
+    int ret = app.exec();
+
+    delete Backend::instance();
+
+    return ret;
 }
