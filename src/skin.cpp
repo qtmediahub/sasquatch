@@ -41,21 +41,12 @@ SkinPrivate::SkinPrivate(Skin *p)
 {
 }
 
-Skin::Skin(QString name, QString path, QObject *parent)
-    : QObject(parent)
-    , d(new SkinPrivate(this))
-{
-    d->name = name;
-    d->path = path;
-    d->config = path + "/" + name;
-}
-
 Skin::Skin(QString config, QObject *parent)
     : QObject(parent)
     , d(new SkinPrivate(this))
 {
     QFileInfo fileInfo(config);
-    d->name = fileInfo.fileName();
+    d->name = fileInfo.baseName();
     d->path = fileInfo.absoluteDir().absolutePath();
     d->config = config;
 }

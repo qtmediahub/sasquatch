@@ -223,6 +223,7 @@ void Frontend::setSkin(const QString &name)
         skin = defaultSkin;
 
     if (!skin) {
+        //Ultimate fallback
         skin = new Skin(QFileDialog::getOpenFileName(this, tr("Select a suitable skin")), this);
     }
 

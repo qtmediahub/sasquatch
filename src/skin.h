@@ -32,7 +32,6 @@ class Skin : public QObject
     Q_PROPERTY(QString config READ config NOTIFY skinChanged)
 
 public:
-    Skin(QString name, QString path, QObject *parent = 0);
     Skin(QString config, QObject *parent);
     ~Skin();
 
