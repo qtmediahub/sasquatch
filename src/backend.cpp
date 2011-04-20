@@ -124,9 +124,24 @@ public:
 
     ~BackendPrivate()
     {
+        delete frontend;
+        frontend = 0;
+
         delete backendTranslator;
         backendTranslator = 0;
+
+        //This clean up is arguably a waste of effort since
+        //the death of the backend marks the death of the appliction
         qDeleteAll(pluginTranslators.begin(), pluginTranslators.end());
+        qDeleteAll(allEngines.begin(), allEngines.end());
+        qDeleteAll(skins.begin(), skins.end());
+
+        delete backendTranslator;
+        delete targetsModel;
+
+#if defined(Q_WS_S60) || defined(Q_WS_MAEMO)
+        delete session;
+#endif
     }
 
 public slots:
