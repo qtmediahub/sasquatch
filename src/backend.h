@@ -41,10 +41,8 @@ class Backend : public QObject
 
 public:
     static Backend *instance();
-    static void destroy();
 
     ~Backend();
-    void initialize();
 
     QString language() const;
 
@@ -68,6 +66,9 @@ public:
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event);
+
+public slots:
+    void initialize();
 
 signals:
     void skinsChanged();

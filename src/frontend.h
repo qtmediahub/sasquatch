@@ -40,7 +40,7 @@ public:
 
     Q_INVOKABLE void setSkin(const QString &name);
     QString skinPath() const;
-    void initialize(const QUrl &url);
+    void initializeSkin(const QUrl &url);
     void resetLanguage();
 
     QWidget *centralWidget() const;
@@ -51,6 +51,7 @@ public:
 signals:
     void resettingUI();
 public slots:
+    void initialize();
     void toggleFullScreen();
     void showFullScreen();
     void showNormal();

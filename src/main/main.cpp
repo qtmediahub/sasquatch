@@ -18,7 +18,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 ****************************************************************************/
 
 #include <QApplication>
-#include <QWidget>
 #ifdef GL
 #include <QGLFormat>
 #endif
@@ -27,7 +26,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #endif
 
 #include "backend.h"
-#include "frontend.h"
 #include "qmh-config.h"
 
 int main(int argc, char** argv)
@@ -61,6 +59,9 @@ int main(int argc, char** argv)
     QGLFormat::setDefaultFormat(format);
 
 #ifdef GLGS
+    //Only legitimate use is in fullscreen QGraphicsView derived classes!
+    //If you use this in conjunction with our traditional QWidget style functionality
+    //You are in for a rough ride
     if (Config::isEnabled("use-gl", true))
         QApplication::setGraphicsSystem("opengl");
 #endif //GLGS
@@ -84,24 +85,7 @@ int main(int argc, char** argv)
 #endif //QT_SINGLE_APPLICATION
     Config::init(argc, argv);
 
-    QSplashScreen splash;
-    if (Config::isEnabled("splashscreen", true)) {
-        QPixmap splashPixmap(":/images/splash.jpg");
-        splash.setPixmap(splashPixmap);
-        splash.show();
-#ifdef Q_WS_X11
-        //Get him on screen on sleepy X11
-        sleep(2);
-#endif
-    }
-
-    Frontend gui;
-    if (Config::isEnabled("fullscreen", true)) {
-        gui.showFullScreen();
-    } else {
-        gui.show();
-    }
-    splash.finish(&gui);
+    Backend::instance();
 
     return app.exec();
 }

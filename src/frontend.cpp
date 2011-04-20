@@ -138,7 +138,6 @@ Frontend::Frontend(QWidget *p)
     setAttribute(Qt::WA_OpaquePaintEvent);
     setAttribute(Qt::WA_NoSystemBackground);
 
-    setSkin(Config::value("last-skin", "").toString());
     connect(this, SIGNAL(resettingUI()), d, SLOT(resetUI()));
     new QShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::ALT + Qt::Key_Backspace), this, SIGNAL(resettingUI()));
     new QShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::ALT + Qt::Key_Down), this, SLOT(shrink()));
@@ -155,7 +154,19 @@ Frontend::Frontend(QWidget *p)
     connection->registerObject(d->mediaPlayerHelper);
     connection->registerObject(d->trackpad);
 
+    QMetaObject::invokeMethod(this, "initialize", Qt::QueuedConnection);
+}
+
+void Frontend::initialize()
+{
+    setSkin(Config::value("last-skin", "").toString());
     installEventFilter(Backend::instance());
+
+    if (Config::isEnabled("fullscreen", true)) {
+        showFullScreen();
+    } else {
+        show();
+    }
 }
 
 Frontend::~Frontend()
@@ -169,8 +180,6 @@ Frontend::~Frontend()
 
     delete d;
     d = 0;
-    //Can't decide whether this is filthy or not
-    Backend::destroy();
 }
 
 void Frontend::paintEvent(QPaintEvent *e)
@@ -246,14 +255,14 @@ void Frontend::setSkin(const QString &name)
 
         d->skin = skin;
 
-        initialize(QUrl::fromLocalFile(skin->path() % "/" % urlPath));
+        initializeSkin(QUrl::fromLocalFile(skin->path() % "/" % urlPath));
     }
     else {
         qWarning() << "Can't read" << skin->name();
     }
 }
 
-void Frontend::initialize(const QUrl &targetUrl)
+void Frontend::initializeSkin(const QUrl &targetUrl)
 {
     if (targetUrl.isEmpty() || !targetUrl.isValid())
         qFatal("You are explicitly forcing a broken url on the skin system");
@@ -314,8 +323,6 @@ void Frontend::initialize(const QUrl &targetUrl)
         }
         centralWidget->rootContext()->setContextProperty("config", Config::instance());
 
-        Backend::instance()->initialize();
-
         foreach (QMHPlugin *plugin, Backend::instance()->allEngines())
             plugin->registerPlugin(centralWidget->rootContext());
 
@@ -339,6 +346,7 @@ void Frontend::initialize(const QUrl &targetUrl)
         d->centralWidget->setAttribute(Qt::WA_OpaquePaintEvent);
         d->centralWidget->setAttribute(Qt::WA_NoSystemBackground);
     }
+
 }
 
 void Frontend::resetLanguage()

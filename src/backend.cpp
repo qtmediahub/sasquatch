@@ -18,6 +18,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 ****************************************************************************/
 
 #include "backend.h"
+#include "frontend.h"
 #include "qmhplugin.h"
 
 #include "qmh-config.h"
@@ -135,6 +136,8 @@ public:
     void resetLanguage();
     void discoverSkins();
     void discoverEngines();
+
+    Frontend *frontend;
 
     QSet<QString> advertizedEngineRoles;
 
@@ -281,6 +284,8 @@ Backend::Backend(QObject *parent)
         QFontDatabase::addApplicationFont(dejavuPath % "DejaVuSans-BoldOblique.ttf");
         QApplication::setFont(QFont("DejaVu Sans"));
     }
+
+    QMetaObject::invokeMethod(this, "initialize", Qt::QueuedConnection);
 }
 
 Backend::~Backend()
@@ -296,6 +301,22 @@ Backend::~Backend()
 void Backend::initialize()
 {
     d->discoverEngines();
+    if (!Config::isEnabled("headless", false)) {
+        QSplashScreen splash;
+        if (Config::isEnabled("splashscreen", true)) {
+            QPixmap splashPixmap(":/images/splash.jpg");
+            splash.setPixmap(splashPixmap);
+            splash.show();
+#ifdef Q_WS_X11
+            //Get him on screen on sleepy X11
+            sleep(2);
+#endif
+        }
+
+        d->frontend = new Frontend();
+
+        splash.finish(d->frontend);
+    }
 }
 
 QString Backend::language() const
@@ -328,12 +349,6 @@ Backend* Backend::instance()
         pSelf = new Backend();
     }
     return pSelf;
-}
-
-void Backend::destroy()
-{
-    delete pSelf;
-    pSelf = 0;
 }
 
 QString Backend::basePath() const
