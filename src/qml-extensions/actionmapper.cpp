@@ -24,11 +24,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "qmh-config.h"
 
-class Frontend;
-
-ActionMapper::ActionMapper(Frontend *p)
+ActionMapper::ActionMapper(QObject *p)
     : QObject(p),
-      pFrontend(p),
+      parent(p),
       mapPath(Backend::instance()->basePath() + "/devices/keymaps/")
 {
     setObjectName("qmhrpc");
@@ -42,12 +40,12 @@ ActionMapper::ActionMapper(Frontend *p)
 
 void ActionMapper::takeAction(Action action)
 {
-    if (!pFrontend || !keyHash.contains(action))
+    if (!keyHash.contains(action))
         return;
     QKeyEvent keyPress(QEvent::KeyPress, keyHash[action].at(0), Qt::NoModifier);
-    qApp->sendEvent(pFrontend->centralWidget(), &keyPress);
+    qApp->sendEvent(parent, &keyPress);
     QKeyEvent keyRelease(QEvent::KeyRelease, keyHash[action].at(0), Qt::NoModifier);
-    qApp->sendEvent(pFrontend->centralWidget(), &keyRelease);
+    qApp->sendEvent(parent, &keyRelease);
 }
 
 void ActionMapper::populateMap()

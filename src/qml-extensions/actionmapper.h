@@ -24,7 +24,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QtDeclarative>
 #include <QDebug>
 
-#include "frontend.h"
+//#include "frontend.h"
 
 class ActionMapper : public QObject
 {
@@ -32,7 +32,7 @@ class ActionMapper : public QObject
     Q_ENUMS(Action)
     Q_PROPERTY(QString map READ map WRITE setMap)
 public:
-    ActionMapper(Frontend *p = 0);
+    ActionMapper(QObject *p = qApp);
     enum Action { Left, Up, Right, Down, Enter, Menu, Context, ContextualUp, ContextualDown, MediaPlayPause, MediaStop, MediaPrevious, MediaNext, Back };
     bool eventMatch(QKeyEvent *event, Action action) {
         if  (keyHash.contains(action)
@@ -62,7 +62,7 @@ public slots:
 private:
     bool loadMapFromDisk(const QString &mapFilePath);
 
-    Frontend *pFrontend;
+    QObject *parent;
     QString mapName;
     QString mapPath;
     QStringList maps;

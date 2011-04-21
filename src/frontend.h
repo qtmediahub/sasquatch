@@ -28,36 +28,14 @@ class FrontendPrivate;
 
 /*Logic abstracting what is handling the rendering and resolution selection*/
 
-class Frontend : public QWidget
+class Frontend : public QObject
 {
-Q_OBJECT
+    Q_OBJECT
 public:
-    Frontend(QWidget *p = 0);
+    Frontend(QObject *p = 0);
     ~Frontend();
 
-    void paintEvent(QPaintEvent *e);
-    void resizeEvent(QResizeEvent *e);
-
-    Q_INVOKABLE void setSkin(const QString &name);
-    QString skinPath() const;
-    void initializeSkin(const QUrl &url);
-    void resetLanguage();
-
-    QWidget *centralWidget() const;
-
-    Q_INVOKABLE QObject *focusItem() const;
-    Q_INVOKABLE void applyWebViewFocusFix(QDeclarativeItem *item); // See https://bugs.webkit.org/show_bug.cgi?id=51094
-
-signals:
-    void resettingUI();
-public slots:
-    void initialize();
-    void toggleFullScreen();
-    void showFullScreen();
-    void showNormal();
-    void grow();
-    void shrink();
-
+    void show();
 private:
     FrontendPrivate *d;
 };

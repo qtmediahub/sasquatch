@@ -38,8 +38,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QGLWidget>
 #endif
 
-#include <QHostInfo>
-
 #include "qml-extensions/actionmapper.h"
 #include "qml-extensions/mediaplayerhelper.h"
 #include "qml-extensions/trackpad.h"
@@ -53,9 +51,113 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "dataproviders/playlist.h"
 #include "qmhplugin.h"
 
-#ifdef QMH_AVAHI
-#include "qavahiservicepublisher.h"
-#endif
+class QMLUtils : public QObject
+{
+    Q_OBJECT
+public:
+    QMLUtils(QDeclarativeView *pDeclarativeView) : QObject(pDeclarativeView), declarativeView(pDeclarativeView) { /**/ }
+    Q_INVOKABLE void applyWebViewFocusFix(QDeclarativeItem *item); // See https://bugs.webkit.org/show_bug.cgi?id=51094
+    Q_INVOKABLE QObject* focusItem() const;
+private:
+    QDeclarativeView *declarativeView;
+};
+
+void QMLUtils::applyWebViewFocusFix(QDeclarativeItem *item) // See https://bugs.webkit.org/show_bug.cgi?id=51094
+{
+    item->setFlag(QGraphicsItem::ItemIsFocusScope, true);
+    QList<QGraphicsItem *> children = item->childItems();
+    for (int i = 0; i < children.count(); i++) {
+        if (QGraphicsWidget *maybeWebView = qgraphicsitem_cast<QGraphicsWidget *>(children[i])) {
+            if (maybeWebView->inherits("QGraphicsWebView"))
+                maybeWebView->setFocus();
+        }
+    }
+}
+
+QObject* QMLUtils::focusItem() const {
+    return qgraphicsitem_cast<QGraphicsObject *>(declarativeView->scene()->focusItem());
+}
+
+class WidgetWrapper : public QWidget
+{
+    Q_OBJECT
+public:
+    WidgetWrapper(QWidget *prey);
+
+protected:
+    void paintEvent(QPaintEvent *e);
+    void resizeEvent(QResizeEvent *e);
+
+signals:
+    void shrink();
+    void grow();
+    void toggleFullScreen();
+
+public slots:
+    void handleResize();
+    void resetUI();
+
+private:
+    QTimer resizeSettleTimer;
+    QWidget *m_prey;
+};
+
+WidgetWrapper::WidgetWrapper(QWidget *prey)
+    : QWidget(0),
+      m_prey(prey)
+{
+    m_prey->setParent(this);
+
+    installEventFilter(Backend::instance());
+
+    setAttribute(Qt::WA_OpaquePaintEvent);
+    setAttribute(Qt::WA_NoSystemBackground);
+
+    new QShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::ALT + Qt::Key_Backspace), this, SLOT(resetUI()));
+    new QShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::ALT + Qt::Key_Down), this, SIGNAL(shrink()));
+    new QShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::ALT + Qt::Key_Up), this, SIGNAL(grow()));
+    new QShortcut(QKeySequence(Qt::ALT + Qt::Key_Return), this, SIGNAL(toggleFullScreen()));
+
+    resizeSettleTimer.setSingleShot(true);
+
+    connect(&resizeSettleTimer, SIGNAL(timeout()), this, SLOT(handleResize()));
+}
+
+void WidgetWrapper::paintEvent(QPaintEvent *e)
+{
+    Q_UNUSED(e)
+    QPainter p(this);
+    p.fillRect(rect(), Qt::black);
+}
+
+void WidgetWrapper::resizeEvent(QResizeEvent *e)
+{
+    Q_UNUSED(e)
+    resizeSettleTimer.start(300);
+}
+
+void WidgetWrapper::handleResize()
+{
+    m_prey->setFixedSize(size());
+
+    QGraphicsView *gv = qobject_cast<QGraphicsView*>(m_prey);
+    if (gv && Config::isEnabled("scale-ui", false)) {
+        gv->resetMatrix();
+        //Needs to be scaled by res of top level qml file
+        gv->scale(qreal(width())/1280, qreal(height())/720);
+    }
+}
+
+void WidgetWrapper::resetUI()
+{
+    QDeclarativeView *declarativeWidget = qobject_cast<QDeclarativeView*>(m_prey);
+    if (declarativeWidget) {
+        QObject* coreObject = declarativeWidget->rootObject();
+        coreObject->setProperty("state", "");
+        //coreObject->setProperty("focus", true);
+        QMetaObject::invokeMethod(coreObject, "resetFocus");
+    }
+}
 
 class FrontendPrivate : public QObject
 {
@@ -65,139 +167,62 @@ public:
     ~FrontendPrivate();
 
 public slots:
-    void handleResize();
-    void resetUI();
+    void setSkin(const QString &name);
+    void initializeSkin(const QUrl &url);
+    void resetLanguage();
+
+    void initialize();
+
+    void toggleFullScreen();
+    void showFullScreen();
+    void showNormal();
+
+    void grow();
+    void shrink();
 
 public:
-    QGraphicsView *centralWidget;
-    QTranslator *frontEndTranslator;
-    Skin *skin;
-    QTimer resizeSettleTimer;
     const QRect defaultGeometry;
     bool overscanWorkAround;
     bool attemptingFullScreen;
+
+    QTranslator frontEndTranslator;
+    Skin *skin;
     ActionMapper *actionMap;
     MediaPlayerHelper *mediaPlayerHelper;
     Trackpad *trackpad;
+    QWidget *skinWidget;
     Frontend *pSelf;
 };
 
 FrontendPrivate::FrontendPrivate(Frontend *p)
     : QObject(p),
-      centralWidget(0),
-      frontEndTranslator(0),
+      //Leave space for Window decoration!
       defaultGeometry(0, 0, 1080, 720),
-      attemptingFullScreen(false),
-      actionMap(new ActionMapper(p)),
-      mediaPlayerHelper(new MediaPlayerHelper(p)),
-      trackpad(new Trackpad(p)),
+      overscanWorkAround(Config::isEnabled("overscan", false)),
+      attemptingFullScreen(Config::isEnabled("fullscreen", true)),
+      actionMap(0),
+      mediaPlayerHelper(0),
+      trackpad(0),
+      skinWidget(0),
       pSelf(p)
 {
-    resizeSettleTimer.setSingleShot(true);
-    connect(&resizeSettleTimer, SIGNAL(timeout()), this, SLOT(handleResize()));
-    overscanWorkAround = Config::isEnabled("overscan", false);
+    qApp->installTranslator(&frontEndTranslator);
+    QMetaObject::invokeMethod(this, "initialize", Qt::QueuedConnection);
 }
 
 FrontendPrivate::~FrontendPrivate()
 {
-    Config::setValue("fullscreen", attemptingFullScreen);
-    Config::setValue("last-skin", skin->name());
-
-    delete centralWidget;
-    centralWidget = 0;
+    delete skinWidget;
 }
 
-void FrontendPrivate::handleResize()
-{
-    if (centralWidget)
-        centralWidget->setFixedSize(pSelf->size());
-
-    QGraphicsView *gv = qobject_cast<QGraphicsView*>(centralWidget);
-    if (gv && Config::isEnabled("scale-ui", false)) {
-        gv->resetMatrix();
-        //Needs to be scaled by res of top level qml file
-        gv->scale(qreal(pSelf->width())/1280, qreal(pSelf->height())/720);
-    }
-}
-
-void FrontendPrivate::resetUI()
-{
-    QDeclarativeView *declarativeWidget = qobject_cast<QDeclarativeView*>(centralWidget);
-    if (declarativeWidget) {
-        QObject* coreObject = declarativeWidget->rootObject();
-        coreObject->setProperty("state", "");
-        //coreObject->setProperty("focus", true);
-        QMetaObject::invokeMethod(coreObject, "resetFocus");
-    }
-}
-
-Frontend::Frontend(QWidget *p)
-    : QWidget(p),
-      d(new FrontendPrivate(this))
-{
-    setAttribute(Qt::WA_OpaquePaintEvent);
-    setAttribute(Qt::WA_NoSystemBackground);
-
-    connect(this, SIGNAL(resettingUI()), d, SLOT(resetUI()));
-    new QShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::ALT + Qt::Key_Backspace), this, SIGNAL(resettingUI()));
-    new QShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::ALT + Qt::Key_Down), this, SLOT(shrink()));
-    new QShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::ALT + Qt::Key_Up), this, SLOT(grow()));
-    new QShortcut(QKeySequence(Qt::ALT + Qt::Key_Return), this, SLOT(toggleFullScreen()));
-
-#ifdef QMH_AVAHI
-    QAvahiServicePublisher *publisher = new QAvahiServicePublisher(this);
-    publisher->publish(QHostInfo::localHostName(), "_qmh._tcp", 1234, "Qt Media Hub JSON-RPCv2 interface");
-#endif
-
-    RpcConnection *connection = new RpcConnection(RpcConnection::Server, QHostAddress::Any, 1234, this);
-    connection->registerObject(d->actionMap);
-    connection->registerObject(d->mediaPlayerHelper);
-    connection->registerObject(d->trackpad);
-
-    QMetaObject::invokeMethod(this, "initialize", Qt::QueuedConnection);
-}
-
-void Frontend::initialize()
+void FrontendPrivate::initialize()
 {
     setSkin(Config::value("last-skin", "").toString());
-    installEventFilter(Backend::instance());
-
-    if (Config::isEnabled("fullscreen", true)) {
-        showFullScreen();
-    } else {
-        show();
-    }
 }
 
-Frontend::~Frontend()
+void FrontendPrivate::setSkin(const QString &name)
 {
-    Config::setEnabled("overscan", d->overscanWorkAround);
-
-    if (d->overscanWorkAround)
-        Config::setValue("overscan-geometry", geometry());
-    else
-        Config::setValue("window-geometry", geometry());
-
-    delete d;
-    d = 0;
-}
-
-void Frontend::paintEvent(QPaintEvent *e)
-{
-    Q_UNUSED(e)
-    QPainter p(this);
-    p.fillRect(rect(), Qt::black);
-}
-
-void Frontend::resizeEvent(QResizeEvent *e)
-{
-    Q_UNUSED(e)
-    d->resizeSettleTimer.start(300);
-}
-
-void Frontend::setSkin(const QString &name)
-{
-    static QSize nativeResolution = qApp->desktop()->screenGeometry(this).size();
+    static QSize nativeResolution = qApp->desktop()->screenGeometry().size();
     static QString nativeResolutionString = Config::value("native-res-override", QString("%1x%2").arg(nativeResolution.width()).arg(nativeResolution.height()));
     //http://en.wikipedia.org/wiki/720p
     //1440, 1080, 720, 576, 480, 360, 240
@@ -207,27 +232,27 @@ void Frontend::setSkin(const QString &name)
     resolutionHash["720"] = "1280x720";
 
     Backend *backend = Backend::instance();
-    Skin *skin = 0;
+    Skin *newSkin = 0;
     Skin *defaultSkin = 0;
     QString defaultSkinName = Config::value("default-skin", "confluence").toString();
 
     foreach (QObject *o, backend->skins()) {
         Skin *s = qobject_cast<Skin*>(o);
         if (s->name() == name)
-            skin = s;
+            newSkin = s;
         if (s->name() == defaultSkinName)
             defaultSkin = s;
     }
 
-    if (!skin)
-        skin = defaultSkin;
+    if (!newSkin)
+        newSkin = defaultSkin;
 
-    if (!skin) {
+    if (!newSkin) {
         //Ultimate fallback
-        skin = new Skin(QFileDialog::getOpenFileName(this, tr("Select a suitable skin")), this);
+        newSkin = new Skin(QFileDialog::getOpenFileName(0, tr("Select a suitable skin")), this);
     }
 
-    QFile skinConfig(skin->config());
+    QFile skinConfig(newSkin->config());
     if (skinConfig.open(QIODevice::ReadOnly))
     {
         QHash<QString, QString> fileForResolution;
@@ -251,27 +276,46 @@ void Frontend::setSkin(const QString &name)
                 ? fileForResolution[nativeResolutionString]
                 : fileForResolution[Config::value("fallback-resolution", "default").toString()];
 
-        d->skin = skin;
+        skin = newSkin;
 
         initializeSkin(QUrl::fromLocalFile(skin->path() % "/" % urlPath));
     }
     else {
-        qWarning() << "Can't read" << skin->name();
+        qWarning() << "Can't read" << newSkin->name();
     }
+    pSelf->show();
 }
 
-void Frontend::initializeSkin(const QUrl &targetUrl)
+void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
 {
     if (targetUrl.isEmpty() || !targetUrl.isValid())
         qFatal("You are explicitly forcing a broken url on the skin system");
 
-    delete d->centralWidget;
+    if (skinWidget)
+    {
+        Config::setEnabled("fullscreen", attemptingFullScreen);
+        Config::setValue("last-skin", skin->name());
+        Config::setValue("desktop-id", qApp->desktop()->screenNumber(skinWidget));
+
+        Config::setEnabled("overscan", overscanWorkAround);
+
+        if (overscanWorkAround)
+            Config::setValue("overscan-geometry", skinWidget->geometry());
+        else
+            Config::setValue("window-geometry", skinWidget->geometry());
+
+        delete skinWidget;
+        skinWidget = 0;
+    }
 
     if (targetUrl.path().right(3) == "qml")
     {
-        QDeclarativeView *centralWidget= new QDeclarativeView(this);
-        centralWidget->setAutoFillBackground(false);
-        QDeclarativeEngine *engine = centralWidget->engine();
+        QDeclarativeView *declarativeWidget = new QDeclarativeView;
+        declarativeWidget->setAutoFillBackground(false);
+        declarativeWidget->setAttribute(Qt::WA_OpaquePaintEvent);
+        declarativeWidget->setAttribute(Qt::WA_NoSystemBackground);
+
+        QDeclarativeEngine *engine = declarativeWidget->engine();
 
         // register dataproviders to QML
         qmlRegisterType<ActionMapper>("ActionMapper", 1, 0, "ActionMapper");
@@ -283,47 +327,59 @@ void Frontend::initializeSkin(const QUrl &targetUrl)
         qmlRegisterType<Playlist>("Playlist", 1, 0, "Playlist");
         qmlRegisterType<RpcConnection>("RpcConnection", 1, 0, "RpcConnection");
 
+        actionMap = new ActionMapper(declarativeWidget);
+        mediaPlayerHelper = new MediaPlayerHelper(declarativeWidget);
+        trackpad = new Trackpad(declarativeWidget);
+
+        RpcConnection *connection = new RpcConnection(RpcConnection::Server, QHostAddress::Any, 1234, declarativeWidget);
+        connection->registerObject(actionMap);
+        connection->registerObject(mediaPlayerHelper);
+        connection->registerObject(trackpad);
+
         // attach global context properties
-        engine->rootContext()->setContextProperty("actionmap", d->actionMap);
-        engine->rootContext()->setContextProperty("mediaPlayerHelper", d->mediaPlayerHelper);
-        engine->rootContext()->setContextProperty("trackpad", d->trackpad);
-        engine->rootContext()->setContextProperty("frontend", this);
-        engine->rootContext()->setContextProperty("skin", d->skin);
+        engine->rootContext()->setContextProperty("actionmap", actionMap);
+        engine->rootContext()->setContextProperty("mediaPlayerHelper", mediaPlayerHelper);
+        engine->rootContext()->setContextProperty("trackpad", trackpad);
+        engine->rootContext()->setContextProperty("frontend", pSelf);
+        engine->rootContext()->setContextProperty("utils", new QMLUtils(declarativeWidget));
+        engine->rootContext()->setContextProperty("skin", skin);
         engine->rootContext()->setContextProperty("backend", Backend::instance());
+
         engine->addPluginPath(Backend::instance()->resourcePath() % "/lib");
         engine->addImportPath(Backend::instance()->resourcePath() % "/imports");
-        engine->addImportPath(d->skin->path());
+        engine->addImportPath(skin->path());
 
         if (Config::isEnabled("smooth-scaling", true))
-            centralWidget->setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing);
+            declarativeWidget->setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing);
 
-        centralWidget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-        centralWidget->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-        centralWidget->setFrameStyle(0);
-        centralWidget->setOptimizationFlags(QGraphicsView::DontSavePainterState);
-        centralWidget->scene()->setItemIndexMethod(QGraphicsScene::NoIndex);
-        centralWidget->setResizeMode(QDeclarativeView::SizeRootObjectToView);
+        declarativeWidget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        declarativeWidget->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        declarativeWidget->setFrameStyle(0);
+        declarativeWidget->setOptimizationFlags(QGraphicsView::DontSavePainterState);
+        declarativeWidget->scene()->setItemIndexMethod(QGraphicsScene::NoIndex);
+        declarativeWidget->setResizeMode(QDeclarativeView::SizeRootObjectToView);
 
         QObject::connect(engine, SIGNAL(quit()), qApp, SLOT(quit()));
 
         if (Config::isEnabled("use-gl", true))
         {
 #ifdef GLVIEWPORT
-            QGLWidget *viewport = new QGLWidget(centralWidget);
+            QGLWidget *viewport = new QGLWidget(declarativeWidget);
             viewport->setAttribute(Qt::WA_OpaquePaintEvent);
             viewport->setAttribute(Qt::WA_NoSystemBackground);
             viewport->setAutoFillBackground(false);
-            centralWidget->setViewport(viewport);
+            declarativeWidget->setViewport(viewport);
 #endif
-            centralWidget->setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
+            declarativeWidget->setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
         } else {
-            centralWidget->setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
+            declarativeWidget->setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
         }
-        centralWidget->rootContext()->setContextProperty("config", Config::instance());
+        declarativeWidget->rootContext()->setContextProperty("config", Config::instance());
 
         foreach (QMHPlugin *plugin, Backend::instance()->allEngines())
-            plugin->registerPlugin(centralWidget->rootContext());
+            plugin->registerPlugin(declarativeWidget->rootContext());
 
+        //Really need to have this dude go out of scope that quickly?
         {
             const QMetaObject &PluginMO = QMHPlugin::staticMetaObject;
             int enumIndex = PluginMO.indexOfEnumerator("PluginRole");
@@ -332,123 +388,118 @@ void Frontend::initializeSkin(const QUrl &targetUrl)
             foreach (QObject *p, Backend::instance()->allEngines()) {
                 QMHPlugin *plugin = qobject_cast<QMHPlugin *>(p);
                 if (plugin && plugin->role() < QMHPlugin::SingletonRoles) {
-                    centralWidget->rootContext()->setContextProperty(QString(roleEnum.valueToKey(plugin->role())).toLower() + "Engine", plugin);
+                    declarativeWidget->rootContext()->setContextProperty(QString(roleEnum.valueToKey(plugin->role())).toLower() + "Engine", plugin);
                 }
             }
         }
 
         resetLanguage();
-        d->centralWidget = centralWidget;
-        centralWidget->setSource(targetUrl);
-
-        d->centralWidget->setAttribute(Qt::WA_OpaquePaintEvent);
-        d->centralWidget->setAttribute(Qt::WA_NoSystemBackground);
+        skinWidget = new WidgetWrapper(declarativeWidget);
+        connect(skinWidget, SIGNAL(grow()), this, SLOT(grow()));
+        connect(skinWidget, SIGNAL(shrink()), this, SLOT(shrink()));
+        connect(skinWidget, SIGNAL(toggleFullScreen()), this, SLOT(toggleFullScreen()));
+        declarativeWidget->setSource(targetUrl);
     }
-
 }
 
-void Frontend::resetLanguage()
+void FrontendPrivate::resetLanguage()
 {
     Backend *backend = Backend::instance();
     QString language = backend->language();
 
-    delete d->frontEndTranslator;
-    d->frontEndTranslator = new QTranslator(this);
     //FIXME: this clearly needs some heuristics
-    d->frontEndTranslator->load(d->skin->path() % "/confluence/translations/" % "confluence_" % language % ".qm");
-    qApp->installTranslator(d->frontEndTranslator);
+    frontEndTranslator.load(skin->path() % "/confluence/translations/" % "confluence_" % language % ".qm");
 }
 
-void Frontend::showFullScreen()
+void FrontendPrivate::showFullScreen()
 {
-    d->attemptingFullScreen = true;
+    attemptingFullScreen = true;
 
-    if (d->overscanWorkAround) {
-        QRect geometry = Config::value("overscan-geometry", d->defaultGeometry);
+    if (overscanWorkAround) {
+        QRect geometry = Config::value("overscan-geometry", defaultGeometry);
         geometry.moveCenter(qApp->desktop()->availableGeometry().center());
-        setGeometry(geometry);
 
-        setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
-        setWindowState(Qt::WindowNoState);
-
-        show();
+        skinWidget->setGeometry(geometry);
+        skinWidget->setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
+        skinWidget->setWindowState(Qt::WindowNoState);
+        skinWidget->show();
     } else {
-        QWidget::showFullScreen();
+        skinWidget->showFullScreen();
     }
 
-    activateWindow();
+    skinWidget->activateWindow();
 }
 
-void Frontend::showNormal()
+void FrontendPrivate::showNormal()
 {
-    d->attemptingFullScreen = false;
+    attemptingFullScreen = false;
 
-    setWindowFlags(Qt::Window);
-    setGeometry(Config::value("window-geometry", d->defaultGeometry));
-    QWidget::showNormal();
+    skinWidget->setWindowFlags(Qt::Window);
+    skinWidget->setGeometry(Config::value("window-geometry", defaultGeometry));
+    skinWidget->showNormal();
 
-    activateWindow();
+    skinWidget->activateWindow();
 }
 
-void Frontend::grow()
+void FrontendPrivate::grow()
 {
-    if (!d->attemptingFullScreen)
+    if (!attemptingFullScreen)
         return;
 
-    const QRect newGeometry = geometry().adjusted(-1,-1,1,1);
+    const QRect newGeometry = skinWidget->geometry().adjusted(-1,-1,1,1);
 
-    const QSize desktopSize = qApp->desktop()->screenGeometry(this).size();
+    const QSize desktopSize = qApp->desktop()->screenGeometry(skinWidget).size();
     if ((newGeometry.width() > desktopSize.width())
             || (newGeometry.height() > desktopSize.height())) {
-        d->overscanWorkAround = false;
+        overscanWorkAround = false;
         showFullScreen();
     }
     else {
-        setGeometry(newGeometry);
+        skinWidget->setGeometry(newGeometry);
     }
 }
 
-void Frontend::shrink()
+void FrontendPrivate::shrink()
 {
-    if (!d->attemptingFullScreen)
+    if (!attemptingFullScreen)
         return;
 
-    d->overscanWorkAround = true;
-    setGeometry(geometry().adjusted(1,1,-1,-1));
+    if (!overscanWorkAround) {
+        overscanWorkAround = true;
+        showFullScreen();
+    }
+    skinWidget->setGeometry(skinWidget->geometry().adjusted(1,1,-1,-1));
 }
 
-void Frontend::toggleFullScreen()
+void FrontendPrivate::toggleFullScreen()
 {
-    if (d->attemptingFullScreen) {
-        Config::setValue("overscan-geometry", geometry());
+    if (attemptingFullScreen) {
+        Config::setValue("overscan-geometry", skinWidget->geometry());
         showNormal();
     }
     else {
-        Config::setValue("window-geometry", geometry());
+        Config::setValue("window-geometry", skinWidget->geometry());
         showFullScreen();
     }
 }
 
-QObject *Frontend::focusItem() const
+Frontend::Frontend(QObject *p)
+    : QObject(p),
+      d(new FrontendPrivate(this)) { /*no impl*/ }
+
+Frontend::~Frontend()
 {
-    return qgraphicsitem_cast<QGraphicsObject *>(d->centralWidget->scene()->focusItem());
+    delete d;
+    d = 0;
 }
 
-void Frontend::applyWebViewFocusFix(QDeclarativeItem *item) // See https://bugs.webkit.org/show_bug.cgi?id=51094
+void Frontend::show()
 {
-    item->setFlag(QGraphicsItem::ItemIsFocusScope, true);
-    QList<QGraphicsItem *> children = item->childItems();
-    for (int i = 0; i < children.count(); i++) {
-        if (QGraphicsWidget *maybeWebView = qgraphicsitem_cast<QGraphicsWidget *>(children[i])) {
-            if (maybeWebView->inherits("QGraphicsWebView"))
-                maybeWebView->setFocus();
-        }
+    if (d->attemptingFullScreen) {
+        d->showFullScreen();
+    } else {
+        d->showNormal();
     }
-}
-
-QWidget *Frontend::centralWidget() const
-{
-    return d->centralWidget;
 }
 
 #include "frontend.moc"

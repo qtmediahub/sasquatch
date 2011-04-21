@@ -21,15 +21,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #define TRACKPAD_H
 
 #include <QObject>
-
-class Frontend;
+#include <QCoreApplication>
 
 class Trackpad : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit Trackpad(Frontend *frontend = 0);
+    explicit Trackpad(QObject *p = qApp);
     ~Trackpad();
 
 public slots:
@@ -38,7 +37,7 @@ public slots:
     void click();
 
 private:
-    Frontend *m_frontend;
+    QObject *parent;
 };
 
 #endif // TRACKPAD_H

@@ -39,8 +39,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QFileSystemWatcher>
 #include <QNetworkProxy>
 
+#include <QHostInfo>
+
 #ifdef GL
 #include <QGLFormat>
+#endif
+
+#ifdef QMH_AVAHI
+#include "qavahiservicepublisher.h"
 #endif
 
 #include <QDebug>
@@ -329,6 +335,7 @@ void Backend::initialize()
 {
     d->discoverEngines();
     if (!Config::isEnabled("headless", false)) {
+#if 0
         QSplashScreen splash;
         if (Config::isEnabled("splashscreen", true)) {
             QPixmap splashPixmap(":/images/splash.jpg");
@@ -343,11 +350,18 @@ void Backend::initialize()
         d->frontend = new Frontend();
 
         splash.finish(d->frontend);
+#endif
+        d->frontend = new Frontend();
     }
     if (Config::isEnabled("system-tray", false)) {
         d->systray = new QSystemTrayIcon(QIcon(":/images/petite-ganesh-22x22.jpg"), this);
         d->systray->setVisible(true);
     }
+
+#ifdef QMH_AVAHI
+    QAvahiServicePublisher *publisher = new QAvahiServicePublisher(this);
+    publisher->publish(QHostInfo::localHostName(), "_qmh._tcp", 1234, "Qt Media Hub JSON-RPCv2 interface");
+#endif
 }
 
 QString Backend::language() const

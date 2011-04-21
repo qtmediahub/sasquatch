@@ -22,8 +22,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QtGui>
 #include <QtDeclarative>
 
-Trackpad::Trackpad(Frontend *frontend)
-    : QObject(frontend), m_frontend(frontend)
+Trackpad::Trackpad(QObject *p)
+    : QObject(p), parent(p)
 {
     setObjectName("trackpad");
 }
@@ -34,7 +34,7 @@ Trackpad::~Trackpad()
 
 void Trackpad::setEnabled(bool e)
 {
-    QDeclarativeView *view = qobject_cast<QDeclarativeView *>(m_frontend->centralWidget());
+    QDeclarativeView *view = qobject_cast<QDeclarativeView *>(parent);
     QDeclarativeExpression expression(view->rootContext(), 0, QString("cursor.enableCursor(%1)").arg(e));
     expression.evaluate();
     if (expression.hasError())
@@ -43,7 +43,7 @@ void Trackpad::setEnabled(bool e)
 
 void Trackpad::moveBy(int x, int y)
 {
-    QDeclarativeView *view = qobject_cast<QDeclarativeView *>(m_frontend->centralWidget());
+    QDeclarativeView *view = qobject_cast<QDeclarativeView *>(parent);
     QDeclarativeExpression expression(view->rootContext(), 0, QString("cursor.moveBy(%1,%2)").arg(x).arg(y));
     expression.evaluate();
     if (expression.hasError())
@@ -53,11 +53,10 @@ void Trackpad::moveBy(int x, int y)
 void Trackpad::click()
 {
     QPoint globalPos = QCursor::pos();
-    QDeclarativeView *view = qobject_cast<QDeclarativeView *>(m_frontend->centralWidget());
+    QDeclarativeView *view = qobject_cast<QDeclarativeView *>(parent);
     QPoint localPos = view->viewport()->mapFromGlobal(globalPos);
     QMouseEvent mousePress(QEvent::MouseButtonPress, localPos, globalPos, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
     qApp->sendEvent(view->viewport(), &mousePress);
     QMouseEvent mouseRelease(QEvent::MouseButtonRelease, localPos, globalPos, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
     qApp->sendEvent(view->viewport(), &mouseRelease);
 }
-
