@@ -18,7 +18,6 @@ signals:
     void tiledWanted();
     void centeredWanted();
 
-
 private:
     void setupAT();
     QGraphicsRectItem* parentItem;

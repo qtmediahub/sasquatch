@@ -206,6 +206,7 @@ FrontendPrivate::FrontendPrivate(Frontend *p)
       skinWidget(0),
       pSelf(p)
 {
+    qApp->setOverrideCursor(Qt::BlankCursor);
     qApp->installTranslator(&frontEndTranslator);
     QMetaObject::invokeMethod(this, "initialize", Qt::QueuedConnection);
 }
@@ -213,7 +214,7 @@ FrontendPrivate::FrontendPrivate(Frontend *p)
 FrontendPrivate::~FrontendPrivate()
 {
     Config::setEnabled("fullscreen", attemptingFullScreen);
-    Config::setValue("last-skin", skin->name());
+    Config::setValue("skin", skin->name());
     Config::setEnabled("overscan", overscanWorkAround);
 
     Config::setValue("desktop-id", qApp->desktop()->screenNumber(skinWidget));
@@ -228,7 +229,7 @@ FrontendPrivate::~FrontendPrivate()
 
 void FrontendPrivate::initialize()
 {
-    setSkin(Config::value("last-skin", "").toString());
+    setSkin(Config::value("skin", "").toString());
 }
 
 void FrontendPrivate::setSkin(const QString &name)

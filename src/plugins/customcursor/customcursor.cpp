@@ -45,8 +45,6 @@ CustomCursor::CustomCursor(QObject *parent) :
     m_blankCursor(Qt::BlankCursor),
     m_EventSink(new MouseEventHorizon(this))
 {
-    qApp->setOverrideCursor(m_blankCursor);
-
     enableCursor(Config::isEnabled("mouse", true));
 }
 

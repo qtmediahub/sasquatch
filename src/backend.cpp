@@ -125,7 +125,6 @@ public:
             QDir dir;
             dir.mkpath(thumbnailFolderInfo.absoluteFilePath());
         }
-
         discoverSkins();
     }
 
