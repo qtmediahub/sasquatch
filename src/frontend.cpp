@@ -212,6 +212,17 @@ FrontendPrivate::FrontendPrivate(Frontend *p)
 
 FrontendPrivate::~FrontendPrivate()
 {
+    Config::setEnabled("fullscreen", attemptingFullScreen);
+    Config::setValue("last-skin", skin->name());
+    Config::setEnabled("overscan", overscanWorkAround);
+
+    Config::setValue("desktop-id", qApp->desktop()->screenNumber(skinWidget));
+
+    if (!attemptingFullScreen)
+        Config::setValue("window-geometry", skinWidget->geometry());
+    else if (overscanWorkAround)
+        Config::setValue("overscan-geometry", skinWidget->geometry());
+
     delete skinWidget;
 }
 
@@ -293,17 +304,11 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
 
     if (skinWidget)
     {
-        Config::setEnabled("fullscreen", attemptingFullScreen);
-        Config::setValue("last-skin", skin->name());
         Config::setValue("desktop-id", qApp->desktop()->screenNumber(skinWidget));
-
-        Config::setEnabled("overscan", overscanWorkAround);
-
-        if (overscanWorkAround)
-            Config::setValue("overscan-geometry", skinWidget->geometry());
-        else
+        if (!attemptingFullScreen)
             Config::setValue("window-geometry", skinWidget->geometry());
-
+        else if (overscanWorkAround)
+            Config::setValue("overscan-geometry", skinWidget->geometry());
         delete skinWidget;
         skinWidget = 0;
     }
@@ -414,6 +419,7 @@ void FrontendPrivate::resetLanguage()
 void FrontendPrivate::showFullScreen()
 {
     attemptingFullScreen = true;
+    overscanWorkAround = Config::isEnabled("overscan", false);
 
     if (overscanWorkAround) {
         QRect geometry = Config::value("overscan-geometry", defaultGeometry);
@@ -432,7 +438,7 @@ void FrontendPrivate::showFullScreen()
 
 void FrontendPrivate::showNormal()
 {
-    attemptingFullScreen = false;
+    attemptingFullScreen = overscanWorkAround = false;
 
     skinWidget->setWindowFlags(Qt::Window);
     skinWidget->setGeometry(Config::value("window-geometry", defaultGeometry));
@@ -451,7 +457,7 @@ void FrontendPrivate::grow()
     const QSize desktopSize = qApp->desktop()->screenGeometry(skinWidget).size();
     if ((newGeometry.width() > desktopSize.width())
             || (newGeometry.height() > desktopSize.height())) {
-        overscanWorkAround = false;
+        Config::setEnabled("overscan", false);
         showFullScreen();
     }
     else {
@@ -465,7 +471,7 @@ void FrontendPrivate::shrink()
         return;
 
     if (!overscanWorkAround) {
-        overscanWorkAround = true;
+        Config::setEnabled("overscan");
         showFullScreen();
     }
     skinWidget->setGeometry(skinWidget->geometry().adjusted(1,1,-1,-1));
