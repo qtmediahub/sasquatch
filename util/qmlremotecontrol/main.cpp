@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
     mainWindow.setSource(QUrl("qrc:/qmlremotecontrol.qml"));
 
 #if defined(Q_WS_MAEMO_5)
-    mainWindow.setAttribute(Qt::WA_Maemo5PortraitOrientation, true);
+    mainWindow.setAttribute(Qt::WA_LockPortraitOrientation, true);
 #endif
 
 #if defined(Q_OS_SYMBIAN) || defined(Q_WS_MAEMO_5)

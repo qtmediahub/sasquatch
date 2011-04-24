@@ -47,62 +47,55 @@ Item {
         NumberAnimation { properties: "x" }
     }
 
-    Text {
-        id: controlTitle
+    Grip {
+        id: targets
+        text: qsTr("Targets")
+        onClicked: rpcClient.disconnectFromHost()
         anchors.top: parent.top
-        anchors.horizontalCenter: parent.horizontalCenter
-        font.weight: Font.Light
-        font.pointSize: 16
-        color:  "#FCFCFC"
-        style: Text.Sunken
-        styleColor: "#000000"
-        font.family: "Verdana"
+    }
+
+    Item {
+        id: controlLabel
+        anchors.top: targets.bottom
+        width: parent.width; height: controlTitle.height + constants.textPadding
+        Text {
+            id: controlTitle
+            anchors.centerIn: parent
+            font.weight: Font.Light
+            font.pointSize: constants.textPointSize
+            color:  "#FCFCFC"
+            style: Text.Sunken
+            styleColor: "#000000"
+            font.family: "Verdana"
+        }
     }
 
     VolumeControl {
         id: volumeControl
-        anchors.top: controlTitle.bottom
-        anchors.topMargin: 10
-        width: parent.width
+        anchors.top: controlLabel.bottom
     }
 
     RemoteControlButtons {
         id: remoteControlButtons
         clip: true
         width: parent.width
-        anchors.margins: 5
         anchors.top: volumeControl.bottom
-        anchors.bottom: targets.top
-        anchors.left: remoteControlButtons.right
+        anchors.bottom: showTrackpad.top
     }
 
     Trackpad {
         id: trackpad
         width: parent.width
-        anchors.margins: 5
         anchors.top: volumeControl.bottom
-        anchors.bottom: targets.top
+        anchors.bottom: showTrackpad.top
         anchors.left: remoteControlButtons.right
     }
 
-    Button {
-        id: targets
-        text: qsTr("Targets")
-        onClicked: rpcClient.disconnectFromHost()
-        anchors.bottom: parent.bottom
-        anchors.left: parent.left
-        anchors.margins: 10
-        width: root.width/2.0 - anchors.margins*2.0
-    }
-
-    Button {
+    Grip {
         id: showTrackpad
         text: root.state == "showingTrackpad" ? qsTr("Buttons") : qsTr("Trackpad")
         onClicked: root.state = root.state == "showingTrackpad" ? "showingButtons" : "showingTrackpad"
         anchors.bottom: parent.bottom
-        anchors.right: parent.right
-        anchors.margins: 10
-        width: root.width/2.0 - anchors.margins*2.0
     }
 }
 

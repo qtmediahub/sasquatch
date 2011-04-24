@@ -22,41 +22,43 @@ import QtQuick 1.0
 Item {
     id: root
 
-    Item {
-        width: parent.width
-        height: childrenRect.height
+    width: parent.width
+    height: childrenRect.height * root.scale
+
+    QtObject {
+        id: pimpl
+        property int buttonHeight: navKeys.height/2*navKeys.scale + 40
+    }
+
+    KeyGrid {
+        id: navKeys
+        z: 1
         anchors.centerIn: parent
+        //Scaling is handled so poorly
+        //Why is scale not factored into width's/height etc?
+        scale: 1.8
 
-        KeyGrid {
-            id: navKeys
-            anchors.horizontalCenter: parent.horizontalCenter
+        onUp: rpcClient.call("qmhrpc.takeAction", 1)
+        onDown: rpcClient.call("qmhrpc.takeAction", 3)
+        onLeft: rpcClient.call("qmhrpc.takeAction", 0)
+        onRight: rpcClient.call("qmhrpc.takeAction", 2)
+        onCenter: rpcClient.call("qmhrpc.takeAction", 4)
+    }
 
-            onUp: rpcClient.call("qmhrpc.takeAction", 1)
-            onDown: rpcClient.call("qmhrpc.takeAction", 3)
-            onLeft: rpcClient.call("qmhrpc.takeAction", 0)
-            onRight: rpcClient.call("qmhrpc.takeAction", 2)
-            onCenter: rpcClient.call("qmhrpc.takeAction", 4)
-        }
+    Button {
+        id: back
+        width: undefined; height: pimpl.buttonHeight ; //should really be a scaledHeight property
+        //text: qsTr("Back")
+        anchors { bottom: navKeys.verticalCenter; left: parent.left; right: navKeys.horizontalCenter }
+        onClicked: rpcClient.call("qmhrpc.takeAction", 5)
+    }
 
-        Button {
-            id: back
-            text: qsTr("Back")
-            anchors.margins: 20
-            anchors.bottom: navKeys.top
-            anchors.left: parent.left
-            width: root.width/2.0 - anchors.margins*2
-            onClicked: rpcClient.call("qmhrpc.takeAction", 5)
-        }
-
-        Button {
-            id: context
-            text: qsTr("Context")
-            anchors.margins: 20
-            anchors.bottom: navKeys.top
-            anchors.right: parent.right
-            width: root.width/2.0 - anchors.margins*2
-            onClicked: rpcClient.call("qmhrpc.takeAction", 6)
-        }
+    Button {
+        id: context
+        width: undefined; height: pimpl.buttonHeight;
+        //text: qsTr("Context")
+        anchors { bottom: navKeys.verticalCenter; right: parent.right; left: navKeys.horizontalCenter }
+        onClicked: rpcClient.call("qmhrpc.takeAction", 6)
     }
 }
 

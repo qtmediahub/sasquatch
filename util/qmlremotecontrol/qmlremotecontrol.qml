@@ -22,11 +22,17 @@ import RpcConnection 1.0
 
 Rectangle {
     id: qmlRemote
-    height: 640
-    width: 360
+    height: 800
+    width: 480
     color: "black"
 
     state: "targets"
+
+    QtObject {
+        id: constants
+        property int textPadding: 20
+        property int textPointSize: 32
+    }
 
     Image {
         id: background

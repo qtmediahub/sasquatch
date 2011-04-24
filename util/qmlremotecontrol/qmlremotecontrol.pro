@@ -61,5 +61,5 @@ OTHER_FILES += \
     RemoteControlButtons.qml \
     KeyGrid.qml \
     VolumeControl.qml \
-    Trackpad.qml
-
+    Trackpad.qml \
+    Grip.qml

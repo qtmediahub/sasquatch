@@ -28,38 +28,36 @@ Item {
     height: parent.height
     clip: true
 
-    QtObject {
-        id: pimpl
-        property int textPointSize: 16
-    }
 
-    Text {
-        id: targetsTitle
-        text: qsTr("Select Target")
-        horizontalAlignment: Text.AlignHCenter
+    Item {
+        id: targetsLabel
         width: parent.width
-        font.weight: Font.Light
-        font.pointSize: 16
-        color:  "#FCFCFC"
-        style: Text.Sunken
-        styleColor: "#000000"
-        font.family: "Verdana"
+        height: targetsTitle.height+30
+        Text {
+            id: targetsTitle
+            text: qsTr("Select Target")
+            anchors.centerIn: parent
+            font.weight: Font.Light
+            font.pointSize: constants.textPointSize
+            color:  "#FCFCFC"
+            style: Text.Sunken
+            styleColor: "#000000"
+            font.family: "Verdana"
+        }
     }
 
     ListView {
         id: targetsList
         model: targetsModel
 
-        anchors.top: targetsTitle.bottom
-        anchors.topMargin: 20
-        anchors.bottom: root.bottom
-        anchors.bottomMargin: 20
+        anchors.top: targetsLabel.bottom
+        anchors.bottom: manualEntryButtons.visible ? manualEntryButtons.top : exitButton.bottom
         width: parent.width
         clip: true
 
         delegate: Item {
             width: ListView.view.width
-            height: sourceText.height + 8
+            height: sourceText.height + 30
             Image {
                 id: backgroundImage
                 anchors.fill: parent;
@@ -73,7 +71,7 @@ Item {
                 z: 1 // ensure it is above the background
                 text: model.display
                 font.weight: Font.Light
-                font.pointSize: pimpl.textPointSize
+                font.pointSize: constants.textPointSize
                 color: "white"
             }
 
@@ -93,30 +91,31 @@ Item {
     }
 
     Row {
-        anchors.margins: 10
-        anchors.bottom: parent.bottom
+        id: manualEntryButtons
+        anchors.bottom: exitButton.top
         anchors.horizontalCenter: parent.horizontalCenter
         spacing: 10
+        visible: !!targetsModel.editable
 
         Button {
             id: addButton
             text: qsTr("Add")
-            visible: !!targetsModel.editable
             onClicked: addTargetDialog.opacity = 1
         }
 
         Button {
             id: removeButton
             text: qsTr("Remove")
-            visible: !!targetsModel.editable
             onClicked: targetsModel.removeService(targetsList.currentIndex)
         }
+    }
 
-        Button {
-            id: exitButton
-            text: qsTr("Exit")
-            onClicked: Qt.quit();
-        }
+    Button {
+        id: exitButton
+        width: parent.width
+        text: qsTr("Exit")
+        anchors.bottom: parent.bottom
+        onClicked: Qt.quit();
     }
 
     AddTargetDialog {

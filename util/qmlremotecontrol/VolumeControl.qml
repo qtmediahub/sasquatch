@@ -21,16 +21,17 @@ import QtQuick 1.0
 
 Item {
     id: root
-    width: 200
-    height: 48
+    width: parent.width
+    height: 100
+    clip: true
     property int value: 50
     BorderImage {
         anchors.centerIn: parent
         id: bar
         source: "qrc:/images/navpad_bar.png"
-        width: Math.min(root.value*(root.width/100), root.width); height: 100
-        border.left: 8; border.top: 0
-        border.right: 8; border.bottom: 0
+        width: Math.min(root.value*(root.width/100), root.width); height: parent.height + 80 //padding!
+        border.left: 0; border.top: 0
+        border.right: 0; border.bottom: 0
 
         Behavior on width {
             NumberAnimation { duration: 150}
@@ -41,7 +42,7 @@ Item {
         anchors.centerIn: parent
         text: qsTr("Volume")
         font.weight: Font.Light
-        font.pointSize: 16
+        font.pointSize: constants.textPointSize
         color: "white"
     }
     MouseArea {

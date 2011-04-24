@@ -23,11 +23,10 @@ BorderImage {
     id: root
 
     property alias text: textLabel.text
-    property alias textAnchors: textLabel.anchors
     signal clicked()
 
-    width: 110
-    height: textLabel.height + 30
+    width: parent.width
+    height: textLabel.height + constants.textPadding
     border.left: 16; border.top: 8
     border.right: 16; border.bottom: 8
 
@@ -46,7 +45,6 @@ BorderImage {
         font.weight: Font.Light
         font.pointSize: constants.textPointSize
         color:  "#FCFCFC"
-        style: mouseArea.pressed ? Text.Sunken : Text.Normal
         styleColor: "#000000"
         font.family: "Verdana"
     }
