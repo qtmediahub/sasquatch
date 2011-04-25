@@ -25,6 +25,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "staticservicebrowsermodel.h"
 #endif
 
+#ifdef GLVIEWPORT
+#include <QtOpenGL/QGLWidget>
+#endif
+
 #include "rpc/rpcconnection.h"
 
 MainWindow::MainWindow(QWidget *parent)
@@ -32,7 +36,18 @@ MainWindow::MainWindow(QWidget *parent)
 {
     setAttribute(Qt::WA_OpaquePaintEvent);
     setAttribute(Qt::WA_NoSystemBackground);
-    setViewportUpdateMode(QGraphicsView::MinimalViewportUpdate);
+
+#ifdef GLVIEWPORT
+        QGLWidget *viewport = new QGLWidget(this);
+        viewport->setAttribute(Qt::WA_OpaquePaintEvent);
+        viewport->setAttribute(Qt::WA_NoSystemBackground);
+        viewport->setAutoFillBackground(false);
+        setViewport(viewport);
+        setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
+#else
+        setViewportUpdateMode(QGraphicsView::MinimalViewportUpdate);
+#endif
+
     setResizeMode(QDeclarativeView::SizeRootObjectToView);
 
     connect(engine(), SIGNAL(quit()), QApplication::instance(), SLOT(quit()));

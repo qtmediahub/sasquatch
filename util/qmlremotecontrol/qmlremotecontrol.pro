@@ -16,7 +16,12 @@ unix:!symbian {
 }
 
 linux* {
-    CONFIG += avahi
+    CONFIG += avahi gl
+}
+
+gl {
+    DEFINES += GLVIEWPORT
+    QT += opengl
 }
 
 symbian {
