@@ -20,10 +20,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #ifndef FRONT_END
 #define FRONT_END
 
-#include <QWidget>
-#include <QUrl>
+#include <QObject>
 
-class QDeclarativeItem;
 class FrontendPrivate;
 
 /*Logic abstracting what is handling the rendering and resolution selection*/

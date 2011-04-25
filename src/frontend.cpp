@@ -25,10 +25,15 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QList>
 #include <QVariant>
 
+#ifdef SCENEGRAPH
+#include <QSGItem>
+#include <QSGView>
+#else
 #include <QDeclarativeItem>
 #include <QDeclarativeView>
-#include <QDeclarativeEngine>
+#endif
 #include <QDeclarativeContext>
+#include <QDeclarativeEngine>
 #include <QDeclarativeComponent>
 #include <QApplication>
 #include <QTimer>
@@ -316,12 +321,42 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
 
     if (targetUrl.path().right(3) == "qml")
     {
+#ifdef SCENEGRAPH
+        QSGView *declarativeWidget = new QSGView;
+#else
         QDeclarativeView *declarativeWidget = new QDeclarativeView;
         declarativeWidget->setAutoFillBackground(false);
         declarativeWidget->setAttribute(Qt::WA_OpaquePaintEvent);
         declarativeWidget->setAttribute(Qt::WA_NoSystemBackground);
 
+
+        if (Config::isEnabled("smooth-scaling", true))
+            declarativeWidget->setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing);
+
+        declarativeWidget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        declarativeWidget->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        declarativeWidget->setFrameStyle(0);
+        declarativeWidget->setOptimizationFlags(QGraphicsView::DontSavePainterState);
+        declarativeWidget->scene()->setItemIndexMethod(QGraphicsScene::NoIndex);
+        declarativeWidget->setResizeMode(QDeclarativeView::SizeRootObjectToView);
+
+        if (Config::isEnabled("use-gl", true))
+        {
+#ifdef GLVIEWPORT
+            QGLWidget *viewport = new QGLWidget(declarativeWidget);
+            viewport->setAttribute(Qt::WA_OpaquePaintEvent);
+            viewport->setAttribute(Qt::WA_NoSystemBackground);
+            viewport->setAutoFillBackground(false);
+            declarativeWidget->setViewport(viewport);
+#endif //GLVIEWPORT
+            declarativeWidget->setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
+        } else {
+            declarativeWidget->setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
+        }
+#endif //SCENEGRAPH
+        //QSGEngine is not an equivalent class, this class holds for both
         QDeclarativeEngine *engine = declarativeWidget->engine();
+        QObject::connect(engine, SIGNAL(quit()), qApp, SLOT(quit()));
 
         // register dataproviders to QML
         qmlRegisterType<ActionMapper>("ActionMapper", 1, 0, "ActionMapper");
@@ -347,7 +382,7 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
         engine->rootContext()->setContextProperty("mediaPlayerHelper", mediaPlayerHelper);
         engine->rootContext()->setContextProperty("trackpad", trackpad);
         engine->rootContext()->setContextProperty("frontend", pSelf);
-        engine->rootContext()->setContextProperty("utils", new QMLUtils(declarativeWidget));
+        //engine->rootContext()->setContextProperty("utils", new QMLUtils(declarativeWidget));
         engine->rootContext()->setContextProperty("skin", skin);
         engine->rootContext()->setContextProperty("backend", Backend::instance());
 
@@ -355,31 +390,6 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
         engine->addImportPath(Backend::instance()->resourcePath() % "/imports");
         engine->addImportPath(skin->path());
 
-        if (Config::isEnabled("smooth-scaling", true))
-            declarativeWidget->setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing);
-
-        declarativeWidget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-        declarativeWidget->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-        declarativeWidget->setFrameStyle(0);
-        declarativeWidget->setOptimizationFlags(QGraphicsView::DontSavePainterState);
-        declarativeWidget->scene()->setItemIndexMethod(QGraphicsScene::NoIndex);
-        declarativeWidget->setResizeMode(QDeclarativeView::SizeRootObjectToView);
-
-        QObject::connect(engine, SIGNAL(quit()), qApp, SLOT(quit()));
-
-        if (Config::isEnabled("use-gl", true))
-        {
-#ifdef GLVIEWPORT
-            QGLWidget *viewport = new QGLWidget(declarativeWidget);
-            viewport->setAttribute(Qt::WA_OpaquePaintEvent);
-            viewport->setAttribute(Qt::WA_NoSystemBackground);
-            viewport->setAutoFillBackground(false);
-            declarativeWidget->setViewport(viewport);
-#endif
-            declarativeWidget->setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
-        } else {
-            declarativeWidget->setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
-        }
         declarativeWidget->rootContext()->setContextProperty("config", Config::instance());
 
         foreach (QMHPlugin *plugin, Backend::instance()->allEngines())

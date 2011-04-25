@@ -36,15 +36,11 @@ int main(int argc, char** argv)
     //Purely for experimentation
     QGLFormat format;
     //should suffice
-    format.setDepth(false);
+//    format.setDepth(false);
 //    plan b: russian roulette
 //    format.setStencil(false);
 
-#ifdef Q_OS_MAC
     format.setSampleBuffers(true);
-#else
-    format.setSampleBuffers(false);
-#endif //Q_OS_MAC
 
 //    //FIXME: Should be configurable, but Config
 //    blocked by instantiation of QApplication

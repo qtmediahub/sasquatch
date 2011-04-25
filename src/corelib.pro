@@ -16,6 +16,10 @@ linux* {
     message(glviewport*)
 }
 
+scenegraph {
+    DEFINES += SCENEGRAPH
+}
+
 mac {
     QT += webkit\
           multimedia
