@@ -250,9 +250,10 @@ void BackendPrivate::discoverSkins()
                    << "http://gitorious.org/qtmediahub/qtmediahub-core/blobs/master/INSTALL" \
                    << "for further details";
     } else {
-        qWarning() << "Available skins:";
+        QStringList sl;
         foreach(QObject *skin, skins)
-            qWarning() << "\t" << qobject_cast<Skin*>(skin)->name();
+            sl.append(qobject_cast<Skin*>(skin)->name());
+        qDebug() << "Available skins:" << sl.join(",");
     }
 }
 

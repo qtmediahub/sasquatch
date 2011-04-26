@@ -32,7 +32,7 @@ ActionMapper::ActionMapper(QObject *p)
     setObjectName("qmhrpc");
 
     maps = QDir(mapPath).entryList(QDir::Files);
-    qWarning() << "Available keyboard maps" << maps;
+    qDebug() << "Available keyboard maps" << maps;
 
     mapName = Config::value("keymap", "stdkeyboard").toString();
     populateMap();
@@ -68,8 +68,6 @@ bool ActionMapper::loadMapFromDisk(const QString &mapFilePath)
     if (mapFile.exists()
         && mapFile.open(QIODevice::ReadOnly))
     {
-        qWarning() << "Load keymap" << mapFilePath;
-
         QTextStream mapStream(&mapFile);
         while(!mapStream.atEnd())
         {
@@ -93,8 +91,6 @@ bool ActionMapper::loadMapFromDisk(const QString &mapFilePath)
         }
         if(actionEnum.keyCount() != keyHash.size())
             qWarning("\tCertain actions have not been mapped");
-        else
-            qWarning("\tAll keys mapped correctly");
     } else {
         qWarning() << "Could not load keymap: " << mapFilePath;
         return false;
