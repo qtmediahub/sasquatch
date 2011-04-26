@@ -60,11 +60,11 @@ class QMLUtils : public QObject
 {
     Q_OBJECT
 public:
-    QMLUtils(QDeclarativeView *pDeclarativeView) : QObject(pDeclarativeView), declarativeView(pDeclarativeView) { /**/ }
+    QMLUtils(QObject *pQmlContainer) : QObject(pQmlContainer), qmlContainer(pQmlContainer) { /**/ }
     Q_INVOKABLE void applyWebViewFocusFix(QDeclarativeItem *item); // See https://bugs.webkit.org/show_bug.cgi?id=51094
     Q_INVOKABLE QObject* focusItem() const;
 private:
-    QDeclarativeView *declarativeView;
+    QObject *qmlContainer;
 };
 
 void QMLUtils::applyWebViewFocusFix(QDeclarativeItem *item) // See https://bugs.webkit.org/show_bug.cgi?id=51094
@@ -80,7 +80,11 @@ void QMLUtils::applyWebViewFocusFix(QDeclarativeItem *item) // See https://bugs.
 }
 
 QObject* QMLUtils::focusItem() const {
-    return qgraphicsitem_cast<QGraphicsObject *>(declarativeView->scene()->focusItem());
+#ifdef SCENEGRAPH
+    return qobject_cast<QSGView*>(qmlContainer)->activeFocusItem());
+#else
+    return qgraphicsitem_cast<QGraphicsObject *>(qobject_cast<QDeclarativeView*>(qmlContainer)->scene()->focusItem());
+#endif
 }
 
 class WidgetWrapper : public QWidget
@@ -323,6 +327,7 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
     {
 #ifdef SCENEGRAPH
         QSGView *declarativeWidget = new QSGView;
+        declarativeWidget->setResizeMode(QSGView::SizeRootObjectToView);
 #else
         QDeclarativeView *declarativeWidget = new QDeclarativeView;
         declarativeWidget->setAutoFillBackground(false);
@@ -382,7 +387,7 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
         engine->rootContext()->setContextProperty("mediaPlayerHelper", mediaPlayerHelper);
         engine->rootContext()->setContextProperty("trackpad", trackpad);
         engine->rootContext()->setContextProperty("frontend", pSelf);
-        //engine->rootContext()->setContextProperty("utils", new QMLUtils(declarativeWidget));
+        engine->rootContext()->setContextProperty("utils", new QMLUtils(declarativeWidget));
         engine->rootContext()->setContextProperty("skin", skin);
         engine->rootContext()->setContextProperty("backend", Backend::instance());
 
