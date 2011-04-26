@@ -1,7 +1,7 @@
 QtMediaHub requires:
-  * Qt >= 4.7.4 (may depend on used skin)
-  * Qt Mobility (1.2/master)
-  * Qt 3D (optional)
+  * Qt >= 4.7.4 (2ba170cfdcfa8166b78bc2dbfa7ca5c402b13a29) qt/4.7 branch
+  * Qt Mobility (d6e95b299abc37682ce9d4b3050805abb9ad91df) master branch
+  * Qt 3D (129ed97e821af5db686c7f109762ffc7a4151250) master branch
 
 The core engine, skins and resources are placed in separate respositories.
 
