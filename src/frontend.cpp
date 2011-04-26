@@ -81,7 +81,7 @@ void QMLUtils::applyWebViewFocusFix(QDeclarativeItem *item) // See https://bugs.
 
 QObject* QMLUtils::focusItem() const {
 #ifdef SCENEGRAPH
-    return qobject_cast<QSGView*>(qmlContainer)->activeFocusItem());
+    return qobject_cast<QSGView*>(qmlContainer)->activeFocusItem();
 #else
     return qgraphicsitem_cast<QGraphicsObject *>(qobject_cast<QDeclarativeView*>(qmlContainer)->scene()->focusItem());
 #endif
