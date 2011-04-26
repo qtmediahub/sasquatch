@@ -4,9 +4,7 @@
 scriptPath=$(cd ${0%/*} && pwd -P)
 HUB_RELATIVE_PATH=$scriptPath/lib:$scriptPath/resources/lib
 if [ `uname` = "Darwin" ]; then
-echo "Running on mac"
-DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$HUB_RELATIVE_PATH $scriptPath/qmh.app/Contents/MacOS/qmh $@
+    DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$HUB_RELATIVE_PATH $scriptPath/qmh.app/Contents/MacOS/qmh $@
 else
-echo "Running on linux"
-LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HUB_RELATIVE_PATH $scriptPath/qmh $@
+    LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HUB_RELATIVE_PATH $scriptPath/qmh $@
 fi
