@@ -235,7 +235,7 @@ void BackendPrivate::discoverSkins()
         QStringList potentialSkins = QDir(skinPath).entryList(QDir::Dirs | QDir::NoDotAndDotDot);
 
         foreach(const QString &currentPath, potentialSkins) {
-            const QString prospectiveFilename = skinPath % currentPath % "/" % "skin.map";
+            const QString prospectiveFilename = skinPath % "/" % currentPath % "/" % "skin.map";
             if(QFile(prospectiveFilename).exists()) {
                 Skin *skin = new Skin(prospectiveFilename, this);
                 skins << skin;
