@@ -46,7 +46,7 @@ Skin::Skin(QString config, QObject *parent)
     , d(new SkinPrivate(this))
 {
     QFileInfo fileInfo(config);
-    d->name = fileInfo.baseName();
+    d->name = fileInfo.dir().dirName();
     d->path = fileInfo.absoluteDir().absolutePath();
     d->config = config;
 }
