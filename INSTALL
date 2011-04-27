@@ -1,5 +1,6 @@
 QtMediaHub requires:
-  * Qt >= 4.7.4 (2ba170cfdcfa8166b78bc2dbfa7ca5c402b13a29) qt/4.7 branch
+  * Qt >= 4.8 (399782c7911c11bba80dd37276f8de0b171c52f8) qt/4.8 branch
+    * IMPORTANT: You need to revert b4b85257ccff6ba21bcbcbd46a9f7f09884abe79 on top of the above sha1
   * Qt Mobility (d6e95b299abc37682ce9d4b3050805abb9ad91df) master branch
   * Qt 3D (129ed97e821af5db686c7f109762ffc7a4151250) master branch
 
