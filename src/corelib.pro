@@ -76,9 +76,10 @@ SOURCES += qmh-config.cpp \
     qml-extensions/trackpad.cpp \
     dataproviders/proxymodel.cpp \
     dataproviders/playlist.cpp \
+    scopedtransaction.cpp \
     skin.cpp
 
-QT += declarative script network
+QT += declarative script network sql
 
 HEADERS += qmh-config.h \
     global.h \
@@ -92,6 +93,7 @@ HEADERS += qmh-config.h \
     qml-extensions/mediaplayerhelper.h \
     qml-extensions/trackpad.h \
     dataproviders/playlist.h \
+    scopedtransaction.h \
     skin.h
 
 include(rpc/rpc.pri)
