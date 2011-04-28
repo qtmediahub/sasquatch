@@ -2,7 +2,7 @@ DEFINES += BUILDING_QMH
 
 QT += declarative
 
-TEMP_DIR = tmp
+TEMP_DIR = .tmp
 OBJECTS_DIR = $$TEMP_DIR/.obj
 MOC_DIR = $$TEMP_DIR/.moc
 
