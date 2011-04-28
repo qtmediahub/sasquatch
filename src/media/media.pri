@@ -1,7 +1,10 @@
-include(../../3rdparty/libexif-0.6.19/libexif/libexif.pri)
-include(../3rdparty/taglib/taglib.pri)
+SRCDIR=$$PROJECTROOT/src
+message($$SRCDIR)
 
-INCLUDEPATH += ../3rdparty/taglib/ ../3rdparty/ 
+include($$SRCDIR/3rdparty/libexif-0.6.19/libexif/libexif.pri)
+include($$SRCDIR/3rdparty/taglib/taglib.pri)
+
+INCLUDEPATH += $$SRCDIR/3rdparty/taglib/ $$SRCDIR/3rdparty/ $$SRCDIR/3rdparty/libexif-0.6.19
 
 HEADERS += $$PWD/mediainfo.h \
            $$PWD/mediamodel.h \
@@ -11,5 +14,4 @@ HEADERS += $$PWD/mediainfo.h \
 SOURCES += $$PWD/mediainfo.cpp \
            $$PWD/mediamodel.cpp \
            $$PWD/tagreader.cpp \
-           $$PWD/exifreader.cpp 
-
+           $$PWD/exifreader.cpp
