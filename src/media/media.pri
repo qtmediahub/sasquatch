@@ -9,9 +9,12 @@ INCLUDEPATH += $$SRCDIR/3rdparty/taglib/ $$SRCDIR/3rdparty/ $$SRCDIR/3rdparty/li
 HEADERS += $$PWD/mediainfo.h \
            $$PWD/mediamodel.h \
            $$PWD/tagreader.h \
-           $$PWD/exifreader.h
+           $$PWD/exifreader.h \
+           $$PWD/mediascanner.h
 
 SOURCES += $$PWD/mediainfo.cpp \
            $$PWD/mediamodel.cpp \
            $$PWD/tagreader.cpp \
-           $$PWD/exifreader.cpp
+           $$PWD/exifreader.cpp \
+           $$PWD/mediascanner.cpp
+
