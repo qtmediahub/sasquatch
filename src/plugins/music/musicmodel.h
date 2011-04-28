@@ -1,8 +1,8 @@
 #ifndef MUSICMODEL_H
 #define MUSICMODEL_H
 
-#include "../mediamodel.h"
-#include "../mediainfo.h"
+#include "mediamodel.h"
+#include "mediainfo.h"
 
 class MusicInfo : public MediaInfo
 {

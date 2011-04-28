@@ -3,12 +3,10 @@
 ######################################################################
 
 include(../plugins.pri)
-include(../mediaplugin.pri)
 include(../../3rdparty/libexif-0.6.19/libexif/libexif.pri)
 
 HEADERS += pictureplugin.h \
            picturemodel.h \
-           ../mediamodel.h \
            exifreader.h
 
 SOURCES += pictureplugin.cpp \

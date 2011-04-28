@@ -76,8 +76,6 @@ SOURCES += qmh-config.cpp \
     qml-extensions/trackpad.cpp \
     dataproviders/proxymodel.cpp \
     dataproviders/playlist.cpp \
-    plugins/mediamodel.cpp \
-    plugins/mediainfo.cpp \
     skin.cpp
 
 QT += declarative script network
@@ -94,11 +92,10 @@ HEADERS += qmh-config.h \
     qml-extensions/mediaplayerhelper.h \
     qml-extensions/trackpad.h \
     dataproviders/playlist.h \
-    plugins/mediamodel.h \
-    plugins/mediainfo.h \
     skin.h
 
 include(rpc/rpc.pri)
+include(media/media.pri)
 
 #for() structure does not work with lupdate
 TRANSLATIONS = $$system(cat $$DESTDIR/supported_languages | while read i; do echo translations/"$i".ts; done)

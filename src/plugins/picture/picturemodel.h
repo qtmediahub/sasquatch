@@ -1,8 +1,8 @@
 #ifndef PICTUREMODEL_H
 #define PICTUREMODEL_H
 
-#include "../mediamodel.h"
-#include "../mediainfo.h"
+#include "mediamodel.h"
+#include "mediainfo.h"
 #include "exifreader.h"
 
 class PictureInfo : public MediaInfo

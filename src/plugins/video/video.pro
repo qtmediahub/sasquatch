@@ -3,7 +3,6 @@
 ######################################################################
 
 include(../plugins.pri)
-include(../mediaplugin.pri)
 
 gstreamer {
     message(Using gstreamer for thumbnails)
@@ -15,7 +14,6 @@ gstreamer {
 
 HEADERS += \
         videoplugin.h \
-        ../mediamodel.h \
         videomodel.h
 
 SOURCES += \

@@ -3,13 +3,11 @@
 ######################################################################
 
 include(../plugins.pri)
-include(../mediaplugin.pri)
 include(../../3rdparty/taglib/taglib.pri)
 
 INCLUDEPATH += ../../3rdparty/taglib/ ../../3rdparty/
 
 HEADERS += musicplugin.h \
-           ../mediamodel.h \
            musicmodel.h
 
 SOURCES += musicplugin.cpp \

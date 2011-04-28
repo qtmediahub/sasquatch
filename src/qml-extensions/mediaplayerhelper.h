@@ -22,7 +22,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <QObject>
 
-#include "../plugins/mediainfo.h"
+#include "../media/mediainfo.h"
 
 class MediaPlayerHelper : public QObject
 {

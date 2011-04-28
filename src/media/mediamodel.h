@@ -27,6 +27,7 @@
 #include <QRunnable>
 #include <QList>
 #include <QUrl>
+#include <QtDeclarative>
 #include <QDeclarativeImageProvider>
 #include <QDeclarativeContext>
 #include <QtDebug>

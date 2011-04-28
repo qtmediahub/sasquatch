@@ -22,7 +22,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <QAbstractListModel>
 
-#include "../plugins/mediainfo.h"
+#include "../media/mediainfo.h"
 
 class Playlist : public QAbstractListModel
 {

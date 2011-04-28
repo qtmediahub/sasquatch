@@ -20,7 +20,7 @@
 #ifndef VIDEOMODEL_H
 #define VIDEOMODEL_H
 
-#include "../mediainfo.h"
+#include "mediainfo.h"
 
 class RadioInfo : public MediaInfo
 {
