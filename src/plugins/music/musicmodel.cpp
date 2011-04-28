@@ -9,6 +9,8 @@
 #include <taglib/mpeg/id3v2/id3v2tag.h>
 #include <taglib/mpeg/id3v2/frames/attachedpictureframe.h>
 
+#include "tagreader.h"
+
 MusicModel::MusicModel(QObject *parent)
     : MediaModel(MediaModel::Music, parent)
 {
@@ -51,92 +53,39 @@ QVariant MusicModel::data(MediaInfo *mediaInfo, int role) const
     }
 }
 
-static inline QString fromTagString(const TagLib::String &string)
-{
-    return QString::fromStdWString(string.toWString());
-}
-
-static void popuplateGenericTagInfo(MusicInfo *info, TagLib::Tag *tag)
-{
-    info->tagProperties["title"] = fromTagString(tag->title());
-    info->tagProperties["artist"] = fromTagString(tag->artist());
-    info->tagProperties["album"] = fromTagString(tag->album());
-    info->tagProperties["comment"] = fromTagString(tag->comment());
-    info->tagProperties["genre"] = fromTagString(tag->genre());
-    info->tagProperties["year"] = tag->year();
-    info->tagProperties["track"] = tag->track();
-}
-
-static void popuplateAudioProperties(MusicInfo *info, TagLib::AudioProperties *properties)
-{
-    info->tagProperties["length"] = properties->length();
-    info->tagProperties["bitrate"] = properties->bitrate();
-    info->tagProperties["sampleRate"] = properties->sampleRate();
-    info->tagProperties["channels"] = properties->channels();
-}
-
-static QImage readFrontCover(TagLib::ID3v2::Tag *id3v2Tag)
-{
-    TagLib::ID3v2::FrameList frames = id3v2Tag->frameListMap()["APIC"];
-    if (frames.isEmpty()) {
-        //qDebug() << "No front cover";
-        return QImage();
-    }
-
-    TagLib::ID3v2::AttachedPictureFrame *selectedFrame = 0;
-    if (frames.size() != 1) {
-        TagLib::ID3v2::FrameList::Iterator it = frames.begin();
-        for (; it != frames.end(); ++it) {
-            TagLib::ID3v2::AttachedPictureFrame *frame = dynamic_cast<TagLib::ID3v2::AttachedPictureFrame *>(*it);
-            if (frame && frame->type() != TagLib::ID3v2::AttachedPictureFrame::FrontCover) // BackCover, LeafletPage
-                continue;
-            selectedFrame = frame;
-            break;
-        }
-    }
-    if (!selectedFrame)
-        selectedFrame = dynamic_cast<TagLib::ID3v2::AttachedPictureFrame *>(frames.front());
-    if (!selectedFrame)
-        return QImage();
-
-    QByteArray imageData(selectedFrame->picture().data(), selectedFrame->picture().size());
-    QImage attachedImage = QImage::fromData(imageData);
-    // ## scale as necessary
-    return attachedImage;
-}
-
 MediaInfo *MusicModel::readMediaInfo(const QString &filePath)
 {
-    QByteArray fileName = QFile::encodeName(filePath);
-    
-    TagLib::FileRef fileRef(fileName.constData());
-    if (fileRef.isNull()) {
-        // qDebug() << "Dropping " << filePath;
+    TagReader reader(filePath);
+
+    if (!reader.isValid())
         return 0;
-    }
 
     MusicInfo *info = new MusicInfo(filePath);
 
-    TagLib::File *file = fileRef.file();
-    if (TagLib::Tag *tag = file->tag())
-        popuplateGenericTagInfo(info, tag);
-    if (TagLib::AudioProperties *audioProperties = file->audioProperties())
-        popuplateAudioProperties(info, audioProperties);
+    info->tagProperties["title"] = reader.title();
+    info->tagProperties["artist"] = reader.artist();
+    info->tagProperties["album"] = reader.album();
+    info->tagProperties["comment"] = reader.comment();
+    info->tagProperties["genre"] = reader.genre();
+    info->tagProperties["year"] = reader.year();
+    info->tagProperties["track"] = reader.track();
+
+    if (reader.hasAudioProperties()) {
+        info->tagProperties["length"] = reader.length();
+        info->tagProperties["bitrate"] = reader.bitrate();
+        info->tagProperties["sampleRate"] = reader.sampleRate();
+        info->tagProperties["channels"] = reader.channels();
+    }
 
     // check if we already have a local cover art for this file
     QFileInfo thumbnailInfo(info->thumbnailPath);
 
     if (!thumbnailInfo.exists()) {
-        if (TagLib::MPEG::File *mpegFile = dynamic_cast<TagLib::MPEG::File *>(file)) {
-            TagLib::ID3v2::Tag *id3v2Tag = mpegFile->ID3v2Tag(false);
-            if (id3v2Tag) {
-                QImage tmp = readFrontCover(id3v2Tag);
-                if (!tmp.isNull()) {
-                    tmp = tmp.width() <= previewWidth() ? tmp : tmp.scaledToWidth(previewWidth(), Qt::SmoothTransformation);
-                    tmp.save(thumbnailInfo.filePath());
-                    return info;
-                }
-            }
+        QImage tmp = reader.thumbnailImage();
+        if (!tmp.isNull()) {
+            tmp = tmp.width() <= previewWidth() ? tmp : tmp.scaledToWidth(previewWidth(), Qt::SmoothTransformation);
+            tmp.save(thumbnailInfo.filePath());
+            return info;
         }
     }
 
