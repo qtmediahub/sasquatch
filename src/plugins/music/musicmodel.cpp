@@ -6,7 +6,7 @@
 #define DEBUG if (1) qDebug() << __PRETTY_FUNCTION__
 
 static const QString DATABASE_NAME = "media.db";
-static const int LIMIT = 10;
+static const int LIMIT = 200;
 
 class MediaDbReader : public QObject
 {

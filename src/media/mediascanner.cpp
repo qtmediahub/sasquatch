@@ -6,7 +6,7 @@
 #define DEBUG if (0) qDebug() << __PRETTY_FUNCTION__
 
 const QString CONNECTION_NAME("MediaScanner");
-const int BULK_LIMIT = 10;
+const int BULK_LIMIT = 100;
 
 MediaScanner::MediaScanner(const QSqlDatabase &db, QObject *parent)
     : QObject(parent), m_stop(false)
@@ -118,10 +118,8 @@ QByteArray determineThumbnail(const TagReader &reader, const QFileInfo &fi)
 
     // 1
     QByteArray ba = reader.thumbnail();
-    if (!ba.isNull()) {
-        qDebug() << "found in exif";
+    if (!ba.isNull())
         return ba;
-    }
 
     QDir dir = fi.absoluteDir();
     const char *supportedExtensions[] = { ".jpg", ".png", ".gif", ".bmp" }; // prioritized
@@ -263,6 +261,7 @@ void MediaScanner::scan(const QString &path)
                 break;
         }
 
+        usleep(750); // deliberately slow things down, because otherwise the disk gets thrashed and the ui becomes laggy
         // ## remove the files from the db in the fileInfosInDb hash now?
     }
 
