@@ -474,6 +474,11 @@ void MusicModel::handleDataReady(MediaDbReader *reader, const QList<QSqlRecord> 
         handleDatabaseUpdated(m_databaseUpdatesQueue);
 }
 
+QStringList MusicModel::groupByOptions() const
+{
+    return QStringList() << tr("None") << tr("Artist") << tr("Album");
+}
+
 void MusicModel::groupBy(MusicModel::GroupBy groupBy)
 {
     beginResetModel();

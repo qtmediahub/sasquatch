@@ -34,6 +34,7 @@ public:
         GroupByAlbum
     };
     Q_INVOKABLE void groupBy(GroupBy gr);
+    Q_INVOKABLE QStringList groupByOptions() const;
 
     enum {
         PreviewUrlRole = Qt::UserRole +1 
