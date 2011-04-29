@@ -18,3 +18,5 @@ SOURCES += $$PWD/mediainfo.cpp \
            $$PWD/exifreader.cpp \
            $$PWD/mediascanner.cpp
 
+RESOURCES += $$PWD/media.qrc
+
