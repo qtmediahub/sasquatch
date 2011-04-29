@@ -255,8 +255,11 @@ QVariant MusicModel::data(const QModelIndex &index, int role) const
             return QString("image://musicmodel/artist/%1").arg(node->artist);
         else if (node->type == Node::AlbumNode)
             return QString("image://musicmodel/album/%1 %2").arg(node->text).arg(node->artist);
-        else if (node->type == Node::SongNode)
+        else if (node->type == Node::SongNode) {
+            if (!node->hasThumbnail)
+                return QVariant();
             return QString("image://musicmodel/song/%1").arg(node->id);
+        }
         // intentionally falls through
     default: 
         return QVariant();
@@ -398,17 +401,6 @@ bool MusicModel::albumLessThan(MusicModel::Node *n1, MusicModel::Node *n2)
     return n1->text < n2->text;
 }
 
-static QPixmap loadThumbnail(const QByteArray &data)
-{
-    // ## Load the image in a thread
-    QImage image;
-    if (data.startsWith("file://"))
-        image = QImage(QFile::decodeName(data.mid(sizeof("file://")-1)));
-    else
-        image = QImage::fromData(data);
-    return QPixmap::fromImage(image);
-}
-
 void MusicModel::handleDataReady(MediaDbReader *reader, const QList<QSqlRecord> &records, Node *loadingNode)
 {
     Q_ASSERT(reader == m_reader);
@@ -431,7 +423,7 @@ void MusicModel::handleDataReady(MediaDbReader *reader, const QList<QSqlRecord> 
         if (m_groupBy == NoGrouping || loadingNode->type == Node::AlbumNode) {
             node->text = records[i].value("title").toString();
             node->filePath = records[i].value("filepath").toString();
-            node->thumbnail = loadThumbnail(records[i].value("thumbnail").toByteArray());
+            node->hasThumbnail = !records[i].value("thumbnail").toByteArray().isEmpty();
             node->loaded = true;
         } else if (m_groupBy == GroupByAlbum || loadingNode->type == Node::ArtistNode) {
             node->type = Node::AlbumNode;
@@ -621,7 +613,7 @@ void MusicModel::updateSong(const QSqlRecord &record, Node *parentNode)
     Node *songNode = parentNode->childIds.value(id); 
     if (songNode) {
         // always update. the scanner always has the latest information
-        songNode->thumbnail = loadThumbnail(record.value("thumbnail").toByteArray());
+        songNode->hasThumbnail = !record.value("thumbnail").toByteArray().isEmpty();
         int idx = parentNode->children.indexOf(songNode);
         if (songNode->text == text) {
             DEBUG << "Updating existing node with dataChanged";
@@ -645,7 +637,7 @@ void MusicModel::updateSong(const QSqlRecord &record, Node *parentNode)
         newNode->text = text;
         newNode->filePath = record.value("filepath").toString();
         newNode->loaded = true;
-        newNode->thumbnail = loadThumbnail(record.value("thumbnail").toByteArray());
+        newNode->hasThumbnail = !record.value("thumbnail").toByteArray().isEmpty();
         songNode = newNode;
     }
 
@@ -682,7 +674,7 @@ QImage MusicModelImageProvider::requestImage(const QString &id, QSize *size, con
     QByteArray ba = query.value(0).toByteArray();
     QImage img;
     if (ba.isEmpty()) {
-        img = QImage("music.png");
+        img = QImage("defaultmusic.png"); // ## Actually create this
     } else if (ba.startsWith("file://")) {
         img = QImage(QFile::decodeName(ba.mid(7)));
     } else {

@@ -60,13 +60,12 @@ public:
     // has to be public for Q_DECLARE_METATYPE
     struct Node {
         enum Type { RootNode, SongNode, AlbumNode, ArtistNode, DotDot } type;
-        Node(Node *parent, Type type) : type(type), id(0), loaded(false), loading(false), parent(parent) { }
+        Node(Node *parent, Type type) : type(type), id(0), loaded(false), loading(false), hasThumbnail(false), parent(parent) { }
         ~Node() { qDeleteAll(children); }
 
         int id;
 
         QString text;
-        QPixmap thumbnail;
 
         // Song nodes
         QString filePath;
@@ -75,6 +74,7 @@ public:
         QString artist;
 
         bool loaded, loading; // ## Make this enum
+        bool hasThumbnail;
 
         Node *parent;
 

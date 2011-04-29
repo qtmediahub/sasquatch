@@ -32,7 +32,7 @@ void MusicPlugin::registerPlugin(QDeclarativeContext *context)
     //FIXME: these structures should be suitably disconnected from QML to be usable from html
     //Post CES adjustment :)
     if(context) {
-        context->engine()->addImageProvider("music", new MusicModelImageProvider);
+        context->engine()->addImageProvider("musicmodel", new MusicModelImageProvider);
     }
 }
 
