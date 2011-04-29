@@ -59,10 +59,17 @@ public:
 
     // has to be public for Q_DECLARE_METATYPE
     struct Node {
-        enum Type { RootNode, SongNode, AlbumNode, ArtistNode, DotDot } type;
-        Node(Node *parent, Type type) : type(type), id(0), loaded(false), loading(false), hasThumbnail(false), parent(parent) { }
+        enum Type { RootNode, SongNode, AlbumNode, ArtistNode, DotDot };
+        Node(Node *parent, Type type) : type(type), id(0), loaded(false), loading(false), hasThumbnail(false), parent(parent) {
+            if (type == AlbumNode || type == ArtistNode) {
+                Node *dotDot = new Node(this, DotDot);
+                dotDot->text = "..";
+                children.append(dotDot);
+            }
+        }
         ~Node() { qDeleteAll(children); }
 
+        Type type;
         int id;
 
         QString text;

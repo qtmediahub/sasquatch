@@ -187,7 +187,6 @@ MusicModel::MusicModel(QObject *parent)
     QMetaObject::invokeMethod(m_scanner, "refresh", Qt::QueuedConnection);
 
     m_root = new Node(0, Node::RootNode);
-    m_root->type = Node::RootNode;
 
     groupBy(NoGrouping);
 }
@@ -244,6 +243,8 @@ QVariant MusicModel::data(const QModelIndex &index, int role) const
 
     switch (role) {
     case Qt::DisplayRole: 
+        if (node->type == Node::DotDot)
+            return node->text;
         if (m_groupBy == NoGrouping)
             return node->text + " (" + node->filePath + ')';
         else if (m_groupBy == GroupByAlbum)
@@ -418,21 +419,20 @@ void MusicModel::handleDataReady(MediaDbReader *reader, const QList<QSqlRecord> 
             continue;
         }
 
-        Node *node = new Node(loadingNode, Node::SongNode);
-        node->id = id;
+        Node *node;
         if (m_groupBy == NoGrouping || loadingNode->type == Node::AlbumNode) {
+            node = new Node(loadingNode, Node::SongNode);
+            node->id = id;
             node->text = records[i].value("title").toString();
             node->filePath = records[i].value("filepath").toString();
             node->hasThumbnail = !records[i].value("thumbnail").toByteArray().isEmpty();
             node->loaded = true;
         } else if (m_groupBy == GroupByAlbum || loadingNode->type == Node::ArtistNode) {
-            node->type = Node::AlbumNode;
+            node = new Node(loadingNode, Node::AlbumNode);
             node->text = records[i].value("album").toString();
             node->artist = records[i].value("artist").toString();
-
-            qDebug() << node->text << node->artist;
         } else { // GroupByArtist
-            node->type = Node::ArtistNode;
+            node = new Node(loadingNode, Node::ArtistNode);
             node->text = records[i].value("artist").toString();
         }
 
