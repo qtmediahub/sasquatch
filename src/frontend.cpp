@@ -141,8 +141,10 @@ void WidgetWrapper::paintEvent(QPaintEvent *e)
 
 void WidgetWrapper::resizeEvent(QResizeEvent *e)
 {
-    Q_UNUSED(e)
-    resizeSettleTimer.start(300);
+    if (e->spontaneous())
+        resizeSettleTimer.start(300);
+    else
+        handleResize();
 }
 
 void WidgetWrapper::handleResize()
