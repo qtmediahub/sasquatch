@@ -77,7 +77,8 @@ SOURCES += qmh-config.cpp \
     dataproviders/proxymodel.cpp \
     dataproviders/playlist.cpp \
     scopedtransaction.cpp \
-    skin.cpp
+    skin.cpp \
+    systemhelper.cpp
 
 QT += declarative script network sql
 
@@ -94,7 +95,8 @@ HEADERS += qmh-config.h \
     qml-extensions/trackpad.h \
     dataproviders/playlist.h \
     scopedtransaction.h \
-    skin.h
+    skin.h \
+    systemhelper.h
 
 include(rpc/rpc.pri)
 include(media/media.pri)
@@ -107,4 +109,8 @@ avahi {
     # avahi support
     include(3rdparty/libqavahi/libqavahi.pri)
     INCLUDEPATH += 3rdparty/libqavahi/
+}
+
+contains(QT_CONFIG, dbus) {
+    QT += dbus
 }

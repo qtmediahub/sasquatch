@@ -55,6 +55,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "qml-extensions/qmlfilewrapper.h"
 #include "dataproviders/playlist.h"
 #include "qmhplugin.h"
+#include "systemhelper.h"
 
 class QMLUtils : public QObject
 {
@@ -388,6 +389,7 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
         engine->rootContext()->setContextProperty("trackpad", trackpad);
         engine->rootContext()->setContextProperty("frontend", pSelf);
         engine->rootContext()->setContextProperty("utils", new QMLUtils(declarativeWidget));
+        engine->rootContext()->setContextProperty("systemHelper", new SystemHelper(declarativeWidget));
         engine->rootContext()->setContextProperty("skin", skin);
         engine->rootContext()->setContextProperty("backend", Backend::instance());
 
