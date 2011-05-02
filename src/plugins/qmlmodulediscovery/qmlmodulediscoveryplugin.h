@@ -15,11 +15,7 @@ public:
     QMLModuleDiscoveryPlugin() { mRole = Unadvertized; }
     ~QMLModuleDiscoveryPlugin() {}
 
-    QList<QObject*> childItems() const { return mChildItems; }
-
     void registerPlugin(QDeclarativeContext *context) { Q_UNUSED(context); qmlRegisterType<QMLModuleDiscovery>("QMLModuleDiscovery", 1, 0, "QMLModuleDiscovery"); }
-private:
-    QList<QObject*> mChildItems;
 };
 
 #endif // QMLMODULEDISCOVERYPLUGIN_H

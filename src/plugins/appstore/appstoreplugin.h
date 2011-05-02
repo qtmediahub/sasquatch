@@ -34,11 +34,7 @@ public:
     AppStorePlugin() { setRole(Unadvertized); }
     ~AppStorePlugin() {}
 
-    QList<QObject*> childItems() const { return mChildItems; }
-
     void registerPlugin(QDeclarativeContext *context) { Q_UNUSED(context); qmlRegisterType<AppStore>("AppStore", 1, 0, "AppStore"); }
-private:
-    QList<QObject*> mChildItems;
 };
 
 #endif // APPSTOREPLUGIN_H
