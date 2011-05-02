@@ -52,7 +52,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <QDebug>
 
-Backend* Backend::pSelf = 0;
+Backend* Backend::s_instance = 0;
 
 class BackendPrivate : public QObject
 {
@@ -71,7 +71,7 @@ public:
           logFile(qApp->applicationName().append(".log")),
           systray(0),
           targetsModel(0),
-          pSelf(p)
+          q(p)
     {
         QNetworkProxy proxy;
         if (Config::isEnabled("proxy", false)) {
@@ -105,7 +105,7 @@ public:
         inputIdleTimer.setSingleShot(true);
         inputIdleTimer.start();
 
-        connect(&inputIdleTimer, SIGNAL(timeout()), pSelf, SIGNAL(inputIdle()));
+        connect(&inputIdleTimer, SIGNAL(timeout()), q, SIGNAL(inputIdle()));
 
         logFile.open(QIODevice::Text|QIODevice::ReadWrite);
         log.setDevice(&logFile);
@@ -194,7 +194,7 @@ public:
 #endif
 
     QSqlDatabase mediaDb;
-    Backend *pSelf;
+    Backend *q;
 };
 
 void BackendPrivate::handleDirChanged(const QString &dir)
@@ -426,10 +426,10 @@ QList<QObject *> Backend::skins() const
 
 Backend* Backend::instance()
 {
-    if (!pSelf) {
-        pSelf = new Backend();
+    if (!s_instance) {
+        s_instance = new Backend();
     }
-    return pSelf;
+    return s_instance;
 }
 
 QString Backend::basePath() const

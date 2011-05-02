@@ -87,7 +87,7 @@ private:
     QObject* engineByRole(QMHPlugin::PluginRole);
 
     explicit Backend(QObject *parent = 0);
-    static Backend *pSelf;
+    static Backend *s_instance;
     BackendPrivate *d;
 };
 
