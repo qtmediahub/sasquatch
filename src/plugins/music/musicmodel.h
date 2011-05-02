@@ -44,8 +44,6 @@ public:
     Q_INVOKABLE void setThemeResourcePath(const QString &themePath);
     Q_INVOKABLE void addSearchPath(const QString &mediaPath, const QString &name);
     Q_INVOKABLE void removeSearchPath(int index);
-    Q_INVOKABLE void sort(const QModelIndex &root, const QString &field);
-    Q_INVOKABLE void rescan(int index);
 
     // reimp
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;

@@ -701,18 +701,5 @@ void MusicModel::removeSearchPath(int index)
 {
 }
 
-void MusicModel::sort(const QModelIndex &root, const QString &field)
-{
-    Q_UNUSED(root);
-    Q_UNUSED(field);
-    DEBUG << "Remove this, replace with groupBy";
-}
-
-void MusicModel::rescan(int index)
-{
-    Q_UNUSED(index);
-    DEBUG << "This should be automatic, remove this";
-}
-
 #include "musicmodel.moc"
 
