@@ -2,19 +2,20 @@
 #include <QtSql>
 #include "scopedtransaction.h"
 #include "mediaparser.h"
+#include "backend.h"
 
 #define DEBUG if (0) qDebug() << __PRETTY_FUNCTION__
 
 const QString CONNECTION_NAME("MediaScanner");
 const int BULK_LIMIT = 100;
 
-MediaScanner::MediaScanner(const QSqlDatabase &db, QObject *parent)
+MediaScanner::MediaScanner(QObject *parent)
     : QObject(parent), m_stop(false)
 {
-    m_db = QSqlDatabase::cloneDatabase(db, CONNECTION_NAME);
+    m_db = QSqlDatabase::cloneDatabase(Backend::instance()->mediaDatabase(), CONNECTION_NAME);
     if (!m_db.open())
         DEBUG << "Erorr opening database" << m_db.lastError().text();
-    QSqlQuery query(db);
+    QSqlQuery query(m_db);
     //query.exec("PRAGMA synchronous=OFF"); // dangerous, can corrupt db
     //query.exec("PRAGMA journal_mode=WAL");
     query.exec("PRAGMA count_changes=OFF");

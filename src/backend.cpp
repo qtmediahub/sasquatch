@@ -24,6 +24,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "qmh-config.h"
 #include "rpc/rpcconnection.h"
 #include "skin.h"
+#include "scopedtransaction.h"
 
 #ifdef QMH_AVAHI
 #include "qavahiservicebrowsermodel.h"
@@ -158,6 +159,7 @@ public:
     void resetLanguage();
     void discoverSkins();
     void discoverEngines();
+    void initializeMedia();
 
     Frontend *frontend;
 
@@ -191,6 +193,7 @@ public:
     QNetworkSession *session;
 #endif
 
+    QSqlDatabase mediaDb;
     Backend *pSelf;
 };
 
@@ -362,6 +365,39 @@ void Backend::initialize()
     QAvahiServicePublisher *publisher = new QAvahiServicePublisher(this);
     publisher->publish(QHostInfo::localHostName(), "_qmh._tcp", 1234, "Qt Media Hub JSON-RPCv2 interface");
 #endif
+
+    d->initializeMedia();
+}
+
+void BackendPrivate::initializeMedia()
+{
+    if (!QSqlDatabase::isDriverAvailable("QSQLITE")) {
+        qFatal("The SQLITE driver is unavailable");
+        return;
+    }
+
+    static const QString DATABASE_NAME("media.db");
+    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
+    db.setDatabaseName(DATABASE_NAME);
+
+    if (!db.open()) {
+        qFatal("Failed to open SQLITE database %s", qPrintable(db.lastError().text()));
+        return;
+    }
+
+    mediaDb = db;
+
+    if (!db.tables().isEmpty())
+        return;
+
+    // create tables
+    ScopedTransaction transaction(db);
+    transaction.execFile(":/media/schema.sql");
+}
+
+QSqlDatabase Backend::mediaDatabase() const
+{
+    return d->mediaDb;
 }
 
 QString Backend::language() const

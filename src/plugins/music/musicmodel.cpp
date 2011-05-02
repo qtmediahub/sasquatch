@@ -1,11 +1,11 @@
 #include "musicmodel.h"
 #include "mediascanner.h"
 #include "scopedtransaction.h"
+#include "backend.h"
 #include <QtSql>
 
 #define DEBUG if (1) qDebug() << __PRETTY_FUNCTION__
 
-static const QString DATABASE_NAME = "media.db";
 static const int LIMIT = 200;
 
 class MediaDbReader : public QObject
@@ -30,9 +30,9 @@ public:
     void stop() { m_stop = true; }
 
 public slots:
-    void initialize(const QSqlDatabase &db)
+    void initialize()
     {
-        m_db = QSqlDatabase::cloneDatabase(db, QUuid::createUuid().toString());
+        m_db = QSqlDatabase::cloneDatabase(Backend::instance()->mediaDatabase(), QUuid::createUuid().toString());
         if (!m_db.open())
             DEBUG << "Erorr opening database" << m_db.lastError().text();
     }
@@ -165,18 +165,7 @@ MusicModel::MusicModel(QObject *parent)
     hash[PreviewUrlRole] = "previewUrl";
     setRoleNames(hash);
 
-    if (!QSqlDatabase::isDriverAvailable("QSQLITE")) {
-        DEBUG << "The SQLITE driver is unavailable";
-        return;
-    }
-
-    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
-    db.setDatabaseName(DATABASE_NAME);
-
-    if (!initializeDatabase(db))
-        return;
-
-    m_scanner = new MediaScanner(db);
+    m_scanner = new MediaScanner;
     connect(m_scanner, SIGNAL(databaseUpdated(QList<QSqlRecord>)),
             this, SLOT(handleDatabaseUpdated(QList<QSqlRecord>)));
 
@@ -214,24 +203,6 @@ MusicModel::~MusicModel()
     delete m_scanner;
     delete m_reader;
     delete m_root;
-}
-
-bool MusicModel::initializeDatabase(QSqlDatabase &db)
-{
-    if (!db.open()) {
-        DEBUG << "Failed to open SQLITE database " << db.lastError().text();
-        return false;
-    }
-
-    if (!db.tables().isEmpty()) {
-        DEBUG << "Database already exists";
-        return true;
-    }
-
-    // create tables
-    DEBUG << "Creating database";
-    ScopedTransaction transaction(db);
-    return transaction.execFile(":/media/schema.sql");
 }
 
 QVariant MusicModel::data(const QModelIndex &index, int role) const
@@ -496,7 +467,7 @@ void MusicModel::groupBy(MusicModel::GroupBy groupBy)
         m_readerThread->start();
     }
     m_reader->moveToThread(m_readerThread);
-    QMetaObject::invokeMethod(m_reader, "initialize", Qt::QueuedConnection, Q_ARG(QSqlDatabase, QSqlDatabase::database()));
+    QMetaObject::invokeMethod(m_reader, "initialize");
     connect(m_reader, SIGNAL(dataReady(MediaDbReader *, QList<QSqlRecord>, MusicModel::Node *)), 
             this, SLOT(handleDataReady(MediaDbReader *, QList<QSqlRecord>, MusicModel::Node *)));
 
@@ -660,7 +631,7 @@ MusicModelImageProvider::~MusicModelImageProvider()
 
 QImage MusicModelImageProvider::requestImage(const QString &id, QSize *size, const QSize &requestedSize)
 {
-    QSqlDatabase db = QSqlDatabase::cloneDatabase(QSqlDatabase::database(), QUuid::createUuid().toString());
+    QSqlDatabase db = QSqlDatabase::cloneDatabase(Backend::instance()->mediaDatabase(), QUuid::createUuid().toString());
     db.open();
     QSqlQuery query(db);
     query.prepare("SELECT thumbnail FROM music WHERE id = :id");

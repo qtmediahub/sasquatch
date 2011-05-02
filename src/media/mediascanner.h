@@ -13,7 +13,7 @@ class MediaScanner : public QObject
 {
     Q_OBJECT
 public:
-    MediaScanner(const QSqlDatabase &db, QObject *parent = 0);
+    MediaScanner(QObject *parent = 0);
     ~MediaScanner();
 
     struct FileInfo {

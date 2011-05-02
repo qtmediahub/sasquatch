@@ -100,7 +100,6 @@ private slots:
     void handleDatabaseUpdated(const QList<QSqlRecord> &record);
 
 private:
-    bool initializeDatabase(QSqlDatabase &db);
     void handleDatabaseUpdated(const QSqlRecord &record);
     void fetchMoreTopLevel();
 

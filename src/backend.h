@@ -23,6 +23,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QObject>
 #include <QList>
 #include <QDateTime>
+#include <QtSql>
 
 #include "qmhplugin.h"
 
@@ -63,6 +64,8 @@ public:
 
     QObject *targetsModel() const;
     QObject *engineByName(const QString &name);
+
+    QSqlDatabase mediaDatabase() const;
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event);
