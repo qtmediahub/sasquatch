@@ -25,6 +25,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "rpc/rpcconnection.h"
 #include "skin.h"
 #include "scopedtransaction.h"
+#include "media/mediascanner.h"
 
 #ifdef QMH_AVAHI
 #include "qavahiservicebrowsermodel.h"
@@ -127,6 +128,8 @@ public:
             dir.mkpath(thumbnailFolderInfo.absoluteFilePath());
         }
         discoverSkins();
+
+        initializeMedia();
     }
 
     ~BackendPrivate()
@@ -150,6 +153,11 @@ public:
 #if defined(Q_WS_S60) || defined(Q_WS_MAEMO)
         delete session;
 #endif
+
+        MediaScanner::instance()->stop();
+        scannerThread->quit();
+        scannerThread->wait();
+        delete MediaScanner::instance();
     }
 
 public slots:
@@ -194,6 +202,8 @@ public:
 #endif
 
     QSqlDatabase mediaDb;
+    QThread *scannerThread;
+
     Backend *q;
 };
 
@@ -366,7 +376,9 @@ void Backend::initialize()
     publisher->publish(QHostInfo::localHostName(), "_qmh._tcp", 1234, "Qt Media Hub JSON-RPCv2 interface");
 #endif
 
-    d->initializeMedia();
+    // This is here because MediaScanner::initialize() uses Backend::instance()
+    QMetaObject::invokeMethod(MediaScanner::instance(), "initialize", Qt::QueuedConnection);
+    QMetaObject::invokeMethod(MediaScanner::instance(), "refresh", Qt::QueuedConnection);
 }
 
 void BackendPrivate::initializeMedia()
@@ -387,12 +399,14 @@ void BackendPrivate::initializeMedia()
 
     mediaDb = db;
 
-    if (!db.tables().isEmpty())
-        return;
+    if (db.tables().isEmpty()) {
+        ScopedTransaction transaction(db);
+        transaction.execFile(":/media/schema.sql");
+    }
 
-    // create tables
-    ScopedTransaction transaction(db);
-    transaction.execFile(":/media/schema.sql");
+    scannerThread = new QThread(q);
+    MediaScanner::instance()->moveToThread(scannerThread);
+    scannerThread->start();
 }
 
 QSqlDatabase Backend::mediaDatabase() const

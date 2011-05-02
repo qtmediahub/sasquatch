@@ -157,7 +157,7 @@ private:
 };
 
 MusicModel::MusicModel(QObject *parent)
-    : QAbstractItemModel(parent), m_root(0), m_scanner(0), m_scannerThread(0), m_reader(0), m_readerThread(0),
+    : QAbstractItemModel(parent), m_root(0), m_reader(0), m_readerThread(0),
       m_groupBy(NoGrouping), m_readerResponsePending(0)
 {
     qRegisterMetaType<QSqlRecord>();
@@ -165,15 +165,8 @@ MusicModel::MusicModel(QObject *parent)
     hash[PreviewUrlRole] = "previewUrl";
     setRoleNames(hash);
 
-    m_scanner = new MediaScanner;
-    connect(m_scanner, SIGNAL(databaseUpdated(QList<QSqlRecord>)),
+    connect(MediaScanner::instance(), SIGNAL(databaseUpdated(QList<QSqlRecord>)),
             this, SLOT(handleDatabaseUpdated(QList<QSqlRecord>)));
-
-    m_scannerThread = new QThread(this);
-    m_scanner->moveToThread(m_scannerThread);
-    m_scannerThread->start();
-
-    QMetaObject::invokeMethod(m_scanner, "refresh", Qt::QueuedConnection);
 
     m_root = new Node(0, Node::RootNode);
 
@@ -184,14 +177,6 @@ MusicModel::~MusicModel()
 {
     DEBUG << "Stopping threads";
 
-    if (m_scannerThread) {
-        m_scanner->stop();
-        m_scannerThread->quit();
-        m_scannerThread->wait();
-
-        DEBUG << "Scanner stopped";
-    }
-
     if (m_readerThread) {
         m_reader->stop();
         m_readerThread->quit();
@@ -200,7 +185,6 @@ MusicModel::~MusicModel()
         DEBUG << "Reader stopped";
     }
 
-    delete m_scanner;
     delete m_reader;
     delete m_root;
 }
@@ -665,7 +649,7 @@ void MusicModel::setThemeResourcePath(const QString &themePath)
 
 void MusicModel::addSearchPath(const QString &path, const QString &name)
 {
-    QMetaObject::invokeMethod(m_scanner, "addSearchPath", Qt::QueuedConnection, Q_ARG(QString, "music"), Q_ARG(QString, path), Q_ARG(QString, name));
+    QMetaObject::invokeMethod(MediaScanner::instance(), "addSearchPath", Qt::QueuedConnection, Q_ARG(QString, "music"), Q_ARG(QString, path), Q_ARG(QString, name));
 }
 
 void MusicModel::removeSearchPath(int index)

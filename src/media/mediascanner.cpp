@@ -9,8 +9,21 @@
 const QString CONNECTION_NAME("MediaScanner");
 const int BULK_LIMIT = 100;
 
+MediaScanner *MediaScanner::s_instance = 0;
+
+MediaScanner *MediaScanner::instance()
+{
+    if (!s_instance)
+        s_instance = new MediaScanner;
+    return s_instance;
+}
+
 MediaScanner::MediaScanner(QObject *parent)
     : QObject(parent), m_stop(false)
+{
+}
+
+void MediaScanner::initialize()
 {
     m_db = QSqlDatabase::cloneDatabase(Backend::instance()->mediaDatabase(), CONNECTION_NAME);
     if (!m_db.open())

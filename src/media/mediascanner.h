@@ -13,7 +13,7 @@ class MediaScanner : public QObject
 {
     Q_OBJECT
 public:
-    MediaScanner(QObject *parent = 0);
+    static MediaScanner *instance();
     ~MediaScanner();
 
     struct FileInfo {
@@ -30,6 +30,7 @@ public:
     void stop() { m_stop = true; }
 
 public slots:
+    void initialize();
     void addSearchPath(const QString &type, const QString &path, const QString &name);
     void refresh();
     
@@ -37,8 +38,10 @@ signals:
     void databaseUpdated(const QList<QSqlRecord> &records);
 
 private:
+    MediaScanner(QObject *parent = 0);
     void scan(MediaParser *parser, const QString &path);
 
+    static MediaScanner *s_instance;
     volatile bool m_stop;
     QSqlDatabase m_db;
     QString m_errorString;

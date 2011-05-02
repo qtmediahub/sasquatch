@@ -110,8 +110,6 @@ private:
     QModelIndex indexForNode(MusicModel::Node *node) const;
 
     Node *m_root;
-    MediaScanner *m_scanner;
-    QThread *m_scannerThread;
     MediaDbReader *m_reader;
     QThread *m_readerThread;
     QQueue<QSqlRecord> m_databaseUpdatesQueue;
