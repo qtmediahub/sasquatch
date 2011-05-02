@@ -1,6 +1,5 @@
 <RCC>
     <qresource>
-        <file>images/splash.jpg</file>
         <file>images/petite-ganesh-22x22.jpg</file>
     </qresource>
 </RCC>

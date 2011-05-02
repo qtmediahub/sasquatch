@@ -402,17 +402,14 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
         foreach (QMHPlugin *plugin, Backend::instance()->allEngines())
             plugin->registerPlugin(declarativeWidget->rootContext());
 
-        //Really need to have this dude go out of scope that quickly?
-        {
-            const QMetaObject &PluginMO = QMHPlugin::staticMetaObject;
-            int enumIndex = PluginMO.indexOfEnumerator("PluginRole");
-            QMetaEnum roleEnum = PluginMO.enumerator(enumIndex);
+        const QMetaObject &PluginMO = QMHPlugin::staticMetaObject;
+        int enumIndex = PluginMO.indexOfEnumerator("PluginRole");
+        QMetaEnum roleEnum = PluginMO.enumerator(enumIndex);
 
-            foreach (QObject *p, Backend::instance()->allEngines()) {
-                QMHPlugin *plugin = qobject_cast<QMHPlugin *>(p);
-                if (plugin && plugin->role() < QMHPlugin::SingletonRoles) {
-                    declarativeWidget->rootContext()->setContextProperty(QString(roleEnum.valueToKey(plugin->role())).toLower() + "Engine", plugin);
-                }
+        foreach (QObject *p, Backend::instance()->allEngines()) {
+            QMHPlugin *plugin = qobject_cast<QMHPlugin *>(p);
+            if (plugin && plugin->role() < QMHPlugin::SingletonRoles) {
+                declarativeWidget->rootContext()->setContextProperty(QString(roleEnum.valueToKey(plugin->role())).toLower() + "Engine", plugin);
             }
         }
 

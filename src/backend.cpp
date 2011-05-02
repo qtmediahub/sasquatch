@@ -335,22 +335,6 @@ void Backend::initialize()
 {
     d->discoverEngines();
     if (!Config::isEnabled("headless", false)) {
-#if 0
-        QSplashScreen splash;
-        if (Config::isEnabled("splashscreen", true)) {
-            QPixmap splashPixmap(":/images/splash.jpg");
-            splash.setPixmap(splashPixmap);
-            splash.show();
-#ifdef Q_WS_X11
-            //Get him on screen on sleepy X11
-            sleep(2);
-#endif
-        }
-
-        d->frontend = new Frontend();
-
-        splash.finish(d->frontend);
-#endif
         d->frontend = new Frontend();
     }
     if (Config::isEnabled("system-tray", false)) {
