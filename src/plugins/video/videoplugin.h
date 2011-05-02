@@ -16,8 +16,6 @@ public:
     VideoPlugin();
     ~VideoPlugin() {}
 
-    QObject *pluginProperties() const;
-
     // accessed from QML
     QObject *model() const { return m_model; }
 

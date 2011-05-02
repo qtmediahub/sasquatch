@@ -18,7 +18,6 @@ class QMHPlugin : public QObject
     Q_PROPERTY(QStringList visualElementProperties READ visualElementProperties WRITE setVisualElementProperties NOTIFY pluginChanged)
     Q_PROPERTY(QObject* actionMap READ actionMap WRITE setActionMap NOTIFY pluginChanged)
     Q_PROPERTY(QStringList actionList READ actionList WRITE setActionList NOTIFY pluginChanged)
-    Q_PROPERTY(QObject* pluginProperties READ pluginProperties NOTIFY pluginChanged)
 
 public:
     enum PluginRole { Undefined, Unadvertized, Music, Video, Picture, Dashboard, Weather, SingletonRoles, Store, Web, Application, Game, Map, RoleCount };
@@ -68,8 +67,6 @@ public:
     virtual void unregisterPlugin() { /*no impl*/ }
 
     virtual bool dependenciesSatisfied() const { return true; }
-
-    virtual QObject *pluginProperties() const { return 0; }
 
 signals:
     void pluginChanged();

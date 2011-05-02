@@ -14,11 +14,6 @@ VideoPlugin::VideoPlugin()
     mRole = Video;
 }
 
-QObject *VideoPlugin::pluginProperties() const
-{
-    return const_cast<VideoPlugin *>(this);
-}
-
 void VideoPlugin::registerPlugin(QDeclarativeContext *context)
 {
     //FIXME: these structures should be suitably disconnected from QML to be usable from html

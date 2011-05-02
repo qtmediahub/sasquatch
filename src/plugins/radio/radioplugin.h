@@ -16,8 +16,6 @@ public:
     RadioPlugin();
     ~RadioPlugin() {}
 
-    QObject *pluginProperties() const;
-
     // accessed from QML
     QObject *model() const { return m_model; }
 

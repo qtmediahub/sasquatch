@@ -14,11 +14,6 @@ PicturePlugin::PicturePlugin()
     mRole = Picture;
 }
 
-QObject *PicturePlugin::pluginProperties() const
-{
-    return const_cast<PicturePlugin *>(this);
-}
-
 void PicturePlugin::registerPlugin(QDeclarativeContext *context)
 {
     //FIXME: these structures should be suitably disconnected from QML to be usable from html

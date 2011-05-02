@@ -14,11 +14,6 @@ RadioPlugin::RadioPlugin()
     mRole = Application;
 }
 
-QObject *RadioPlugin::pluginProperties() const
-{
-    return const_cast<RadioPlugin *>(this);
-}
-
 void RadioPlugin::registerPlugin(QDeclarativeContext *context)
 {
     //FIXME: these structures should be suitably disconnected from QML to be usable from html

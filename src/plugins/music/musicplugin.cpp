@@ -22,11 +22,6 @@ MusicPlugin::MusicPlugin()
     mRole = Music;
 }
 
-QObject *MusicPlugin::pluginProperties() const
-{
-    return const_cast<MusicPlugin *>(this);
-}
-
 void MusicPlugin::registerPlugin(QDeclarativeContext *context)
 {
     //FIXME: these structures should be suitably disconnected from QML to be usable from html
