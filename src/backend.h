@@ -35,7 +35,6 @@ class Backend : public QObject
     Q_PROPERTY(QList<QObject*> skins READ skins NOTIFY skinsChanged)
     Q_PROPERTY(QString pluginPath READ pluginPath NOTIFY pluginPathChanged)
     Q_PROPERTY(QString resourcePath READ resourcePath NOTIFY resourcePathChanged)
-    Q_PROPERTY(bool transforms READ transforms NOTIFY backendChanged)
     Q_PROPERTY(QList<QObject*> advertizedEngines READ advertizedEngines NOTIFY advertizedEnginesChanged)
     Q_PROPERTY(QObject *targetsModel READ targetsModel NOTIFY targetsModelChanged)
 
@@ -54,8 +53,6 @@ public:
     QString pluginPath() const;
     QString resourcePath() const;
     QString thumbnailPath() const;
-    
-    bool transforms() const;
 
     Q_INVOKABLE void advertizeEngine(QMHPlugin *engine);
     Q_INVOKABLE void openUrlExternally(const QUrl &url) const;

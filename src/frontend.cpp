@@ -514,6 +514,15 @@ Frontend::~Frontend()
     d = 0;
 }
 
+bool Frontend::transforms() const
+{
+#ifdef GL
+    return (QGLFormat::hasOpenGL() && Config::isEnabled("transforms", true));
+#else
+    return false;
+#endif
+}
+
 void Frontend::show()
 {
     if (d->attemptingFullScreen) {

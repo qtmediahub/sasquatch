@@ -41,10 +41,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <QHostInfo>
 
-#ifdef GL
-#include <QGLFormat>
-#endif
-
 #ifdef QMH_AVAHI
 #include "qavahiservicepublisher.h"
 #endif
@@ -398,15 +394,6 @@ QString Backend::resourcePath() const
 QString Backend::thumbnailPath() const
 {
     return d->thumbnailPath;
-}
-
-bool Backend::transforms() const
-{
-#ifdef GL
-    return (QGLFormat::hasOpenGL() && Config::isEnabled("transforms", true));
-#else
-    return false;
-#endif
 }
 
 void Backend::advertizeEngine(QMHPlugin *engine)

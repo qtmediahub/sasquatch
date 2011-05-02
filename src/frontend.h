@@ -29,11 +29,17 @@ class FrontendPrivate;
 class Frontend : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(bool transforms READ transforms NOTIFY frontendChanged)
 public:
     Frontend(QObject *p = 0);
     ~Frontend();
 
+    bool transforms() const;
     void show();
+
+signals:
+    void frontendChanged();
+
 private:
     FrontendPrivate *d;
 };
