@@ -7,6 +7,8 @@
 #include <QSqlRecord>
 #include <QHash>
 
+class MediaParser;
+
 class MediaScanner : public QObject
 {
     Q_OBJECT
@@ -23,7 +25,7 @@ public:
         bool valid() const { return !name.isEmpty(); }
     };
 
-    QHash<QString, FileInfo> findFilesByPath(const QString &type, const QString &path);
+    void addParser(MediaParser *);
 
     void stop() { m_stop = true; }
 
@@ -35,12 +37,13 @@ signals:
     void databaseUpdated(const QList<QSqlRecord> &records);
 
 private:
-    void scan(const QString &type, const QString &path);
-    void updateMediaInfos(const QString &type, const QList<QFileInfo> &fi);
+    void scan(MediaParser *parser, const QString &path);
 
     volatile bool m_stop;
     QSqlDatabase m_db;
     QString m_errorString;
+
+    QHash<QString, MediaParser *> m_parsers;
 };
 
 #endif // MEDIASCANNER_H
