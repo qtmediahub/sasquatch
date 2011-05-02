@@ -584,5 +584,6 @@ void MusicModel::addSearchPath(const QString &path, const QString &name)
 
 void MusicModel::removeSearchPath(int index)
 {
+    Q_UNUSED(index);
 }
 

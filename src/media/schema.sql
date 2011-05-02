@@ -34,3 +34,17 @@ CREATE INDEX idx_album ON music (album);
 
 CREATE INDEX idx_artist ON music (artist);
 
+CREATE TABLE video (
+    id INTEGER PRIMARY KEY, /* alias for ROWID, see http://www.sqlite.org/autoinc.html */
+    filepath TEXT NOT NULL UNIQUE,
+
+    title TEXT,
+    thumbnail BLOB,
+
+    /* stat information */
+    directory TEXT NOT NULL,
+    mtime INTEGER NOT NULL,
+    ctime INTEGER NOT NULL,
+    filesize INTEGER NOT NULL
+);
+
