@@ -164,9 +164,7 @@ void WidgetWrapper::resetUI()
     QDeclarativeView *declarativeWidget = qobject_cast<QDeclarativeView*>(m_prey);
     if (declarativeWidget) {
         QObject* coreObject = declarativeWidget->rootObject();
-        coreObject->setProperty("state", "");
-        //coreObject->setProperty("focus", true);
-        QMetaObject::invokeMethod(coreObject, "resetFocus");
+        QMetaObject::invokeMethod(coreObject, "reset");
     }
 }
 
