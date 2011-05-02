@@ -1,11 +1,11 @@
 #ifndef TAGREADER_H
 #define TAGREADER_H
 
-#include <taglib/fileref.h>
-#include <taglib/tag.h>
-#include <taglib/mpegfile.h>
-#include <taglib/id3v2tag.h>
-#include <taglib/attachedpictureframe.h>
+#include "taglib/fileref.h"
+#include "taglib/tag.h"
+#include "taglib/mpeg/mpegfile.h"
+#include "taglib/mpeg/id3v2/id3v2tag.h"
+#include "taglib/mpeg/id3v2/frames/attachedpictureframe.h"
 
 #include <QString>
 #include <QImage>
