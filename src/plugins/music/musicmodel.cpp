@@ -3,165 +3,93 @@
 #include "mediascanner.h"
 #include "scopedtransaction.h"
 #include "backend.h"
+#include "dbreader.h"
 #include <QtSql>
 
 #define DEBUG if (1) qDebug() << __PRETTY_FUNCTION__
 
 static const int LIMIT = 200;
 
-class MediaDbReader : public QObject
+static QSqlQuery readSongsQuery(const QString &lastTitle, const QStringList &ignoreIds)
 {
-    Q_OBJECT
+    DEBUG << "Reading songs from " << lastTitle;
 
-public:
-    MediaDbReader(QObject *parent = 0)
-        : QObject(parent), m_stop(false)
-    {
-        qRegisterMetaType<QList<QSqlRecord> >();
-        qRegisterMetaType<QSqlDatabase>();
-        qRegisterMetaType<MediaDbReader *>();
-        qRegisterMetaType<MusicModel::Node *>();
+    QSqlQuery query(Backend::instance()->mediaDatabase());
+    query.setForwardOnly(true);
+    if (!ignoreIds.isEmpty()) {
+        // This query will result in duplicates because of >=. But it's necessary to ensure that we retreive all songs with the same
+        // title and we were split up midway.
+        // If you change the query here, change the scanner code also
+        query.prepare(QString("SELECT id, filepath, title, album, thumbnail FROM music WHERE title >= :title AND id NOT IN (%1) ORDER BY title LIMIT :limit").arg(ignoreIds.join(",")));
+        query.bindValue(":title", lastTitle);
+    } else {
+        query.prepare("SELECT id, filepath, title, album, thumbnail FROM music ORDER BY title LIMIT :limit");
     }
+    query.bindValue(":limit", LIMIT);
+    return query;
+}
 
-    ~MediaDbReader()
-    {
-        QSqlDatabase::removeDatabase(m_db.connectionName());
+static QSqlQuery readAlbumsQuery(const QString &lastAlbum, const QString &lastArtist)
+{
+    DEBUG << "Reading albums";
+
+    QSqlQuery query(Backend::instance()->mediaDatabase());
+    query.setForwardOnly(true);
+    if (!lastAlbum.isEmpty()) {
+        query.prepare("SELECT album, artist FROM music GROUP BY album, artist HAVING album >= :album AND artist >= :artist "
+                      "ORDER BY album, artist LIMIT :limit OFFSET 1");
+        query.bindValue(":album", lastAlbum);
+        query.bindValue(":artist", lastArtist);
+    } else {
+        query.prepare("SELECT album, artist FROM music GROUP BY album, artist ORDER BY album, artist LIMIT :limit");
     }
+    query.bindValue(":limit", LIMIT);
+    return query;
+}
 
-    void stop() { m_stop = true; }
+static QSqlQuery readArtistsQuery(const QString &fromArtist)
+{
+    DEBUG << "Reading artists";
 
-public slots:
-    void initialize()
-    {
-        m_db = QSqlDatabase::cloneDatabase(Backend::instance()->mediaDatabase(), QUuid::createUuid().toString());
-        if (!m_db.open())
-            DEBUG << "Erorr opening database" << m_db.lastError().text();
+    QSqlQuery query(Backend::instance()->mediaDatabase());
+    query.setForwardOnly(true);
+    if (!fromArtist.isEmpty()) {
+        query.prepare("SELECT DISTINCT artist FROM music WHERE artist > :artist ORDER BY artist LIMIT :limit");
+        query.bindValue(":artist", fromArtist);
+    } else {
+        query.prepare("SELECT DISTINCT artist FROM music ORDER BY artist LIMIT :limit");
     }
+    query.bindValue(":limit", LIMIT);
+    return query;
+}
 
-    void readSongs(MusicModel::Node *node, const QString &lastTitle, const QStringList &ignoreIds, int limit = LIMIT)
-    {
-        DEBUG << "Reading songs from " << lastTitle;
+static QSqlQuery readSongsOfAlbumQuery(const QString &album, const QString &artist)
+{
+    DEBUG << "Reading songs of album " << album << " and artist " << artist;
 
-        QSqlQuery query(m_db);
-        query.setForwardOnly(true);
-        if (!ignoreIds.isEmpty()) {
-            // This query will result in duplicates because of >=. But it's necessary to ensure that we retreive all songs with the same
-            // title and we were split up midway.
-            // If you change the query here, change the scanner code also
-            query.prepare(QString("SELECT id, filepath, title, album, thumbnail FROM music WHERE title >= :title AND id NOT IN (%1) ORDER BY title LIMIT :limit").arg(ignoreIds.join(",")));
-            query.bindValue(":title", lastTitle);
-        } else {
-            query.prepare("SELECT id, filepath, title, album, thumbnail FROM music ORDER BY title LIMIT :limit");
-        }
-        query.bindValue(":limit", limit);
-        query.exec();
+    QSqlQuery query(Backend::instance()->mediaDatabase());
+    query.setForwardOnly(true);
+    query.prepare("SELECT id, filepath, title, album, thumbnail FROM music WHERE album = :album AND artist = :artist ORDER BY track, title");
+    query.bindValue(":album", album);
+    query.bindValue(":artist", artist);
+    return query;
+}
 
-        QList<QSqlRecord> data = readRecords(query);
-        DEBUG << "Read " << data.count() << "records";
+static QSqlQuery readAlbumsOfArtistQuery(const QString &artist)
+{
+    DEBUG << "Reading albums of artist " << artist;
 
-        if (!m_stop)
-            emit dataReady(this, data, node);
-    }
-
-    QList<QSqlRecord> readRecords(QSqlQuery &query)
-    {
-        QList<QSqlRecord> data;
-        while (query.next() && !m_stop) {
-            data.append(query.record());
-        }
-        return data;
-    }
-
-    void readAlbums(MusicModel::Node *node, const QString &lastAlbum, const QString &lastArtist, int limit = LIMIT)
-    {
-        DEBUG << "Reading albums";
-
-        QSqlQuery query(m_db);
-        query.setForwardOnly(true);
-        if (!lastAlbum.isEmpty()) {
-            query.prepare("SELECT album, artist FROM music GROUP BY album, artist HAVING album >= :album AND artist >= :artist "
-                          "ORDER BY album, artist LIMIT :limit OFFSET 1");
-            query.bindValue(":album", lastAlbum);
-            query.bindValue(":artist", lastArtist);
-        } else {
-            query.prepare("SELECT album, artist FROM music GROUP BY album, artist ORDER BY album, artist LIMIT :limit");
-        }
-        query.bindValue(":limit", limit);
-        query.exec();
-
-        QList<QSqlRecord> data = readRecords(query);
-        DEBUG << "Read " << data.count() << "records";
-
-        if (!m_stop)
-            emit dataReady(this, data, node);
-    }
-
-    void readArtists(MusicModel::Node *node, const QString &fromArtist, int limit = LIMIT)
-    {
-        DEBUG << "Reading artists";
-
-        QSqlQuery query(m_db);
-        query.setForwardOnly(true);
-        if (!fromArtist.isEmpty()) {
-            query.prepare("SELECT DISTINCT artist FROM music WHERE artist > :artist ORDER BY artist LIMIT :limit");
-            query.bindValue(":artist", fromArtist);
-        } else {
-            query.prepare("SELECT DISTINCT artist FROM music ORDER BY artist LIMIT :limit");
-        }
-        query.bindValue(":limit", limit);
-        query.exec();
-
-        QList<QSqlRecord> data = readRecords(query);
-        DEBUG << "Read " << data.count() << "records";
-
-        if (!m_stop)
-            emit dataReady(this, data, node);
-    }
-
-    void readSongsOfAlbum(MusicModel::Node *node, const QString &album, const QString &artist)
-    {
-        DEBUG << "Reading songs of album " << album << " and artist " << artist;
-
-        QSqlQuery query(m_db);
-        query.setForwardOnly(true);
-        query.prepare("SELECT id, filepath, title, album, thumbnail FROM music WHERE album = :album AND artist = :artist ORDER BY track, title");
-        query.bindValue(":album", album);
-        query.bindValue(":artist", artist);
-        query.exec();
-        QList<QSqlRecord> data = readRecords(query);
-        DEBUG << "Read " << data.count() << "songs";
-        if (!m_stop)
-            emit dataReady(this, data, node);
-    }
-
-    void readAlbumsOfArtist(MusicModel::Node *node, const QString &artist)
-    {
-        DEBUG << "Reading albums of artist " << artist;
-
-        QSqlQuery query(m_db);
-        query.setForwardOnly(true);
-        query.prepare("SELECT DISTINCT album, artist FROM music WHERE artist = :artist ORDER BY album");
-        query.bindValue(":artist", artist);
-        query.exec();
-        QList<QSqlRecord> data = readRecords(query);
-        DEBUG << "Read " << data.count() << "albums";
-        if (!m_stop)
-            emit dataReady(this, data, node);
-    }
-
-signals:
-    void dataReady(MediaDbReader *reader, const QList<QSqlRecord> &data, MusicModel::Node *node);
-
-private:
-    QSqlDatabase m_db;
-    volatile bool m_stop;
-};
+    QSqlQuery query(Backend::instance()->mediaDatabase());
+    query.setForwardOnly(true);
+    query.prepare("SELECT DISTINCT album, artist FROM music WHERE artist = :artist ORDER BY album");
+    query.bindValue(":artist", artist);
+    return query;
+}
 
 MusicModel::MusicModel(QObject *parent)
     : QAbstractItemModel(parent), m_root(0), m_reader(0), m_readerThread(0),
       m_groupBy(NoGrouping), m_readerResponsePending(0)
 {
-    qRegisterMetaType<QSqlRecord>();
     QHash<int, QByteArray> hash = roleNames();
     hash[PreviewUrlRole] = "previewUrl";
     setRoleNames(hash);
@@ -299,16 +227,14 @@ void MusicModel::fetchMoreTopLevel()
             fromTitle = child->text;
             ignoreIds.append(QString::number(child->id));
         }
-        QMetaObject::invokeMethod(m_reader, "readSongs", Qt::QueuedConnection,Q_ARG(MusicModel::Node *, m_root), Q_ARG(QString, fromTitle), Q_ARG(QStringList, ignoreIds));
+        QMetaObject::invokeMethod(m_reader, "execute", Qt::QueuedConnection, Q_ARG(QSqlQuery, readSongsQuery(fromTitle, ignoreIds)), Q_ARG(void *, m_root));
     } else if (m_groupBy == GroupByAlbum) {
         QString fromAlbum = m_root->children.isEmpty() ? QString() : m_root->children.last()->text;
         QString fromArtist = m_root->children.isEmpty() ? QString() : m_root->children.last()->artist;
-        QMetaObject::invokeMethod(m_reader, "readAlbums", Qt::QueuedConnection, Q_ARG(MusicModel::Node *, m_root), 
-                                  Q_ARG(QString, fromAlbum), Q_ARG(QString, fromArtist));
+        QMetaObject::invokeMethod(m_reader, "execute", Qt::QueuedConnection, Q_ARG(QSqlQuery, readAlbumsQuery(fromAlbum, fromArtist)), Q_ARG(void *, m_root));
     } else if (m_groupBy == GroupByArtist) {
         QString fromArtist = m_root->children.isEmpty() ? QString() : m_root->children.last()->text;
-        QMetaObject::invokeMethod(m_reader, "readArtists", Qt::QueuedConnection, Q_ARG(MusicModel::Node *, m_root), 
-                                  Q_ARG(QString, fromArtist));
+        QMetaObject::invokeMethod(m_reader, "execute", Qt::QueuedConnection, Q_ARG(QSqlQuery, readArtistsQuery(fromArtist)), Q_ARG(void *, m_root));
     }
 }
 
@@ -334,9 +260,9 @@ void MusicModel::fetchMore(const QModelIndex &parent)
     Node *node = static_cast<Node *>(parent.internalPointer());
     node->loading = true;
     if (node->type == Node::AlbumNode) {
-        QMetaObject::invokeMethod(m_reader, "readSongsOfAlbum", Qt::QueuedConnection, Q_ARG(MusicModel::Node *, node), Q_ARG(QString, node->text), Q_ARG(QString, node->artist));
+        QMetaObject::invokeMethod(m_reader, "execute", Qt::QueuedConnection, Q_ARG(QSqlQuery, readSongsOfAlbumQuery(node->text, node->artist)), Q_ARG(void *, node));
     } else if (node->type == Node::ArtistNode) {
-        QMetaObject::invokeMethod(m_reader, "readAlbumsOfArtist", Qt::QueuedConnection, Q_ARG(MusicModel::Node *, node), Q_ARG(QString, node->text));
+        QMetaObject::invokeMethod(m_reader, "execute", Qt::QueuedConnection, Q_ARG(QSqlQuery, readAlbumsOfArtistQuery(node->text)), Q_ARG(void *, node));
     }
 }
 
@@ -360,13 +286,14 @@ bool MusicModel::albumLessThan(MusicModel::Node *n1, MusicModel::Node *n2)
     return n1->text < n2->text;
 }
 
-void MusicModel::handleDataReady(MediaDbReader *reader, const QList<QSqlRecord> &records, Node *loadingNode)
+void MusicModel::handleDataReady(DbReader *reader, const QList<QSqlRecord> &records, void *node)
 {
     Q_ASSERT(reader == m_reader);
     DEBUG << "Received response from db of size " << records.size();
 
     QList<Node *> newChildren;
     QHash<int, Node *> newChildIds;
+    Node *loadingNode = static_cast<Node *>(node);
 
     const bool loadingSong = m_groupBy == NoGrouping || loadingNode->type == Node::AlbumNode;
 
@@ -440,7 +367,7 @@ void MusicModel::groupBy(MusicModel::GroupBy groupBy)
     m_root->childIds.clear();
     m_root->loading = m_root->loaded = false;
 
-    MediaDbReader *newReader = new MediaDbReader;
+    DbReader *newReader = new DbReader;
     if (m_reader) {
         disconnect(m_reader, 0, this, 0);
         m_reader->stop();
@@ -454,9 +381,9 @@ void MusicModel::groupBy(MusicModel::GroupBy groupBy)
         m_readerThread->start();
     }
     m_reader->moveToThread(m_readerThread);
-    QMetaObject::invokeMethod(m_reader, "initialize");
-    connect(m_reader, SIGNAL(dataReady(MediaDbReader *, QList<QSqlRecord>, MusicModel::Node *)), 
-            this, SLOT(handleDataReady(MediaDbReader *, QList<QSqlRecord>, MusicModel::Node *)));
+    QMetaObject::invokeMethod(m_reader, "initialize", Q_ARG(QSqlDatabase, Backend::instance()->mediaDatabase()));
+    connect(m_reader, SIGNAL(dataReady(DbReader *, QList<QSqlRecord>, void *)), 
+            this, SLOT(handleDataReady(DbReader *, QList<QSqlRecord>, void *)));
 
     endResetModel();
 
@@ -658,6 +585,4 @@ void MusicModel::addSearchPath(const QString &path, const QString &name)
 void MusicModel::removeSearchPath(int index)
 {
 }
-
-#include "musicmodel.moc"
 

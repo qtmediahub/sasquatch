@@ -77,6 +77,7 @@ SOURCES += qmh-config.cpp \
     dataproviders/proxymodel.cpp \
     dataproviders/playlist.cpp \
     scopedtransaction.cpp \
+    dbreader.cpp \
     skin.cpp
 
 QT += declarative script network sql
@@ -94,6 +95,7 @@ HEADERS += qmh-config.h \
     qml-extensions/trackpad.h \
     dataproviders/playlist.h \
     scopedtransaction.h \
+    dbreader.h \
     skin.h
 
 include(rpc/rpc.pri)

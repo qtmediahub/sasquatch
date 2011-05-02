@@ -16,7 +16,7 @@
 
 class QThread;
 class MediaScanner;
-class MediaDbReader;
+class DbReader;
 
 class MusicModel : public QAbstractItemModel
 {
@@ -96,7 +96,7 @@ signals:
     void currentScanPathChanged();
 
 private slots:
-    void handleDataReady(MediaDbReader *reader, const QList<QSqlRecord> &data, MusicModel::Node *node);
+    void handleDataReady(DbReader *reader, const QList<QSqlRecord> &data, void *node);
     void handleDatabaseUpdated(const QList<QSqlRecord> &record);
 
 private:
@@ -110,7 +110,7 @@ private:
     QModelIndex indexForNode(MusicModel::Node *node) const;
 
     Node *m_root;
-    MediaDbReader *m_reader;
+    DbReader *m_reader;
     QThread *m_readerThread;
     QQueue<QSqlRecord> m_databaseUpdatesQueue;
 
@@ -126,12 +126,6 @@ public:
 
     QImage requestImage(const QString &id, QSize *size, const QSize &requestedSize);
 };
-
-Q_DECLARE_METATYPE(QList<QSqlRecord>);
-Q_DECLARE_METATYPE(MediaDbReader *);
-Q_DECLARE_METATYPE(QSqlRecord);
-Q_DECLARE_METATYPE(MusicModel::Node *);
-Q_DECLARE_METATYPE(QSqlDatabase);
 
 QML_DECLARE_TYPE(MusicModel)
 
