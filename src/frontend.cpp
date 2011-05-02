@@ -151,7 +151,7 @@ void WidgetWrapper::handleResize()
 {
     m_prey->setFixedSize(size());
 
-    QGraphicsView *gv = qobject_cast<QGraphicsView*>(m_prey);
+    QGraphicsView *gv = (QString(m_prey->metaObject()->className()).compare("QGraphicsView") == 0) ? qobject_cast<QGraphicsView*>(m_prey) : 0;
     if (gv && Config::isEnabled("scale-ui", false)) {
         gv->resetMatrix();
         //Needs to be scaled by res of top level qml file
