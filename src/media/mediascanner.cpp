@@ -32,8 +32,6 @@ void MediaScanner::initialize()
     //query.exec("PRAGMA synchronous=OFF"); // dangerous, can corrupt db
     //query.exec("PRAGMA journal_mode=WAL");
     query.exec("PRAGMA count_changes=OFF");
-
-    addParser(new MusicParser(m_db));
 }
 
 MediaScanner::~MediaScanner()
@@ -43,6 +41,7 @@ MediaScanner::~MediaScanner()
 
 void MediaScanner::addParser(MediaParser *parser)
 {
+    parser->setDatabase(m_db);
     m_parsers.insert(parser->type(), parser);
 }
 
@@ -98,7 +97,6 @@ void MediaScanner::scan(MediaParser *parser, const QString &path)
                 diskFileInfos.append(diskFileInfo);
                 if (diskFileInfos.count() > BULK_LIMIT) {
                     QList<QSqlRecord> records = parser->updateMediaInfos(diskFileInfos);
-                    emit databaseUpdated(records);
                     diskFileInfos.clear();
                 }
                 DEBUG << diskFileInfo.absoluteFilePath() << " : added";
@@ -114,10 +112,8 @@ void MediaScanner::scan(MediaParser *parser, const QString &path)
         // ## remove the files from the db in the fileInfosInDb hash now?
     }
 
-    if (!diskFileInfos.isEmpty()) {
-        QList<QSqlRecord> records = parser->updateMediaInfos(diskFileInfos);
-        emit databaseUpdated(records);
-    }
+    if (!diskFileInfos.isEmpty())
+        parser->updateMediaInfos(diskFileInfos);
 }
 
 void MediaScanner::refresh()

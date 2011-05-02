@@ -34,9 +34,6 @@ public slots:
     void addSearchPath(const QString &type, const QString &path, const QString &name);
     void refresh();
     
-signals:
-    void databaseUpdated(const QList<QSqlRecord> &records);
-
 private:
     MediaScanner(QObject *parent = 0);
     void scan(MediaParser *parser, const QString &path);

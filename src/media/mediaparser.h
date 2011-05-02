@@ -5,11 +5,14 @@
 #include <QList>
 #include "mediascanner.h"
 
-class MediaParser
+class MediaParser : public QObject
 {
+    Q_OBJECT
 public:
-    MediaParser(const QSqlDatabase &db);
+    MediaParser();
     virtual ~MediaParser() { }
+
+    void setDatabase(const QSqlDatabase &db) { m_db = db; }
 
     virtual QString type() const = 0;
     virtual bool canRead(const QFileInfo &info) const = 0;
@@ -17,18 +20,11 @@ public:
 
     virtual QHash<QString, MediaScanner::FileInfo> findFilesByPath(const QString &path);
 
+signals:
+    void databaseUpdated(const QList<QSqlRecord> &records);
+
 protected:
     QSqlDatabase m_db;
-};
-
-class MusicParser : public MediaParser
-{
-public:
-    MusicParser(const QSqlDatabase &db) : MediaParser(db) { }
-
-    QString type() const;
-    bool canRead(const QFileInfo &info) const;
-    QList<QSqlRecord> updateMediaInfos(const QList<QFileInfo> &fi);
 };
 
 #endif // MEDIAPARSER_H

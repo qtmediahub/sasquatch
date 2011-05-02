@@ -1,4 +1,5 @@
 #include "musicmodel.h"
+#include "musicparser.h"
 #include "mediascanner.h"
 #include "scopedtransaction.h"
 #include "backend.h"
@@ -165,7 +166,9 @@ MusicModel::MusicModel(QObject *parent)
     hash[PreviewUrlRole] = "previewUrl";
     setRoleNames(hash);
 
-    connect(MediaScanner::instance(), SIGNAL(databaseUpdated(QList<QSqlRecord>)),
+    MusicParser *parser = new MusicParser;
+    MediaScanner::instance()->addParser(parser);
+    connect(parser, SIGNAL(databaseUpdated(QList<QSqlRecord>)),
             this, SLOT(handleDatabaseUpdated(QList<QSqlRecord>)));
 
     m_root = new Node(0, Node::RootNode);
