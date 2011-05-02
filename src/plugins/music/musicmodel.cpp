@@ -694,7 +694,7 @@ void MusicModel::setThemeResourcePath(const QString &themePath)
 
 void MusicModel::addSearchPath(const QString &path, const QString &name)
 {
-    QMetaObject::invokeMethod(m_scanner, "addSearchPath", Qt::QueuedConnection, Q_ARG(QString, path), Q_ARG(QString, name));
+    QMetaObject::invokeMethod(m_scanner, "addSearchPath", Qt::QueuedConnection, Q_ARG(QString, "music"), Q_ARG(QString, path), Q_ARG(QString, name));
 }
 
 void MusicModel::removeSearchPath(int index)

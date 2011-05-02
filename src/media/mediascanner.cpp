@@ -25,31 +25,33 @@ MediaScanner::~MediaScanner()
     QSqlDatabase::removeDatabase(CONNECTION_NAME);
 }
 
-void MediaScanner::addSearchPath(const QString &_path, const QString &name)
+void MediaScanner::addSearchPath(const QString &type, const QString &_path, const QString &name)
 {
-    Q_UNUSED(name); // ## Add this to the database
     QString path = QFileInfo(_path).absoluteFilePath();
     if (path.endsWith('/'))
         path.chop(1);
 
     QSqlQuery query(m_db);
-    query.prepare("INSERT INTO directories (path) VALUES (:path)");
+    query.prepare("INSERT INTO directories (path, name, type) VALUES (:path, :name, :type)");
     query.bindValue(":path", path);
+    query.bindValue(":name", name);
+    query.bindValue(":type", type);
     if (!query.exec()) {
         m_errorString = query.lastError().text();
         DEBUG << m_errorString;
         return;
     }
 
-    scan(path);
+    scan(type, path);
 }
 
-QHash<QString, MediaScanner::FileInfo> MediaScanner::findFilesByPath(const QString &path)
+QHash<QString, MediaScanner::FileInfo> MediaScanner::findFilesByPath(const QString &type, const QString &path)
 {
     QHash<QString, MediaScanner::FileInfo> hash;
     QSqlQuery query(m_db);
     query.setForwardOnly(true);
-    query.prepare("SELECT filepath, mtime, ctime, filesize FROM music WHERE directory=:path");
+    query.prepare("SELECT filepath, mtime, ctime, filesize FROM :type WHERE directory=:path");
+    query.bindValue(":type", type);
     query.bindValue(":path", path);
     if (!query.exec()) {
         m_errorString = query.lastError().text();
@@ -156,8 +158,9 @@ QString determineArtist(const TagReader &reader)
 
 // ## See if DELETE+INSERT is the best approach. Sqlite3 supports INSERT OR IGNORE which could aslo be used
 // ## Also check other upsert methods
-void MediaScanner::updateMediaInfos(const QList<QFileInfo> &fis)
+void MediaScanner::updateMediaInfos(const QString &type, const QList<QFileInfo> &fis)
 {
+    Q_UNUSED(type);
     QList<QSqlRecord> records;
     QSqlQuery query(m_db);
     ScopedTransaction transaction(m_db);
@@ -219,7 +222,7 @@ static bool isMediaFile(const QFileInfo &info)
     return info.suffix() == "mp3";
 }
 
-void MediaScanner::scan(const QString &path)
+void MediaScanner::scan(const QString &type, const QString &path)
 {
     QQueue<QString> dirQ;
     dirQ.enqueue(path);
@@ -229,7 +232,7 @@ void MediaScanner::scan(const QString &path)
     while (!dirQ.isEmpty() && !m_stop) {
         QString curdir = dirQ.dequeue();
         QFileInfoList fileInfosInDisk = QDir(curdir).entryInfoList(QDir::Files|QDir::Dirs|QDir::NoDotAndDotDot|QDir::NoSymLinks);
-        QHash<QString, FileInfo> fileInfosInDb = findFilesByPath(curdir);
+        QHash<QString, FileInfo> fileInfosInDb = findFilesByPath(type, curdir);
 
         DEBUG << "Scanning " << curdir << fileInfosInDisk.count() << " files in disk and " << fileInfosInDb.count() << "in database";
 
@@ -249,7 +252,7 @@ void MediaScanner::scan(const QString &path)
 
                 diskFileInfos.append(diskFileInfo);
                 if (diskFileInfos.count() > BULK_LIMIT) {
-                    updateMediaInfos(diskFileInfos);
+                    updateMediaInfos(type, diskFileInfos);
                     diskFileInfos.clear();
                 }
                 DEBUG << diskFileInfo.absoluteFilePath() << " : added";
@@ -266,23 +269,23 @@ void MediaScanner::scan(const QString &path)
     }
 
     if (!diskFileInfos.isEmpty())
-        updateMediaInfos(diskFileInfos);
+        updateMediaInfos(type, diskFileInfos);
 }
 
 void MediaScanner::refresh()
 {
     QSqlQuery query(m_db);
     query.setForwardOnly(true);
-    query.exec("SELECT path FROM directories");
+    query.exec("SELECT type, path FROM directories");
 
-    QStringList dirs;
+    QList<QPair<QString, QString> > dirs;
     while (query.next()) {
-        dirs << query.value(0).toString();
+        dirs << qMakePair(query.value(0).toString(), query.value(1).toString());
     }
 
     for (int i = 0; i < dirs.count(); i++) {
         if (!m_stop)
-            scan(dirs[i]);
+            scan(dirs[i].first, dirs[i].second);
     }
 }
 

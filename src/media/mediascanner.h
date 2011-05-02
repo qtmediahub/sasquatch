@@ -23,20 +23,20 @@ public:
         bool valid() const { return !name.isEmpty(); }
     };
 
-    QHash<QString, FileInfo> findFilesByPath(const QString &path);
+    QHash<QString, FileInfo> findFilesByPath(const QString &type, const QString &path);
 
     void stop() { m_stop = true; }
 
 public slots:
-    void addSearchPath(const QString &path, const QString &name);
+    void addSearchPath(const QString &type, const QString &path, const QString &name);
     void refresh();
     
 signals:
     void databaseUpdated(const QList<QSqlRecord> &records);
 
 private:
-    void scan(const QString &path);
-    void updateMediaInfos(const QList<QFileInfo> &fi);
+    void scan(const QString &type, const QString &path);
+    void updateMediaInfos(const QString &type, const QList<QFileInfo> &fi);
 
     volatile bool m_stop;
     QSqlDatabase m_db;

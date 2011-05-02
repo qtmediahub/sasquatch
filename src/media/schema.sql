@@ -1,5 +1,8 @@
 CREATE TABLE directories (
-    path TEXT NOT NULL PRIMARY KEY
+    path TEXT NOT NULL,
+    type TEXT NOT NULL,
+    name TEXT NOT NULL,
+    PRIMARY KEY (path, type)
 );
 
 CREATE TABLE music (
