@@ -13,6 +13,7 @@
         <file>RemoteControlButtons.qml</file>
         <file>Trackpad.qml</file>
         <file>KeyGrid.qml</file>
+        <file>FlickablePage.qml</file>
         <file>images/navpad_bar.png</file>
         <file>images/navpad_button.png</file>
         <file>images/navpad_center.png</file>

@@ -67,4 +67,5 @@ OTHER_FILES += \
     KeyGrid.qml \
     VolumeControl.qml \
     Trackpad.qml \
-    Grip.qml
+    Grip.qml \
+    FlickablePage.qml

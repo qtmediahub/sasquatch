@@ -17,10 +17,11 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 ****************************************************************************/
 
-import QtQuick 1.0
+import QtQuick 1.1
 
 BorderImage {
     id: trackpad
+    anchors.fill: parent
     source: "qrc:/images/trackpad.png"
     smooth: true
     border { top: 20; left: 20; right: 20; bottom: 20 }
@@ -35,6 +36,7 @@ BorderImage {
 
         function manhattanLength(x, y) { return Math.sqrt(x*x + y*y) }
 
+        preventStealing: true
         anchors.fill: parent
         onPressed: { startX = startY = -1; ignoreClick = false; rpcClient.callBool("trackpad.setEnabled", true) }
         onReleased: { inited = false; }

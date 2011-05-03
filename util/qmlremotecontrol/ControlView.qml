@@ -17,35 +17,13 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 ****************************************************************************/
 
-import QtQuick 1.0
+import QtQuick 1.1
 
 Item {
     id: root
     property alias title : controlTitle.text
 
     clip: true
-    state: "showingButtons"
-
-    states: [
-        State {
-            name: "showingButtons"
-            PropertyChanges {
-                target: remoteControlButtons
-                x: 0
-            }
-        },
-        State {
-            name: "showingTrackpad"
-            PropertyChanges {
-                target: remoteControlButtons
-                x: -remoteControlButtons.width
-            }
-        }
-    ]
-
-    transitions: Transition {
-        NumberAnimation { properties: "x" }
-    }
 
     Grip {
         id: targets
@@ -75,27 +53,37 @@ Item {
         anchors.top: controlLabel.bottom
     }
 
-    RemoteControlButtons {
-        id: remoteControlButtons
-        clip: true
+    Flickable {
+        id: container
+
         width: parent.width
         anchors.top: volumeControl.bottom
-        anchors.bottom: showTrackpad.top
-    }
-
-    Trackpad {
-        id: trackpad
-        width: parent.width
-        anchors.top: volumeControl.bottom
-        anchors.bottom: showTrackpad.top
-        anchors.left: remoteControlButtons.right
-    }
-
-    Grip {
-        id: showTrackpad
-        text: root.state == "showingTrackpad" ? qsTr("Buttons") : qsTr("Trackpad")
-        onClicked: root.state = root.state == "showingTrackpad" ? "showingButtons" : "showingTrackpad"
         anchors.bottom: parent.bottom
+        contentWidth: row.width
+        boundsBehavior: Flickable.StopAtBounds
+        onMovementEnded:
+            contentX = Math.round(contentX/container.width) * container.width
+
+        Behavior on contentX { PropertyAnimation { duration: 500 } }
+
+        Row {
+            id: row
+            FlickablePage {
+                target: container
+                gripText: qsTr("Buttons")
+                RemoteControlButtons {
+                    id: remoteControlButtons
+                }
+            }
+            FlickablePage {
+                target: container
+                gripText: qsTr("Trackpad")
+                Trackpad {
+                    id: trackpad
+                    width: parent.width
+                }
+            }
+        }
     }
 }
 
