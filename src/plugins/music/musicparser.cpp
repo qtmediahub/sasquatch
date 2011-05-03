@@ -139,6 +139,8 @@ QList<QSqlRecord> MusicParser::updateMediaInfos(const QList<QFileInfo> &fis)
             DEBUG << query.lastError().text();
         
         QSqlRecord record;
+        record.append(QSqlField("id", QVariant::Int));
+        record.setValue(0, query.lastInsertId());
         QMap<QString, QVariant> boundValues = query.boundValues();
         for (QMap<QString, QVariant>::const_iterator it = boundValues.constBegin(); it != boundValues.constEnd(); ++it) {
             QString key = it.key().mid(1); // remove the ':'
