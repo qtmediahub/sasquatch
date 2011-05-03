@@ -3,7 +3,7 @@
 #include "scopedtransaction.h"
 #include <QtSql>
 
-#define DEBUG if (0) qDebug() << __PRETTY_FUNCTION__
+#define DEBUG if (1) qDebug() << __PRETTY_FUNCTION__
 
 MediaParser::MediaParser()
 {
@@ -14,8 +14,7 @@ QHash<QString, MediaScanner::FileInfo> MediaParser::findFilesByPath(const QStrin
     QHash<QString, MediaScanner::FileInfo> hash;
     QSqlQuery query(m_db);
     query.setForwardOnly(true);
-    query.prepare("SELECT filepath, mtime, ctime, filesize FROM :type WHERE directory=:path");
-    query.bindValue(":type", type());
+    query.prepare(QString("SELECT filepath, mtime, ctime, filesize FROM %1 WHERE directory=:path").arg(type()));
     query.bindValue(":path", path);
     if (!query.exec()) {
         DEBUG << query.lastError().text();
