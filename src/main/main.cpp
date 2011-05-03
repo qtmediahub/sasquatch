@@ -58,8 +58,7 @@ int main(int argc, char** argv)
     //Only legitimate use is in fullscreen QGraphicsView derived classes!
     //If you use this in conjunction with our traditional QWidget style functionality
     //You are in for a rough ride
-    if (Config::isEnabled("use-gl", true))
-        QApplication::setGraphicsSystem("opengl");
+    QApplication::setGraphicsSystem("opengl");
 #endif //GLGS
 #endif //GL
 
