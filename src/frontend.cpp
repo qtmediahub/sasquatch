@@ -116,12 +116,16 @@ WidgetWrapper::WidgetWrapper(QWidget *prey)
     : QWidget(0),
       m_prey(prey)
 {
+    //Until I introduce orientation handling
+#if defined(Q_WS_MAEMO_5)
+    setAttribute(Qt::WA_LockPortraitOrientation, true);
+#endif
+    setAttribute(Qt::WA_OpaquePaintEvent);
+    setAttribute(Qt::WA_NoSystemBackground);
+
     m_prey->setParent(this);
 
     installEventFilter(Backend::instance());
-
-    setAttribute(Qt::WA_OpaquePaintEvent);
-    setAttribute(Qt::WA_NoSystemBackground);
 
     new QShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::ALT + Qt::Key_Backspace), this, SLOT(resetUI()));
     new QShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::ALT + Qt::Key_Down), this, SIGNAL(shrink()));
