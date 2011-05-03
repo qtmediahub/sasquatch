@@ -48,3 +48,41 @@ CREATE TABLE video (
     filesize INTEGER NOT NULL
 );
 
+CREATE TABLE picture (
+    id INTEGER PRIMARY KEY, /* alias for ROWID, see http://www.sqlite.org/autoinc.html */
+    filepath TEXT NOT NULL UNIQUE,
+
+    title TEXT,
+    thumbnail BLOB,
+
+    /* exif */
+    comments TEXT,
+    description TEXT,
+    created TEXT,
+    camera_model TEXT,
+    camera_make TEXT,
+
+    latitude REAL,
+    longitude REAL,
+    altitude REAL,
+
+    orientation INTEGER,
+
+    aperture TEXT,
+    focal_length TEXT,
+    exposure_time TEXT,
+    exposure_mode TEXT,
+    white_balance TEXT,
+    light_source TEXT,
+    iso_speed TEXT,
+    digital_zoom_ratio TEXT,
+    flash_usage TEXT,
+    color_space TEXT,
+
+    /* stat information */
+    directory TEXT NOT NULL,
+    mtime INTEGER NOT NULL,
+    ctime INTEGER NOT NULL,
+    filesize INTEGER NOT NULL
+);
+
