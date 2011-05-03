@@ -17,8 +17,6 @@ QMAKE_CACHE=$${OUT_PWD}/.qmake.cache
     system(echo "CONFIG-=qt_framework" >> $$QMAKE_CACHE)
 }
 
-SUBDIRS = util/qmlremotecontrol
-
 # due to wrong deploysteps in creator for symbian,
 # comment SUBDIRS below out
 SUBDIRS += src

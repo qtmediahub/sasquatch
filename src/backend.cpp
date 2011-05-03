@@ -27,6 +27,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #ifdef QMH_AVAHI
 #include "qavahiservicebrowsermodel.h"
+#else
+#include "staticservicebrowsermodel.h"
 #endif
 
 #include <QDir>
@@ -464,7 +466,7 @@ QObject *Backend::targetsModel() const
         model->browse("_qmh._tcp", QAvahiServiceBrowserModel::HideIPv6 | QAvahiServiceBrowserModel::HideLocal);
         d->targetsModel = model;
 #else
-        d->targetsModel = new QStandardItemModel(const_cast<Backend *>(this));
+        d->targetsModel = new StaticServiceBrowserModel(const_cast<Backend *>(this));
 #endif
     }
     return d->targetsModel;
