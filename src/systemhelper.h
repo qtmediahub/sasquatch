@@ -50,7 +50,7 @@ public slots:
     void restart();
     void suspend();
     void hibernate();
-    void mount(const QString &device);
+    //void mount(const QString &device);
 
 private:
     QString m_name;
