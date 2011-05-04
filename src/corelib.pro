@@ -74,7 +74,7 @@ SOURCES += qmh-config.cpp \
     qml-extensions/actionmapper.cpp \
     qml-extensions/trackpad.cpp \
     dataproviders/proxymodel.cpp \
-    dataproviders/playlist.cpp \
+#    dataproviders/playlist.cpp \
     scopedtransaction.cpp \
     dbreader.cpp \
     skin.cpp
@@ -91,7 +91,7 @@ HEADERS += qmh-config.h \
     qml-extensions/qmlfilewrapper.h \
     qml-extensions/actionmapper.h \
     qml-extensions/trackpad.h \
-    dataproviders/playlist.h \
+#    dataproviders/playlist.h \
     scopedtransaction.h \
     dbreader.h \
     skin.h

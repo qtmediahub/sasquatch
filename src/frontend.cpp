@@ -53,7 +53,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "dataproviders/proxymodel.h"
 #include "dataproviders/dirmodel.h"
 #include "qml-extensions/qmlfilewrapper.h"
-#include "dataproviders/playlist.h"
 #include "qmhplugin.h"
 
 class QMLUtils : public QObject
@@ -370,7 +369,7 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
         qmlRegisterType<ProxyModelItem>("ProxyModel", 1, 0, "ProxyModelItem");
         qmlRegisterType<DirModel>("DirModel", 1, 0, "DirModel");
         qmlRegisterType<QMLFileWrapper>("QMLFileWrapper", 1, 0, "QMLFileWrapper");
-        qmlRegisterType<Playlist>("Playlist", 1, 0, "Playlist");
+        // qmlRegisterType<Playlist>("Playlist", 1, 0, "Playlist");
         qmlRegisterType<RpcConnection>("RpcConnection", 1, 0, "RpcConnection");
 
         actionMap = new ActionMapper(declarativeWidget);
