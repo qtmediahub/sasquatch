@@ -387,5 +387,6 @@ void VideoModel::addSearchPath(const QString &path, const QString &name)
 
 void VideoModel::removeSearchPath(int index)
 {
+    Q_UNUSED(index);
 }
 
