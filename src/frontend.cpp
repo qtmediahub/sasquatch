@@ -190,6 +190,7 @@ public slots:
     void toggleFullScreen();
     void showFullScreen();
     void showNormal();
+    void activateWindow();
 
     void grow();
     void shrink();
@@ -452,7 +453,7 @@ void FrontendPrivate::showFullScreen()
         skinWidget->showFullScreen();
     }
 
-    skinWidget->activateWindow();
+    QTimer::singleShot( 1, this, SLOT(activateWindow()));
 }
 
 void FrontendPrivate::showNormal()
@@ -463,6 +464,12 @@ void FrontendPrivate::showNormal()
     skinWidget->setGeometry(Config::value("window-geometry", defaultGeometry));
     skinWidget->showNormal();
 
+    QTimer::singleShot( 1, this, SLOT(activateWindow()));
+}
+
+void FrontendPrivate::activateWindow()
+{
+    //Invoking this by adding it to the even queue doesn't work?
     skinWidget->activateWindow();
 }
 
