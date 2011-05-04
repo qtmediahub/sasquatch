@@ -1,57 +1,19 @@
 #include "systemhelper.h"
 
 #ifndef QT_NO_DBUS
-#include <QtDBus>
-
-class ConsoleKitInterface : public QDBusAbstractInterface
-{
-    Q_OBJECT
-public:
-    static inline const char *staticInterfaceName() { return "org.freedesktop.ConsoleKit"; }
-    ConsoleKitInterface(const QString &service, const QString &path, const QDBusConnection &connection, QObject *parent = 0)
-        : QDBusAbstractInterface(service, path, staticInterfaceName(), connection, parent)
-    {}
-
-public:
-    inline QDBusPendingReply<> stop()
-    {
-        return asyncCall(QLatin1String("stop"));
-    }
-
-    inline QDBusPendingReply<> restart()
-    {
-        return asyncCall(QLatin1String("restart"));
-    }
-};
-
-class UPowerInterface : public QDBusAbstractInterface
-{
-    Q_OBJECT
-public:
-    static inline const char *staticInterfaceName() { return "org.freedesktop.UPower"; }
-    UPowerInterface(const QString &service, const QString &path, const QDBusConnection &connection, QObject *parent = 0)
-        : QDBusAbstractInterface(service, path, staticInterfaceName(), connection, parent)
-    {}
-
-public:
-    inline QDBusPendingReply<> suspend()
-    {
-        return asyncCall(QLatin1String("Suspend"));
-    }
-
-    inline QDBusPendingReply<> hibernate()
-    {
-        return asyncCall(QLatin1String("Hibernate"));
-    }
-};
-
+#include "systemhelperdbus.h"
 #endif
-
-
 
 SystemHelper::SystemHelper(QObject *parent) :
     QObject(parent)
 {
+#ifndef QT_NO_DBUS
+    m_helper = new SystemHelperDBus(this);
+    connect(m_helper, SIGNAL(deviceAdded(QString)), this, SIGNAL(deviceAdded(QString)));
+    connect(m_helper, SIGNAL(deviceRemoved(QString)), this, SIGNAL(deviceRemoved(QString)));
+#else
+    // TBD
+#endif
 }
 
 void SystemHelper::shutdown()
@@ -94,4 +56,13 @@ void SystemHelper::hibernate()
 #endif
 }
 
-#include "systemhelper.moc"
+QObject *SystemHelper::getDeviceByPath(const QString &path)
+{
+#ifndef QT_NO_DBUS
+    return qobject_cast<QObject*>(m_helper->getDeviceByPath(path));
+#else
+    return 0;
+#endif
+}
+
+
