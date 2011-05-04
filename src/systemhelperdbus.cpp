@@ -5,6 +5,7 @@ SystemHelperDBus::SystemHelperDBus(QObject *parent) :
 {
     m_uDisks = new UDisksInterface("org.freedesktop.UDisks", "/org/freedesktop/UDisks", QDBusConnection::systemBus(), this);
     connect(m_uDisks, SIGNAL(DeviceAdded(QDBusObjectPath)), this, SLOT(newDevice(QDBusObjectPath)));
+    connect(m_uDisks, SIGNAL(DeviceRemoved(QDBusObjectPath)), this, SLOT(removeDevice(QDBusObjectPath)));
 }
 
 void SystemHelperDBus::mount(const QString &path)
