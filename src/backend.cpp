@@ -327,6 +327,8 @@ Backend::~Backend()
 
     delete d;
     d = 0;
+
+    pSelf = 0;
 }
 
 void Backend::initialize()
