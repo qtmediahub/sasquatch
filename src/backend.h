@@ -28,11 +28,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 class QUrl;
 class BackendPrivate;
+class Skin;
+class Frontend;
+class QAction;
 
 class Backend : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QList<QObject*> skins READ skins NOTIFY skinsChanged)
+    Q_PROPERTY(QList<Skin*> skins READ skins NOTIFY skinsChanged)
     Q_PROPERTY(QString pluginPath READ pluginPath NOTIFY pluginPathChanged)
     Q_PROPERTY(QString resourcePath READ resourcePath NOTIFY resourcePathChanged)
     Q_PROPERTY(QList<QObject*> advertizedEngines READ advertizedEngines NOTIFY advertizedEnginesChanged)
@@ -45,9 +48,11 @@ public:
 
     QString language() const;
 
-    QList<QObject *> advertizedEngines() const;
+    QObjectList advertizedEngines() const;
     QList<QMHPlugin *> allEngines() const;
-    QList<QObject *> skins() const;
+    QList<Skin*> skins() const;
+
+    QList<QAction*> actions() const;
 
     QString basePath() const;
     QString pluginPath() const;
@@ -60,6 +65,8 @@ public:
 
     QObject *targetsModel() const;
     QObject *engineByName(const QString &name);
+
+    Frontend* frontend() const;
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event);

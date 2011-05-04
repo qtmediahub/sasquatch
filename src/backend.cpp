@@ -19,7 +19,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "backend.h"
 #include "frontend.h"
-#include "qmhplugin.h"
 
 #include "qmh-config.h"
 #include "rpc/rpcconnection.h"
@@ -49,113 +48,54 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <QDebug>
 
+class SkinSelecter : public QDialog
+{
+    Q_OBJECT
+public:
+    SkinSelecter(QWidget *p = 0)
+        : QDialog(p)
+    {
+        setAttribute(Qt::WA_DeleteOnClose);
+        setModal(true);
+        QVBoxLayout *vbox = new QVBoxLayout(this);
+        QListWidget *skinsView = new QListWidget(this);
+
+        connect(skinsView,
+                SIGNAL(itemDoubleClicked(QListWidgetItem*)),
+                this,
+                SLOT(handleSkinSelection(QListWidgetItem*)));
+
+        foreach(Skin *skin, Backend::instance()->skins())
+            skinsView->addItem(skin->name());
+
+        vbox->addWidget(skinsView);
+    }
+
+public slots:
+    void handleSkinSelection(QListWidgetItem* item) {
+        Backend::instance()->frontend()->setSkin(item->text());
+        close();
+    }
+};
+
 Backend* Backend::pSelf = 0;
 
 class BackendPrivate : public QObject
 {
     Q_OBJECT
 public:
-    BackendPrivate(Backend *p)
-        : QObject(p),
-      #ifdef Q_OS_MAC
-          platformOffset("/../../.."),
-      #endif
-          basePath(QCoreApplication::applicationDirPath() + platformOffset),
-          // Use "large" instead of appName to fit freedesktop spec
-          thumbnailPath(Config::value("thumbnail-path", QDir::homePath() + "/.thumbnails/" + qApp->applicationName() + "/")),
-          inputIdleTimer(this),
-          backendTranslator(0),
-          logFile(qApp->applicationName().append(".log")),
-          systray(0),
-          targetsModel(0),
-          pSelf(p)
-    {
-        QNetworkProxy proxy;
-        if (Config::isEnabled("proxy", false)) {
-            QString proxyHost(Config::value("proxy-host", "localhost").toString());
-            int proxyPort = Config::value("proxy-port", 8080);
-            proxy.setType(QNetworkProxy::HttpProxy);
-            proxy.setHostName(proxyHost);
-            proxy.setPort(proxyPort);
-            QNetworkProxy::setApplicationProxy(proxy);
-            qWarning() << "Using proxy host"
-                << proxyHost
-                << "on port"
-                << proxyPort;
-        }
-
-        // TODO: check install prefix
-        skinPaths << "/usr/share/qtmediahub/skins/";
-        skinPaths << QDir::homePath() + "/.qtmediahub/skins/";
-        skinPaths << QDir(Config::value("skins", QString(basePath % "/skins"))).absolutePath();
-        if (!qgetenv("QMH_SKINPATH").isEmpty())
-            skinPaths << QDir(qgetenv("QMH_SKINPATH")).absolutePath();
-
-        pluginPath = QDir(Config::value("plugins", QString(basePath % "/plugins"))).absolutePath();
-
-        if (!qgetenv("QMH_RESOURCEPATH").isEmpty())
-            resourcePath = QDir(qgetenv("QMH_RESOURCEPATH")).absolutePath();
-        else
-            resourcePath = QDir(Config::value("resources", QString(basePath % "/resources"))).absolutePath();
-
-        inputIdleTimer.setInterval(Config::value("idle-timeout", 120)*1000);
-        inputIdleTimer.setSingleShot(true);
-        inputIdleTimer.start();
-
-        connect(&inputIdleTimer, SIGNAL(timeout()), pSelf, SIGNAL(inputIdle()));
-
-        logFile.open(QIODevice::Text|QIODevice::ReadWrite);
-        log.setDevice(&logFile);
-
-        connect(&pathMonitor,
-                SIGNAL(directoryChanged(const QString &)),
-                this,
-                SLOT(handleDirChanged(const QString &)));
-
-        foreach (QString skinPath, skinPaths) {
-            if (QDir(skinPath).exists())
-                pathMonitor.addPath(skinPath);
-        }
-        pathMonitor.addPath(pluginPath);
-
-        QFileInfo thumbnailFolderInfo(thumbnailPath);
-        if (!thumbnailFolderInfo.exists()) {
-            QDir dir;
-            dir.mkpath(thumbnailFolderInfo.absoluteFilePath());
-        }
-        discoverSkins();
-    }
-
-    ~BackendPrivate()
-    {
-        delete frontend;
-        frontend = 0;
-
-        delete backendTranslator;
-        backendTranslator = 0;
-
-        //This clean up is arguably a waste of effort since
-        //the death of the backend marks the death of the appliction
-        qDeleteAll(pluginTranslators.begin(), pluginTranslators.end());
-        qDeleteAll(allEngines.begin(), allEngines.end());
-        qDeleteAll(skins.begin(), skins.end());
-
-        delete backendTranslator;
-        delete systray;
-        delete targetsModel;
-
-#if defined(Q_WS_S60) || defined(Q_WS_MAEMO)
-        delete session;
-#endif
-    }
+    BackendPrivate(Backend *p);
+    ~BackendPrivate();
 
 public slots:
     void handleDirChanged(const QString &dir);
+    void selectSkin();
 
 public:
     void resetLanguage();
     void discoverSkins();
     void discoverEngines();
+    void discoverActions();
 
     Frontend *frontend;
 
@@ -163,6 +103,7 @@ public:
 
     QList<QObject*> advertizedEngines;
     QList<QMHPlugin*> allEngines;
+    QList<QAction*> actions;
 
     const QString platformOffset;
 
@@ -172,7 +113,7 @@ public:
     const QString thumbnailPath;
 
     QStringList skinPaths;
-    QList<QObject *> skins;
+    QList<Skin *> skins;
 
     QTimer inputIdleTimer;
     QTranslator *backendTranslator;
@@ -189,8 +130,112 @@ public:
     QNetworkSession *session;
 #endif
 
+    QAction *selectSkinAction;
     Backend *pSelf;
 };
+
+BackendPrivate::BackendPrivate(Backend *p)
+    : QObject(p),
+      frontend(0),
+  #ifdef Q_OS_MAC
+      platformOffset("/../../.."),
+  #endif
+      basePath(QCoreApplication::applicationDirPath() + platformOffset),
+      // Use "large" instead of appName to fit freedesktop spec
+      thumbnailPath(Config::value("thumbnail-path", QDir::homePath() + "/.thumbnails/" + qApp->applicationName() + "/")),
+      inputIdleTimer(this),
+      backendTranslator(0),
+      logFile(qApp->applicationName().append(".log")),
+      systray(0),
+      targetsModel(0),
+      pSelf(p)
+{
+    QNetworkProxy proxy;
+    if (Config::isEnabled("proxy", false)) {
+        QString proxyHost(Config::value("proxy-host", "localhost").toString());
+        int proxyPort = Config::value("proxy-port", 8080);
+        proxy.setType(QNetworkProxy::HttpProxy);
+        proxy.setHostName(proxyHost);
+        proxy.setPort(proxyPort);
+        QNetworkProxy::setApplicationProxy(proxy);
+        qWarning() << "Using proxy host"
+            << proxyHost
+            << "on port"
+            << proxyPort;
+    }
+
+    selectSkinAction = new QAction(tr("Select skin"), this);
+    QAction *quitAction = new QAction(tr("Quit"), this);
+    connect(selectSkinAction, SIGNAL(triggered()), this, SLOT(selectSkin()));
+    connect(quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
+    actions.append(selectSkinAction);
+    actions.append(quitAction);
+
+    // TODO: check install prefix
+    skinPaths << "/usr/share/qtmediahub/skins/";
+    skinPaths << QDir::homePath() + "/.qtmediahub/skins/";
+    skinPaths << QDir(Config::value("skins", QString(basePath % "/skins"))).absolutePath();
+    if (!qgetenv("QMH_SKINPATH").isEmpty())
+        skinPaths << QDir(qgetenv("QMH_SKINPATH")).absolutePath();
+
+    pluginPath = QDir(Config::value("plugins", QString(basePath % "/plugins"))).absolutePath();
+
+    if (!qgetenv("QMH_RESOURCEPATH").isEmpty())
+        resourcePath = QDir(qgetenv("QMH_RESOURCEPATH")).absolutePath();
+    else
+        resourcePath = QDir(Config::value("resources", QString(basePath % "/resources"))).absolutePath();
+
+    inputIdleTimer.setInterval(Config::value("idle-timeout", 120)*1000);
+    inputIdleTimer.setSingleShot(true);
+    inputIdleTimer.start();
+
+    connect(&inputIdleTimer, SIGNAL(timeout()), pSelf, SIGNAL(inputIdle()));
+
+    logFile.open(QIODevice::Text|QIODevice::ReadWrite);
+    log.setDevice(&logFile);
+
+    connect(&pathMonitor,
+            SIGNAL(directoryChanged(const QString &)),
+            this,
+            SLOT(handleDirChanged(const QString &)));
+
+    foreach (QString skinPath, skinPaths) {
+        if (QDir(skinPath).exists())
+            pathMonitor.addPath(skinPath);
+    }
+    pathMonitor.addPath(pluginPath);
+
+    QFileInfo thumbnailFolderInfo(thumbnailPath);
+    if (!thumbnailFolderInfo.exists()) {
+        QDir dir;
+        dir.mkpath(thumbnailFolderInfo.absoluteFilePath());
+    }
+    discoverSkins();
+}
+
+BackendPrivate::~BackendPrivate()
+{
+    delete frontend;
+    frontend = 0;
+
+    delete backendTranslator;
+    backendTranslator = 0;
+
+    //This clean up is arguably a waste of effort since
+    //the death of the backend marks the death of the appliction
+    qDeleteAll(pluginTranslators.begin(), pluginTranslators.end());
+    qDeleteAll(allEngines.begin(), allEngines.end());
+    qDeleteAll(skins.begin(), skins.end());
+    qDeleteAll(actions.begin(), actions.end());
+
+    delete backendTranslator;
+    delete systray;
+    delete targetsModel;
+
+#if defined(Q_WS_S60) || defined(Q_WS_MAEMO)
+    delete session;
+#endif
+}
 
 void BackendPrivate::handleDirChanged(const QString &dir)
 {
@@ -201,6 +246,12 @@ void BackendPrivate::handleDirChanged(const QString &dir)
         qWarning() << "Changes in skin path, repopulating skins";
         discoverSkins();
     }
+}
+
+void BackendPrivate::selectSkin()
+{
+    SkinSelecter *skinSelector = new SkinSelecter;
+    skinSelector->show();
 }
 
 void BackendPrivate::resetLanguage()
@@ -249,8 +300,8 @@ void BackendPrivate::discoverSkins()
                    << "for further details";
     } else {
         QStringList sl;
-        foreach(QObject *skin, skins)
-            sl.append(qobject_cast<Skin*>(skin)->name());
+        foreach(Skin *skin, skins)
+            sl.append(skin->name());
         qDebug() << "Available skins:" << sl.join(",");
     }
 }
@@ -281,6 +332,11 @@ void BackendPrivate::discoverEngines()
         }
     }
     resetLanguage();
+}
+
+void BackendPrivate::discoverActions()
+{
+    selectSkinAction->setEnabled(!skins.isEmpty() && frontend);
 }
 
 Backend::Backend(QObject *parent)
@@ -340,12 +396,18 @@ void Backend::initialize()
     if (Config::isEnabled("system-tray", false)) {
         d->systray = new QSystemTrayIcon(QIcon(":/images/petite-ganesh-22x22.jpg"), this);
         d->systray->setVisible(true);
+        QMenu *contextMenu = new QMenu;
+        foreach(QAction *action, d->actions)
+            contextMenu->addAction(action);
+
+        d->systray->setContextMenu(contextMenu);
     }
 
 #ifdef QMH_AVAHI
     QAvahiServicePublisher *publisher = new QAvahiServicePublisher(this);
     publisher->publish(QHostInfo::localHostName(), "_qmh._tcp", 1234, "Qt Media Hub JSON-RPCv2 interface");
 #endif
+    d->discoverActions();
 }
 
 QString Backend::language() const
@@ -362,14 +424,19 @@ QList<QMHPlugin *> Backend::allEngines() const
     return d->allEngines;
 }
 
-QList<QObject *> Backend::advertizedEngines() const
+QObjectList Backend::advertizedEngines() const
 {
     return d->advertizedEngines;
 }
 
-QList<QObject *> Backend::skins() const
+QList<Skin*> Backend::skins() const
 {
     return d->skins;
+}
+
+QList<QAction*> Backend::actions() const
+{
+    return d->actions;
 }
 
 Backend* Backend::instance()
@@ -458,6 +525,12 @@ QObject *Backend::engineByName(const QString &name)
 
     return 0;
 }
+
+Frontend* Backend::frontend() const
+{
+    return d->frontend;
+}
+
 
 QObject *Backend::targetsModel() const
 {

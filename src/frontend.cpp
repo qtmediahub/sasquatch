@@ -545,4 +545,10 @@ void Frontend::show()
     }
 }
 
+bool Frontend::setSkin(const QString &name)
+{
+    return d->setSkin(name);
+}
+
+
 #include "frontend.moc"

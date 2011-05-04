@@ -36,6 +36,7 @@ public:
 
     bool transforms() const;
     void show();
+    bool setSkin(const QString &name);
 
 signals:
     void frontendChanged();
