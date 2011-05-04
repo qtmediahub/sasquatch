@@ -17,28 +17,39 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 ****************************************************************************/
 
-#include "mediaplayerhelper.h"
+#ifndef MEDIAPLAYERRPC_H
+#define MEDIAPLAYERRPC_H
 
-#include <QtDebug>
+#include <QObject>
 
-MediaPlayerHelper::MediaPlayerHelper(QObject *parent) :
-    QObject(parent),
-    m_mediaInfo(0)
+class MediaPlayerRpc : public QObject
 {
-    setObjectName("qmhmediaplayer");
-}
+    Q_OBJECT
+public:
+    explicit MediaPlayerRpc(QObject *parent = 0);
 
-void MediaPlayerHelper::playRemoteSource(QString uri, int position)
-{
-    qDebug() << "play remote source" << uri << position;
+signals:
+    void stopRequested();
+    void pauseRequested();
+    void resumeRequested();
+    void togglePlayPauseRequested();
+    void nextRequested();
+    void previousRequested();
+    void volumeUpRequested();
+    void volumeDownRequested();
 
-    MediaInfo *info = new MediaInfo(MediaModel::File, uri, MediaModel::Video);
+    void playRemoteSourceRequested(const QString &uri, int position);
 
-    qDebug() << "info" << info << info->filePath;
+public slots:
+    void playRemoteSource(const QString &uri, int position);
+    void stop() { emit stopRequested(); }
+    void pause() { emit pauseRequested(); }
+    void resume() { emit resumeRequested(); }
+    void togglePlayPause() { emit togglePlayPauseRequested(); }
+    void next() { emit nextRequested(); }
+    void previous() { emit previousRequested(); }
+    void volumeUp() { emit volumeUpRequested(); }
+    void volumeDown() { emit volumeDownRequested(); }
+};
 
-    m_mediaInfo = info;
-    m_position = position;
-
-    emit mediaInfoChanged();
-    emit playRemoteSourceRequested(info, m_position);
-}
+#endif // MEDIAPLAYERRPC_H

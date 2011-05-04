@@ -72,7 +72,6 @@ SOURCES += qmh-config.cpp \
     frontend.cpp \
     backend.cpp \
     qml-extensions/actionmapper.cpp \
-    qml-extensions/mediaplayerhelper.cpp \
     qml-extensions/trackpad.cpp \
     dataproviders/proxymodel.cpp \
     dataproviders/playlist.cpp \
@@ -91,7 +90,6 @@ HEADERS += qmh-config.h \
     dataproviders/dirmodel.h \
     qml-extensions/qmlfilewrapper.h \
     qml-extensions/actionmapper.h \
-    qml-extensions/mediaplayerhelper.h \
     qml-extensions/trackpad.h \
     dataproviders/playlist.h \
     scopedtransaction.h \

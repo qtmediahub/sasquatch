@@ -44,7 +44,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #endif
 
 #include "qml-extensions/actionmapper.h"
-#include "qml-extensions/mediaplayerhelper.h"
+#include "rpc/mediaplayerrpc.h"
 #include "qml-extensions/trackpad.h"
 #include "rpc/rpcconnection.h"
 #include "qmh-config.h"
@@ -197,7 +197,7 @@ public:
     QTranslator frontEndTranslator;
     Skin *skin;
     ActionMapper *actionMap;
-    MediaPlayerHelper *mediaPlayerHelper;
+    MediaPlayerRpc *mediaPlayerRpc;
     Trackpad *trackpad;
     QWidget *skinWidget;
     Frontend *pSelf;
@@ -210,7 +210,7 @@ FrontendPrivate::FrontendPrivate(Frontend *p)
       overscanWorkAround(Config::isEnabled("overscan", false)),
       attemptingFullScreen(Config::isEnabled("fullscreen", true)),
       actionMap(0),
-      mediaPlayerHelper(0),
+      mediaPlayerRpc(0),
       trackpad(0),
       skinWidget(0),
       pSelf(p)
@@ -374,17 +374,17 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
         qmlRegisterType<RpcConnection>("RpcConnection", 1, 0, "RpcConnection");
 
         actionMap = new ActionMapper(declarativeWidget);
-        mediaPlayerHelper = new MediaPlayerHelper(declarativeWidget);
+        mediaPlayerRpc = new MediaPlayerRpc(declarativeWidget);
         trackpad = new Trackpad(declarativeWidget);
 
         RpcConnection *connection = new RpcConnection(RpcConnection::Server, QHostAddress::Any, 1234, declarativeWidget);
         connection->registerObject(actionMap);
-        connection->registerObject(mediaPlayerHelper);
+        connection->registerObject(mediaPlayerRpc);
         connection->registerObject(trackpad);
 
         // attach global context properties
         engine->rootContext()->setContextProperty("actionmap", actionMap);
-        engine->rootContext()->setContextProperty("mediaPlayerHelper", mediaPlayerHelper);
+        engine->rootContext()->setContextProperty("mediaPlayerRpc", mediaPlayerRpc);
         engine->rootContext()->setContextProperty("trackpad", trackpad);
         engine->rootContext()->setContextProperty("frontend", pSelf);
         engine->rootContext()->setContextProperty("utils", new QMLUtils(declarativeWidget));
