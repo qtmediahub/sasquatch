@@ -19,7 +19,6 @@ Device::Device(const QString &p, DeviceType t, const QString &l, const QString &
 
 void Device::mount()
 {
-    qDebug() << "Device::mount()";
 #ifndef QT_NO_DBUS
     m_helper->mount(m_path);
 #endif
