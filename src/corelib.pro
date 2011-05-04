@@ -78,7 +78,8 @@ SOURCES += qmh-config.cpp \
     dataproviders/playlist.cpp \
     scopedtransaction.cpp \
     skin.cpp \
-    systemhelper.cpp
+    systemhelper.cpp \
+    device.cpp
 
 QT += declarative script network sql
 
@@ -96,7 +97,8 @@ HEADERS += qmh-config.h \
     dataproviders/playlist.h \
     scopedtransaction.h \
     skin.h \
-    systemhelper.h
+    systemhelper.h \
+    device.h
 
 include(rpc/rpc.pri)
 include(media/media.pri)
@@ -113,4 +115,6 @@ avahi {
 
 contains(QT_CONFIG, dbus) {
     QT += dbus
+    SOURCES += systemhelperdbus.cpp
+    HEADERS += systemhelperdbus.h
 }
