@@ -181,7 +181,7 @@ public:
     ~FrontendPrivate();
 
 public slots:
-    void setSkin(const QString &name);
+    bool setSkin(const QString &name);
     void initializeSkin(const QUrl &url);
     void resetLanguage();
 
@@ -247,7 +247,7 @@ void FrontendPrivate::initialize()
     setSkin(Config::value("skin", "").toString());
 }
 
-void FrontendPrivate::setSkin(const QString &name)
+bool FrontendPrivate::setSkin(const QString &name)
 {
     static QSize nativeResolution = qApp->desktop()->screenGeometry().size();
     static QString nativeResolutionString = Config::value("native-res-override", QString("%1x%2").arg(nativeResolution.width()).arg(nativeResolution.height()));
@@ -275,8 +275,8 @@ void FrontendPrivate::setSkin(const QString &name)
         newSkin = defaultSkin;
 
     if (!newSkin) {
-        //Ultimate fallback
-        newSkin = new Skin(QFileDialog::getOpenFileName(0, tr("Select a suitable skin")), this);
+        qDebug() << "Failed to set skin:" << name;
+        return false;
     }
 
     QFile skinConfig(newSkin->config());
@@ -309,8 +309,10 @@ void FrontendPrivate::setSkin(const QString &name)
     }
     else {
         qWarning() << "Can't read" << newSkin->name();
+        return false;
     }
     pSelf->show();
+    return true;
 }
 
 void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
