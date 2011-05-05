@@ -17,28 +17,18 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 ****************************************************************************/
 
-#ifndef MEDIAPLAYERHELPER_H
-#define MEDIAPLAYERHELPER_H
+#ifndef MEDIAPLAYERRPC_H
+#define MEDIAPLAYERRPC_H
 
 #include <QObject>
 
-#include "../media/mediainfo.h"
-
-class MediaPlayerHelper : public QObject
+class MediaPlayerRpc : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(MediaInfo* mediaInfo READ mediaInfo NOTIFY mediaInfoChanged) // ToBeRemoved
-    Q_PROPERTY(int position READ position NOTIFY mediaInfoChanged) // ToBeRemoved
-
 public:
-    explicit MediaPlayerHelper(QObject *parent = 0);
-
-    MediaInfo* mediaInfo() { return m_mediaInfo; } // ToBeRemoved
-    double position() { return m_position; } // ToBeRemoved
+    explicit MediaPlayerRpc(QObject *parent = 0);
 
 signals:
-    void mediaInfoChanged(); // ToBeRemoved
-
     void stopRequested();
     void pauseRequested();
     void resumeRequested();
@@ -48,10 +38,10 @@ signals:
     void volumeUpRequested();
     void volumeDownRequested();
 
-    void playRemoteSourceRequested(MediaInfo *mediaInfo, int position);
+    void playRemoteSourceRequested(const QString &uri, int position);
 
 public slots:
-    void playRemoteSource(QString uri, int position);
+    void playRemoteSource(const QString &uri, int position);
     void stop() { emit stopRequested(); }
     void pause() { emit pauseRequested(); }
     void resume() { emit resumeRequested(); }
@@ -60,10 +50,6 @@ public slots:
     void previous() { emit previousRequested(); }
     void volumeUp() { emit volumeUpRequested(); }
     void volumeDown() { emit volumeDownRequested(); }
-
-private:
-    MediaInfo *m_mediaInfo; // ToBeRemoved
-    int m_position; // ToBeRemoved
 };
 
-#endif // MEDIAPLAYERHELPER_H
+#endif // MEDIAPLAYERRPC_H

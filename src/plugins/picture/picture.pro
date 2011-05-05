@@ -5,8 +5,10 @@
 include(../plugins.pri)
 
 HEADERS += pictureplugin.h \
-           picturemodel.h
+           picturemodel.h \
+           pictureparser.h
 
 SOURCES += pictureplugin.cpp \
-           picturemodel.cpp
+           picturemodel.cpp \
+           pictureparser.cpp
 

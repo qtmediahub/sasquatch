@@ -17,5 +17,7 @@
     #define QMH_EXPORT
 #endif
 
+Q_DECLARE_METATYPE(QModelIndex)
+
 #endif // GLOBAL_H
 

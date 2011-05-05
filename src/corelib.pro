@@ -72,14 +72,13 @@ SOURCES += qmh-config.cpp \
     frontend.cpp \
     backend.cpp \
     qml-extensions/actionmapper.cpp \
-    qml-extensions/mediaplayerhelper.cpp \
     qml-extensions/trackpad.cpp \
     dataproviders/proxymodel.cpp \
-    dataproviders/playlist.cpp \
     scopedtransaction.cpp \
     skin.cpp \
     systemhelper.cpp \
-    device.cpp
+    device.cpp \
+    dbreader.cpp
 
 QT += declarative script network sql
 
@@ -92,13 +91,13 @@ HEADERS += qmh-config.h \
     dataproviders/dirmodel.h \
     qml-extensions/qmlfilewrapper.h \
     qml-extensions/actionmapper.h \
-    qml-extensions/mediaplayerhelper.h \
     qml-extensions/trackpad.h \
-    dataproviders/playlist.h \
     scopedtransaction.h \
     skin.h \
     systemhelper.h \
-    device.h
+    device.h \
+    dbreader.h \
+    skin.h
 
 include(rpc/rpc.pri)
 include(media/media.pri)

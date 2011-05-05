@@ -7,9 +7,13 @@ include(../../3rdparty/taglib/taglib.pri)
 
 INCLUDEPATH += ../../3rdparty/taglib/ ../../3rdparty/
 
+QT += sql
+
 HEADERS += musicplugin.h \
-           musicmodel.h
+           musicmodel.h \
+           musicparser.h
 
 SOURCES += musicplugin.cpp \
-           musicmodel.cpp
+           musicmodel.cpp \
+           musicparser.cpp
 

@@ -16,6 +16,8 @@ linux* {
     include($${PROJECTROOT}/src/3rdparty/qtsingleapplication/qtsingleapplication.pri)
 }
 
+QT += sql
+
 # Input
 SOURCES += main.cpp
 

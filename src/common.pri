@@ -1,6 +1,6 @@
 DEFINES += BUILDING_QMH
 
-QT += declarative
+QT += declarative sql
 
 TEMP_DIR = .tmp
 OBJECTS_DIR = $$TEMP_DIR/.obj

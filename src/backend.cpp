@@ -19,10 +19,13 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "backend.h"
 #include "frontend.h"
+#include "qmhplugin.h"
 
 #include "qmh-config.h"
 #include "rpc/rpcconnection.h"
 #include "skin.h"
+#include "scopedtransaction.h"
+#include "media/mediascanner.h"
 
 #ifdef QMH_AVAHI
 #include "qavahiservicebrowsermodel.h"
@@ -78,7 +81,7 @@ public slots:
     }
 };
 
-Backend* Backend::pSelf = 0;
+Backend* Backend::s_instance = 0;
 
 class BackendPrivate : public QObject
 {
@@ -96,6 +99,7 @@ public:
     void discoverSkins();
     void discoverEngines();
     void discoverActions();
+    void initializeMedia();
 
     Frontend *frontend;
 
@@ -130,8 +134,11 @@ public:
     QNetworkSession *session;
 #endif
 
+    QSqlDatabase mediaDb;
+    QThread *scannerThread;
+
     QAction *selectSkinAction;
-    Backend *pSelf;
+    Backend *q;
 };
 
 BackendPrivate::BackendPrivate(Backend *p)
@@ -148,7 +155,7 @@ BackendPrivate::BackendPrivate(Backend *p)
       logFile(qApp->applicationName().append(".log")),
       systray(0),
       targetsModel(0),
-      pSelf(p)
+          q(p)
 {
     QNetworkProxy proxy;
     if (Config::isEnabled("proxy", false)) {
@@ -189,7 +196,7 @@ BackendPrivate::BackendPrivate(Backend *p)
     inputIdleTimer.setSingleShot(true);
     inputIdleTimer.start();
 
-    connect(&inputIdleTimer, SIGNAL(timeout()), pSelf, SIGNAL(inputIdle()));
+    connect(&inputIdleTimer, SIGNAL(timeout()), q, SIGNAL(inputIdle()));
 
     logFile.open(QIODevice::Text|QIODevice::ReadWrite);
     log.setDevice(&logFile);
@@ -211,6 +218,8 @@ BackendPrivate::BackendPrivate(Backend *p)
         dir.mkpath(thumbnailFolderInfo.absoluteFilePath());
     }
     discoverSkins();
+
+    initializeMedia();
 }
 
 BackendPrivate::~BackendPrivate()
@@ -235,6 +244,11 @@ BackendPrivate::~BackendPrivate()
 #if defined(Q_WS_S60) || defined(Q_WS_MAEMO)
     delete session;
 #endif
+
+    MediaScanner::instance()->stop();
+    scannerThread->quit();
+    scannerThread->wait();
+    delete MediaScanner::instance();
 }
 
 void BackendPrivate::handleDirChanged(const QString &dir)
@@ -384,7 +398,7 @@ Backend::~Backend()
     delete d;
     d = 0;
 
-    pSelf = 0;
+    s_instance = 0;
 }
 
 void Backend::initialize()
@@ -407,7 +421,43 @@ void Backend::initialize()
     QAvahiServicePublisher *publisher = new QAvahiServicePublisher(this);
     publisher->publish(QHostInfo::localHostName(), "_qmh._tcp", 1234, "Qt Media Hub JSON-RPCv2 interface");
 #endif
-    d->discoverActions();
+
+    // This is here because MediaScanner::initialize() uses Backend::instance()
+    QMetaObject::invokeMethod(MediaScanner::instance(), "initialize", Qt::QueuedConnection);
+    QMetaObject::invokeMethod(MediaScanner::instance(), "refresh", Qt::QueuedConnection);
+}
+
+void BackendPrivate::initializeMedia()
+{
+    if (!QSqlDatabase::isDriverAvailable("QSQLITE")) {
+        qFatal("The SQLITE driver is unavailable");
+        return;
+    }
+
+    static const QString DATABASE_NAME("media.db");
+    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
+    db.setDatabaseName(DATABASE_NAME);
+
+    if (!db.open()) {
+        qFatal("Failed to open SQLITE database %s", qPrintable(db.lastError().text()));
+        return;
+    }
+
+    mediaDb = db;
+
+    if (db.tables().isEmpty()) {
+        ScopedTransaction transaction(db);
+        transaction.execFile(":/media/schema.sql");
+    }
+
+    scannerThread = new QThread(q);
+    MediaScanner::instance()->moveToThread(scannerThread);
+    scannerThread->start();
+}
+
+QSqlDatabase Backend::mediaDatabase() const
+{
+    return d->mediaDb;
 }
 
 QString Backend::language() const
@@ -441,10 +491,10 @@ QList<QAction*> Backend::actions() const
 
 Backend* Backend::instance()
 {
-    if (!pSelf) {
-        pSelf = new Backend();
+    if (!s_instance) {
+        s_instance = new Backend();
     }
-    return pSelf;
+    return s_instance;
 }
 
 QString Backend::basePath() const

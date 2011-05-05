@@ -22,8 +22,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <QDirModel>
 #include <QtDeclarative>
-
-Q_DECLARE_METATYPE(QModelIndex)
+#include "global.h"
 
 class DirModel : public QDirModel
 {

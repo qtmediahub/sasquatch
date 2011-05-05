@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/media">
+        <file>schema.sql</file>
+    </qresource>
+</RCC>
+
