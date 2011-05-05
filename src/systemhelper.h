@@ -31,12 +31,9 @@ class SystemHelperDBus;
 class SystemHelper : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
+
 public:
     explicit SystemHelper(QObject *parent = 0);
-
-    QString name() const { return m_name; }
-    void setName(const QString &n) { if (m_name != n) m_name = n; emit nameChanged(); }
 
     Q_INVOKABLE QObject *getDeviceByPath(const QString &path);
 
@@ -53,8 +50,6 @@ public slots:
     //void mount(const QString &device);
 
 private:
-    QString m_name;
-
 #ifndef QT_NO_DBUS
     SystemHelperDBus *m_helper;
 #endif
