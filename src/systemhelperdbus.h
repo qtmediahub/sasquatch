@@ -101,9 +101,9 @@ public:
     }
 
 public slots:
-    void mount(const QString &path);
-    void unmount(const QString &path);
-    void eject(const QString &path);
+    //void mount(const QString &path);
+    //void unmount(const QString &path);
+    //void eject(const QString &path);
 
     void newDevice(QDBusObjectPath path);
     void removeDevice(QDBusObjectPath path);
