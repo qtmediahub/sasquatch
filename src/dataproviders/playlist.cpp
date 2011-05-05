@@ -58,17 +58,17 @@ QVariant Playlist::data(const QModelIndex &index, int role) const
         if (role == Qt::DisplayRole || role == FileNameRole)
             return info->name;
         else if (role == PreviewUrlRole) {
-            int idx = MediaModel::staticMetaObject.indexOfEnumerator("MediaType");
-            QMetaEnum e = MediaModel::staticMetaObject.enumerator(idx);
-            QString urlBase = "image://" + QString::fromLatin1(e.valueToKey(info->mediaType)).toLower() + "model";
-            return QUrl(urlBase + info->thumbnailPath);
+            int idx = staticMetaObject.indexOfEnumerator("MediaType");
+            QMetaEnum e = staticMetaObject.enumerator(idx);
+//            QString urlBase = "image://" + QString::fromLatin1(e.valueToKey(info->mediaInfoType)).toLower() + "model";
+//            return QUrl(urlBase + info->thumbnailPath);
         } else if (role == FileUrlRole) {
             return QUrl::fromLocalFile(info->filePath);
         } else if (role == FilePathRole) {
             return info->filePath;
         } else if (role == MediaInfoTypeRole) {
-            int idx = MediaModel::staticMetaObject.indexOfEnumerator("MediaInfoType");
-            QMetaEnum e = MediaModel::staticMetaObject.enumerator(idx);
+            int idx = staticMetaObject.indexOfEnumerator("MediaInfoType");
+            QMetaEnum e = staticMetaObject.enumerator(idx);
             return QString::fromLatin1(e.valueToKey(info->type));
         } else if (role == FileSizeRole) {
             return info->fileSize;
@@ -93,9 +93,9 @@ void Playlist::addSubTree(MediaInfo *info)
     sort(info);
 
     foreach (MediaInfo *i, info->children) {
-        if (i->type == MediaModel::Directory)
+        if (i->type == Directory)
             addSubTree(i);
-        else if (i->type == MediaModel::File)
+        else if (i->type == File)
             append(copyMediaInfo(i));
     }
 }
@@ -127,7 +127,7 @@ QModelIndex Playlist::add(MediaInfo *info, PlaylistRoles role, DepthRoles depth)
 
     if (pos == -1) {
         if (depth == Playlist::Single) {
-            if (info->type == MediaModel::File)
+            if (info->type == File)
                 append(copyMediaInfo(info));
             else
                 addSubTree(info);
@@ -135,13 +135,13 @@ QModelIndex Playlist::add(MediaInfo *info, PlaylistRoles role, DepthRoles depth)
             if (info->parent) {
                 sort(info);
                 foreach (MediaInfo *i, info->parent->children) {
-                    if (i->type == MediaModel::File)
+                    if (i->type == File)
                         append(copyMediaInfo(i));
                 }
             } else
                 append(copyMediaInfo(info));
         } else {
-            if (info->type == MediaModel::Directory || info->type == MediaModel::SearchPath)
+            if (info->type == Directory || info->type == SearchPath)
                 addSubTree(info);
             else
                 append(copyMediaInfo(info));
@@ -159,7 +159,7 @@ QModelIndex Playlist::add(MediaInfo *info, PlaylistRoles role, DepthRoles depth)
 #endif
 
     // if we added a folder and it was not empty, return the first item
-    if (info->type == MediaModel::Directory && content.count() > 0)
+    if (info->type == Directory && content.count() > 0)
         pos = 0;
 
     return index(pos);
@@ -251,7 +251,7 @@ int Playlist::row(const QModelIndex &idx) const
 
 MediaInfo * Playlist::copyMediaInfo(MediaInfo *info)
 {
-    MediaInfo *i = new MediaInfo(info->type, info->filePath, info->mediaType);
+    MediaInfo *i = new MediaInfo(info->type, info->filePath);
 
     i->hash = info->hash;
     i->name = info->name;

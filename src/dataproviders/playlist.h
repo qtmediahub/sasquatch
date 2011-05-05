@@ -20,9 +20,34 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #ifndef PLAYLIST_H
 #define PLAYLIST_H
 
-#include <QAbstractListModel>
+#include <QtGui>
 
-#include "../media/mediainfo.h"
+enum MediaInfoType { Picture, Video, Music, Directory, File, DotDot, SearchPath };
+
+class MediaInfo : public QObject
+{
+    Q_OBJECT
+    Q_ENUMS(Status)
+
+public:
+    enum Status { NotSearched, Searching, Searched };
+
+    MediaInfo(MediaInfoType type, const QString &path) { }
+    ~MediaInfo() { }
+
+    MediaInfo *parent;
+    MediaInfoType type;
+    QString hash;
+    QString filePath;
+    QString name;
+    Status status;
+    QList<MediaInfo *> children;
+    qint64 fileSize;
+    QDateTime fileDateTime;
+    QString thumbnailPath;
+};
+
+Q_DECLARE_METATYPE(MediaInfo*)
 
 class Playlist : public QAbstractListModel
 {
