@@ -34,10 +34,6 @@ public:
     Q_INVOKABLE void groupBy(GroupBy gr);
     Q_INVOKABLE QStringList groupByOptions() const;
 
-    enum {
-        PreviewUrlRole = Qt::UserRole +1 
-    };
-
     // callable from QML
     Q_INVOKABLE void setThemeResourcePath(const QString &themePath);
     Q_INVOKABLE void addSearchPath(const QString &mediaPath, const QString &name);

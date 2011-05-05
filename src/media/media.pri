@@ -11,14 +11,16 @@ HEADERS += $$PWD/mediainfo.h \
            $$PWD/tagreader.h \
            $$PWD/exifreader.h \
            $$PWD/mediascanner.h \
-           $$PWD/mediaparser.h
+           $$PWD/mediaparser.h \
+           $$PWD/media.h
 
 SOURCES += $$PWD/mediainfo.cpp \
            $$PWD/mediamodel.cpp \
            $$PWD/tagreader.cpp \
            $$PWD/exifreader.cpp \
            $$PWD/mediascanner.cpp \
-           $$PWD/mediaparser.cpp
+           $$PWD/mediaparser.cpp \
+           $$PWD/media.cpp
 
 RESOURCES += $$PWD/media.qrc
 

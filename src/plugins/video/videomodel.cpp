@@ -5,6 +5,7 @@
 #include "backend.h"
 #include "dbreader.h"
 #include <QtSql>
+#include "media.h"
 
 #define DEBUG if (1) qDebug() << __PRETTY_FUNCTION__
 
@@ -34,7 +35,7 @@ VideoModel::VideoModel(QObject *parent)
       m_groupBy(NoGrouping), m_readerResponsePending(0)
 {
     QHash<int, QByteArray> hash = roleNames();
-    hash[PreviewUrlRole] = "previewUrl";
+    hash.unite(Media::roleNames());
     setRoleNames(hash);
 
     VideoParser *parser = new VideoParser;
@@ -73,10 +74,12 @@ QVariant VideoModel::data(const QModelIndex &index, int role) const
     switch (role) {
     case Qt::DisplayRole: 
         return node->text + " (" + node->filePath + ')';
-    case PreviewUrlRole: 
+    case Media::PreviewUrlRole: 
         if (!node->hasThumbnail)
             return QVariant();
         return QString("image://videomodel/movie/%1").arg(node->id);
+    case Media::FilePathRole:
+        return node->filePath;
     default: 
         return QVariant();
     }

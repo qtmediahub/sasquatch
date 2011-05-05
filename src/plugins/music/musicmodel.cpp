@@ -5,6 +5,7 @@
 #include "backend.h"
 #include "dbreader.h"
 #include <QtSql>
+#include "media.h"
 
 #define DEBUG if (1) qDebug() << __PRETTY_FUNCTION__
 
@@ -91,7 +92,7 @@ MusicModel::MusicModel(QObject *parent)
       m_groupBy(NoGrouping), m_readerResponsePending(0)
 {
     QHash<int, QByteArray> hash = roleNames();
-    hash[PreviewUrlRole] = "previewUrl";
+    hash.unite(Media::roleNames());
     setRoleNames(hash);
 
     MusicParser *parser = new MusicParser;
@@ -137,7 +138,7 @@ QVariant MusicModel::data(const QModelIndex &index, int role) const
             return node->text + " (" + node->artist + ")"; // ## cache this
         else
             return node->text;
-    case PreviewUrlRole: 
+    case Media::PreviewUrlRole: 
         if (node->type == Node::ArtistNode)
             return QString("image://musicmodel/artist/%1").arg(node->artist);
         else if (node->type == Node::AlbumNode)
@@ -147,7 +148,9 @@ QVariant MusicModel::data(const QModelIndex &index, int role) const
                 return QVariant();
             return QString("image://musicmodel/song/%1").arg(node->id);
         }
-        // intentionally falls through
+        return QVariant();
+    case Media::FilePathRole:
+        return node->filePath;
     default: 
         return QVariant();
     }
