@@ -3,7 +3,7 @@
 #include "scopedtransaction.h"
 #include <QtSql>
 
-#define DEBUG if (1) qDebug() << __PRETTY_FUNCTION__
+#define DEBUG if (0) qDebug() << __PRETTY_FUNCTION__
 
 MediaParser::MediaParser()
 {

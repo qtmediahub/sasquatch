@@ -8,7 +8,7 @@
 #include "media.h"
 #include "global.h"
 
-#define DEBUG if (1) qDebug() << __PRETTY_FUNCTION__
+#define DEBUG if (0) qDebug() << __PRETTY_FUNCTION__
 
 static const int LIMIT = 200;
 

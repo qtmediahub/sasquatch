@@ -4,7 +4,7 @@
 #include <QtSql>
 #include <QImageReader>
 
-#define DEBUG if (1) qDebug() << __PRETTY_FUNCTION__
+#define DEBUG if (0) qDebug() << __PRETTY_FUNCTION__
 
 bool PictureParser::canRead(const QFileInfo &info) const
 {
