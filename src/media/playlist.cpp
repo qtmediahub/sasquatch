@@ -54,6 +54,8 @@ QVariant Playlist::data(const QModelIndex &index, int role) const
             return info.previewUrl;
         } else if (role == Media::FilePathRole) {
             return info.filePath;
+        } else if (role == Media::ModelIndexRole) {
+            return qVariantFromValue(index);
         }
     }
 

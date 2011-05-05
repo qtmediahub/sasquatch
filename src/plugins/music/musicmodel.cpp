@@ -151,6 +151,8 @@ QVariant MusicModel::data(const QModelIndex &index, int role) const
         return QVariant();
     case Media::FilePathRole:
         return node->filePath;
+    case Media::ModelIndexRole:
+       return qVariantFromValue(index);
     default: 
         return QVariant();
     }
