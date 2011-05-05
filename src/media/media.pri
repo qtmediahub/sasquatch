@@ -10,13 +10,15 @@ HEADERS += $$PWD/tagreader.h \
            $$PWD/exifreader.h \
            $$PWD/mediascanner.h \
            $$PWD/mediaparser.h \
-           $$PWD/media.h
+           $$PWD/media.h \
+           $$PWD/playlist.h
 
 SOURCES += $$PWD/tagreader.cpp \
            $$PWD/exifreader.cpp \
            $$PWD/mediascanner.cpp \
            $$PWD/mediaparser.cpp \
-           $$PWD/media.cpp
+           $$PWD/media.cpp \
+           $$PWD/playlist.cpp
 
 RESOURCES += $$PWD/media.qrc
 

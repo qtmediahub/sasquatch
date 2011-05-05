@@ -22,37 +22,16 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <QtGui>
 
-enum MediaInfoType { Picture, Video, Music, Directory, File, DotDot, SearchPath };
-
-class MediaInfo : public QObject
+struct PlaylistItem
 {
-    Q_OBJECT
-    Q_ENUMS(Status)
-
-public:
-    enum Status { NotSearched, Searching, Searched };
-
-    MediaInfo(MediaInfoType type, const QString &path) { }
-    ~MediaInfo() { }
-
-    MediaInfo *parent;
-    MediaInfoType type;
-    QString hash;
-    QString filePath;
     QString name;
-    Status status;
-    QList<MediaInfo *> children;
-    qint64 fileSize;
-    QDateTime fileDateTime;
-    QString thumbnailPath;
+    QString filePath;
+    QString previewUrl;
 };
-
-Q_DECLARE_METATYPE(MediaInfo*)
 
 class Playlist : public QAbstractListModel
 {
     Q_OBJECT
-    Q_PROPERTY(int count READ count NOTIFY countChanged)
     Q_PROPERTY(PlayModeRoles playMode READ playMode WRITE setPlayMode NOTIFY playModeChanged)
     Q_ENUMS(CustomRoles)
     Q_ENUMS(PlaylistRoles)
@@ -62,18 +41,6 @@ class Playlist : public QAbstractListModel
 public:
     Playlist(QObject *parent = 0);
     ~Playlist();
-
-    enum CustomRoles {
-        // Qt::UserRole+1 to 100 are reserved by this model!
-        PreviewUrlRole = Qt::UserRole + 1,
-        FilePathRole,
-        FileNameRole,
-        FileUrlRole,
-        MediaInfoTypeRole,
-        FileSizeRole,
-        FileDateTimeRole,
-        MediaInfoRole
-    };
 
     enum PlaylistRoles {
         Replace,
@@ -91,23 +58,17 @@ public:
         Shuffle
     };
 
-    int rowCount(const QModelIndex &parent) const;
-    int count() const { return rowCount(QModelIndex()); }
-    Q_INVOKABLE QModelIndex index ( int row ) const;
+    Q_INVOKABLE int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    Q_INVOKABLE QModelIndex index(int row) const;
     Q_INVOKABLE int row(const QModelIndex &idx) const;
     Q_INVOKABLE QVariant data(const QModelIndex &index, int role) const;
 
-    void dump() const;
-    QString typeString() const;
+    Q_INVOKABLE QModelIndex add(const QModelIndex &index, PlaylistRoles role = Replace, DepthRoles depth = Single);
 
-    void addSubTree(MediaInfo *info);
-    Q_INVOKABLE QModelIndex add(MediaInfo *info, PlaylistRoles role = Replace, DepthRoles depth = Single);
-
-    Q_INVOKABLE QModelIndex indexFromMediaInfo(MediaInfo *info) const;
     Q_INVOKABLE QModelIndex playNextIndex(const QModelIndex &idx) const;
     Q_INVOKABLE QModelIndex playPreviousIndex(const QModelIndex &idx) const;
 
-    PlayModeRoles playMode() { return m_playMode; }
+    PlayModeRoles playMode() const { return m_playMode; }
 
 public slots:
     void setPlayMode(PlayModeRoles mode);
@@ -117,12 +78,9 @@ signals:
     void playModeChanged();
 
 private:
-    void append(MediaInfo *info);
-    void sort(MediaInfo *info);
-    MediaInfo *copyMediaInfo(MediaInfo *info);
+    void appendItem(const QModelIndex &index);
 
-    Q_DISABLE_COPY(Playlist)
-    QList<MediaInfo*> content;
+    QList<PlaylistItem> content;
     PlayModeRoles m_playMode;
 };
 
