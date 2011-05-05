@@ -43,16 +43,16 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QGLWidget>
 #endif
 
-#include "qml-extensions/actionmapper.h"
+#include "actionmapper.h"
 #include "rpc/mediaplayerrpc.h"
-#include "qml-extensions/trackpad.h"
+#include "trackpad.h"
 #include "rpc/rpcconnection.h"
 #include "qmh-config.h"
 #include "skin.h"
 #include "media/media.h"
-#include "dataproviders/dirmodel.h"
+#include "dirmodel.h"
 #include "media/playlist.h"
-#include "qml-extensions/qmlfilewrapper.h"
+#include "qmlfilewrapper.h"
 #include "qmhplugin.h"
 #include "systemhelper.h"
 
