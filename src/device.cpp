@@ -23,36 +23,43 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "systemhelperdbus.h"
 #endif
 
-Device::Device(const QString &p, DeviceType t, const QString &l, const QString &u, QObject *parent) :
+Device::Device(const QString &p, QObject *parent) :
     QObject(parent)
   , m_path(p)
-  , m_type(t)
-  , m_label(l)
-  , m_uuid(u)
+  , m_type(Device::Undefined)
 {
 #ifndef QT_NO_DBUS
-    m_helper = qobject_cast<SystemHelperDBus*>(parent);
+    m_deviceInterface = new UDisksDeviceInterface("org.freedesktop.UDisks", m_path, QDBusConnection::systemBus(), this);
+    if (!m_deviceInterface->isValid()) {
+        m_valid = false;
+        return;
+    }
+    m_valid = true;
+#else
+    // no implementation yet, so not valid
+    m_valid = false;
 #endif
+
     emit changed();
 }
 
 void Device::mount()
 {
 #ifndef QT_NO_DBUS
-    m_helper->mount(m_path);
+    m_deviceInterface->FilesystemMount();
 #endif
 }
 
 void Device::unmount()
 {
 #ifndef QT_NO_DBUS
-    m_helper->unmount(m_path);
+    m_deviceInterface->FilesystemUnmount();
 #endif
 }
 
 void Device::eject()
 {
 #ifndef QT_NO_DBUS
-    m_helper->eject(m_path);
+    m_deviceInterface->DriveEject();
 #endif
 }

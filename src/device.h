@@ -23,7 +23,72 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QObject>
 
 #ifndef QT_NO_DBUS
-class SystemHelperDBus;
+
+#include <QDBusAbstractInterface>
+#include <QDBusPendingReply>
+#include <QDBusReply>
+
+class UDisksDeviceInterface : public QDBusAbstractInterface
+{
+    Q_OBJECT
+public:
+    static inline const char *staticInterfaceName() { return "org.freedesktop.UDisks.Device"; }
+    UDisksDeviceInterface(const QString &service, const QString &path, const QDBusConnection &connection, QObject *parent = 0)
+        : QDBusAbstractInterface(service, path, staticInterfaceName(), connection, parent)
+    {}
+
+    inline QString IdLabel()
+    {
+        QDBusReply<QString> reply = call(QLatin1String("IdLabel"));
+        if (reply.error().isValid())
+            return QString();
+        else
+            return reply.value();
+    }
+
+    inline QString IdUuid()
+    {
+        QDBusReply<QString> reply = call(QLatin1String("IdUuid"));
+        if (reply.error().isValid())
+            return QString();
+        else
+            return reply.value();
+    }
+
+    inline QString IdType()
+    {
+        QDBusReply<QString> reply = call(QLatin1String("IdType"));
+        if (reply.error().isValid())
+            return QString();
+        else
+            return reply.value();
+    }
+
+    inline QDBusPendingReply<> FilesystemMount()
+    {
+        QList<QVariant> argumentList;
+        argumentList << QString();
+        argumentList << QStringList();
+
+        return asyncCallWithArgumentList(QLatin1String("FilesystemMount"), argumentList);
+    }
+
+    inline QDBusPendingReply<> FilesystemUnmount()
+    {
+        QList<QVariant> argumentList;
+        argumentList << QStringList();
+
+        return asyncCallWithArgumentList(QLatin1String("FilesystemUnmount"), argumentList);
+    }
+
+    inline QDBusPendingReply<> DriveEject()
+    {
+        QList<QVariant> argumentList;
+        argumentList << QStringList();
+
+        return asyncCallWithArgumentList(QLatin1String("DriveEject"), argumentList);
+    }
+};
 #endif
 
 class Device : public QObject
@@ -34,16 +99,18 @@ class Device : public QObject
     Q_PROPERTY(DeviceType type READ type NOTIFY changed)
     Q_PROPERTY(QString label READ label NOTIFY changed)
     Q_PROPERTY(QString uuid READ uuid NOTIFY changed)
+    Q_PROPERTY(bool valid READ valid NOTIFY changed)
 
 public:
     enum DeviceType { Undefined, UsbDrive, Dvd, AudioCd, TypeCount };
 
-    Device(const QString &p, DeviceType t, const QString &l, const QString &u, QObject *parent = 0);
+    Device(const QString &p, QObject *parent = 0);
 
     QString path() const { return m_path; }
     DeviceType type() const { return m_type; }
     QString label() const { return m_label; }
     QString uuid() const { return m_uuid; }
+    bool valid() const { return m_valid; }
 
 signals:
     void changed();
@@ -58,9 +125,10 @@ private:
     DeviceType m_type;
     QString m_label;
     QString m_uuid;
+    bool m_valid;
 
 #ifndef QT_NO_DBUS
-    SystemHelperDBus *m_helper;
+    UDisksDeviceInterface *m_deviceInterface;
 #endif
 };
 

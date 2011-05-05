@@ -27,40 +27,14 @@ SystemHelperDBus::SystemHelperDBus(QObject *parent) :
     connect(m_uDisks, SIGNAL(DeviceRemoved(QDBusObjectPath)), this, SLOT(removeDevice(QDBusObjectPath)));
 }
 
-void SystemHelperDBus::mount(const QString &path)
-{
-    UDisksDeviceInterface di("org.freedesktop.UDisks", path, QDBusConnection::systemBus(), this);
-    if (!di.isValid())
-        return;
-    di.FilesystemMount();
-}
-
-void SystemHelperDBus::unmount(const QString &path)
-{
-    UDisksDeviceInterface di("org.freedesktop.UDisks", path, QDBusConnection::systemBus(), this);
-    if (!di.isValid())
-        return;
-    di.FilesystemUnmount();
-}
-
-void SystemHelperDBus::eject(const QString &path)
-{
-    UDisksDeviceInterface di("org.freedesktop.UDisks", path, QDBusConnection::systemBus(), this);
-    if (!di.isValid())
-        return;
-    di.DriveEject();
-}
-
 void SystemHelperDBus::newDevice(QDBusObjectPath path)
 {
-    UDisksDeviceInterface di("org.freedesktop.UDisks", path.path(), QDBusConnection::systemBus(), this);
-    if (!di.isValid())
+    Device *d = new Device(path.path(), this);
+    if (!d->valid()) {
+        delete d;
         return;
+    }
 
-    // TODO get type form di.idType and others
-    Device::DeviceType type = Device::Undefined;
-
-    Device *d = new Device(path.path(), type, di.IdLabel(), di.IdUuid(), this);
     m_devices.insert(path.path(), d);
 
     emit deviceAdded(path.path());
@@ -68,7 +42,11 @@ void SystemHelperDBus::newDevice(QDBusObjectPath path)
 
 void SystemHelperDBus::removeDevice(QDBusObjectPath path)
 {
-    // TODO cleanup device
+    if (m_devices.contains(path.path())) {
+        Device *d = m_devices.value(path.path());
+        m_devices.remove(path.path());
+        delete d;
+    }
     emit deviceRemoved(path.path());
 }
 

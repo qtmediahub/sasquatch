@@ -81,68 +81,6 @@ signals:
     void DeviceRemoved(QDBusObjectPath path);
 };
 
-class UDisksDeviceInterface : public QDBusAbstractInterface
-{
-    Q_OBJECT
-public:
-    static inline const char *staticInterfaceName() { return "org.freedesktop.UDisks.Device"; }
-    UDisksDeviceInterface(const QString &service, const QString &path, const QDBusConnection &connection, QObject *parent = 0)
-        : QDBusAbstractInterface(service, path, staticInterfaceName(), connection, parent)
-    {}
-
-    inline QString IdLabel()
-    {
-        QDBusReply<QString> reply = call(QLatin1String("IdLabel"));
-        if (reply.error().isValid())
-            return QString();
-        else
-            return reply.value();
-    }
-
-    inline QString IdUuid()
-    {
-        QDBusReply<QString> reply = call(QLatin1String("IdUuid"));
-        if (reply.error().isValid())
-            return QString();
-        else
-            return reply.value();
-    }
-
-    inline QString IdType()
-    {
-        QDBusReply<QString> reply = call(QLatin1String("IdType"));
-        if (reply.error().isValid())
-            return QString();
-        else
-            return reply.value();
-    }
-
-    inline QDBusPendingReply<> FilesystemMount()
-    {
-        QList<QVariant> argumentList;
-        argumentList << QString();
-        argumentList << QStringList();
-
-        return asyncCallWithArgumentList(QLatin1String("FilesystemMount"), argumentList);
-    }
-
-    inline QDBusPendingReply<> FilesystemUnmount()
-    {
-        QList<QVariant> argumentList;
-        argumentList << QStringList();
-
-        return asyncCallWithArgumentList(QLatin1String("FilesystemUnmount"), argumentList);
-    }
-
-    inline QDBusPendingReply<> DriveEject()
-    {
-        QList<QVariant> argumentList;
-        argumentList << QStringList();
-
-        return asyncCallWithArgumentList(QLatin1String("DriveEject"), argumentList);
-    }
-};
-
 class SystemHelperDBus : public QObject
 {
     Q_OBJECT
