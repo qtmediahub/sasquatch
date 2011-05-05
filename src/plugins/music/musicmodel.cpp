@@ -580,7 +580,7 @@ QImage MusicModelImageProvider::requestImage(const QString &id, QSize *size, con
 
 void MusicModel::setThemeResourcePath(const QString &themePath)
 {
-    qDebug() << "Set the theme path to " << themePath;
+    DEBUG << "Set the theme path to " << themePath;
 }
 
 void MusicModel::addSearchPath(const QString &path, const QString &name)

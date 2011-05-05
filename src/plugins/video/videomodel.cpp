@@ -383,7 +383,7 @@ QImage VideoModelImageProvider::requestImage(const QString &id, QSize *size, con
 
 void VideoModel::setThemeResourcePath(const QString &themePath)
 {
-    qDebug() << "Set the theme path to " << themePath;
+    DEBUG << "Set the theme path to " << themePath;
 }
 
 void VideoModel::addSearchPath(const QString &path, const QString &name)

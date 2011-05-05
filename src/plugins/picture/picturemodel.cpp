@@ -383,7 +383,7 @@ QImage PictureModelImageProvider::requestImage(const QString &id, QSize *size, c
 
 void PictureModel::setThemeResourcePath(const QString &themePath)
 {
-    qDebug() << "Set the theme path to " << themePath;
+    DEBUG << "Set the theme path to " << themePath;
 }
 
 void PictureModel::addSearchPath(const QString &path, const QString &name)

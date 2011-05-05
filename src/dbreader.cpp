@@ -1,6 +1,6 @@
 #include "dbreader.h"
 
-#define DEBUG if (1) qDebug() << __PRETTY_FUNCTION__
+#define DEBUG if (0) qDebug() << __PRETTY_FUNCTION__
 
 DbReader::DbReader(QObject *parent)
     : QObject(parent), m_stop(false)
