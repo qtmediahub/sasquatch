@@ -19,6 +19,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "playlist.h"
 #include "media.h"
+#include "global.h"
 
 #include <QList>
 #include <QMetaEnum>

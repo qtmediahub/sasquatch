@@ -1,8 +1,6 @@
 #include "media.h"
 
-namespace Media {
-
-QHash<int, QByteArray> roleNames()
+QHash<int, QByteArray> Media::roleNames()
 {
     QHash<int, QByteArray> hash;
     hash[FilePathRole] = "filePath";
@@ -10,6 +8,4 @@ QHash<int, QByteArray> roleNames()
     hash[ModelIndexRole] = "modelIndex";
     return hash;
 }
-
-} // namespace Media
 

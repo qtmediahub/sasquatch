@@ -1,21 +1,27 @@
 #ifndef MEDIA_H
 #define MEDIA_H
 
-#include <QAbstractItemModel>
+#include <QtDeclarative>
 
-namespace Media {
+class Media : public QObject
+{
+    Q_OBJECT
+    Q_ENUMS(StandardRoles)
 
-enum StandardRoles {
-    FilePathRole = Qt::UserRole + 1,
-    PreviewUrlRole,
-    ModelIndexRole
+public:
+    enum StandardRoles {
+        FilePathRole = Qt::UserRole + 1,
+        PreviewUrlRole,
+        ModelIndexRole
+    };
+
+    static QHash<int, QByteArray> roleNames();
+
+private:
+    Media() { }
 };
 
-QHash<int, QByteArray> roleNames();
-
-} // namespace media
-
-Q_DECLARE_METATYPE(QModelIndex)
+QML_DECLARE_TYPE(Media)
 
 #endif // MEDIA_H
 

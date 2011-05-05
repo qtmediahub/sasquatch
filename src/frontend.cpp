@@ -49,10 +49,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "rpc/rpcconnection.h"
 #include "qmh-config.h"
 #include "skin.h"
-
+#include "media/media.h"
 #include "dataproviders/proxymodel.h"
 #include "dataproviders/dirmodel.h"
-#include "dataproviders/playlist.h"
+#include "media/playlist.h"
 #include "qml-extensions/qmlfilewrapper.h"
 #include "qmhplugin.h"
 
@@ -372,6 +372,7 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
         qmlRegisterType<QMLFileWrapper>("QMLFileWrapper", 1, 0, "QMLFileWrapper");
         qmlRegisterType<Playlist>("Playlist", 1, 0, "Playlist");
         qmlRegisterType<RpcConnection>("RpcConnection", 1, 0, "RpcConnection");
+        qmlRegisterUncreatableType<Media>("Media", 1, 0, "Media", "Only enums here, move on");
 
         actionMap = new ActionMapper(declarativeWidget);
         mediaPlayerRpc = new MediaPlayerRpc(declarativeWidget);

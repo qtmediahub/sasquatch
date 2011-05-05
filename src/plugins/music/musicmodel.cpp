@@ -6,6 +6,7 @@
 #include "dbreader.h"
 #include <QtSql>
 #include "media.h"
+#include "global.h"
 
 #define DEBUG if (1) qDebug() << __PRETTY_FUNCTION__
 
