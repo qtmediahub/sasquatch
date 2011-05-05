@@ -24,7 +24,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QMetaEnum>
 #include <QModelIndex>
 
-//#define PLAYLIST_DEBUG
+#define DEBUG qDebug() << __PRETTY_FUNCTION__
 
 Playlist::Playlist(QObject *parent)
     : QAbstractListModel(parent)
@@ -68,12 +68,10 @@ int Playlist::rowCount(const QModelIndex &parent) const
 
 QModelIndex Playlist::add(const QModelIndex &index, PlaylistRoles role, DepthRoles depth)
 {
-    if (!index.isValid())
+    if (!index.isValid()) {
+        DEBUG << "index is not valid, epic fail";
         return QModelIndex(); // we don't have a model() to work with
-
-#ifdef PLAYLIST_DEBUG
-    qDebug() << "Playlist add" << info->filePath << "width role" << role << "and depth" << depth;
-#endif
+    }
 
     if (role == Playlist::Replace && rowCount() > 0) {
         beginRemoveRows(QModelIndex(), 0, rowCount()-1);
@@ -99,6 +97,8 @@ QModelIndex Playlist::add(const QModelIndex &index, PlaylistRoles role, DepthRol
         }
         pos = index.row(); // ## incorrect if it's invalid
     }
+
+    DEBUG << "Playlist now has " << rowCount() << " items";
 
     return createIndex(pos, 0);
 }

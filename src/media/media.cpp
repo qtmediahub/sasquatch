@@ -7,6 +7,7 @@ QHash<int, QByteArray> roleNames()
     QHash<int, QByteArray> hash;
     hash[FilePathRole] = "filePath";
     hash[PreviewUrlRole] = "previewUrl";
+    hash[ModelIndexRole] = "modelIndex";
     return hash;
 }
 

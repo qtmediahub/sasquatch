@@ -80,6 +80,8 @@ QVariant PictureModel::data(const QModelIndex &index, int role) const
         return QString("image://picturemodel/photo/%1").arg(node->id);
     case Media::FilePathRole:
         return node->filePath;
+    case Media::ModelIndexRole:
+        return qVariantFromValue(index);
     default: 
         return QVariant();
     }

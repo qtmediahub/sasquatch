@@ -7,12 +7,15 @@ namespace Media {
 
 enum StandardRoles {
     FilePathRole = Qt::UserRole + 1,
-    PreviewUrlRole
+    PreviewUrlRole,
+    ModelIndexRole
 };
 
 QHash<int, QByteArray> roleNames();
 
 } // namespace media
+
+Q_DECLARE_METATYPE(QModelIndex)
 
 #endif // MEDIA_H
 
