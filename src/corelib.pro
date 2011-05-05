@@ -73,7 +73,6 @@ SOURCES += qmh-config.cpp \
     backend.cpp \
     qml-extensions/actionmapper.cpp \
     qml-extensions/trackpad.cpp \
-    dataproviders/proxymodel.cpp \
     scopedtransaction.cpp \
     skin.cpp \
     systemhelper.cpp \
@@ -87,7 +86,6 @@ HEADERS += qmh-config.h \
     frontend.h \
     backend.h \
     qmhplugin.h \
-    dataproviders/proxymodel.h \
     dataproviders/dirmodel.h \
     qml-extensions/qmlfilewrapper.h \
     qml-extensions/actionmapper.h \

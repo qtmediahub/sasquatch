@@ -50,7 +50,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "qmh-config.h"
 #include "skin.h"
 #include "media/media.h"
-#include "dataproviders/proxymodel.h"
 #include "dataproviders/dirmodel.h"
 #include "media/playlist.h"
 #include "qml-extensions/qmlfilewrapper.h"
@@ -374,8 +373,6 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
         // register dataproviders to QML
         qmlRegisterType<ActionMapper>("ActionMapper", 1, 0, "ActionMapper");
         qmlRegisterType<QMHPlugin>("QMHPlugin", 1, 0, "QMHPlugin");
-        qmlRegisterType<ProxyModel>("ProxyModel", 1, 0, "ProxyModel");
-        qmlRegisterType<ProxyModelItem>("ProxyModel", 1, 0, "ProxyModelItem");
         qmlRegisterType<DirModel>("DirModel", 1, 0, "DirModel");
         qmlRegisterType<QMLFileWrapper>("QMLFileWrapper", 1, 0, "QMLFileWrapper");
         qmlRegisterType<Playlist>("Playlist", 1, 0, "Playlist");
