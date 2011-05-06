@@ -12,8 +12,7 @@ class QMLModuleDiscoveryPlugin : public QMHPlugin
     Q_INTERFACES(QMHPlugin)
 
 public:
-    QMLModuleDiscoveryPlugin() {
-        mRole = Unadvertized;
+    QMLModuleDiscoveryPlugin() : QMHPlugin(tr("Module Discovery"), Unadvertized) {
         qmlRegisterType<QMLModuleDiscovery>("QMLModuleDiscovery", 1, 0, "QMLModuleDiscovery");
     }
     ~QMLModuleDiscoveryPlugin() {}

@@ -31,7 +31,7 @@ class AppStorePlugin : public QMHPlugin
     Q_INTERFACES(QMHPlugin)
 
 public:
-    AppStorePlugin() { setRole(Unadvertized); qmlRegisterType<AppStore>("AppStore", 1, 0, "AppStore"); }
+    AppStorePlugin() : QMHPlugin(tr("App Store"), Unadvertized) { qmlRegisterType<AppStore>("AppStore", 1, 0, "AppStore"); }
     ~AppStorePlugin() {}
 };
 

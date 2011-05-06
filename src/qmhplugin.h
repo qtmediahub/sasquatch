@@ -11,34 +11,22 @@ class QMHPlugin : public QObject
 {
     Q_OBJECT
     Q_ENUMS(PluginRole)
-    Q_PROPERTY(QString name READ name WRITE setName NOTIFY pluginChanged)
-    Q_PROPERTY(PluginRole role READ role WRITE setRole NOTIFY pluginChanged)
-    Q_PROPERTY(QObject* visualElement READ visualElement WRITE setVisualElement NOTIFY pluginChanged)
+    Q_PROPERTY(QString name READ name CONSTANT)
+    Q_PROPERTY(PluginRole role READ role CONSTANT)
+    Q_PROPERTY(QObject* visualElement READ visualElement CONSTANT)
 
 public:
     enum PluginRole { Undefined, Unadvertized, Music, Video, Picture, Dashboard, Weather, SingletonRoles, Store, Web, Application, Game, Map, RoleCount };
 
-    QMHPlugin(QObject *parent = 0)
-        : QObject(parent),
-          mRole(Undefined),
-          mVisualElement(0),
-          mActionMap(0)
+    QMHPlugin(const QString &name, PluginRole role, QObject *parent = 0)
+        : QObject(parent), m_name(name), m_role(role)
     {}
 
     virtual ~QMHPlugin() { /*no impl*/ }
 
-    QString name() const { return mName; }
-    void setName(const QString &name) { mName = name; emit pluginChanged(); }
-
-    PluginRole role() const { return mRole; }
-    void setRole(PluginRole role) { mRole = role; emit pluginChanged(); }
-
-    QObject* visualElement() const { return mVisualElement; }
-    void setVisualElement(QObject *element) {
-        mVisualElement = element;
-        emit visualElementChanged(this);
-        emit pluginChanged();
-    }
+    QString name() const { return m_name; }
+    PluginRole role() const { return m_role; }
+    virtual QObject* visualElement() const { return 0; }
 
     //These plugins should be equally usable from html
     virtual void registerPlugin(QDeclarativeContext *context = 0) { Q_UNUSED(context); }
@@ -46,16 +34,9 @@ public:
 
     virtual bool dependenciesSatisfied() const { return true; }
 
-signals:
-    void pluginChanged();
-    void visualElementChanged(QMHPlugin *plugin);
-
-protected:
-    QString mName;
-    PluginRole mRole;
-    QObject *mVisualElement;
-    QObject *mActionMap;
-    QStringList mActionList;
+private:
+    QString m_name;
+    PluginRole m_role;
 };
 
 Q_DECLARE_INTERFACE(QMHPlugin, "com.nokia.QMH.Plugin/1.0")

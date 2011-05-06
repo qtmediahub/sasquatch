@@ -15,10 +15,7 @@ class CustomCursorPlugin : public QMHPlugin
     Q_INTERFACES(QMHPlugin)
 
 public:
-    CustomCursorPlugin() {
-        mName = tr("CustomCursor");
-        mRole = Unadvertized;
-    }
+    CustomCursorPlugin() : QMHPlugin(tr("CustomCursor"), Unadvertized) { }
     ~CustomCursorPlugin() {}
 
     void registerPlugin(QDeclarativeContext *context) { context->setContextProperty("cursor", new CustomCursor(this)); }

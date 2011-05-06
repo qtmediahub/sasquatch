@@ -372,7 +372,7 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
 
         // register dataproviders to QML
         qmlRegisterUncreatableType<ActionMapper>("ActionMapper", 1, 0, "ActionMapper", "For enums. For methods use actionmap global variable");
-        qmlRegisterType<QMHPlugin>("QMHPlugin", 1, 0, "QMHPlugin");
+        qmlRegisterUncreatableType<QMHPlugin>("QMHPlugin", 1, 0, "QMHPlugin", "Only for enums");
         qmlRegisterType<DirModel>("DirModel", 1, 0, "DirModel");
         qmlRegisterType<QMLFileWrapper>("QMLFileWrapper", 1, 0, "QMLFileWrapper");
         qmlRegisterType<Playlist>("Playlist", 1, 0, "Playlist");

@@ -5,10 +5,8 @@
 
 
 AnimatedTilesPlugin::AnimatedTilesPlugin()
+    : QMHPlugin(tr("AnimatedTiles"), Application)
 {
-    mName = tr("AnimatedTiles");
-    mRole = Application;
-
     qmlRegisterType<AnimatedTilesItem>("AnimatedTiles", 1, 0, "AnimatedTiles");
 }
 

@@ -3,21 +3,13 @@
 #include <QtPlugin>
 
 RadioPlugin::RadioPlugin()
+    : QMHPlugin(tr("Radio"), Application)
 {
-    mActionList << "Files"
-                << "Addons"
-                << "Library";
-
     m_model = new RadioModel(this);
-
-    mName = tr("Radio");
-    mRole = Application;
 }
 
 void RadioPlugin::registerPlugin(QDeclarativeContext *context)
 {
-    //FIXME: these structures should be suitably disconnected from QML to be usable from html
-    //Post CES adjustment :)
     if (context)
         m_model->registerImageProvider(context);
 }
