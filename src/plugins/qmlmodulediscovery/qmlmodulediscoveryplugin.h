@@ -12,10 +12,11 @@ class QMLModuleDiscoveryPlugin : public QMHPlugin
     Q_INTERFACES(QMHPlugin)
 
 public:
-    QMLModuleDiscoveryPlugin() { mRole = Unadvertized; }
+    QMLModuleDiscoveryPlugin() {
+        mRole = Unadvertized;
+        qmlRegisterType<QMLModuleDiscovery>("QMLModuleDiscovery", 1, 0, "QMLModuleDiscovery");
+    }
     ~QMLModuleDiscoveryPlugin() {}
-
-    void registerPlugin(QDeclarativeContext *context) { Q_UNUSED(context); qmlRegisterType<QMLModuleDiscovery>("QMLModuleDiscovery", 1, 0, "QMLModuleDiscovery"); }
 };
 
 #endif // QMLMODULEDISCOVERYPLUGIN_H
