@@ -20,24 +20,15 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "frontend.h"
 #include "backend.h"
 
+#include <QtGui>
 #include <QDebug>
-#include <QFileInfo>
-#include <QList>
-#include <QVariant>
 
 #ifdef SCENEGRAPH
 #include <QSGItem>
 #include <QSGView>
 #else
-#include <QDeclarativeItem>
-#include <QDeclarativeView>
+#include <QtDeclarative>
 #endif
-#include <QDeclarativeContext>
-#include <QDeclarativeEngine>
-#include <QDeclarativeComponent>
-#include <QApplication>
-#include <QTimer>
-#include <QTranslator>
 
 #ifdef GLVIEWPORT
 #include <QGLWidget>
@@ -211,6 +202,7 @@ public:
     MediaPlayerRpc *mediaPlayerRpc;
     Trackpad *trackpad;
     QWidget *skinWidget;
+    QDeclarativePropertyMap *runtime;
     Frontend *q;
 };
 
@@ -395,20 +387,21 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
         connection->registerObject(trackpad);
 
         // attach global context properties
-        engine->rootContext()->setContextProperty("actionmap", actionMap);
-        engine->rootContext()->setContextProperty("mediaPlayerRpc", mediaPlayerRpc);
-        engine->rootContext()->setContextProperty("trackpad", trackpad);
-        engine->rootContext()->setContextProperty("frontend", q);
-        engine->rootContext()->setContextProperty("utils", new QMLUtils(declarativeWidget));
-        engine->rootContext()->setContextProperty("systemHelper", new SystemHelper(declarativeWidget));
-        engine->rootContext()->setContextProperty("skin", skin);
-        engine->rootContext()->setContextProperty("backend", Backend::instance());
+        runtime = new QDeclarativePropertyMap(declarativeWidget);
+        runtime->insert("actionmap", qVariantFromValue(static_cast<QObject *>(actionMap)));
+        runtime->insert("mediaPlayerRpc", qVariantFromValue(static_cast<QObject *>(mediaPlayerRpc)));
+        runtime->insert("trackpad", qVariantFromValue(static_cast<QObject *>(trackpad)));
+        runtime->insert("frontend", qVariantFromValue(static_cast<QObject *>(q)));
+        runtime->insert("utils", qVariantFromValue(static_cast<QObject *>(new QMLUtils(declarativeWidget))));
+        runtime->insert("systemHelper", qVariantFromValue(static_cast<QObject *>(new SystemHelper(declarativeWidget))));
+        runtime->insert("skin", qVariantFromValue(static_cast<QObject *>(skin)));
+        runtime->insert("backend", qVariantFromValue(static_cast<QObject *>(Backend::instance())));
 
         engine->addPluginPath(Backend::instance()->resourcePath() % "/lib");
         engine->addImportPath(Backend::instance()->resourcePath() % "/imports");
         engine->addImportPath(skin->path());
 
-        declarativeWidget->rootContext()->setContextProperty("config", Config::instance());
+        runtime->insert("config", qVariantFromValue(static_cast<QObject *>(Config::instance())));
 
         foreach (QMHPlugin *plugin, Backend::instance()->allEngines())
             plugin->registerPlugin(declarativeWidget->rootContext());
@@ -420,9 +413,11 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
         foreach (QObject *p, Backend::instance()->allEngines()) {
             QMHPlugin *plugin = qobject_cast<QMHPlugin *>(p);
             if (plugin && plugin->role() < QMHPlugin::SingletonRoles) {
-                declarativeWidget->rootContext()->setContextProperty(QString(roleEnum.valueToKey(plugin->role())).toLower() + "Engine", plugin);
+                runtime->insert(QString(roleEnum.valueToKey(plugin->role())).toLower() + "Engine", qVariantFromValue(p));
             }
         }
+
+        engine->rootContext()->setContextProperty("runtime", runtime);
 
         resetLanguage();
         skinWidget = new WidgetWrapper(declarativeWidget);
