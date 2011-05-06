@@ -14,8 +14,6 @@ class QMHPlugin : public QObject
     Q_PROPERTY(QString name READ name WRITE setName NOTIFY pluginChanged)
     Q_PROPERTY(PluginRole role READ role WRITE setRole NOTIFY pluginChanged)
     Q_PROPERTY(QString roleName READ roleName NOTIFY pluginChanged)
-    Q_PROPERTY(QObject* visualElement READ visualElement WRITE setVisualElement NOTIFY pluginChanged)
-    Q_PROPERTY(QStringList visualElementProperties READ visualElementProperties WRITE setVisualElementProperties NOTIFY pluginChanged)
     Q_PROPERTY(QObject* actionMap READ actionMap WRITE setActionMap NOTIFY pluginChanged)
     Q_PROPERTY(QStringList actionList READ actionList WRITE setActionList NOTIFY pluginChanged)
 
@@ -45,17 +43,6 @@ public:
         return QString(roleEnum.key(role()));
     }
 
-    QObject* visualElement() const { return mVisualElement; }
-    void setVisualElement(QObject *element) {
-        mVisualElement = element;
-        emit visualElementChanged(this);
-        emit pluginChanged();
-    }
-
-    //Not constraining to pairs, this should go in any case
-    QStringList visualElementProperties() const { return mVisualElementProperties; }
-    void setVisualElementProperties(const QStringList& properties) { mVisualElementProperties = properties; emit pluginChanged(); }
-
     QObject* actionMap() const { return mActionMap; }
     void setActionMap(QObject *map) { mActionMap = map; emit pluginChanged(); }
 
@@ -70,7 +57,6 @@ public:
 
 signals:
     void pluginChanged();
-    void visualElementChanged(QMHPlugin *plugin);
 
 protected:
     QString mName;
