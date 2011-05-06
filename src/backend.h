@@ -48,7 +48,6 @@ public:
 
     QString language() const;
 
-    QList<QMHPlugin *> allEngines() const;
     QList<Skin*> skins() const;
 
     QList<QAction*> actions() const;
@@ -65,6 +64,12 @@ public:
 
     Frontend* frontend() const;
     QSqlDatabase mediaDatabase() const;
+
+    QHash<QString, QMHPlugin *> engines() const;
+
+    Q_INVOKABLE void loadEngines(const QStringList &whiteList = QStringList(), const QStringList &blackList = QStringList());
+    Q_INVOKABLE QStringList loadedEngineNames() const;
+    Q_INVOKABLE QObject *engine(const QString &name) const;
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event);

@@ -203,6 +203,7 @@ public:
     Trackpad *trackpad;
     QWidget *skinWidget;
     QDeclarativePropertyMap *runtime;
+    QDeclarativeContext *rootContext;
     Frontend *q;
 };
 
@@ -216,6 +217,7 @@ FrontendPrivate::FrontendPrivate(Frontend *p)
       mediaPlayerRpc(0),
       trackpad(0),
       skinWidget(0),
+      rootContext(0),
       q(p)
 {
     qApp->setOverrideCursor(Qt::BlankCursor);
@@ -403,18 +405,9 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
 
         runtime->insert("config", qVariantFromValue(static_cast<QObject *>(Config::instance())));
 
-        foreach (QMHPlugin *plugin, Backend::instance()->allEngines())
-            plugin->registerPlugin(declarativeWidget->rootContext());
-
-        const QMetaObject &PluginMO = QMHPlugin::staticMetaObject;
-        int enumIndex = PluginMO.indexOfEnumerator("PluginRole");
-        QMetaEnum roleEnum = PluginMO.enumerator(enumIndex);
-
-        foreach (QObject *p, Backend::instance()->allEngines()) {
-            QMHPlugin *plugin = qobject_cast<QMHPlugin *>(p);
-            if (plugin && plugin->role() < QMHPlugin::SingletonRoles) {
-                runtime->insert(QString(roleEnum.valueToKey(plugin->role())).toLower() + "Engine", qVariantFromValue(p));
-            }
+        QHash<QString, QMHPlugin *> engines = Backend::instance()->engines();
+        for (QHash<QString, QMHPlugin *>::const_iterator it = engines.constBegin(); it != engines.constEnd(); ++it) {
+            it.value()->registerPlugin(declarativeWidget->rootContext());
         }
 
         engine->rootContext()->setContextProperty("runtime", runtime);
@@ -425,7 +418,15 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
         connect(skinWidget, SIGNAL(shrink()), this, SLOT(shrink()));
         connect(skinWidget, SIGNAL(toggleFullScreen()), this, SLOT(toggleFullScreen()));
         declarativeWidget->setSource(targetUrl);
+
+        rootContext = declarativeWidget->rootContext();
     }
+}
+
+void Frontend::initializePlugin(QMHPlugin *plugin)
+{
+    if (d->rootContext)
+        plugin->registerPlugin(d->rootContext);
 }
 
 void FrontendPrivate::resetLanguage()

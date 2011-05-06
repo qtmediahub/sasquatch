@@ -97,13 +97,12 @@ public slots:
 public:
     void resetLanguage();
     void discoverSkins();
-    void discoverEngines();
     void discoverActions();
     void initializeMedia();
 
     Frontend *frontend;
 
-    QList<QMHPlugin*> allEngines;
+    QHash<QString, QMHPlugin*> engines;
     QList<QAction*> actions;
 
     const QString platformOffset;
@@ -230,7 +229,7 @@ BackendPrivate::~BackendPrivate()
     //This clean up is arguably a waste of effort since
     //the death of the backend marks the death of the appliction
     qDeleteAll(pluginTranslators.begin(), pluginTranslators.end());
-    qDeleteAll(allEngines.begin(), allEngines.end());
+    qDeleteAll(engines.begin(), engines.end());
     qDeleteAll(skins.begin(), skins.end());
     qDeleteAll(actions.begin(), actions.end());
 
@@ -252,7 +251,6 @@ void BackendPrivate::handleDirChanged(const QString &dir)
 {
     if(dir == pluginPath) {
         qWarning() << "Changes in plugin path, probably about to eat your poodle";
-        discoverEngines();
     } else if(skinPaths.contains(dir)) {
         qWarning() << "Changes in skin path, repopulating skins";
         discoverSkins();
@@ -278,7 +276,7 @@ void BackendPrivate::resetLanguage()
 
     //FixMe: translation should be tied to filename (not role!)
     /*
-    foreach(QMHPlugin *plugin, allEngines) {
+    foreach(QMHPlugin *plugin, engines) {
         QTranslator *pluginTranslator = new QTranslator(this);
         pluginTranslator->load(baseTranslationPath % plugin->role() % "_" % language % ".qm");
         pluginTranslators << pluginTranslator;
@@ -317,10 +315,28 @@ void BackendPrivate::discoverSkins()
     }
 }
 
-void BackendPrivate::discoverEngines()
+QHash<QString, QMHPlugin *> Backend::engines() const
 {
-    foreach(const QString fileName, QDir(pluginPath).entryList(QDir::Files)) {
-        QString qualifiedFileName(pluginPath % "/" % fileName);
+    return d->engines;
+}
+
+void Backend::loadEngines(const QStringList &whiteList, const QStringList &blackList)
+{
+    QStringList loaded;
+    foreach(const QString &fileName, QDir(d->pluginPath).entryList(QDir::Files)) {
+        if (!fileName.startsWith("lib") || !fileName.endsWith(".so"))
+            continue;
+        QString engineName = fileName.mid(3, fileName.length() - 6);
+        if (d->engines.contains(engineName))
+            continue; // already loaded
+        if (!whiteList.isEmpty()) {
+            if (!whiteList.contains(engineName))
+                continue;
+        } else {
+            if (blackList.contains(engineName))
+                continue;
+        }
+        QString qualifiedFileName(d->pluginPath % "/" % fileName);
 
         QPluginLoader pluginLoader(qualifiedFileName);
 
@@ -338,10 +354,21 @@ void BackendPrivate::discoverEngines()
             qWarning() << tr("Plugin %1 has an undefined role").arg(qualifiedFileName);
         else {
             plugin->setParent(this);
-            allEngines << plugin;
+            d->frontend->initializePlugin(plugin);
+            d->engines.insert(engineName, plugin);
         }
     }
-    resetLanguage();
+    d->resetLanguage();
+}
+
+QStringList Backend::loadedEngineNames() const
+{
+    return d->engines.keys();
+}
+
+QObject *Backend::engine(const QString &name) const
+{
+    return d->engines.value(name);
 }
 
 void BackendPrivate::discoverActions()
@@ -399,7 +426,6 @@ Backend::~Backend()
 
 void Backend::initialize()
 {
-    d->discoverEngines();
     if (!Config::isEnabled("headless", false)) {
         d->frontend = new Frontend();
     }
@@ -463,11 +489,6 @@ QString Backend::language() const
     return QString();
     //Bob is a testing translation placeholder
     //return QString("bob");
-}
-
-QList<QMHPlugin *> Backend::allEngines() const
-{
-    return d->allEngines;
 }
 
 QList<Skin*> Backend::skins() const
