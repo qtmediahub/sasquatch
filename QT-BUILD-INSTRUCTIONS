@@ -1,0 +1,35 @@
+QtMediaHub requires:
+
+:Qt:
+
+We maintain a known functional Qt 4.7 branch qmh-qt-4.7-baseline which
+resides at:
+
+https://qt.gitorious.org/+mediatrolls/qt/dcarrs-qt
+
+This branch tracks Qt 4.7 with additional:
+
+1) Bug workarounds
+2) Backported patches from Qt 4.8
+
+it should be very close to Qt 4.7 head. It is tested and known to work
+against Qt Media Hub. (You should always be able to track it)
+
+1) git clone git@gitorious.org:+mediatrolls/qt/dcarrs-qt.git qmh-qt
+2) cd qmh-qt
+3) git checkout qmh-qt-4.7-baseline
+4) ./configure -foo .......
+5) make (&& make install)
+
+:Qt Mobility:
+
+We have a hard requirement of Qt Multimedia which exists as part of the Qt
+Mobility project.
+
+1) git clone git@gitorious.org:qt-mobility/qt-mobility.git
+2) cd qt-mobility
+3) ./configure -prefix $sameAsQtPrefix -modules "multimedia" -foo ........
+4) make (&& make install)
+
+Certain plugins also make use of the "location" and "systeminfo" modules,
+but these are optional dependencies
