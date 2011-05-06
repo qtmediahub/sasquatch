@@ -103,7 +103,6 @@ public:
 
     Frontend *frontend;
 
-    QList<QObject*> advertizedEngines;
     QList<QMHPlugin*> allEngines;
     QList<QAction*> actions;
 
@@ -340,7 +339,6 @@ void BackendPrivate::discoverEngines()
         else {
             plugin->setParent(this);
             allEngines << plugin;
-            connect(plugin, SIGNAL(visualElementChanged(QMHPlugin*)), q, SLOT(advertizeEngine(QMHPlugin*)));
         }
     }
     resetLanguage();
@@ -472,11 +470,6 @@ QList<QMHPlugin *> Backend::allEngines() const
     return d->allEngines;
 }
 
-QObjectList Backend::advertizedEngines() const
-{
-    return d->advertizedEngines;
-}
-
 QList<Skin*> Backend::skins() const
 {
     return d->skins;
@@ -513,24 +506,6 @@ QString Backend::resourcePath() const
 QString Backend::thumbnailPath() const
 {
     return d->thumbnailPath;
-}
-
-void Backend::advertizeEngine(QMHPlugin *engine)
-{
-    if (d->advertizedEngines.contains(engine)) {
-        if (engine->visualElement() == 0) {
-            d->advertizedEngines.removeOne(engine);
-            emit advertizedEnginesChanged();
-        }
-        return;
-    }
-
-    //Advertize to main menu
-    if (engine->role() > QMHPlugin::Unadvertized)
-        d->advertizedEngines << engine;
-
-    connect(engine, SIGNAL(pluginChanged()), this, SIGNAL(advertizedEnginesChanged()));
-    emit advertizedEnginesChanged();
 }
 
 void Backend::openUrlExternally(const QUrl & url) const
