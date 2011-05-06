@@ -558,24 +558,6 @@ bool Backend::eventFilter(QObject *obj, QEvent *event) {
     return QObject::eventFilter(obj, event);
 }
 
-QObject *Backend::engineByRole(QMHPlugin::PluginRole role)
-{
-    foreach (QObject *currentEngine, d->advertizedEngines)
-        if (qobject_cast<QMHPlugin*>(currentEngine)->role() == role)
-            return currentEngine;
-    qWarning() << tr("Seeking a non-existant plugin, prepare to die");
-    return 0;
-}
-
-QObject *Backend::engineByName(const QString &name)
-{
-    foreach (QObject *currentEngine, d->allEngines)
-        if (qobject_cast<QMHPlugin*>(currentEngine)->name() == name)
-            return currentEngine;
-
-    return 0;
-}
-
 Frontend* Backend::frontend() const
 {
     return d->frontend;

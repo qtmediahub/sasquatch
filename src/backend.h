@@ -65,7 +65,6 @@ public:
     Q_INVOKABLE void log(const QString &logMsg);
 
     QObject *targetsModel() const;
-    QObject *engineByName(const QString &name);
 
     Frontend* frontend() const;
     QSqlDatabase mediaDatabase() const;
@@ -87,8 +86,6 @@ signals:
     void targetsModelChanged();
 
 private:
-    QObject* engineByRole(QMHPlugin::PluginRole);
-
     explicit Backend(QObject *parent = 0);
     static Backend *s_instance;
     BackendPrivate *d;
