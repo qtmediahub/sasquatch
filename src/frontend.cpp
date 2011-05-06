@@ -92,6 +92,7 @@ class WidgetWrapper : public QWidget
     Q_OBJECT
 public:
     WidgetWrapper(QWidget *prey);
+    ~WidgetWrapper();
 
 protected:
     void paintEvent(QPaintEvent *e);
@@ -134,6 +135,11 @@ WidgetWrapper::WidgetWrapper(QWidget *prey)
     resizeSettleTimer.setSingleShot(true);
 
     connect(&resizeSettleTimer, SIGNAL(timeout()), this, SLOT(handleResize()));
+}
+
+WidgetWrapper::~WidgetWrapper()
+{
+    delete m_prey;
 }
 
 void WidgetWrapper::paintEvent(QPaintEvent *e)
