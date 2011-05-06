@@ -205,7 +205,7 @@ public:
     MediaPlayerRpc *mediaPlayerRpc;
     Trackpad *trackpad;
     QWidget *skinWidget;
-    Frontend *pSelf;
+    Frontend *q;
 };
 
 FrontendPrivate::FrontendPrivate(Frontend *p)
@@ -218,7 +218,7 @@ FrontendPrivate::FrontendPrivate(Frontend *p)
       mediaPlayerRpc(0),
       trackpad(0),
       skinWidget(0),
-      pSelf(p)
+      q(p)
 {
     qApp->setOverrideCursor(Qt::BlankCursor);
     qApp->installTranslator(&frontEndTranslator);
@@ -310,7 +310,7 @@ bool FrontendPrivate::setSkin(const QString &name)
         qWarning() << "Can't read" << newSkin->name();
         return false;
     }
-    pSelf->show();
+    q->show();
     return true;
 }
 
@@ -392,7 +392,7 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
         engine->rootContext()->setContextProperty("actionmap", actionMap);
         engine->rootContext()->setContextProperty("mediaPlayerRpc", mediaPlayerRpc);
         engine->rootContext()->setContextProperty("trackpad", trackpad);
-        engine->rootContext()->setContextProperty("frontend", pSelf);
+        engine->rootContext()->setContextProperty("frontend", q);
         engine->rootContext()->setContextProperty("utils", new QMLUtils(declarativeWidget));
         engine->rootContext()->setContextProperty("systemHelper", new SystemHelper(declarativeWidget));
         engine->rootContext()->setContextProperty("skin", skin);
