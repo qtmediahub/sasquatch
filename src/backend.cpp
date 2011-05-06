@@ -103,8 +103,6 @@ public:
 
     Frontend *frontend;
 
-    QSet<QString> advertizedEngineRoles;
-
     QList<QObject*> advertizedEngines;
     QList<QMHPlugin*> allEngines;
     QList<QAction*> actions;
