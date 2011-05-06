@@ -377,7 +377,7 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
         QObject::connect(engine, SIGNAL(quit()), qApp, SLOT(quit()));
 
         // register dataproviders to QML
-        qmlRegisterType<ActionMapper>("ActionMapper", 1, 0, "ActionMapper");
+        qmlRegisterUncreatableType<ActionMapper>("ActionMapper", 1, 0, "ActionMapper", "For enums. For methods use actionmap global variable");
         qmlRegisterType<QMHPlugin>("QMHPlugin", 1, 0, "QMHPlugin");
         qmlRegisterType<DirModel>("DirModel", 1, 0, "DirModel");
         qmlRegisterType<QMLFileWrapper>("QMLFileWrapper", 1, 0, "QMLFileWrapper");
