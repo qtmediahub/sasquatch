@@ -7,7 +7,13 @@
 
 bool MusicParser::canRead(const QFileInfo &info) const
 {
-    return info.suffix() == "mp3";
+    static QStringList extensions
+            = QStringList() << "mp3"
+                            << "aac"
+                            << "mp4"
+                            << "m4a";
+
+    return extensions.contains(info.suffix());
 }
 
 QString cleanString(QString str)
