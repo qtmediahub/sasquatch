@@ -51,11 +51,11 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <QDebug>
 
-class SkinSelecter : public QDialog
+class SkinSelector : public QDialog
 {
     Q_OBJECT
 public:
-    SkinSelecter(QWidget *p = 0)
+    SkinSelector(QWidget *p = 0)
         : QDialog(p)
     {
         setAttribute(Qt::WA_DeleteOnClose);
@@ -262,7 +262,7 @@ void BackendPrivate::handleDirChanged(const QString &dir)
 
 void BackendPrivate::selectSkin()
 {
-    SkinSelecter *skinSelector = new SkinSelecter;
+    SkinSelector *skinSelector = new SkinSelector;
     skinSelector->show();
 }
 
