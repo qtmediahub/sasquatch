@@ -269,7 +269,7 @@ void BackendPrivate::selectSkin()
 void BackendPrivate::resetLanguage()
 {
     static QString baseTranslationPath(basePath % "/translations/");
-    const QString language = Backend::instance()->language();
+    const QString language = q->language();
     delete backendTranslator;
     backendTranslator = new QTranslator(this);
     backendTranslator->load(baseTranslationPath % language % ".qm");
@@ -340,7 +340,7 @@ void BackendPrivate::discoverEngines()
         else {
             plugin->setParent(this);
             allEngines << plugin;
-            connect(plugin, SIGNAL(visualElementChanged(QMHPlugin*)), Backend::instance(), SLOT(advertizeEngine(QMHPlugin*)));
+            connect(plugin, SIGNAL(visualElementChanged(QMHPlugin*)), q, SLOT(advertizeEngine(QMHPlugin*)));
         }
     }
     resetLanguage();
