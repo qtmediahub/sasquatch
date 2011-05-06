@@ -13,9 +13,7 @@ class QMHPlugin : public QObject
     Q_ENUMS(PluginRole)
     Q_PROPERTY(QString name READ name WRITE setName NOTIFY pluginChanged)
     Q_PROPERTY(PluginRole role READ role WRITE setRole NOTIFY pluginChanged)
-    Q_PROPERTY(QString roleName READ roleName NOTIFY pluginChanged)
-    Q_PROPERTY(QObject* actionMap READ actionMap WRITE setActionMap NOTIFY pluginChanged)
-    Q_PROPERTY(QStringList actionList READ actionList WRITE setActionList NOTIFY pluginChanged)
+    Q_PROPERTY(QObject* visualElement READ visualElement WRITE setVisualElement NOTIFY pluginChanged)
 
 public:
     enum PluginRole { Undefined, Unadvertized, Music, Video, Picture, Dashboard, Weather, SingletonRoles, Store, Web, Application, Game, Map, RoleCount };
@@ -35,19 +33,12 @@ public:
     PluginRole role() const { return mRole; }
     void setRole(PluginRole role) { mRole = role; emit pluginChanged(); }
 
-    QString roleName() const {
-        const QMetaObject &PluginMO = QMHPlugin::staticMetaObject;
-        int enumIndex = PluginMO.indexOfEnumerator("PluginRole");
-        QMetaEnum roleEnum = PluginMO.enumerator(enumIndex);
-
-        return QString(roleEnum.key(role()));
+    QObject* visualElement() const { return mVisualElement; }
+    void setVisualElement(QObject *element) {
+        mVisualElement = element;
+        emit visualElementChanged(this);
+        emit pluginChanged();
     }
-
-    QObject* actionMap() const { return mActionMap; }
-    void setActionMap(QObject *map) { mActionMap = map; emit pluginChanged(); }
-
-    QStringList actionList() const { return mActionList; }
-    void setActionList(const QStringList& actions) { mActionList = actions; emit pluginChanged(); }
 
     //These plugins should be equally usable from html
     virtual void registerPlugin(QDeclarativeContext *context = 0) { Q_UNUSED(context); }
@@ -57,12 +48,12 @@ public:
 
 signals:
     void pluginChanged();
+    void visualElementChanged(QMHPlugin *plugin);
 
 protected:
     QString mName;
     PluginRole mRole;
     QObject *mVisualElement;
-    QStringList mVisualElementProperties;
     QObject *mActionMap;
     QStringList mActionList;
 };
