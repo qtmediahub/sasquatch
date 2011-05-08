@@ -417,9 +417,9 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
         connect(skinWidget, SIGNAL(grow()), this, SLOT(grow()));
         connect(skinWidget, SIGNAL(shrink()), this, SLOT(shrink()));
         connect(skinWidget, SIGNAL(toggleFullScreen()), this, SLOT(toggleFullScreen()));
-        declarativeWidget->setSource(targetUrl);
 
         rootContext = declarativeWidget->rootContext();
+        declarativeWidget->setSource(targetUrl);
     }
 }
 
