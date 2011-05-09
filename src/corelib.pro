@@ -97,8 +97,7 @@ HEADERS += qmh-config.h \
     skin.h \
     systemhelper.h \
     device.h \
-    dbreader.h \
-    skin.h
+    dbreader.h
 
 include(rpc/rpc.pri)
 include(media/media.pri)
