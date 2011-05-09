@@ -53,9 +53,6 @@ class File : public QObject
 
         return lines;
     }
-
-    private:
-        QFile file;
 };
 
 QML_DECLARE_TYPE(File)
