@@ -53,6 +53,18 @@ class File : public QObject
 
         return lines;
     }
+
+    Q_INVOKABLE QStringList findQmlModules(const QString &path)
+    {
+        QStringList modules;
+        foreach(const QString dirName, QDir(path).entryList(QDir::AllDirs | QDir::NoDotAndDotDot)) {
+            QString fileName(path + "/" + dirName + "/" + dirName + ".qml");
+            QFile prospectiveFile(fileName);
+            if (prospectiveFile.exists())
+                modules << fileName;
+        }
+        return modules;
+    }
 };
 
 QML_DECLARE_TYPE(File)
