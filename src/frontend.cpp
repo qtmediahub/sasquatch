@@ -43,7 +43,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "media/media.h"
 #include "dirmodel.h"
 #include "media/playlist.h"
-#include "qmlfilewrapper.h"
+#include "file.h"
 #include "qmhplugin.h"
 #include "systemhelper.h"
 
@@ -374,7 +374,7 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
         qmlRegisterUncreatableType<ActionMapper>("ActionMapper", 1, 0, "ActionMapper", "For enums. For methods use actionmap global variable");
         qmlRegisterUncreatableType<QMHPlugin>("QMHPlugin", 1, 0, "QMHPlugin", "Only for enums");
         qmlRegisterType<DirModel>("DirModel", 1, 0, "DirModel");
-        qmlRegisterType<QMLFileWrapper>("QMLFileWrapper", 1, 0, "QMLFileWrapper");
+        qmlRegisterType<File>("File", 1, 0, "File");
         qmlRegisterType<Playlist>("Playlist", 1, 0, "Playlist");
         qmlRegisterType<RpcConnection>("RpcConnection", 1, 0, "RpcConnection");
         qmlRegisterUncreatableType<Media>("Media", 1, 0, "Media", "Only enums here, move on");

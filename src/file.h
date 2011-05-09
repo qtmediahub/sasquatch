@@ -17,20 +17,20 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 ****************************************************************************/
 
-#ifndef QMLFILEWRAPPER_H
-#define QMLFILEWRAPPER_H
+#ifndef FILE_H
+#define FILE_H
 
 #include <QObject>
 #include <QFile>
 #include <QtDeclarative>
 #include <QDebug>
 
-class QMLFileWrapper : public QObject
+class File : public QObject
 {
     Q_OBJECT
 
     public:
-    Q_INVOKABLE QStringList readAll(const QString &filename)
+    Q_INVOKABLE QStringList readAllLines(const QString &filename)
     {
         QFile file(filename);
         file.open(QIODevice::ReadOnly | QIODevice::Text);
@@ -58,6 +58,6 @@ class QMLFileWrapper : public QObject
         QFile file;
 };
 
-QML_DECLARE_TYPE(QMLFileWrapper)
+QML_DECLARE_TYPE(File)
 
-#endif
+#endif // FILE_H

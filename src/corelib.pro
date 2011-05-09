@@ -87,7 +87,7 @@ HEADERS += qmh-config.h \
     backend.h \
     qmhplugin.h \
     dirmodel.h \
-    qmlfilewrapper.h \
+    file.h \
     actionmapper.h \
     trackpad.h \
     scopedtransaction.h \
