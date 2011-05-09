@@ -1,0 +1,6 @@
+CurtainEffect 1.0 CurtainEffect.qml
+DropShadowEffect 1.0 DropShadowEffect.qml
+GrayscaleEffect 1.0 GrayscaleEffect.qml
+ImageMaskEffect 1.0 ImageMaskEffect.qml
+RadialWaveEffect 1.0 RadialWaveEffect.qml
+WaterEffect 1.0 WaterEffect.qml

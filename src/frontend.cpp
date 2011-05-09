@@ -401,6 +401,7 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
 
         engine->addPluginPath(Backend::instance()->resourcePath() % "/lib");
         engine->addImportPath(Backend::instance()->resourcePath() % "/imports");
+        engine->addImportPath(Backend::instance()->basePath() % "/imports");
         engine->addImportPath(skin->path());
 
         runtime->insert("config", qVariantFromValue(static_cast<QObject *>(Config::instance())));
