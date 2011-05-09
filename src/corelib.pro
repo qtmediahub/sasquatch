@@ -109,8 +109,8 @@ avahi {
     include(3rdparty/libqavahi/libqavahi.pri)
     INCLUDEPATH += 3rdparty/libqavahi/
 } else {
-    SOURCES += dataproviders/staticservicebrowsermodel.cpp
-    HEADERS += dataproviders/staticservicebrowsermodel.h
+    SOURCES += staticservicebrowsermodel.cpp
+    HEADERS += staticservicebrowsermodel.h
 }
 
 contains(QT_CONFIG, dbus) {
