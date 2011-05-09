@@ -10,7 +10,9 @@
 #include <QString>
 #include <QImage>
 
-class TagReader
+#include "global.h"
+
+class QMH_EXPORT TagReader
 {
 public:
     TagReader(const QString &file);

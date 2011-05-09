@@ -8,7 +8,9 @@
 #include <QDateTime>
 #include <QString>
 
-class ExifReader 
+#include "global.h"
+
+class QMH_EXPORT ExifReader
 {
 public:
     ExifReader(const QString &file);
