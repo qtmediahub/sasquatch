@@ -7,9 +7,7 @@
 #if defined _WIN32
     #ifdef BUILDING_QMH
         #define QMH_EXPORT __declspec(dllexport)
-        #define QMH_EXPORT __declspec(dllexport)
     #else
-        #define QMH_EXPORT __declspec(dllimport)
         #define QMH_EXPORT __declspec(dllimport)
     #endif
 #else
@@ -20,11 +18,7 @@
             #define QMH_EXPORT
         #endif
     #else
-        #if __GNUC__ >= 4
-            #define QMH_EXPORT __attribute__ ((visibility("hidden")))
-        #else
-            #define QMH_EXPORT
-        #endif
+        #define QMH_EXPORT
     #endif
 #endif
 
