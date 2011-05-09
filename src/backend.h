@@ -24,6 +24,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QList>
 #include <QDateTime>
 #include <QtSql>
+#include "global.h"
 
 #include "qmhplugin.h"
 
@@ -33,7 +34,7 @@ class Skin;
 class Frontend;
 class QAction;
 
-class Backend : public QObject
+class QMH_EXPORT Backend : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QList<Skin*> skins READ skins NOTIFY skinsChanged)

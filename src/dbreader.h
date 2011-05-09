@@ -4,7 +4,9 @@
 #include <QtGui>
 #include <QtSql>
 
-class DbReader : public QObject
+#include "global.h"
+
+class QMH_EXPORT DbReader : public QObject
 {
     Q_OBJECT
 

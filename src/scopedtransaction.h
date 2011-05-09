@@ -4,7 +4,9 @@
 #include <QSqlDatabase>
 #include <QSqlQuery>
 
-class ScopedTransaction
+#include "global.h"
+
+class QMH_EXPORT ScopedTransaction
 {
 public:
     ScopedTransaction(QSqlDatabase &db);

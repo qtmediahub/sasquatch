@@ -6,6 +6,9 @@ TARGET = qmhcore
 DEPENDPATH += .
 INCLUDEPATH += . ./plugins/qmhplugin
 
+QMAKE_CFLAGS += -fvisibility=hidden
+QMAKE_CXXFLAGS += -fvisibility=hidden
+
 #global options
 CONFIG += glviewport
 #end global options

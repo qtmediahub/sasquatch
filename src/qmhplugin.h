@@ -4,10 +4,11 @@
 #include <QObject>
 #include <QStringList>
 #include <QMetaEnum>
+#include "global.h"
 
 class QDeclarativeContext;
 
-class QMHPlugin : public QObject
+class QMH_EXPORT QMHPlugin : public QObject
 {
     Q_OBJECT
     Q_ENUMS(PluginRole)

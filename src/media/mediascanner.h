@@ -6,10 +6,11 @@
 #include <QSqlDatabase>
 #include <QSqlRecord>
 #include <QHash>
+#include "global.h"
 
 class MediaParser;
 
-class MediaScanner : public QObject
+class QMH_EXPORT MediaScanner : public QObject
 {
     Q_OBJECT
 public:

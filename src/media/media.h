@@ -2,8 +2,9 @@
 #define MEDIA_H
 
 #include <QtDeclarative>
+#include "global.h"
 
-class Media : public QObject
+class QMH_EXPORT Media : public QObject
 {
     Q_OBJECT
     Q_ENUMS(StandardRoles)

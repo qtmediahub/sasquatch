@@ -4,8 +4,9 @@
 #include <QFileInfo>
 #include <QList>
 #include "mediascanner.h"
+#include "global.h"
 
-class MediaParser : public QObject
+class QMH_EXPORT MediaParser : public QObject
 {
     Q_OBJECT
 public:
