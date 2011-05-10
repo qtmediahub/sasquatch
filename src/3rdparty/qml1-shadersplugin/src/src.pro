@@ -2,10 +2,8 @@ TEMPLATE = lib
 QT += declarative opengl
 CONFIG += qt plugin
 
-TARGETPATH = Qt/labs/shaders
-target.path = $${PROJECTROOT}/hub/imports/$$TARGETPATH
-
-TARGET = $${target.path}/qmlshadersplugin
+TARGET = qmlshadersplugin
+DESTDIR = $${PROJECTROOT}/hub/imports/Qt/labs/shaders
 
 symbian: {
     TARGET.EPOCALLOWDLLDATA = 1
@@ -52,5 +50,3 @@ OTHER_FILES = qmldir
 
 qmlfiles.files = qmldir
 qmlfiles.path = $$[QT_INSTALL_IMPORTS]/$$TARGETPATH
-
-INSTALLS += target qmlfiles
