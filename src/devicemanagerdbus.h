@@ -17,36 +17,62 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 ****************************************************************************/
 
-#include "systemhelperdbus.h"
+#ifndef DEVICEMANAGERDBUS_H
+#define DEVICEMANAGERDBUS_H
 
-SystemHelperDBus::SystemHelperDBus(QObject *parent) :
-    QObject(parent)
-{
-    m_uDisks = new UDisksInterface("org.freedesktop.UDisks", "/org/freedesktop/UDisks", QDBusConnection::systemBus(), this);
-    connect(m_uDisks, SIGNAL(DeviceAdded(QDBusObjectPath)), this, SLOT(newDevice(QDBusObjectPath)));
-    connect(m_uDisks, SIGNAL(DeviceRemoved(QDBusObjectPath)), this, SLOT(removeDevice(QDBusObjectPath)));
-}
+#include <QObject>
+#include <QtDBus>
 
-void SystemHelperDBus::newDevice(QDBusObjectPath path)
+#include "device.h"
+
+class UDisksInterface : public QDBusAbstractInterface
 {
-    Device *d = new Device(path.path(), this);
-    if (!d->valid()) {
-        delete d;
-        return;
+    Q_OBJECT
+public:
+    static inline const char *staticInterfaceName() { return "org.freedesktop.UDisks"; }
+    UDisksInterface(const QString &service, const QString &path, const QDBusConnection &connection, QObject *parent = 0)
+        : QDBusAbstractInterface(service, path, staticInterfaceName(), connection, parent)
+    {}
+
+signals:
+    void DeviceAdded(QDBusObjectPath path);
+    void DeviceRemoved(QDBusObjectPath path);
+};
+
+class DeviceManagerDBus : public QObject
+{
+    Q_OBJECT
+
+public:
+    DeviceManagerDBus(QObject *parent = 0);
+
+    ~DeviceManagerDBus()
+    {
+        delete m_uDisks;
     }
 
-    m_devices.insert(path.path(), d);
-
-    emit deviceAdded(path.path());
-}
-
-void SystemHelperDBus::removeDevice(QDBusObjectPath path)
-{
-    if (m_devices.contains(path.path())) {
-        Device *d = m_devices.value(path.path());
-        m_devices.remove(path.path());
-        delete d;
+    Device *getDeviceByPath(const QString &path)
+    {
+        if (m_devices.contains(path))
+            return m_devices.value(path);
+        return 0;
     }
-    emit deviceRemoved(path.path());
-}
 
+public slots:
+    //void mount(const QString &path);
+    //void unmount(const QString &path);
+    //void eject(const QString &path);
+
+    void newDevice(QDBusObjectPath path);
+    void removeDevice(QDBusObjectPath path);
+
+signals:
+    void deviceAdded(QString device);
+    void deviceRemoved(QString device);
+
+private:
+    UDisksInterface *m_uDisks;
+    QHash<QString, Device*> m_devices;
+};
+
+#endif // DEVICEMANAGERDBUS_H

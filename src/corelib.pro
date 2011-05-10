@@ -79,9 +79,10 @@ SOURCES += qmh-config.cpp \
     trackpad.cpp \
     scopedtransaction.cpp \
     skin.cpp \
-    systemhelper.cpp \
     device.cpp \
-    dbreader.cpp
+    dbreader.cpp \
+    devicemanager.cpp \
+    powermanager.cpp
 
 QT += declarative script network sql
 
@@ -96,9 +97,10 @@ HEADERS += qmh-config.h \
     trackpad.h \
     scopedtransaction.h \
     skin.h \
-    systemhelper.h \
     device.h \
-    dbreader.h
+    dbreader.h \
+    devicemanager.h \
+    powermanager.h
 
 include(rpc/rpc.pri)
 include(media/media.pri)
@@ -118,6 +120,6 @@ avahi {
 
 contains(QT_CONFIG, dbus) {
     QT += dbus
-    SOURCES += systemhelperdbus.cpp
-    HEADERS += systemhelperdbus.h
+    SOURCES += devicemanagerdbus.cpp
+    HEADERS += devicemanagerdbus.h
 }

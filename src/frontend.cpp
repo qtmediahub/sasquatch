@@ -45,7 +45,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "media/playlist.h"
 #include "file.h"
 #include "qmhplugin.h"
-#include "systemhelper.h"
+#include "devicemanager.h"
+#include "powermanager.h"
 
 class QMLUtils : public QObject
 {
@@ -395,7 +396,8 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
         runtime->insert("trackpad", qVariantFromValue(static_cast<QObject *>(trackpad)));
         runtime->insert("frontend", qVariantFromValue(static_cast<QObject *>(q)));
         runtime->insert("utils", qVariantFromValue(static_cast<QObject *>(new QMLUtils(declarativeWidget))));
-        runtime->insert("systemHelper", qVariantFromValue(static_cast<QObject *>(new SystemHelper(declarativeWidget))));
+        runtime->insert("deviceManager", qVariantFromValue(static_cast<QObject *>(new DeviceManager(declarativeWidget))));
+        runtime->insert("powerManager", qVariantFromValue(static_cast<QObject *>(new PowerManager(declarativeWidget))));
         runtime->insert("skin", qVariantFromValue(static_cast<QObject *>(skin)));
         runtime->insert("backend", qVariantFromValue(static_cast<QObject *>(Backend::instance())));
 

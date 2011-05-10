@@ -17,45 +17,25 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 ****************************************************************************/
 
-#include "device.h"
+#ifndef SYSTEMHELPER_H
+#define SYSTEMHELPER_H
 
-Device::Device(const QString &p, QObject *parent) :
-    QObject(parent)
-  , m_path(p)
-  , m_type(Device::Undefined)
+#include <QObject>
+
+class PowerManager : public QObject
 {
-#ifndef QT_NO_DBUS
-    m_deviceInterface = new UDisksDeviceInterface("org.freedesktop.UDisks", m_path, QDBusConnection::systemBus(), this);
-    if (!m_deviceInterface->isValid()) {
-        m_valid = false;
-        return;
-    }
-    m_valid = true;
-#else
-    // no implementation yet, so not valid
-    m_valid = false;
-#endif
+    Q_OBJECT
 
-    emit changed();
-}
+public:
+    explicit PowerManager(QObject *parent = 0);
 
-void Device::mount()
-{
-#ifndef QT_NO_DBUS
-    m_deviceInterface->FilesystemMount();
-#endif
-}
+public slots:
+    void shutdown();
+    void restart();
+    void suspend();
+    void hibernate();
 
-void Device::unmount()
-{
-#ifndef QT_NO_DBUS
-    m_deviceInterface->FilesystemUnmount();
-#endif
-}
+private:
+};
 
-void Device::eject()
-{
-#ifndef QT_NO_DBUS
-    m_deviceInterface->DriveEject();
-#endif
-}
+#endif // SYSTEMHELPER_H

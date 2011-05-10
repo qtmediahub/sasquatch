@@ -17,45 +17,31 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 ****************************************************************************/
 
-#include "device.h"
+#include "devicemanager.h"
 
-Device::Device(const QString &p, QObject *parent) :
+#ifndef QT_NO_DBUS
+#include "devicemanagerdbus.h"
+#endif
+
+DeviceManager::DeviceManager(QObject *parent) :
     QObject(parent)
-  , m_path(p)
-  , m_type(Device::Undefined)
 {
 #ifndef QT_NO_DBUS
-    m_deviceInterface = new UDisksDeviceInterface("org.freedesktop.UDisks", m_path, QDBusConnection::systemBus(), this);
-    if (!m_deviceInterface->isValid()) {
-        m_valid = false;
-        return;
-    }
-    m_valid = true;
+    m_helper = new DeviceManagerDBus(this);
+    connect(m_helper, SIGNAL(deviceAdded(QString)), this, SIGNAL(deviceAdded(QString)));
+    connect(m_helper, SIGNAL(deviceRemoved(QString)), this, SIGNAL(deviceRemoved(QString)));
 #else
-    // no implementation yet, so not valid
-    m_valid = false;
+    // TBD
 #endif
-
-    emit changed();
 }
 
-void Device::mount()
+QObject *DeviceManager::getDeviceByPath(const QString &path)
 {
 #ifndef QT_NO_DBUS
-    m_deviceInterface->FilesystemMount();
+    return qobject_cast<QObject*>(m_helper->getDeviceByPath(path));
+#else
+    return 0;
 #endif
 }
 
-void Device::unmount()
-{
-#ifndef QT_NO_DBUS
-    m_deviceInterface->FilesystemUnmount();
-#endif
-}
 
-void Device::eject()
-{
-#ifndef QT_NO_DBUS
-    m_deviceInterface->DriveEject();
-#endif
-}

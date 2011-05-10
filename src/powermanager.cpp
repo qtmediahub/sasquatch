@@ -17,13 +17,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 ****************************************************************************/
 
-#ifndef SYSTEMHELPERDBUS_H
-#define SYSTEMHELPERDBUS_H
+#include "powermanager.h"
 
-#include <QObject>
-#include <QtDBus>
+#ifndef QT_NO_DBUS
 
-#include "device.h"
+#include <QDBusAbstractInterface>
+#include <QDBusPendingReply>
 
 class ConsoleKitInterface : public QDBusAbstractInterface
 {
@@ -67,54 +66,54 @@ public:
     }
 };
 
-class UDisksInterface : public QDBusAbstractInterface
+#include "powermanager.moc"
+
+#endif
+
+PowerManager::PowerManager(QObject *parent) :
+    QObject(parent)
 {
-    Q_OBJECT
-public:
-    static inline const char *staticInterfaceName() { return "org.freedesktop.UDisks"; }
-    UDisksInterface(const QString &service, const QString &path, const QDBusConnection &connection, QObject *parent = 0)
-        : QDBusAbstractInterface(service, path, staticInterfaceName(), connection, parent)
-    {}
+}
 
-signals:
-    void DeviceAdded(QDBusObjectPath path);
-    void DeviceRemoved(QDBusObjectPath path);
-};
-
-class SystemHelperDBus : public QObject
+void PowerManager::shutdown()
 {
-    Q_OBJECT
+#ifndef QT_NO_DBUS
+    ConsoleKitInterface i("org.freedesktop.ConsoleKit.Manager", "/org/freedesktop/ConsoleKit/Manager", QDBusConnection::systemBus(), this);
+    i.stop();
+#else
+    // TBD
+#endif
+}
 
-public:
-    SystemHelperDBus(QObject *parent = 0);
+void PowerManager::restart()
+{
+#ifndef QT_NO_DBUS
+    ConsoleKitInterface i("org.freedesktop.ConsoleKit.Manager", "/org/freedesktop/ConsoleKit/Manager", QDBusConnection::systemBus(), this);
+    i.restart();
+#else
+    // TBD
+#endif
+}
 
-    ~SystemHelperDBus()
-    {
-        delete m_uDisks;
-    }
+void PowerManager::suspend()
+{
+#ifndef QT_NO_DBUS
+    UPowerInterface i("org.freedesktop.UPower", "/org/freedesktop/UPower", QDBusConnection::systemBus(), this);
+    i.suspend();
+#else
+    // TBD
+#endif
+}
 
-    Device *getDeviceByPath(const QString &path)
-    {
-        if (m_devices.contains(path))
-            return m_devices.value(path);
-        return 0;
-    }
+void PowerManager::hibernate()
+{
+#ifndef QT_NO_DBUS
+    UPowerInterface i("org.freedesktop.UPower", "/org/freedesktop/UPower", QDBusConnection::systemBus(), this);
+    i.hibernate();
+#else
+    // TBD
+#endif
+}
 
-public slots:
-    //void mount(const QString &path);
-    //void unmount(const QString &path);
-    //void eject(const QString &path);
 
-    void newDevice(QDBusObjectPath path);
-    void removeDevice(QDBusObjectPath path);
 
-signals:
-    void deviceAdded(QString device);
-    void deviceRemoved(QString device);
-
-private:
-    UDisksInterface *m_uDisks;
-    QHash<QString, Device*> m_devices;
-};
-
-#endif // SYSTEMHELPERDBUS_H

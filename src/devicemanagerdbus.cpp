@@ -17,42 +17,36 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 ****************************************************************************/
 
-#ifndef SYSTEMHELPER_H
-#define SYSTEMHELPER_H
+#include "devicemanagerdbus.h"
 
-#include <QObject>
-
-class Device;
-
-#ifndef QT_NO_DBUS
-class SystemHelperDBus;
-#endif
-
-class SystemHelper : public QObject
+DeviceManagerDBus::DeviceManagerDBus(QObject *parent) :
+    QObject(parent)
 {
-    Q_OBJECT
+    m_uDisks = new UDisksInterface("org.freedesktop.UDisks", "/org/freedesktop/UDisks", QDBusConnection::systemBus(), this);
+    connect(m_uDisks, SIGNAL(DeviceAdded(QDBusObjectPath)), this, SLOT(newDevice(QDBusObjectPath)));
+    connect(m_uDisks, SIGNAL(DeviceRemoved(QDBusObjectPath)), this, SLOT(removeDevice(QDBusObjectPath)));
+}
 
-public:
-    explicit SystemHelper(QObject *parent = 0);
+void DeviceManagerDBus::newDevice(QDBusObjectPath path)
+{
+    Device *d = new Device(path.path(), this);
+    if (!d->valid()) {
+        delete d;
+        return;
+    }
 
-    Q_INVOKABLE QObject *getDeviceByPath(const QString &path);
+    m_devices.insert(path.path(), d);
 
-signals:
-    void deviceAdded(QString device);
-    void deviceRemoved(QString device);
-    void nameChanged();
+    emit deviceAdded(path.path());
+}
 
-public slots:
-    void shutdown();
-    void restart();
-    void suspend();
-    void hibernate();
-    //void mount(const QString &device);
+void DeviceManagerDBus::removeDevice(QDBusObjectPath path)
+{
+    if (m_devices.contains(path.path())) {
+        Device *d = m_devices.value(path.path());
+        m_devices.remove(path.path());
+        delete d;
+    }
+    emit deviceRemoved(path.path());
+}
 
-private:
-#ifndef QT_NO_DBUS
-    SystemHelperDBus *m_helper;
-#endif
-};
-
-#endif // SYSTEMHELPER_H
