@@ -47,7 +47,7 @@ static QByteArray determineThumbnail(const ExifReader &reader, const QFileInfo &
     QByteArray ba;
     QBuffer buffer(&ba);
     buffer.open(QBuffer::WriteOnly);
-    image.save(&buffer, "PNG");
+    tmp.save(&buffer, "PNG");
     buffer.close();
     return ba;
 }
