@@ -31,6 +31,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 class UDisksDeviceInterface : public QDBusAbstractInterface
 {
     Q_OBJECT
+
 public:
     static inline const char *staticInterfaceName() { return "org.freedesktop.UDisks.Device"; }
     UDisksDeviceInterface(const QString &service, const QString &path, const QDBusConnection &connection, QObject *parent = 0)
@@ -88,6 +89,18 @@ public:
 
         return asyncCallWithArgumentList(QLatin1String("DriveEject"), argumentList);
     }
+
+    inline bool DeviceIsPartition()
+    {
+        QDBusMessage message = QDBusMessage::createMethodCall(service(), path(), QLatin1String("org.freedesktop.DBus.Properties"), QLatin1String("Get"));
+        QList<QVariant> arguments;
+        arguments << staticInterfaceName() << "DeviceIsPartition";
+        message.setArguments(arguments);
+        QDBusReply<QVariant> reply = connection().call(message);
+        if (reply.error().isValid())
+            return false;
+        return reply.value().toBool();
+    }
 };
 #endif
 
@@ -100,6 +113,7 @@ class Device : public QObject
     Q_PROPERTY(QString label READ label NOTIFY changed)
     Q_PROPERTY(QString uuid READ uuid NOTIFY changed)
     Q_PROPERTY(bool valid READ valid NOTIFY changed)
+    Q_PROPERTY(bool isPartition READ isPartition NOTIFY changed)
 
 public:
     enum DeviceType { Undefined, UsbDrive, Dvd, AudioCd, TypeCount };
@@ -111,6 +125,7 @@ public:
     QString label() const { return m_label; }
     QString uuid() const { return m_uuid; }
     bool valid() const { return m_valid; }
+    bool isPartition() const { return m_isPartition; }
 
 signals:
     void changed();
@@ -126,6 +141,7 @@ private:
     QString m_label;
     QString m_uuid;
     bool m_valid;
+    bool m_isPartition;
 
 #ifndef QT_NO_DBUS
     UDisksDeviceInterface *m_deviceInterface;

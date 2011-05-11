@@ -31,6 +31,7 @@ Device::Device(const QString &p, QObject *parent) :
         return;
     }
     m_valid = true;
+    m_isPartition = m_deviceInterface->DeviceIsPartition();
 #else
     // no implementation yet, so not valid
     m_valid = false;
