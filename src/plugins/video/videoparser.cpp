@@ -131,10 +131,13 @@ static QByteArray generateThumbnailGstreamer(const QFileInfo &fileInfo)
         gst_element_set_state (pipeline, GST_STATE_NULL);
         gst_object_unref (pipeline);
 
+        const int previewWidth = Config::value("thumbnail-size", "256").toInt();
+        QImage tmp = image.width() <= previewWidth ? image: image.scaledToWidth(previewWidth, Qt::SmoothTransformation);
+
         QByteArray ba;
         QBuffer buffer(&ba);
         buffer.open(QBuffer::WriteOnly);
-        image.save(&buffer, "PNG");
+        tmp.save(&buffer, "PNG");
         buffer.close();
 
         return ba;

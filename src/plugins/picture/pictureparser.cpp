@@ -1,6 +1,8 @@
 #include "pictureparser.h"
 #include "exifreader.h"
 #include "scopedtransaction.h"
+#include "qmh-config.h"
+
 #include <QtSql>
 #include <QImageReader>
 
@@ -27,7 +29,8 @@ static QString determineTitle(const ExifReader &reader, const QFileInfo &fi)
 
 static QByteArray determineThumbnail(const ExifReader &reader, const QFileInfo &info)
 {
-    const int previewWidth = 400;
+    const int previewWidth = Config::value("thumbnail-size", "256").toInt();
+
     QImageReader imageReader(info.absoluteFilePath());
     QImage image = imageReader.read();
     QImage tmp = image.width() <= previewWidth ? image: image.scaledToWidth(previewWidth, Qt::SmoothTransformation);
