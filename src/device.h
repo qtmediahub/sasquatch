@@ -36,7 +36,8 @@ public:
     static inline const char *staticInterfaceName() { return "org.freedesktop.UDisks.Device"; }
     UDisksDeviceInterface(const QString &service, const QString &path, const QDBusConnection &connection, QObject *parent = 0)
         : QDBusAbstractInterface(service, path, staticInterfaceName(), connection, parent)
-    {}
+    {
+    }
 
     inline QString IdLabel()
     {
@@ -101,6 +102,26 @@ public:
             return false;
         return reply.value().toBool();
     }
+
+    inline QString DeviceMountPath()
+    {
+        QDBusMessage message = QDBusMessage::createMethodCall(service(), path(), QLatin1String("org.freedesktop.DBus.Properties"), QLatin1String("Get"));
+        QList<QVariant> arguments;
+        arguments << staticInterfaceName() << "DeviceMountPaths";
+        message.setArguments(arguments);
+        QDBusReply<QVariant> reply = connection().call(message);
+        if (reply.error().isValid())
+            return QString();
+
+        QStringList v = reply.value().toStringList();
+        if (v.count() > 0)
+            return v.first();
+        return QString();
+    }
+
+signals:
+    void Changed();
+
 };
 #endif
 
@@ -114,6 +135,7 @@ class Device : public QObject
     Q_PROPERTY(QString uuid READ uuid NOTIFY changed)
     Q_PROPERTY(bool valid READ valid NOTIFY changed)
     Q_PROPERTY(bool isPartition READ isPartition NOTIFY changed)
+    Q_PROPERTY(QString mountPoint READ mountPoint NOTIFY changed)
 
 public:
     enum DeviceType { Undefined, UsbDrive, Dvd, AudioCd, TypeCount };
@@ -126,6 +148,7 @@ public:
     QString uuid() const { return m_uuid; }
     bool valid() const { return m_valid; }
     bool isPartition() const { return m_isPartition; }
+    QString mountPoint() const { return m_mountPoint; }
 
 signals:
     void changed();
@@ -135,6 +158,9 @@ public slots:
     void unmount();
     void eject();
 
+private slots:
+    void deviceChanged();
+
 private:
     QString m_path;
     DeviceType m_type;
@@ -142,6 +168,7 @@ private:
     QString m_uuid;
     bool m_valid;
     bool m_isPartition;
+    QString m_mountPoint;
 
 #ifndef QT_NO_DBUS
     UDisksDeviceInterface *m_deviceInterface;

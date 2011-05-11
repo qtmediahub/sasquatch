@@ -32,9 +32,16 @@ Device::Device(const QString &p, QObject *parent) :
     }
     m_valid = true;
     m_isPartition = m_deviceInterface->DeviceIsPartition();
+    m_mountPoint = m_deviceInterface->DeviceMountPath();
+    m_label = m_deviceInterface->IdLabel();
+    m_uuid = m_deviceInterface->IdUuid();
+    m_type = Device::UsbDrive;
+    connect(m_deviceInterface, SIGNAL(Changed()), this, SLOT(deviceChanged()));
+
 #else
     // no implementation yet, so not valid
     m_valid = false;
+    m_isPartition = false;
 #endif
 
     emit changed();
@@ -59,4 +66,17 @@ void Device::eject()
 #ifndef QT_NO_DBUS
     m_deviceInterface->DriveEject();
 #endif
+}
+
+void Device::deviceChanged()
+{
+#ifndef QT_NO_DBUS
+    m_isPartition = m_deviceInterface->DeviceIsPartition();
+    m_mountPoint = m_deviceInterface->DeviceMountPath();
+    m_label = m_deviceInterface->IdLabel();
+    m_uuid = m_deviceInterface->IdUuid();
+    m_type = Device::UsbDrive;
+#endif
+
+    emit changed();
 }
