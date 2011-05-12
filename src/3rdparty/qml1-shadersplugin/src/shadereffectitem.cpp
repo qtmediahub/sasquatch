@@ -220,6 +220,7 @@ ShaderEffectItem::ShaderEffectItem(QDeclarativeItem *parent)
 
 ShaderEffectItem::~ShaderEffectItem()
 {
+    reset();
 }
 
 
