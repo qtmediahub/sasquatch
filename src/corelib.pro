@@ -10,56 +10,7 @@ QMAKE_CFLAGS_RELEASE += -fvisibility=hidden -fvisibility-inlines-hidden
 QMAKE_CFLAGS_DEBUG += -fvisibility=hidden -fvisibility-inlines-hidden
 QMAKE_CXXFLAGS += -fvisibility=hidden  -fvisibility-inlines-hidden
 
-#global options
-CONFIG += glviewport
-#end global options
-
-scenegraph {
-    DEFINES += SCENEGRAPH
-}
-
-mac {
-    QT += webkit\
-          multimedia
-          
-    CONFIG += mobility
-
-    MOBILITY += multimedia\
-                systeminfo
-}
-
-# This is needed for Maemo5 to recognize minimization of the application window
-# Thanks quit coding!
-maemo5 {
-    QT += dbus
-}
-
-unix:!symbian {
-    maemo5 {
-        target.path = /opt/usr/bin
-    } else {
-        target.path = /usr/local/bin
-    }
-    INSTALLS += target
-}
-#end platform options
-
-#painting options
-glgs {
-    CONFIG += gl
-    DEFINES += GLGS
-}
-
-glviewport {
-    CONFIG += gl
-    DEFINES += GLVIEWPORT
-}
-
-gl {
-    DEFINES += GL
-    QT += opengl
-}
-#end painting options
+DEFINES += BUILDING_QMH
 
 # Input
 SOURCES += qmh-config.cpp \
@@ -73,8 +24,6 @@ SOURCES += qmh-config.cpp \
     dbreader.cpp \
     devicemanager.cpp \
     powermanager.cpp
-
-QT += declarative script network sql
 
 HEADERS += qmh-config.h \
     global.h \
