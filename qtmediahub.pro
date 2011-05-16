@@ -1,5 +1,3 @@
-include(src/common.pri)
-
 CONFIG += ordered
 
 TEMPLATE = subdirs
