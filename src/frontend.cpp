@@ -119,9 +119,9 @@ WidgetWrapper::WidgetWrapper(QWidget *prey)
 
     installEventFilter(Backend::instance());
 
-    new QShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::ALT + Qt::Key_Backspace), this, SLOT(resetUI()));
-    new QShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::ALT + Qt::Key_Down), this, SIGNAL(shrink()));
-    new QShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::ALT + Qt::Key_Up), this, SIGNAL(grow()));
+    new QShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::META + Qt::ALT + Qt::Key_Backspace), this, SLOT(resetUI()));
+    new QShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::META + Qt::ALT + Qt::Key_Down), this, SIGNAL(shrink()));
+    new QShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::META + Qt::ALT + Qt::Key_Up), this, SIGNAL(grow()));
     new QShortcut(QKeySequence(Qt::ALT + Qt::Key_Return), this, SIGNAL(toggleFullScreen()));
 
     resizeSettleTimer.setSingleShot(true);
@@ -143,10 +143,8 @@ void WidgetWrapper::paintEvent(QPaintEvent *e)
 
 void WidgetWrapper::resizeEvent(QResizeEvent *e)
 {
-    if (e->spontaneous())
-        resizeSettleTimer.start(300);
-    else
-        handleResize();
+    static int staggerResizingDelay = Config::value("resizeDelay", 0);
+    resizeSettleTimer.start(staggerResizingDelay);
 }
 
 void WidgetWrapper::handleResize()
