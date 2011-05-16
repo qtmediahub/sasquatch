@@ -5,7 +5,6 @@
 include(../plugins.pri)
 
 gstreamer {
-    message(Using gstreamer for thumbnails)
     DEFINES += THUMBNAIL_GSTREAMER
 
     CONFIG += link_pkgconfig

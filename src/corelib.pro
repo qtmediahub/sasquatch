@@ -14,12 +14,6 @@ QMAKE_CXXFLAGS += -fvisibility=hidden  -fvisibility-inlines-hidden
 CONFIG += glviewport
 #end global options
 
-#platform options
-linux* {
-    message(Linux specific options: (*default unless adjusted in src.pro))
-    message(glviewport*)
-}
-
 scenegraph {
     DEFINES += SCENEGRAPH
 }
@@ -53,21 +47,17 @@ unix:!symbian {
 #painting options
 glgs {
     CONFIG += gl
-    message(Using the OpenGL graphics system: I hope you know what you are doing)
     DEFINES += GLGS
 }
 
 glviewport {
     CONFIG += gl
-    message(Using an OpenGL viewport)
     DEFINES += GLVIEWPORT
 }
 
 gl {
     DEFINES += GL
     QT += opengl
-} else {
-    message(Not using GL acceleration)
 }
 #end painting options
 
