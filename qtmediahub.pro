@@ -6,10 +6,13 @@ TEMPLATE = subdirs
 
 QMAKE_CACHE=$${OUT_PWD}/.qmake.cache
 
+# Detect stale .qmake.cache
+exists($$QMAKE_CACHE) {
+    include($$QMAKE_CACHE)
+    !equals(PROJECTROOT, $$PWD): system(rm $$QMAKE_CACHE)
+}
+
 !exists($$QMAKE_CACHE) {
-    message(creating .qmake.cache)
-    message(Dont check it in and be sure to flush it if you relocate your src tree)
-    # gonna want a Windows friendly version of this as well
     system(echo "PROJECTROOT=$$PWD" > $$QMAKE_CACHE)
     system(echo "Q_COMPONENTS_SOURCE_TREE=$$PWD/src/3rdparty/qt-components" >> $$QMAKE_CACHE)
     system(echo "Q_COMPONENTS_BUILD_TREE=$$PWD/hub/resources" >> $$QMAKE_CACHE)
