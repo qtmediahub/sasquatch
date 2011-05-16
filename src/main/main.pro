@@ -1,3 +1,5 @@
+include($$PROJECTROOT/src/common.pri)
+
 TEMPLATE = app
 TARGET = qmh
 DESTDIR = $${PROJECTROOT}/hub
