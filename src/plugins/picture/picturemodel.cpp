@@ -193,6 +193,7 @@ bool PictureModel::photoLessThan(PictureModel::Node *n1, PictureModel::Node *n2)
 void PictureModel::handleDataReady(DbReader *reader, const QList<QSqlRecord> &records, void *node)
 {
     Q_ASSERT(reader == m_reader);
+    Q_UNUSED(reader);
     DEBUG << "Received response from db of size " << records.size();
 
     QList<Node *> newChildren;
@@ -393,5 +394,6 @@ void PictureModel::addSearchPath(const QString &path, const QString &name)
 
 void PictureModel::removeSearchPath(int index)
 {
+    Q_UNUSED(index);
 }
 
