@@ -33,27 +33,10 @@ int main(int argc, char** argv)
     QApplication::setGraphicsSystem("raster");
 
 #ifdef GL
-    //Purely for experimentation
     QGLFormat format;
-    //should suffice
-//    format.setDepth(false);
-//    plan b: russian roulette
-//    format.setStencil(false);
-
     format.setSampleBuffers(true);
-
-//    //FIXME: Should be configurable, but Config
-//    blocked by instantiation of QApplication
-//    //vsync
     format.setSwapInterval(1);
-//    //no vsync
-//    format.setSwapInterval(0);
-//    format.setDoubleBuffer(false);
-//    format.setAlpha(false);
-//    format.setDirectRendering(false);
-
     QGLFormat::setDefaultFormat(format);
-
 #ifdef GLGS
     //Only legitimate use is in fullscreen QGraphicsView derived classes!
     //If you use this in conjunction with our traditional QWidget style functionality
