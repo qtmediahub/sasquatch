@@ -48,6 +48,35 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "devicemanager.h"
 #include "powermanager.h"
 
+class DeclarativeView : public QDeclarativeView {
+    Q_OBJECT
+public:
+    DeclarativeView()
+        : QDeclarativeView(0)
+    {
+        connect(this, SIGNAL(statusChanged(QDeclarativeView::Status)), this, SLOT(handleStatusChanged(QDeclarativeView::Status)));
+    }
+
+    void setSource(const QUrl &url) {
+        this->url = url;
+        QMetaObject::invokeMethod(this, "handleSourceChanged", Qt::QueuedConnection);
+    }
+
+public slots:
+    void handleSourceChanged() {
+        QDeclarativeView::setSource(url);
+    }
+
+    void handleStatusChanged(QDeclarativeView::Status status) {
+        if (status == QDeclarativeView::Ready) {
+            activateWindow();
+        }
+    }
+
+private:
+    QUrl url;
+};
+
 class QMLUtils : public QObject
 {
     Q_OBJECT
@@ -309,7 +338,6 @@ bool FrontendPrivate::setSkin(const QString &name)
         qWarning() << "Can't read" << newSkin->name();
         return false;
     }
-    q->show();
     return true;
 }
 
@@ -335,7 +363,7 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
         QSGView *declarativeWidget = new QSGView;
         declarativeWidget->setResizeMode(QSGView::SizeRootObjectToView);
 #else
-        QDeclarativeView *declarativeWidget = new QDeclarativeView;
+        DeclarativeView *declarativeWidget = new DeclarativeView;
         declarativeWidget->setAutoFillBackground(false);
         declarativeWidget->setAttribute(Qt::WA_OpaquePaintEvent);
         declarativeWidget->setAttribute(Qt::WA_NoSystemBackground);
@@ -418,6 +446,11 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
         connect(skinWidget, SIGNAL(grow()), this, SLOT(grow()));
         connect(skinWidget, SIGNAL(shrink()), this, SLOT(shrink()));
         connect(skinWidget, SIGNAL(toggleFullScreen()), this, SLOT(toggleFullScreen()));
+        //FIXME?: item should have correct geometry
+        //on QML parsing: work around several issues
+        //Ovi maps inability to resize
+        q->show();
+        QApplication::processEvents();
 
         rootContext = declarativeWidget->rootContext();
         declarativeWidget->setSource(targetUrl);
