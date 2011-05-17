@@ -248,6 +248,8 @@ FrontendPrivate::FrontendPrivate(Frontend *p)
       rootContext(0),
       q(p)
 {
+    QPixmapCache::setCacheLimit(Config::value("cacheSize",100*1024));
+
     qApp->setOverrideCursor(Qt::BlankCursor);
     qApp->installTranslator(&frontEndTranslator);
     QMetaObject::invokeMethod(this, "initialize", Qt::QueuedConnection);
@@ -356,6 +358,8 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
         delete skinWidget;
         skinWidget = 0;
     }
+
+    QPixmapCache::clear();
 
     if (targetUrl.path().right(3) == "qml")
     {
