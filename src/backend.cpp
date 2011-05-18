@@ -148,7 +148,10 @@ BackendPrivate::BackendPrivate(Backend *p)
       thumbnailPath(Config::value("thumbnail-path", QDir::homePath() + "/.thumbnails/" + qApp->applicationName() + "/")),
       inputIdleTimer(this),
       backendTranslator(0),
-      logFile(qApp->applicationName().append(".log")),
+      logFile(QDesktopServices::storageLocation(QDesktopServices::TempLocation)
+          .append("/")
+          .append(qApp->applicationName())
+          .append(".log")),
       systray(0),
       targetsModel(0),
           q(p)
@@ -456,7 +459,7 @@ void BackendPrivate::initializeMedia()
         return;
     }
 
-    static const QString DATABASE_NAME("media.db");
+    static const QString DATABASE_NAME(QDesktopServices::storageLocation(QDesktopServices::DataLocation).append(".db"));
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
     db.setDatabaseName(DATABASE_NAME);
 
