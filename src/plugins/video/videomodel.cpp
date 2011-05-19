@@ -193,6 +193,7 @@ bool VideoModel::movieLessThan(VideoModel::Node *n1, VideoModel::Node *n2)
 void VideoModel::handleDataReady(DbReader *reader, const QList<QSqlRecord> &records, void *node)
 {
     Q_ASSERT(reader == m_reader);
+    Q_UNUSED(reader)
     DEBUG << "Received response from db of size " << records.size();
 
     QList<Node *> newChildren;
