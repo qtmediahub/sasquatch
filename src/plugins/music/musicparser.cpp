@@ -11,7 +11,9 @@ bool MusicParser::canRead(const QFileInfo &info) const
             = QStringList() << "mp3"
                             << "aac"
                             << "mp4"
-                            << "m4a";
+                            << "m4a"
+                            << "ogg"
+                            << "flac";
 
     return extensions.contains(info.suffix());
 }
