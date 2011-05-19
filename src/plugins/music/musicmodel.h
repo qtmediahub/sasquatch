@@ -74,6 +74,8 @@ public:
         // Album nodes
         QString artist;
 
+        QString album;
+
         bool loaded, loading; // ## Make this enum
         bool hasThumbnail;
 
