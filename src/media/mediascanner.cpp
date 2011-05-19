@@ -3,6 +3,7 @@
 #include "scopedtransaction.h"
 #include "mediaparser.h"
 #include "backend.h"
+#include "qmh-config.h"
 
 #define DEBUG if (0) qDebug() << __PRETTY_FUNCTION__
 
@@ -108,7 +109,7 @@ void MediaScanner::scan(MediaParser *parser, const QString &path)
                 break;
         }
 
-        usleep(750); // deliberately slow things down, because otherwise the disk gets thrashed and the ui becomes laggy
+        usleep(Config::value("scanning-padding", 0)); // option to slow things down, because otherwise the disk gets thrashed and the ui becomes laggy
         // ## remove the files from the db in the fileInfosInDb hash now?
     }
 
