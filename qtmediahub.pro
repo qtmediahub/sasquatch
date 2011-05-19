@@ -24,8 +24,8 @@ linux* {
     message(Use CONFIG+=<option> to enable and CONFIG-=<option> to disable)
     message(gstreamer* - Thumbnail videos using gstreamer)
     message(avahi* - Enabled Avahi support)
-    message(glviewport* - Rener using a GL Viewport)
-    message(glgs - Render using GL graphics system)
+    message(glviewport* - Render using a GL Viewport)
+    message(glgs - Render using GL graphics system (Avoid like the plague!))
 }
 
 # due to wrong deploysteps in creator for symbian,
