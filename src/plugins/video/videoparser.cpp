@@ -22,29 +22,6 @@ bool VideoParser::canRead(const QFileInfo &info) const
     return supportedTypes.contains(info.suffix());
 }
 
-static QByteArray generateThumbnailMplayerProcess(const QFileInfo &fileInfo)
-{
-    QFile file("/tmp/00000001.png");
-    if (file.exists())
-        file.remove();
-
-    QString program = "mplayer";
-    QStringList arguments;
-    arguments << "-ss" << "60";
-    arguments << "-nosound";
-    arguments << "-vo" << "png";
-    arguments << "-frames" << "1";
-    arguments << fileInfo.absoluteFilePath();
-
-    QProcess process;
-    process.setWorkingDirectory("/tmp");
-    process.start(program, arguments);
-    process.waitForFinished();
-
-    file.open(QFile::ReadOnly);
-    return file.readAll();
-}
-
 #ifdef THUMBNAIL_GSTREAMER
 
 #include <gst/gst.h>
@@ -155,7 +132,7 @@ static QByteArray generateThumbnail(const QFileInfo &fileInfo)
 #ifdef THUMBNAIL_GSTREAMER
     return generateThumbnailGstreamer(fileInfo);
 #else
-    return generateThumbnailMplayerProcess(fileInfo);
+    return QByteArray();
 #endif
 }
 
