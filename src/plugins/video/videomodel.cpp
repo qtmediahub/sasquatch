@@ -301,7 +301,7 @@ void VideoModel::handleDatabaseUpdated(const QSqlRecord &record)
 void VideoModel::updateMovie(const QSqlRecord &record, Node *parentNode)
 {
     const int id = record.value("id").toInt();
-    qDebug() << "Updating a movie node with id " << id;
+    DEBUG << "Updating a movie node with id " << id;
     const QString text = record.value("title").toString();
     Node *movieNode = parentNode->childIds.value(id); 
     if (movieNode) {
