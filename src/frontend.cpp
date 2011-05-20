@@ -253,6 +253,8 @@ FrontendPrivate::FrontendPrivate(Frontend *p)
     qApp->setOverrideCursor(Qt::BlankCursor);
     qApp->installTranslator(&frontEndTranslator);
     QMetaObject::invokeMethod(this, "initialize", Qt::QueuedConnection);
+
+    qRegisterMetaType<QModelIndex>();
 }
 
 FrontendPrivate::~FrontendPrivate()
