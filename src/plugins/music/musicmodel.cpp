@@ -22,10 +22,10 @@ static QSqlQuery readSongsQuery(const QString &lastTitle, const QStringList &ign
         // This query will result in duplicates because of >=. But it's necessary to ensure that we retreive all songs with the same
         // title and we were split up midway.
         // If you change the query here, change the scanner code also
-        query.prepare(QString("SELECT id, filepath, title, album, artist, thumbnail FROM music WHERE title >= :title AND id NOT IN (%1) ORDER BY title LIMIT :limit").arg(ignoreIds.join(",")));
+        query.prepare(QString("SELECT id, filepath, title, album, thumbnail FROM music WHERE title >= :title AND id NOT IN (%1) ORDER BY title LIMIT :limit").arg(ignoreIds.join(",")));
         query.bindValue(":title", lastTitle);
     } else {
-        query.prepare("SELECT id, filepath, title, album, artist, thumbnail FROM music ORDER BY title LIMIT :limit");
+        query.prepare("SELECT id, filepath, title, album, thumbnail FROM music ORDER BY title LIMIT :limit");
     }
     query.bindValue(":limit", LIMIT);
     return query;
@@ -134,7 +134,7 @@ QVariant MusicModel::data(const QModelIndex &index, int role) const
         if (node->type == Node::DotDot)
             return node->text;
         if (m_groupBy == NoGrouping)
-            return node->text + " (" + node->artist + ',' + node->album + ')';
+            return node->text + " (" + node->filePath + ')';
         else if (m_groupBy == GroupByAlbum)
             return node->text + " (" + node->artist + ")"; // ## cache this
         else
@@ -143,7 +143,7 @@ QVariant MusicModel::data(const QModelIndex &index, int role) const
         if (node->type == Node::ArtistNode)
             return QString("image://musicmodel/artist/%1").arg(node->artist);
         else if (node->type == Node::AlbumNode)
-            return QString("image://musicmodel/album/%1 %2").arg(node->album).arg(node->artist);
+            return QString("image://musicmodel/album/%1 %2").arg(node->text).arg(node->artist);
         else if (node->type == Node::SongNode) {
             if (!node->hasThumbnail)
                 return QVariant();
@@ -316,19 +316,16 @@ void MusicModel::handleDataReady(DbReader *reader, const QList<QSqlRecord> &reco
             node = new Node(loadingNode, Node::SongNode);
             node->id = id;
             node->text = records[i].value("title").toString();
-            node->album = records[i].value("album").toString();
-            node->artist = records[i].value("artist").toString();
+            node->filePath = records[i].value("filepath").toString();
             node->hasThumbnail = !records[i].value("thumbnail").toByteArray().isEmpty();
             node->loaded = true;
         } else if (m_groupBy == GroupByAlbum || loadingNode->type == Node::ArtistNode) {
             node = new Node(loadingNode, Node::AlbumNode);
             node->text = records[i].value("album").toString();
             node->artist = records[i].value("artist").toString();
-            node->album = records[i].value("album").toString();
         } else { // GroupByArtist
             node = new Node(loadingNode, Node::ArtistNode);
             node->text = records[i].value("artist").toString();
-            node->artist = records[i].value("artist").toString();
         }
 
         if (loadingSong)
