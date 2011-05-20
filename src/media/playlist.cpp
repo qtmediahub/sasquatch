@@ -69,11 +69,11 @@ int Playlist::rowCount(const QModelIndex &parent) const
     return content.count();
 }
 
-QModelIndex Playlist::add(const QModelIndex &index, PlaylistRoles role, DepthRoles depth)
+QVariant Playlist::add(const QModelIndex &index, PlaylistRoles role, DepthRoles depth)
 {
     if (!index.isValid()) {
         DEBUG << "index is not valid, epic fail";
-        return QModelIndex(); // we don't have a model() to work with
+        return QVariant(); // we don't have a model() to work with
     }
 
     if (role == Playlist::Replace && rowCount() > 0) {
@@ -103,7 +103,7 @@ QModelIndex Playlist::add(const QModelIndex &index, PlaylistRoles role, DepthRol
 
     DEBUG << "Playlist now has " << rowCount() << " items";
 
-    return createIndex(pos, 0);
+    return qVariantFromValue(createIndex(pos, 0));
 }
 
 QModelIndex Playlist::index(int row) const
