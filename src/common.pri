@@ -12,6 +12,11 @@ linux* {
     CONFIG += gstreamer avahi glviewport
 }
 
+# default options
+mac* {
+    CONFIG += glviewport
+}
+
 glgs {
     CONFIG += gl
     DEFINES += GLGS

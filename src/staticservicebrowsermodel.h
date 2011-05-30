@@ -30,7 +30,7 @@ class StaticServiceBrowserModel : public QAbstractListModel
     Q_PROPERTY(bool editable READ editable CONSTANT)
 
 public:
-    StaticServiceBrowserModel(QWidget *parent = 0);
+    StaticServiceBrowserModel(QObject *parent = 0);
     ~StaticServiceBrowserModel();
 
     enum CustomRoles {

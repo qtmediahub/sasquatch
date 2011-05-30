@@ -20,7 +20,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "staticservicebrowsermodel.h"
 #include <QtGui>
 
-StaticServiceBrowserModel::StaticServiceBrowserModel(QWidget *parent)
+StaticServiceBrowserModel::StaticServiceBrowserModel(QObject *parent)
     : QAbstractListModel(parent), m_initing(true)
 {
     QHash<int, QByteArray> roleNames = QAbstractListModel::roleNames();
