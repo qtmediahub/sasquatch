@@ -31,5 +31,7 @@ Mobility project.
 3) ./configure -prefix $sameAsQtPrefix -modules "multimedia" -foo ........
 4) make (&& make install)
 
+Note: Take care, that the /bin directory (for qmake) of your Qt installation is part of your search path.
+
 Certain plugins also make use of the "location" and "systeminfo" modules,
 but these are optional dependencies
