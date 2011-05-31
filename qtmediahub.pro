@@ -30,4 +30,6 @@ linux* {
 
 # due to wrong deploysteps in creator for symbian,
 # comment SUBDIRS below out
-SUBDIRS += src
+SUBDIRS += \
+           src/3rdparty/qml1-shadersplugin/src \
+           src
