@@ -327,9 +327,10 @@ void Backend::loadEngines(const QStringList &whiteList, const QStringList &black
 {
     QStringList loaded;
     foreach(const QString &fileName, QDir(d->pluginPath).entryList(QDir::Files)) {
-        if (!fileName.startsWith("lib") || !fileName.endsWith(".so"))
+        if (!(fileName.startsWith("lib") && (fileName.endsWith(".so") || fileName.endsWith(".dylib"))))
             continue;
-        QString engineName = fileName.mid(3, fileName.length() - 6);
+        int extensionIndex = fileName.lastIndexOf(".");
+        QString engineName = fileName.mid(3, extensionIndex - 3);
         if (d->engines.contains(engineName))
             continue; // already loaded
         if (!whiteList.isEmpty()) {
