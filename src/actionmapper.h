@@ -24,8 +24,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QtDeclarative>
 #include <QDebug>
 
-//#include "frontend.h"
-
 class ActionMapper : public QObject
 {
     Q_OBJECT
