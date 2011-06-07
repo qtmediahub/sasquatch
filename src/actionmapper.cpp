@@ -93,3 +93,33 @@ bool ActionMapper::loadMapFromDisk(const QString &mapFilePath)
 
     return true;
 }
+
+bool ActionMapper::eventMatch(QKeyEvent *event, Action action)
+{
+    if  (keyHash.contains(action)
+         && keyHash[action].indexOf(event->key()) != -1)
+        event->accept();
+    return event->isAccepted();
+}
+
+//QDeclarativeKeyEvent is private
+//A kiss is not a contract!
+bool ActionMapper::eventMatch(QObject *event, Action action)
+{
+    QKeyEvent fragile(QEvent::KeyPress, event->property("key").toInt(), static_cast<Qt::KeyboardModifiers>(event->property("modifiers").toInt()));
+    fragile.setAccepted(false);
+    bool accepted = eventMatch(&fragile, action);
+    event->setProperty("accepted", accepted);
+    return accepted;
+}
+
+void ActionMapper::setMap(const QString &map)
+{
+    mapName = map; populateMap();
+}
+
+QStringList ActionMapper::availableMaps() const
+{
+    return maps;
+}
+

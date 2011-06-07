@@ -32,28 +32,17 @@ class ActionMapper : public QObject
     Q_ENUMS(Action)
     Q_PROPERTY(QString map READ map WRITE setMap)
 public:
-    ActionMapper(QObject *p = qApp);
     enum Action { Left, Up, Right, Down, Enter, Menu, Context, ContextualUp, ContextualDown, MediaPlayPause, MediaStop, MediaPrevious, MediaNext, Back };
-    bool eventMatch(QKeyEvent *event, Action action) {
-        if  (keyHash.contains(action)
-             && keyHash[action].indexOf(event->key()) != -1)
-            event->accept();
-        return event->isAccepted();
-    }
-    //QDeclarativeKeyEvent is private
-    //A kiss is not a contract!
-    Q_INVOKABLE bool eventMatch(QObject *event, Action action) {
-        QKeyEvent fragile(QEvent::KeyPress, event->property("key").toInt(), static_cast<Qt::KeyboardModifiers>(event->property("modifiers").toInt()));
-        fragile.setAccepted(false);
-        bool accepted = eventMatch(&fragile, action);
-        event->setProperty("accepted", accepted);
-        return accepted;
-    }
 
-    Q_INVOKABLE QStringList availableMaps() const { return maps; }
+    ActionMapper(QObject *p = qApp);
+
+    bool eventMatch(QKeyEvent *event, Action action);
+    Q_INVOKABLE bool eventMatch(QObject *event, Action action);
+
+    Q_INVOKABLE QStringList availableMaps() const;
 
     QString map() const { return mapName; }
-    void setMap(const QString &map) { mapName = map; populateMap(); }
+    void setMap(const QString &map);
 
 public slots:
     void takeAction(int action) { takeAction(static_cast<Action>(action)); }
