@@ -54,7 +54,7 @@ public:
 
     Q_INVOKABLE QStringList availableMaps() const;
 
-    QString map() const { return mapName; }
+    QString map() const { return m_mapName; }
     void setMap(const QString &map);
 
 public slots:
@@ -63,13 +63,13 @@ public slots:
 
 private:
     bool loadMapFromDisk(const QString &mapFilePath);
-
-    QObject *parent;
-    QString mapName;
-    QString mapPath;
-    QStringList maps;
     void populateMap();
-    QHash< Action, QList<int> > keyHash;
+
+    QObject *m_parent;
+    QString m_mapName;
+    QString m_mapPath;
+    QStringList m_maps;
+    QHash< Action, QList<int> > m_keyHash;
 };
 
 QML_DECLARE_TYPE(ActionMapper)

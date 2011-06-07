@@ -172,6 +172,7 @@ void WidgetWrapper::paintEvent(QPaintEvent *e)
 
 void WidgetWrapper::resizeEvent(QResizeEvent *e)
 {
+    Q_UNUSED(e);
     static int staggerResizingDelay = Config::value("resizeDelay", 0);
     resizeSettleTimer.start(staggerResizingDelay);
 }

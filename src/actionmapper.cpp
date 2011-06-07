@@ -26,32 +26,32 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 ActionMapper::ActionMapper(QObject *p)
     : QObject(p),
-      parent(p),
-      mapPath(Backend::instance()->basePath() + "/devices/keymaps/")
+      m_parent(p),
+      m_mapPath(Backend::instance()->basePath() + "/devices/keymaps/")
 {
     setObjectName("qmhrpc");
 
-    maps = QDir(mapPath).entryList(QDir::Files);
-    qDebug() << "Available keyboard maps" << maps;
+    m_maps = QDir(m_mapPath).entryList(QDir::Files);
+    qDebug() << "Available keyboard maps" << m_maps;
 
-    mapName = Config::value("keymap", "stdkeyboard").toString();
+    m_mapName = Config::value("keymap", "stdkeyboard").toString();
     populateMap();
 }
 
 void ActionMapper::takeAction(Action action)
 {
-    if (!keyHash.contains(action))
+    if (!m_keyHash.contains(action))
         return;
-    QKeyEvent keyPress(QEvent::KeyPress, keyHash[action].at(0), Qt::NoModifier);
-    qApp->sendEvent(parent, &keyPress);
-    QKeyEvent keyRelease(QEvent::KeyRelease, keyHash[action].at(0), Qt::NoModifier);
-    qApp->sendEvent(parent, &keyRelease);
+    QKeyEvent keyPress(QEvent::KeyPress, m_keyHash[action].at(0), Qt::NoModifier);
+    qApp->sendEvent(m_parent, &keyPress);
+    QKeyEvent keyRelease(QEvent::KeyRelease, m_keyHash[action].at(0), Qt::NoModifier);
+    qApp->sendEvent(m_parent, &keyRelease);
 }
 
 void ActionMapper::populateMap()
 {
-    keyHash.clear();
-    loadMapFromDisk(mapPath + mapName);
+    m_keyHash.clear();
+    loadMapFromDisk(m_mapPath + m_mapName);
 }
 
 bool ActionMapper::loadMapFromDisk(const QString &mapFilePath)
@@ -85,10 +85,10 @@ bool ActionMapper::loadMapFromDisk(const QString &mapFilePath)
         if (index == -1)
             qWarning() << "\tMapped action is not defined in ActionMapper, skipping: " << mapping[0];
         else
-            keyHash[static_cast<Action>(index)] = keys;
+            m_keyHash[static_cast<Action>(index)] = keys;
     }
 
-    if (actionEnum.keyCount() != keyHash.size())
+    if (actionEnum.keyCount() != m_keyHash.size())
         qWarning("\tCertain actions have not been mapped");
 
     return true;
@@ -96,8 +96,7 @@ bool ActionMapper::loadMapFromDisk(const QString &mapFilePath)
 
 bool ActionMapper::eventMatch(QKeyEvent *event, Action action)
 {
-    if  (keyHash.contains(action)
-         && keyHash[action].indexOf(event->key()) != -1)
+    if  (m_keyHash.contains(action) && m_keyHash[action].indexOf(event->key()) != -1)
         event->accept();
     return event->isAccepted();
 }
@@ -115,11 +114,12 @@ bool ActionMapper::eventMatch(QObject *event, Action action)
 
 void ActionMapper::setMap(const QString &map)
 {
-    mapName = map; populateMap();
+    m_mapName = map; 
+    populateMap();
 }
 
 QStringList ActionMapper::availableMaps() const
 {
-    return maps;
+    return m_maps;
 }
 
