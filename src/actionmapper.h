@@ -47,7 +47,7 @@ public:
         Back
     };
 
-    ActionMapper(QObject *p = qApp);
+    ActionMapper(QObject *p);
 
     bool eventMatch(QKeyEvent *event, Action action);
     Q_INVOKABLE bool eventMatch(QObject *event, Action action);
