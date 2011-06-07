@@ -51,7 +51,6 @@ void ActionMapper::takeAction(Action action)
 void ActionMapper::populateMap()
 {
     keyHash.clear();
-
     loadMapFromDisk(mapPath + mapName);
 }
 
@@ -65,36 +64,32 @@ bool ActionMapper::loadMapFromDisk(const QString &mapFilePath)
     QMetaEnum keyEnum = staticQtMetaObject.enumerator(enumIndex);
 
     QFile mapFile(mapFilePath);
-    if (mapFile.exists()
-        && mapFile.open(QIODevice::ReadOnly))
-    {
-        QTextStream mapStream(&mapFile);
-        while(!mapStream.atEnd())
-        {
-            QStringList mapping = mapStream.readLine().split("=");
-            QStringList keyStrings = mapping.at(1).split(",");
-            QList<int> keys;
-            foreach(const QString &key, keyStrings)
-            {
-                int keyIndex = keyEnum.keyToValue(QString("Key_").append(key).toAscii().constData());
-                if(keyIndex == -1)
-                    qWarning() << "\tQt Key does not exist: Key_" << key;
-                else
-                    keys << keyIndex;
-            }
-            int index =
-                actionEnum.keyToValue(mapping[0].toAscii().constData());
-            if (index == -1)
-                qWarning() << "\tMapped action is not defined in ActionMapper, skipping: " << mapping[0];
-            else
-                keyHash[static_cast<Action>(index)] = keys;
-        }
-        if(actionEnum.keyCount() != keyHash.size())
-            qWarning("\tCertain actions have not been mapped");
-    } else {
+    if (!mapFile.exists() || !mapFile.open(QIODevice::ReadOnly)) {
         qWarning() << "Could not load keymap: " << mapFilePath;
         return false;
     }
+
+    QTextStream mapStream(&mapFile);
+    while (!mapStream.atEnd()) {
+        QStringList mapping = mapStream.readLine().split("=");
+        QStringList keyStrings = mapping.at(1).split(",");
+        QList<int> keys;
+        foreach(const QString &key, keyStrings) {
+            int keyIndex = keyEnum.keyToValue(QString("Key_").append(key).toAscii().constData());
+            if (keyIndex == -1)
+                qWarning() << "\tQt Key does not exist: Key_" << key;
+            else
+                keys << keyIndex;
+        }
+        int index = actionEnum.keyToValue(mapping[0].toAscii().constData());
+        if (index == -1)
+            qWarning() << "\tMapped action is not defined in ActionMapper, skipping: " << mapping[0];
+        else
+            keyHash[static_cast<Action>(index)] = keys;
+    }
+
+    if (actionEnum.keyCount() != keyHash.size())
+        qWarning("\tCertain actions have not been mapped");
 
     return true;
 }
