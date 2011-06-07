@@ -32,7 +32,22 @@ class ActionMapper : public QObject
     Q_ENUMS(Action)
     Q_PROPERTY(QString map READ map WRITE setMap)
 public:
-    enum Action { Left, Up, Right, Down, Enter, Menu, Context, ContextualUp, ContextualDown, MediaPlayPause, MediaStop, MediaPrevious, MediaNext, Back };
+    enum Action {
+        Left,
+        Up,
+        Right,
+        Down,
+        Enter,
+        Menu,
+        Context,
+        ContextualUp,
+        ContextualDown,
+        MediaPlayPause,
+        MediaStop,
+        MediaPrevious,
+        MediaNext,
+        Back
+    };
 
     ActionMapper(QObject *p = qApp);
 
