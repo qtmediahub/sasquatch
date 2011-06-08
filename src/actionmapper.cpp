@@ -40,17 +40,22 @@ ActionMapper::ActionMapper(QObject *p)
 
 void ActionMapper::takeAction(Action action)
 {
-    if (!m_keyHash.contains(action))
+    QHash<int, Action>::const_iterator it;
+    for (it = m_actionMap.constBegin(); it != m_actionMap.constEnd(); ++it) {
+        if (it.value() == action)
+            break;
+    }
+    if (it == m_actionMap.constEnd())
         return;
-    QKeyEvent keyPress(QEvent::KeyPress, m_keyHash[action].at(0), Qt::NoModifier);
+    QKeyEvent keyPress(QEvent::KeyPress, it.key(), Qt::NoModifier);
     qApp->sendEvent(m_parent, &keyPress);
-    QKeyEvent keyRelease(QEvent::KeyRelease, m_keyHash[action].at(0), Qt::NoModifier);
+    QKeyEvent keyRelease(QEvent::KeyRelease, it.key(), Qt::NoModifier);
     qApp->sendEvent(m_parent, &keyRelease);
 }
 
 void ActionMapper::populateMap()
 {
-    m_keyHash.clear();
+    m_actionMap.clear();
     loadMapFromDisk(m_mapPath + m_mapName);
 }
 
@@ -74,42 +79,30 @@ bool ActionMapper::loadMapFromDisk(const QString &mapFilePath)
         QStringList mapping = mapStream.readLine().split("=");
         QStringList keyStrings = mapping.at(1).split(",");
         QList<int> keys;
+
+        int index = actionEnum.keyToValue(mapping[0].toAscii().constData());
+        if (index == -1) {
+            qWarning() << "\tMapped action is not defined in ActionMapper, skipping: " << mapping[0];
+            continue;
+        }
+
         foreach(const QString &key, keyStrings) {
             int keyIndex = keyEnum.keyToValue(QString("Key_").append(key).toAscii().constData());
-            if (keyIndex == -1)
+            if (keyIndex == -1) {
                 qWarning() << "\tQt Key does not exist: Key_" << key;
-            else
-                keys << keyIndex;
+                continue;
+            }
+            m_actionMap[keyIndex] = static_cast<Action>(index);
         }
-        int index = actionEnum.keyToValue(mapping[0].toAscii().constData());
-        if (index == -1)
-            qWarning() << "\tMapped action is not defined in ActionMapper, skipping: " << mapping[0];
-        else
-            m_keyHash[static_cast<Action>(index)] = keys;
     }
-
-    if (actionEnum.keyCount() != m_keyHash.size())
-        qWarning("\tCertain actions have not been mapped");
 
     return true;
 }
 
-bool ActionMapper::eventMatch(QKeyEvent *event, Action action)
+int ActionMapper::mapKeyEventToAction(QObject *event)
 {
-    if  (m_keyHash.contains(action) && m_keyHash[action].indexOf(event->key()) != -1)
-        event->accept();
-    return event->isAccepted();
-}
-
-//QDeclarativeKeyEvent is private
-//A kiss is not a contract!
-bool ActionMapper::eventMatch(QObject *event, Action action)
-{
-    QKeyEvent fragile(QEvent::KeyPress, event->property("key").toInt(), static_cast<Qt::KeyboardModifiers>(event->property("modifiers").toInt()));
-    fragile.setAccepted(false);
-    bool accepted = eventMatch(&fragile, action);
-    event->setProperty("accepted", accepted);
-    return accepted;
+    const int key = event->property("key").toInt();
+    return m_actionMap.value(key);
 }
 
 void ActionMapper::setMap(const QString &map)

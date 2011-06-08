@@ -31,6 +31,7 @@ class ActionMapper : public QObject
     Q_PROPERTY(QString map READ map WRITE setMap)
 public:
     enum Action {
+        Null,
         Left,
         Up,
         Right,
@@ -49,8 +50,7 @@ public:
 
     ActionMapper(QObject *p);
 
-    bool eventMatch(QKeyEvent *event, Action action);
-    Q_INVOKABLE bool eventMatch(QObject *event, Action action);
+    Q_INVOKABLE int mapKeyEventToAction(QObject *event);
 
     Q_INVOKABLE QStringList availableMaps() const;
 
@@ -69,7 +69,7 @@ private:
     QString m_mapName;
     QString m_mapPath;
     QStringList m_maps;
-    QHash< Action, QList<int> > m_keyHash;
+    QHash<int, Action> m_actionMap;
 };
 
 QML_DECLARE_TYPE(ActionMapper)
