@@ -227,7 +227,7 @@ public:
 
     QTranslator frontEndTranslator;
     Skin *skin;
-    ActionMapper *actionMap;
+    ActionMapper *actionMapper;
     MediaPlayerRpc *mediaPlayerRpc;
     Trackpad *trackpad;
     QWidget *skinWidget;
@@ -242,7 +242,7 @@ FrontendPrivate::FrontendPrivate(Frontend *p)
       defaultGeometry(0, 0, 1080, 720),
       overscanWorkAround(Config::isEnabled("overscan", false)),
       attemptingFullScreen(Config::isEnabled("fullscreen", true)),
-      actionMap(0),
+      actionMapper(0),
       mediaPlayerRpc(0),
       trackpad(0),
       skinWidget(0),
@@ -413,18 +413,18 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
         qmlRegisterType<RpcConnection>("RpcConnection", 1, 0, "RpcConnection");
         qmlRegisterUncreatableType<Media>("Media", 1, 0, "Media", "Only enums here, move on");
 
-        actionMap = new ActionMapper(declarativeWidget);
+        actionMapper = new ActionMapper(declarativeWidget);
         mediaPlayerRpc = new MediaPlayerRpc(declarativeWidget);
         trackpad = new Trackpad(declarativeWidget);
 
         RpcConnection *connection = new RpcConnection(RpcConnection::Server, QHostAddress::Any, 1234, declarativeWidget);
-        connection->registerObject(actionMap);
+        connection->registerObject(actionMapper);
         connection->registerObject(mediaPlayerRpc);
         connection->registerObject(trackpad);
 
         // attach global context properties
         runtime = new QDeclarativePropertyMap(declarativeWidget);
-        runtime->insert("actionmap", qVariantFromValue(static_cast<QObject *>(actionMap)));
+        runtime->insert("actionMapper", qVariantFromValue(static_cast<QObject *>(actionMapper)));
         runtime->insert("mediaPlayerRpc", qVariantFromValue(static_cast<QObject *>(mediaPlayerRpc)));
         runtime->insert("trackpad", qVariantFromValue(static_cast<QObject *>(trackpad)));
         runtime->insert("frontend", qVariantFromValue(static_cast<QObject *>(q)));
