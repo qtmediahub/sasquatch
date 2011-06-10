@@ -460,7 +460,9 @@ void BackendPrivate::initializeMedia()
         return;
     }
 
-    static const QString DATABASE_NAME(QDesktopServices::storageLocation(QDesktopServices::DataLocation).append(".db"));
+    const QString DATABASE_NAME(QDesktopServices::storageLocation(QDesktopServices::DataLocation).append("/media.db"));
+    QDir dir;
+    dir.mkpath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
     db.setDatabaseName(DATABASE_NAME);
 
