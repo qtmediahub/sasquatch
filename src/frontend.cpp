@@ -249,7 +249,7 @@ FrontendPrivate::FrontendPrivate(Frontend *p)
       rootContext(0),
       q(p)
 {
-    QPixmapCache::setCacheLimit(Config::value("cacheSize",100)*1024);
+    QPixmapCache::setCacheLimit(Config::value("cacheSize", 0)*1024);
 
     qApp->setOverrideCursor(Qt::BlankCursor);
     qApp->installTranslator(&frontEndTranslator);
