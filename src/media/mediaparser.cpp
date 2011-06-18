@@ -1,5 +1,4 @@
 #include "mediaparser.h"
-#include "tagreader.h"
 #include "scopedtransaction.h"
 #include <QtSql>
 

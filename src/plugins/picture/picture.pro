@@ -7,9 +7,11 @@ include($$PROJECTROOT/src/media/media.pri)
 
 HEADERS += pictureplugin.h \
            picturemodel.h \
-           pictureparser.h
+           pictureparser.h \
+           exifreader.h
 
 SOURCES += pictureplugin.cpp \
            picturemodel.cpp \
-           pictureparser.cpp
+           pictureparser.cpp \
+           exifreader.cpp
 
