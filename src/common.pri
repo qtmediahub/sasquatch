@@ -9,11 +9,11 @@ MOC_DIR = $$TEMP_DIR/.moc
 
 # default options
 linux* {
-    CONFIG += gstreamer avahi glviewport
+    CONFIG += gstreamer avahi
 }
 
 # default options
-mac* {
+{
     CONFIG += glviewport
 }
 

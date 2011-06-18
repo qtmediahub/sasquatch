@@ -1,3 +1,5 @@
+include(src/common.pri)
+
 CONFIG += ordered
 
 TEMPLATE = subdirs
@@ -31,5 +33,8 @@ linux* {
 # due to wrong deploysteps in creator for symbian,
 # comment SUBDIRS below out
 SUBDIRS += \
-           src/3rdparty/qml1-shadersplugin/src \
            src
+
+glviewport {
+    SUBDIRS += src/3rdparty/qml1-shadersplugin/src
+}
