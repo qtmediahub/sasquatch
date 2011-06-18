@@ -302,7 +302,7 @@ void PictureModel::handleDatabaseUpdated(const QSqlRecord &record)
 void PictureModel::updatePhoto(const QSqlRecord &record, Node *parentNode)
 {
     const int id = record.value("id").toInt();
-    qDebug() << "Updating a photo node with id " << id;
+    DEBUG << "Updating a photo node with id " << id;
     const QString text = record.value("title").toString();
     Node *photoNode = parentNode->childIds.value(id); 
     if (photoNode) {
