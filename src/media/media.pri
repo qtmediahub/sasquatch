@@ -1,8 +1,6 @@
 SRCDIR=$$PROJECTROOT/src
 message($$SRCDIR)
 
-INCLUDEPATH += $$SRCDIR/3rdparty/
-
 HEADERS += $$PWD/mediascanner.h \
            $$PWD/mediaparser.h \
            $$PWD/media.h \

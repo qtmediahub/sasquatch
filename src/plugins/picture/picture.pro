@@ -5,6 +5,16 @@
 include($$PROJECTROOT/src/plugins/plugins.pri)
 include($$PROJECTROOT/src/media/media.pri)
 
+unix: system(pkg-config --exists libexif) {
+    CONFIG += link_pkgconfig
+    PKGCONFIG += libexif
+    message(Use system libexif)
+} else {
+    include(../../3rdparty/libexif/libexif.pri)
+    INCLUDEPATH += ../../3rdparty/libexif
+    message(Use libexif from 3rdparty)
+}
+
 HEADERS += pictureplugin.h \
            picturemodel.h \
            pictureparser.h \
