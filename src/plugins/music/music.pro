@@ -3,9 +3,16 @@
 ######################################################################
 
 include(../plugins.pri)
-include(../../3rdparty/taglib/taglib.pri)
 
-INCLUDEPATH += ../../3rdparty/taglib/ ../../3rdparty/
+unix: system(pkg-config --exists taglib) {
+    CONFIG += link_pkgconfig
+    PKGCONFIG += taglib
+    message(Use system taglib)
+} else {
+    include(../../3rdparty/taglib/taglib.pri)
+    INCLUDEPATH += ../../3rdparty/taglib ../../3rdparty/taglib/mpeg ../../3rdparty/taglib/id3v2/ ../../3rdparty/taglib/id3v2/frames/
+    message(Use taglib from 3rdparty)
+}
 
 QT += sql
 
@@ -18,4 +25,5 @@ SOURCES += musicplugin.cpp \
            musicmodel.cpp \
            musicparser.cpp \
            tagreader.cpp
+
 
