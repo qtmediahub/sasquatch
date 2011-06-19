@@ -74,7 +74,7 @@ QVariant PictureModel::data(const QModelIndex &index, int role) const
 
     switch (role) {
     case Qt::DisplayRole: 
-        return node->text + " (" + node->filePath + ')';
+        return node->text;
     case Media::PreviewUrlRole: 
         if (!node->hasThumbnail)
             return QVariant();
