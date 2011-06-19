@@ -102,7 +102,9 @@ bool ActionMapper::loadMapFromDisk(const QString &mapFilePath)
 int ActionMapper::mapKeyEventToAction(QObject *event)
 {
     const int key = event->property("key").toInt();
-    return m_actionMap.value(key);
+    if (m_actionMap.contains(key))
+        return m_actionMap[key];
+    return Null;
 }
 
 void ActionMapper::setMap(const QString &map)
