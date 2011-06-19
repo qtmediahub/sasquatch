@@ -31,7 +31,7 @@ class ActionMapper : public QObject
     Q_PROPERTY(QString map READ map WRITE setMap)
 public:
     enum Action {
-        Null,
+        Null = -1,
         Left,
         Up,
         Right,
