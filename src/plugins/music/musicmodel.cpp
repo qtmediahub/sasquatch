@@ -131,14 +131,7 @@ QVariant MusicModel::data(const QModelIndex &index, int role) const
 
     switch (role) {
     case Qt::DisplayRole: 
-        if (node->type == Node::DotDot)
-            return node->text;
-        if (m_groupBy == NoGrouping)
-            return node->text + " (" + node->filePath + ')';
-        else if (m_groupBy == GroupByAlbum)
-            return node->text + " (" + node->artist + ")"; // ## cache this
-        else
-            return node->text;
+        return node->text;
     case Media::PreviewUrlRole: 
         if (node->type == Node::ArtistNode)
             return QString("image://musicmodel/artist/%1").arg(node->artist);
