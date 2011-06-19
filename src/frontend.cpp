@@ -464,12 +464,6 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
     }
 }
 
-void Frontend::initializePlugin(QMHPlugin *plugin)
-{
-    if (d->rootContext)
-        plugin->registerPlugin(d->rootContext);
-}
-
 void FrontendPrivate::resetLanguage()
 {
     Backend *backend = Backend::instance();
@@ -566,6 +560,12 @@ Frontend::~Frontend()
 {
     delete d;
     d = 0;
+}
+
+void Frontend::initializePlugin(QMHPlugin *plugin)
+{
+    if (d->rootContext)
+        plugin->registerPlugin(d->rootContext);
 }
 
 bool Frontend::transforms() const
