@@ -47,17 +47,15 @@ QVariant Playlist::data(const QModelIndex &index, int role) const
     if (!index.isValid())
         return rv;
 
-    if (0 <= index.row() && index.row() < content.size()) {
-        const PlaylistItem &info = content.at(index.row());
-        if (role == Qt::DisplayRole) {
-            return info.name;
-        } else if (role == Media::PreviewUrlRole) {
-            return info.previewUrl;
-        } else if (role == Media::FilePathRole) {
-            return info.filePath;
-        } else if (role == Media::ModelIndexRole) {
-            return qVariantFromValue(index);
-        }
+    const PlaylistItem &info = content.at(index.row());
+    if (role == Qt::DisplayRole) {
+        return info.name;
+    } else if (role == Media::PreviewUrlRole) {
+        return info.previewUrl;
+    } else if (role == Media::FilePathRole) {
+        return info.filePath;
+    } else if (role == Media::ModelIndexRole) {
+        return qVariantFromValue(index);
     }
 
     return rv;
