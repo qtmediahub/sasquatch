@@ -6,6 +6,7 @@ QHash<int, QByteArray> Media::roleNames()
     hash[FilePathRole] = "filePath";
     hash[PreviewUrlRole] = "previewUrl";
     hash[ModelIndexRole] = "modelIndex";
+    hash[TitleRole] = "title";
     return hash;
 }
 

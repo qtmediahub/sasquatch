@@ -13,7 +13,8 @@ public:
     enum StandardRoles {
         FilePathRole = Qt::UserRole + 1,
         PreviewUrlRole,
-        ModelIndexRole
+        ModelIndexRole,
+        TitleRole
     };
 
     static QHash<int, QByteArray> roleNames();

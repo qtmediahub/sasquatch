@@ -27,6 +27,7 @@ struct PlaylistItem
     QString name;
     QString filePath;
     QString previewUrl;
+    QString title;
 };
 
 class Playlist : public QAbstractListModel

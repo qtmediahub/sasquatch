@@ -48,7 +48,7 @@ QVariant Playlist::data(const QModelIndex &index, int role) const
         return rv;
 
     const PlaylistItem &info = content.at(index.row());
-    if (role == Qt::DisplayRole) {
+    if (role == Qt::DisplayRole || role == Media::TitleRole) {
         return info.name;
     } else if (role == Media::PreviewUrlRole) {
         return info.previewUrl;
@@ -155,6 +155,7 @@ void Playlist::appendItem(const QModelIndex  &index)
     item.name = index.data(Qt::DisplayRole).toString();
     item.filePath = index.data(Media::FilePathRole).toString();
     item.previewUrl = index.data(Media::PreviewUrlRole).toString();
+    item.title = index.data(Media::TitleRole).toString();
     content.append(item);
     emit endInsertRows();
 }
