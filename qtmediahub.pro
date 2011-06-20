@@ -36,5 +36,5 @@ SUBDIRS += \
            src
 
 glviewport {
-    SUBDIRS += src/3rdparty/qml1-shadersplugin/src
+    SUBDIRS += src/3rdparty/qml1-shadersplugin/src/qml1-shadersplugin.pro
 }
