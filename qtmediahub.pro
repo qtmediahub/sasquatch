@@ -30,6 +30,12 @@ linux* {
     message(glgs - Render using GL graphics system (Avoid like the plague!))
 }
 
+PKG_CONFIG_PATH=$$(PKG_CONFIG_PATH)
+isEmpty(PKG_CONFIG_PATH) {
+    message(pkg-config usage on mac requires:)
+    message(export PKG_CONFIG_PATH=/opt/local/lib/pkgconfig)
+}
+
 # due to wrong deploysteps in creator for symbian,
 # comment SUBDIRS below out
 SUBDIRS += \

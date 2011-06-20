@@ -35,7 +35,3 @@ Note: Take care, that the /bin directory (for qmake) of your Qt installation is 
 
 Certain plugins also make use of the "location" and "systeminfo" modules,
 but these are optional dependencies
-
-pkg-config usage on mac requires:
-
-export PKG_CONFIG_PATH=/opt/local/lib/pkgconfig
