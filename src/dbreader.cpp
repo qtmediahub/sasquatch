@@ -33,7 +33,8 @@ void DbReader::execute(const QSqlQuery &q, void *userData)
 {
     QSqlQuery query(q);
     query.setForwardOnly(true);
-    query.exec();
+    if (!query.exec())
+        qFatal("Error executing query: %s", qPrintable(query.lastQuery()));
 
     QList<QSqlRecord> data = readRecords(query);
     DEBUG << "Read " << data.count() << "records";
