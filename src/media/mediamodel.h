@@ -13,7 +13,6 @@ class DbReader;
 class MediaModel : public QAbstractItemModel
 {
     Q_OBJECT
-    Q_PROPERTY(int depth READ depth NOTIFY depthChanged)
     Q_PROPERTY(QString structure READ structure WRITE setStructure NOTIFY structureChanged)
     Q_PROPERTY(QString mediaType READ mediaType WRITE setMediaType NOTIFY mediaTypeChanged)
 
@@ -31,7 +30,6 @@ public:
     QString mediaType() const;
     void setMediaType(const QString &type);
 
-    int depth() const;
     Q_INVOKABLE void back();
     Q_INVOKABLE void enter(int index);
 
@@ -46,7 +44,6 @@ public:
     void fetchMore(const QModelIndex &parent);
 
 signals:
-    void depthChanged();
     void structureChanged();
     void mediaTypeChanged();
 
@@ -58,7 +55,6 @@ private:
     void initialize();
     QSqlQuery query();
 
-    int m_depth;
     QString m_structure;
     QList<QHash<QString, QVariant> > m_data;
     bool m_loading, m_loaded;

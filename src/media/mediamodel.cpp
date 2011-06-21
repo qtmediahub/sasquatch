@@ -6,7 +6,7 @@
 #define DEBUG if (1) qDebug() << __PRETTY_FUNCTION__
 
 MediaModel::MediaModel(QObject *parent)
-    : QAbstractItemModel(parent), m_depth(0), m_loading(false), m_loaded(false), m_reader(0), m_readerThread(0)
+    : QAbstractItemModel(parent), m_loading(false), m_loaded(false), m_reader(0), m_readerThread(0)
 {
 }
 
@@ -60,17 +60,11 @@ QString MediaModel::structure() const
 void MediaModel::setStructure(const QString &str)
 {
     m_structure = str;
-    m_depth = 0; // reset depth
     emit structureChanged();
 
     beginResetModel();
     initialize();
     endResetModel();
-}
-
-int MediaModel::depth() const
-{
-    return m_depth;
 }
 
 void MediaModel::enter(int index)
