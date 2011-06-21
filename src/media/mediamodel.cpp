@@ -77,6 +77,11 @@ void MediaModel::enter(int index)
 {
     Q_UNUSED(index);
 
+    if (m_cursor.count() + 1 == m_structure.split("|").count()) {
+        DEBUG << "Refusing to enter leaf node";
+        return;
+    }
+
     if (index == 0 && !m_cursor.isEmpty()) {
         back();
         return;
@@ -227,6 +232,7 @@ void MediaModel::handleDatabaseUpdated(const QList<QSqlRecord> &records)
     // not implemented yet
 }
 
+// ## BIG FAT FIXME: Fix the string escaping to prevent sql injection!
 QSqlQuery MediaModel::query()
 {
     QString q;
