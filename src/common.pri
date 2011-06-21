@@ -9,7 +9,8 @@ MOC_DIR = $$TEMP_DIR/.moc
 
 # default options
 linux* {
-    CONFIG += gstreamer avahi
+    CONFIG += gstreamer
+    !no-avahi: CONFIG += avahi
 }
 
 # default options
