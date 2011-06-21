@@ -130,7 +130,7 @@ bool ActionMapper::eventFilter(QObject *obj, QEvent *event)
             // directly send to the scene, to avoid loops
             QDeclarativeView *v = qobject_cast<QDeclarativeView*>(obj);
             if (v) {
-                QApplication::sendEvent(v->scene(), e);
+                QApplication::postEvent(v->scene(), e);
                 return true;
             }
         }
