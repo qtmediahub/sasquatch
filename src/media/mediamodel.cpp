@@ -25,7 +25,6 @@ void MediaModel::setMediaType(const QString &type)
     emit mediaTypeChanged();
 
     beginResetModel();
-    m_data.clear();
     initialize();
     endResetModel();
 
@@ -65,7 +64,6 @@ void MediaModel::setStructure(const QString &str)
     emit structureChanged();
 
     beginResetModel();
-    m_data.clear();
     initialize();
     endResetModel();
 }
@@ -79,12 +77,15 @@ void MediaModel::enter(int index)
 {
     Q_UNUSED(index);
 
+    DEBUG << "Entering " << index;
+
     m_cursor.append(m_data[index]);
 
-    beginRemoveRows(QModelIndex(), 0, m_data.count() - 1);
-    m_data.clear();
+    beginResetModel();
     initialize();
-    endRemoveRows();
+    endResetModel();
+
+    // fetchMore(QModelIndex());
 }
 
 void MediaModel::back()
@@ -92,7 +93,6 @@ void MediaModel::back()
     m_cursor.removeLast();
 
     beginRemoveRows(QModelIndex(), 0, m_data.count() - 1);
-    m_data.clear();
     initialize();
     endRemoveRows();
 }
@@ -161,6 +161,8 @@ void MediaModel::fetchMore(const QModelIndex &parent)
 
 void MediaModel::initialize()
 {
+    m_data.clear();
+
     DbReader *newReader = new DbReader;
     if (m_reader) {
         disconnect(m_reader, 0, this, 0);
@@ -177,6 +179,8 @@ void MediaModel::initialize()
     QMetaObject::invokeMethod(m_reader, "initialize", Q_ARG(QSqlDatabase, Backend::instance()->mediaDatabase()));
     connect(m_reader, SIGNAL(dataReady(DbReader *, QList<QSqlRecord>, void *)),
             this, SLOT(handleDataReady(DbReader *, QList<QSqlRecord>, void *)));
+
+    m_loading = m_loaded = false;
 }
 
 void MediaModel::handleDataReady(DbReader *reader, const QList<QSqlRecord> &records, void *node)
@@ -194,7 +198,9 @@ void MediaModel::handleDataReady(DbReader *reader, const QList<QSqlRecord> &reco
         for (int j = 0; j < records[i].count(); j++) {
             data.insert(records[i].fieldName(j), records[i].value(j));
         }
-        
+
+        QString col = m_structure.split("|").value(m_cursor.count());
+        data.insert("display", records[i].value(col));
         m_data.append(data);
     }
 
@@ -225,16 +231,17 @@ QSqlQuery MediaModel::query()
     }
 
     QStringList where;
-    for (int i = 0; i < parts.count() - 2; i++) {
+    for (int i = 0; i < m_cursor.count(); i++) {
         where.append(parts[i] + " = '" + m_cursor[i].value(parts[i]).toString() + "'");
     }
     QString conditions = where.join(" AND ");
 
-    if (m_depth == parts.count() - 1) { // last part
-        query.prepare(QString("SELECT * FROM %1 WHERE %2").arg(m_mediaType).arg(conditions));
+    if (conditions.isEmpty()) {
+        query.prepare(QString("SELECT * FROM %1 GROUP BY %2").arg(m_mediaType).arg(curPart));
     } else {
-//        query.prepare(QString("SELECT DISTINCT %1 FROM %2 WHERE ").arg(curPart).arg(m_mediaType).arg(curPart));
+        query.prepare(QString("SELECT * FROM %1 WHERE %2").arg(m_mediaType).arg(conditions));
     }
+
     return query;
 }
 
