@@ -239,7 +239,7 @@ QSqlQuery MediaModel::query()
     if (conditions.isEmpty()) {
         query.prepare(QString("SELECT * FROM %1 GROUP BY %2").arg(m_mediaType).arg(curPart));
     } else {
-        query.prepare(QString("SELECT * FROM %1 WHERE %2").arg(m_mediaType).arg(conditions));
+        query.prepare(QString("SELECT DISTINCT %1 FROM %2 WHERE %3").arg(curPart).arg(m_mediaType).arg(conditions));
     }
 
     return query;
