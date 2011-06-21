@@ -255,7 +255,10 @@ QSqlQuery MediaModel::query()
 
     QStringList where;
     for (int i = 0; i < m_cursor.count(); i++) {
-        where.append(parts[i] + " = '" + m_cursor[i].value(parts[i]).toString() + "'");
+        QString part = parts[i];
+        QStringList subParts = part.split(",");
+        for (int j = 0; j < subParts.count(); j++)
+            where.append(subParts[j] + " = '" + m_cursor[i].value(subParts[j]).toString() + "'");
     }
     QString conditions = where.join(" AND ");
 
