@@ -26,6 +26,7 @@ void MediaModel::setMediaType(const QString &type)
 
     beginResetModel();
     m_data.clear();
+    initialize();
     endResetModel();
 
     QSqlDriver *driver = Backend::instance()->mediaDatabase().driver();
@@ -62,6 +63,11 @@ void MediaModel::setStructure(const QString &str)
     m_structure = str;
     m_depth = 0; // reset depth
     emit structureChanged();
+
+    beginResetModel();
+    m_data.clear();
+    initialize();
+    endResetModel();
 }
 
 int MediaModel::depth() const
@@ -77,6 +83,7 @@ void MediaModel::enter(int index)
 
     beginRemoveRows(QModelIndex(), 0, m_data.count() - 1);
     m_data.clear();
+    initialize();
     endRemoveRows();
 }
 
@@ -86,6 +93,7 @@ void MediaModel::back()
 
     beginRemoveRows(QModelIndex(), 0, m_data.count() - 1);
     m_data.clear();
+    initialize();
     endRemoveRows();
 }
 
@@ -133,7 +141,7 @@ bool MediaModel::hasChildren(const QModelIndex &parent) const
 
 bool MediaModel::canFetchMore(const QModelIndex &parent) const
 {
-    if (parent.isValid() || m_mediaType.isEmpty())
+    if (parent.isValid() || m_mediaType.isEmpty() || m_structure.isEmpty())
         return false;
     return !m_loading && !m_loaded;
 }
