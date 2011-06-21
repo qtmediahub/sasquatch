@@ -215,9 +215,15 @@ void MediaModel::handleDataReady(DbReader *reader, const QList<QSqlRecord> &reco
             data.insert(records[i].fieldName(j), records[i].value(j));
         }
 
-        QString col = m_structure.split("|").value(m_cursor.count());
-        data.insert("display", records[i].value(col));
+        QStringList cols = m_structure.split("|").value(m_cursor.count()).split(",");
+        QStringList displayString;
+        for (int j = 0; j < cols.count(); j++) {
+            displayString << records[i].value(cols[j]).toString();
+        }
+        data.insert("display", displayString.join(", "));
+
         m_data.append(data);
+
     }
 
     m_loading = false;
