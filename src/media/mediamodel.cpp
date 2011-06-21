@@ -77,6 +77,11 @@ void MediaModel::enter(int index)
 {
     Q_UNUSED(index);
 
+    if (index == 0 && !m_cursor.isEmpty()) {
+        back();
+        return;
+    }
+
     DEBUG << "Entering " << index;
 
     m_cursor.append(m_data[index]);
@@ -90,11 +95,10 @@ void MediaModel::enter(int index)
 
 void MediaModel::back()
 {
+    beginResetModel();
     m_cursor.removeLast();
-
-    beginRemoveRows(QModelIndex(), 0, m_data.count() - 1);
     initialize();
-    endRemoveRows();
+    endResetModel();
 }
 
 QVariant MediaModel::data(const QModelIndex &index, int role) const
@@ -191,7 +195,14 @@ void MediaModel::handleDataReady(DbReader *reader, const QList<QSqlRecord> &reco
 
     DEBUG << "Received response from db of size " << records.size();
 
-    beginInsertRows(QModelIndex(), 0, records.count()-1);
+    if (!m_cursor.isEmpty()) {
+        beginInsertRows(QModelIndex(), 0, records.count());
+        QHash<QString, QVariant> data;
+        data.insert("display", tr(".."));
+        m_data.append(data);
+    } else {
+        beginInsertRows(QModelIndex(), 0, records.count() - 1);
+    }
 
     for (int i = 0; i < records.count(); i++) {
         QHash<QString, QVariant> data;
