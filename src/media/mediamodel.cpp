@@ -50,10 +50,21 @@ int MediaModel::depth() const
 void MediaModel::enter(int index)
 {
     Q_UNUSED(index);
+
+    m_cursor.append(m_data[index]);
+
+    beginRemoveRows(QModelIndex(), 0, m_data.count() - 1);
+    m_data.clear();
+    endRemoveRows();
 }
 
 void MediaModel::back()
 {
+    m_cursor.removeLast();
+
+    beginRemoveRows(QModelIndex(), 0, m_data.count() - 1);
+    m_data.clear();
+    endRemoveRows();
 }
 
 QVariant MediaModel::data(const QModelIndex &index, int role) const
@@ -166,13 +177,31 @@ void MediaModel::handleDatabaseUpdated(const QList<QSqlRecord> &records)
     // not implemented yet
 }
 
-QString MediaModel::query()
+QSqlQuery MediaModel::query()
 {
     QString q;
     QStringList parts = m_structure.split("|");
-    if (m_depth == parts.count() - 1) { // last part
-        return QString("SELECT * FROM %1").arg(m_mediaType);
+    QString curPart = parts[m_cursor.count()];
+
+    QSqlQuery query(Backend::instance()->mediaDatabase());
+    query.setForwardOnly(true);
+
+    if (parts.count() == 1) {
+        query.prepare(QString("SELECT * FROM %1").arg(m_mediaType));
+        return query;
     }
-    return QString();
+
+    QStringList where;
+    for (int i = 0; i < parts.count() - 2; i++) {
+        where.append(parts[i] + " = '" + m_cursor[i].value(parts[i]).toString() + "'");
+    }
+    QString conditions = where.join(" AND ");
+
+    if (m_depth == parts.count() - 1) { // last part
+        query.prepare(QString("SELECT * FROM %1 WHERE %2").arg(m_mediaType).arg(conditions));
+    } else {
+//        query.prepare(QString("SELECT DISTINCT %1 FROM %2 WHERE ").arg(curPart).arg(m_mediaType).arg(curPart));
+    }
+    return query;
 }
 

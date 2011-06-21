@@ -51,12 +51,14 @@ private slots:
 
 private:
     void initialize();
-    QString query();
+    QSqlQuery query();
 
     int m_depth;
     QString m_structure;
     QList<QHash<QString, QVariant> > m_data;
     bool m_loading, m_loaded;
+
+    QList<QHash<QString, QVariant> > m_cursor;
 
     DbReader *m_reader;
     QThread *m_readerThread;
