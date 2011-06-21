@@ -14,6 +14,11 @@ MediaModel::~MediaModel()
 {
 }
 
+QString MediaModel::part() const
+{
+    return m_structure.split("|").value(m_cursor.length());
+}
+
 QString MediaModel::mediaType() const
 {
     return m_mediaType;
@@ -89,7 +94,7 @@ void MediaModel::enter(int index)
     initialize();
     endResetModel();
 
-    // fetchMore(QModelIndex());
+    emit partChanged();
 }
 
 void MediaModel::back()
@@ -98,6 +103,7 @@ void MediaModel::back()
     m_cursor.removeLast();
     initialize();
     endResetModel();
+    emit partChanged();
 }
 
 QVariant MediaModel::data(const QModelIndex &index, int role) const

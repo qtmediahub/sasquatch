@@ -15,6 +15,7 @@ class MediaModel : public QAbstractItemModel
     Q_OBJECT
     Q_PROPERTY(QString structure READ structure WRITE setStructure NOTIFY structureChanged)
     Q_PROPERTY(QString mediaType READ mediaType WRITE setMediaType NOTIFY mediaTypeChanged)
+    Q_PROPERTY(QString part READ part NOTIFY partChanged)
 
 public:
     MediaModel(QObject *parent = 0);
@@ -33,6 +34,8 @@ public:
     Q_INVOKABLE void back();
     Q_INVOKABLE void enter(int index);
 
+    QString part() const;
+
     // reimp
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
     QModelIndex index(int row, int col, const QModelIndex &parent) const;
@@ -46,6 +49,7 @@ public:
 signals:
     void structureChanged();
     void mediaTypeChanged();
+    void partChanged();
 
 private slots:
     void handleDataReady(DbReader *reader, const QList<QSqlRecord> &data, void *node);
