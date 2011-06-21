@@ -444,8 +444,10 @@ void Backend::initialize()
     }
 
 #ifdef QMH_AVAHI
-    QAvahiServicePublisher *publisher = new QAvahiServicePublisher(this);
-    publisher->publish(QHostInfo::localHostName(), "_qmh._tcp", 1234, "Qt Media Hub JSON-RPCv2 interface");
+    if (Config::isEnabled("avahi", true)) {
+        QAvahiServicePublisher *publisher = new QAvahiServicePublisher(this);
+        publisher->publish(QHostInfo::localHostName(), "_qmh._tcp", 1234, "Qt Media Hub JSON-RPCv2 interface");
+    }
 #endif
 
     // This is here because MediaScanner::initialize() uses Backend::instance()
@@ -568,10 +570,12 @@ QObject *Backend::targetsModel() const
 {
     if (!d->targetsModel) {
 #ifdef QMH_AVAHI
-        QAvahiServiceBrowserModel *model = new QAvahiServiceBrowserModel(const_cast<Backend *>(this));
-        model->setAutoResolve(true);
-        model->browse("_qmh._tcp", QAvahiServiceBrowserModel::HideIPv6 | QAvahiServiceBrowserModel::HideLocal);
-        d->targetsModel = model;
+        if (Config::isEnabled("avahi", true)) {
+            QAvahiServiceBrowserModel *model = new QAvahiServiceBrowserModel(const_cast<Backend *>(this));
+            model->setAutoResolve(true);
+            model->browse("_qmh._tcp", QAvahiServiceBrowserModel::HideIPv6 | QAvahiServiceBrowserModel::HideLocal);
+            d->targetsModel = model;
+        }
 #else
         d->targetsModel = new StaticServiceBrowserModel(const_cast<Backend *>(this));
 #endif
