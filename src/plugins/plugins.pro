@@ -3,8 +3,7 @@ TEMPLATE = subdirs
 SUBDIRS = music \
           video \
           picture \
-          customcursor \
-          animatedtiles
+          customcursor
 #          terminalmode
 #          radio
 
