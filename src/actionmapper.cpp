@@ -127,18 +127,10 @@ bool ActionMapper::eventFilter(QObject *obj, QEvent *event)
                         , keyEvent->isAutoRepeat()
                         , keyEvent->count());
 
-            qDebug() << "handled" << m_internalActionMap.value(m_actionMap.value(keyEvent->key()));
-            if (keyEvent->key() == Qt::Key_VolumeUp)
-                qDebug() << "native event volume up";
-            if (keyEvent->key() == Qt::Key_Up)
-                qDebug() << "native event up";
-            if (e->key() == Qt::Key_VolumeUp)
-                qDebug () << "new event volume up";
-
             // directly send to the scene, to avoid loops
             QDeclarativeView *v = qobject_cast<QDeclarativeView*>(obj);
             if (v) {
-                QApplication::postEvent(v->scene(), e);
+                QApplication::sendEvent(v->scene(), e);
                 return true;
             }
         }
@@ -163,7 +155,7 @@ void ActionMapper::setupInternalMap()
     m_internalActionMap.insert(MediaStop, Qt::Key_MediaStop);
     m_internalActionMap.insert(MediaPrevious, Qt::Key_MediaPrevious);
     m_internalActionMap.insert(MediaNext, Qt::Key_MediaNext);
-    m_internalActionMap.insert(Back, Qt::Key_Backspace);
+    m_internalActionMap.insert(Back, Qt::Key_Back);
     m_internalActionMap.insert(VolumeUp, Qt::Key_VolumeUp);
     m_internalActionMap.insert(VolumeDown, Qt::Key_VolumeDown);
 }
