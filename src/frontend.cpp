@@ -409,6 +409,7 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
         declarativeWidget->installEventFilter(actionMapper);
 
         // register dataproviders to QML
+        qmlRegisterUncreatableType<ActionMapper>("ActionMapper", 1, 0, "ActionMapper", "For enums. For methods use actionmap global variable");
         qmlRegisterUncreatableType<QMHPlugin>("QMHPlugin", 1, 0, "QMHPlugin", "Only for enums");
         qmlRegisterType<DirModel>("DirModel", 1, 0, "DirModel");
         qmlRegisterType<File>("File", 1, 0, "File");
