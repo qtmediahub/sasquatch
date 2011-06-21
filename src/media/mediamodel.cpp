@@ -8,16 +8,38 @@
 MediaModel::MediaModel(QObject *parent)
     : QAbstractItemModel(parent), m_depth(0), m_loading(false), m_loaded(false), m_reader(0), m_readerThread(0)
 {
-//    PictureParser *parser = new PictureParser;
-//    MediaScanner::instance()->addParser(parser);
-//    connect(parser, SIGNAL(databaseUpdated(QList<QSqlRecord>)),
-//            this, SLOT(handleDatabaseUpdated(QList<QSqlRecord>)));
-
-    m_mediaType = "picture";
 }
 
 MediaModel::~MediaModel()
 {
+}
+
+QString MediaModel::mediaType() const
+{
+    return m_mediaType;
+}
+
+void MediaModel::setMediaType(const QString &type)
+{
+    m_mediaType = type;
+    emit mediaTypeChanged();
+
+    beginResetModel();
+    m_data.clear();
+    endResetModel();
+
+    QSqlDriver *driver = Backend::instance()->mediaDatabase().driver();
+    QSqlRecord record = driver->record(m_mediaType);
+    if (record.isEmpty())
+        qWarning() << "Table " << type << " is not valid it seems";
+
+    QHash<int, QByteArray> hash = roleNames();
+
+    for (int i = 0; i < record.count(); i++) {
+        hash.insert(Qt::UserRole + i, record.fieldName(i).toUtf8());
+    }
+
+    setRoleNames(hash);
 }
 
 void MediaModel::addSearchPath(const QString &path, const QString &name)
@@ -111,7 +133,7 @@ bool MediaModel::hasChildren(const QModelIndex &parent) const
 
 bool MediaModel::canFetchMore(const QModelIndex &parent) const
 {
-    if (parent.isValid())
+    if (parent.isValid() || m_mediaType.isEmpty())
         return false;
     return !m_loading && !m_loaded;
 }
@@ -123,7 +145,10 @@ void MediaModel::fetchMore(const QModelIndex &parent)
 
     initialize();
 
-    QMetaObject::invokeMethod(m_reader, "execute", Qt::QueuedConnection, Q_ARG(QSqlQuery, query()));
+    QSqlQuery q = query();
+    DEBUG << q.lastQuery();
+
+    QMetaObject::invokeMethod(m_reader, "execute", Qt::QueuedConnection, Q_ARG(QSqlQuery, q));
 }
 
 void MediaModel::initialize()

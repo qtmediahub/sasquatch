@@ -15,6 +15,7 @@ class MediaModel : public QAbstractItemModel
     Q_OBJECT
     Q_PROPERTY(int depth READ depth NOTIFY depthChanged)
     Q_PROPERTY(QString structure READ structure WRITE setStructure NOTIFY structureChanged)
+    Q_PROPERTY(QString mediaType READ mediaType WRITE setMediaType NOTIFY mediaTypeChanged)
 
 public:
     MediaModel(QObject *parent = 0);
@@ -26,6 +27,9 @@ public:
 
     QString structure() const;
     void setStructure(const QString &str);
+
+    QString mediaType() const;
+    void setMediaType(const QString &type);
 
     int depth() const;
     Q_INVOKABLE void back();
@@ -44,6 +48,7 @@ public:
 signals:
     void depthChanged();
     void structureChanged();
+    void mediaTypeChanged();
 
 private slots:
     void handleDataReady(DbReader *reader, const QList<QSqlRecord> &data, void *node);

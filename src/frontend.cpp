@@ -47,6 +47,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "qmhplugin.h"
 #include "devicemanager.h"
 #include "powermanager.h"
+#include "media/mediamodel.h"
 
 class DeclarativeView : public QDeclarativeView {
     Q_OBJECT
@@ -412,6 +413,8 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
         qmlRegisterType<Playlist>("Playlist", 1, 0, "Playlist");
         qmlRegisterType<RpcConnection>("RpcConnection", 1, 0, "RpcConnection");
         qmlRegisterUncreatableType<Media>("Media", 1, 0, "Media", "Only enums here, move on");
+
+        qmlRegisterType<MediaModel>("MediaModel", 1, 0, "MediaModel");
 
         actionMapper = new ActionMapper(declarativeWidget);
         mediaPlayerRpc = new MediaPlayerRpc(declarativeWidget);
