@@ -45,12 +45,12 @@ public:
         MediaStop,
         MediaPrevious,
         MediaNext,
-        Back
+        Back,
+        VolumeUp,
+        VolumeDown
     };
 
     ActionMapper(QObject *p);
-
-    Q_INVOKABLE int mapKeyEventToAction(QObject *event);
 
     Q_INVOKABLE QStringList availableMaps() const;
 
@@ -61,15 +61,20 @@ public slots:
     void takeAction(int action) { takeAction(static_cast<Action>(action)); }
     void takeAction(Action action);
 
+protected:
+    bool eventFilter(QObject *obj, QEvent *event);
+
 private:
     bool loadMapFromDisk(const QString &mapFilePath);
     void populateMap();
+    void setupInternalMap();
 
     QObject *m_parent;
     QString m_mapName;
     QString m_mapPath;
     QStringList m_maps;
     QHash<int, Action> m_actionMap;
+    QHash<Action, Qt::Key> m_internalActionMap;
 };
 
 QML_DECLARE_TYPE(ActionMapper)

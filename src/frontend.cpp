@@ -404,8 +404,12 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
         QDeclarativeEngine *engine = declarativeWidget->engine();
         QObject::connect(engine, SIGNAL(quit()), qApp, SLOT(quit()));
 
+        // event proxy
+        actionMapper = new ActionMapper(declarativeWidget);
+        declarativeWidget->installEventFilter(actionMapper);
+
         // register dataproviders to QML
-        qmlRegisterUncreatableType<ActionMapper>("ActionMapper", 1, 0, "ActionMapper", "For enums. For methods use actionmap global variable");
+//        qmlRegisterUncreatableType<ActionMapper>("ActionMapper", 1, 0, "ActionMapper", "For enums. For methods use actionmap global variable");
         qmlRegisterUncreatableType<QMHPlugin>("QMHPlugin", 1, 0, "QMHPlugin", "Only for enums");
         qmlRegisterType<DirModel>("DirModel", 1, 0, "DirModel");
         qmlRegisterType<File>("File", 1, 0, "File");
@@ -413,7 +417,6 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
         qmlRegisterType<RpcConnection>("RpcConnection", 1, 0, "RpcConnection");
         qmlRegisterUncreatableType<Media>("Media", 1, 0, "Media", "Only enums here, move on");
 
-        actionMapper = new ActionMapper(declarativeWidget);
         mediaPlayerRpc = new MediaPlayerRpc(declarativeWidget);
         trackpad = new Trackpad(declarativeWidget);
 

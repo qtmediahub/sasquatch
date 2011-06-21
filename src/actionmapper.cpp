@@ -19,6 +19,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "actionmapper.h"
 
+#include <QKeyEvent>
+
 #include "backend.h"
 #include "frontend.h"
 
@@ -31,10 +33,13 @@ ActionMapper::ActionMapper(QObject *p)
 {
     setObjectName("qmhrpc");
 
+    setupInternalMap();
+
     m_maps = QDir(m_mapPath).entryList(QDir::Files);
     qDebug() << "Available keyboard maps" << m_maps;
 
     m_mapName = Config::value("keymap", "stdkeyboard").toString();
+    qDebug() << "used keymap" << m_mapName;
     populateMap();
 }
 
@@ -99,14 +104,6 @@ bool ActionMapper::loadMapFromDisk(const QString &mapFilePath)
     return true;
 }
 
-int ActionMapper::mapKeyEventToAction(QObject *event)
-{
-    const int key = event->property("key").toInt();
-    if (m_actionMap.contains(key))
-        return m_actionMap[key];
-    return Null;
-}
-
 void ActionMapper::setMap(const QString &map)
 {
     m_mapName = map; 
@@ -116,5 +113,58 @@ void ActionMapper::setMap(const QString &map)
 QStringList ActionMapper::availableMaps() const
 {
     return m_maps;
+}
+
+bool ActionMapper::eventFilter(QObject *obj, QEvent *event)
+{
+    if (event->type() == QEvent::KeyPress || event->type() == QEvent::KeyRelease) {
+        QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
+        if (m_actionMap.contains(keyEvent->key())) {
+            QKeyEvent *e = new QKeyEvent(keyEvent->type()
+                        , m_internalActionMap.value(m_actionMap.value(keyEvent->key()))
+                        , keyEvent->modifiers()
+                        , keyEvent->text()
+                        , keyEvent->isAutoRepeat()
+                        , keyEvent->count());
+
+            qDebug() << "handled" << m_internalActionMap.value(m_actionMap.value(keyEvent->key()));
+            if (keyEvent->key() == Qt::Key_VolumeUp)
+                qDebug() << "native event volume up";
+            if (keyEvent->key() == Qt::Key_Up)
+                qDebug() << "native event up";
+            if (e->key() == Qt::Key_VolumeUp)
+                qDebug () << "new event volume up";
+
+            // directly send to the scene, to avoid loops
+            QDeclarativeView *v = qobject_cast<QDeclarativeView*>(obj);
+            if (v) {
+                QApplication::postEvent(v->scene(), e);
+                return true;
+            }
+        }
+    }
+
+    // standard event processing
+    return QObject::eventFilter(obj, event);
+}
+
+void ActionMapper::setupInternalMap()
+{
+    m_internalActionMap.insert(Left, Qt::Key_Left);
+    m_internalActionMap.insert(Right, Qt::Key_Right);
+    m_internalActionMap.insert(Up, Qt::Key_Up);
+    m_internalActionMap.insert(Down, Qt::Key_Down);
+    m_internalActionMap.insert(Enter, Qt::Key_Enter);
+    m_internalActionMap.insert(Menu, Qt::Key_Menu);
+    m_internalActionMap.insert(Context, Qt::Key_Context1);
+    m_internalActionMap.insert(ContextualUp, Qt::Key_PageUp);
+    m_internalActionMap.insert(ContextualDown, Qt::Key_PageDown);
+    m_internalActionMap.insert(MediaPlayPause, Qt::Key_MediaTogglePlayPause);
+    m_internalActionMap.insert(MediaStop, Qt::Key_MediaStop);
+    m_internalActionMap.insert(MediaPrevious, Qt::Key_MediaPrevious);
+    m_internalActionMap.insert(MediaNext, Qt::Key_MediaNext);
+    m_internalActionMap.insert(Back, Qt::Key_Backspace);
+    m_internalActionMap.insert(VolumeUp, Qt::Key_VolumeUp);
+    m_internalActionMap.insert(VolumeDown, Qt::Key_VolumeDown);
 }
 
