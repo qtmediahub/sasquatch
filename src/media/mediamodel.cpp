@@ -39,9 +39,10 @@ void MediaModel::setMediaType(const QString &type)
         qWarning() << "Table " << type << " is not valid it seems";
 
     QHash<int, QByteArray> hash = roleNames();
+    hash.insert(Qt::UserRole, "dotdot");
 
     for (int i = 0; i < record.count(); i++) {
-        hash.insert(Qt::UserRole + i, record.fieldName(i).toUtf8());
+        hash.insert(Qt::UserRole + i + 1, record.fieldName(i).toUtf8());
     }
 
     setRoleNames(hash);
@@ -204,6 +205,7 @@ void MediaModel::handleDataReady(DbReader *reader, const QList<QSqlRecord> &reco
         beginInsertRows(QModelIndex(), 0, records.count());
         QHash<QString, QVariant> data;
         data.insert("display", tr(".."));
+        data.insert("dotdot", true);
         m_data.append(data);
     } else {
         beginInsertRows(QModelIndex(), 0, records.count() - 1);
@@ -221,6 +223,7 @@ void MediaModel::handleDataReady(DbReader *reader, const QList<QSqlRecord> &reco
             displayString << records[i].value(cols[j]).toString();
         }
         data.insert("display", displayString.join(", "));
+        data.insert("dotdot", false);
 
         m_data.append(data);
 
