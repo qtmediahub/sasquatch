@@ -58,4 +58,12 @@ unix:!symbian {
     INSTALLS += target
 }
 
-CONFIG += release
+
+CONFIG(debug, debug|release):CONFIG += declarative_debug
+
+# Include JS debugger library if QMLJSDEBUGGER_PATH is set
+!isEmpty(QMLJSDEBUGGER_PATH) {
+    include($$QMLJSDEBUGGER_PATH/qmljsdebugger-lib.pri)
+} else {
+    DEFINES -= QMLJSDEBUGGER
+}
