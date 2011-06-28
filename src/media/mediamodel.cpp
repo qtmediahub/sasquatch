@@ -264,7 +264,7 @@ QSqlQuery MediaModel::query()
         QString part = parts[i];
         QStringList subParts = part.split(",");
         for (int j = 0; j < subParts.count(); j++)
-            where.append(subParts[j] + " = '" + m_cursor[i].value(subParts[j]).toString() + "'");
+            where.append(subParts[j] + " = \"" + m_cursor[i].value(subParts[j]).toString() + "\"");
     }
     QString conditions = where.join(" AND ");
 
