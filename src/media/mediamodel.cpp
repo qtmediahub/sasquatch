@@ -40,9 +40,10 @@ void MediaModel::setMediaType(const QString &type)
 
     QHash<int, QByteArray> hash = roleNames();
     hash.insert(Qt::UserRole, "dotdot");
+    hash.insert(Qt::UserRole+1, "isLeaf");
 
     for (int i = 0; i < record.count(); i++) {
-        hash.insert(Qt::UserRole + i + 1, record.fieldName(i).toUtf8());
+        hash.insert(Qt::UserRole + i + 2, record.fieldName(i).toUtf8());
     }
 
     setRoleNames(hash);
@@ -209,10 +210,15 @@ void MediaModel::handleDataReady(DbReader *reader, const QList<QSqlRecord> &reco
         QHash<QString, QVariant> data;
         data.insert("display", tr(".."));
         data.insert("dotdot", true);
+        data.insert("isLeaf", false);
         m_data.append(data);
     } else {
         beginInsertRows(QModelIndex(), 0, records.count() - 1);
     }
+
+    bool isLeaf = false;
+    if (m_cursor.count() + 1 == m_structure.split("|").count())
+        isLeaf = true;
 
     for (int i = 0; i < records.count(); i++) {
         QHash<QString, QVariant> data;
@@ -227,6 +233,7 @@ void MediaModel::handleDataReady(DbReader *reader, const QList<QSqlRecord> &reco
         }
         data.insert("display", displayString.join(", "));
         data.insert("dotdot", false);
+        data.insert("isLeaf", isLeaf);
 
         m_data.append(data);
 
