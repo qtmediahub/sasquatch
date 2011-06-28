@@ -201,6 +201,9 @@ void MediaModel::handleDataReady(DbReader *reader, const QList<QSqlRecord> &reco
 
     DEBUG << "Received response from db of size " << records.size();
 
+    if (records.isEmpty())
+        return;
+
     if (!m_cursor.isEmpty()) {
         beginInsertRows(QModelIndex(), 0, records.count());
         QHash<QString, QVariant> data;
