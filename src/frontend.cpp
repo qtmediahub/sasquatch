@@ -47,6 +47,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "qmhplugin.h"
 #include "devicemanager.h"
 #include "powermanager.h"
+#include "media/mediamodel.h"
 
 #if defined(QMLJSDEBUGGER) && QT_VERSION < 0x040800
 
@@ -439,6 +440,7 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
         qmlRegisterType<DirModel>("DirModel", 1, 0, "DirModel");
         qmlRegisterType<File>("File", 1, 0, "File");
         qmlRegisterType<Playlist>("Playlist", 1, 0, "Playlist");
+        qmlRegisterType<MediaModel>("MediaModel", 1, 0, "MediaModel");
         qmlRegisterType<RpcConnection>("RpcConnection", 1, 0, "RpcConnection");
         qmlRegisterUncreatableType<Media>("Media", 1, 0, "Media", "Only enums here, move on");
 
