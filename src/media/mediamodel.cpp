@@ -29,9 +29,7 @@ void MediaModel::setMediaType(const QString &type)
     m_mediaType = type;
     emit mediaTypeChanged();
 
-    beginResetModel();
     initialize();
-    endResetModel();
 
     QSqlDriver *driver = Backend::instance()->mediaDatabase().driver();
     QSqlRecord record = driver->record(m_mediaType);
@@ -69,9 +67,7 @@ void MediaModel::setStructure(const QString &str)
     m_structure = str;
     emit structureChanged();
 
-    beginResetModel();
     initialize();
-    endResetModel();
 }
 
 void MediaModel::enter(int index)
@@ -92,19 +88,15 @@ void MediaModel::enter(int index)
 
     m_cursor.append(m_data[index]);
 
-    beginResetModel();
     initialize();
-    endResetModel();
 
     emit partChanged();
 }
 
 void MediaModel::back()
 {
-    beginResetModel();
     m_cursor.removeLast();
     initialize();
-    endResetModel();
     emit partChanged();
 }
 
@@ -174,6 +166,8 @@ void MediaModel::fetchMore(const QModelIndex &parent)
 
 void MediaModel::initialize()
 {
+    beginResetModel();
+
     m_data.clear();
 
     DbReader *newReader = new DbReader;
@@ -194,6 +188,8 @@ void MediaModel::initialize()
             this, SLOT(handleDataReady(DbReader *, QList<QSqlRecord>, void *)));
 
     m_loading = m_loaded = false;
+
+    endResetModel();
 }
 
 void MediaModel::handleDataReady(DbReader *reader, const QList<QSqlRecord> &records, void *node)
