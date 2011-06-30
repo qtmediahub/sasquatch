@@ -167,6 +167,8 @@ void MediaModel::fetchMore(const QModelIndex &parent)
     QSqlQuery q = query();
     DEBUG << q.lastQuery();
 
+    m_loading = true;
+
     QMetaObject::invokeMethod(m_reader, "execute", Qt::QueuedConnection, Q_ARG(QSqlQuery, q));
 }
 
