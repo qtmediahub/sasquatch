@@ -76,6 +76,10 @@ void MediaModel::setStructure(const QString &str)
 {
     m_structure = str;
     initialize();
+    m_layoutInfo.clear();
+    foreach(const QString &part, m_structure.split("|"))
+        m_layoutInfo.append(part.split(","));
+
     emit structureChanged();
 }
 
@@ -83,7 +87,7 @@ void MediaModel::enter(int index)
 {
     Q_UNUSED(index);
 
-    if (m_cursor.count() + 1 == m_structure.split("|").count() &&  index != 0 /* up on leaf node is OK */) {
+    if (m_cursor.count() + 1 == m_layoutInfo.count() &&  index != 0 /* up on leaf node is OK */) {
         DEBUG << "Refusing to enter leaf node";
         return;
     }
@@ -153,7 +157,7 @@ bool MediaModel::hasChildren(const QModelIndex &parent) const
 
 bool MediaModel::canFetchMore(const QModelIndex &parent) const
 {
-    if (parent.isValid() || m_mediaType.isEmpty() || m_structure.isEmpty())
+    if (parent.isValid() || m_mediaType.isEmpty() || m_layoutInfo.isEmpty())
         return false;
     return !m_loading && !m_loaded;
 }
@@ -163,28 +167,28 @@ void MediaModel::fetchMore(const QModelIndex &parent)
     if (!canFetchMore(parent))
         return;
 
-    initialize();
+    m_loading = true;
 
     QSqlQuery q = query();
     DEBUG << q.lastQuery();
-
-    m_loading = true;
-
     QMetaObject::invokeMethod(m_reader, "execute", Qt::QueuedConnection, Q_ARG(QSqlQuery, q));
 }
 
 void MediaModel::initialize()
 {
+    DEBUG << "";
+
     beginResetModel();
 
     m_data.clear();
 
+    DbReader *newReader = new DbReader;
     if (m_reader) {
         disconnect(m_reader, 0, this, 0);
         m_reader->stop();
         m_reader->deleteLater();
     }
-    m_reader = new DbReader;
+    m_reader = newReader;
 
     if (!m_readerThread) {
         m_readerThread = new QThread(this);
@@ -222,7 +226,7 @@ void MediaModel::handleDataReady(DbReader *reader, const QList<QSqlRecord> &reco
         beginInsertRows(QModelIndex(), 0, records.count() - 1);
     }
 
-    const bool isLeaf = m_cursor.count() + 1 == m_structure.split("|").count();
+    const bool isLeaf = m_cursor.count() + 1 == m_layoutInfo.count();
 
     for (int i = 0; i < records.count(); i++) {
         QHash<QString, QVariant> data;
@@ -230,7 +234,7 @@ void MediaModel::handleDataReady(DbReader *reader, const QList<QSqlRecord> &reco
             data.insert(records[i].fieldName(j), records[i].value(j));
         }
 
-        QStringList cols = m_structure.split("|").value(m_cursor.count()).split(",");
+        QStringList cols = m_layoutInfo.value(m_cursor.count());
         QStringList displayString;
         for (int j = 0; j < cols.count(); j++) {
             displayString << records[i].value(cols[j]).toString();
@@ -257,12 +261,9 @@ void MediaModel::handleDatabaseUpdated(const QList<QSqlRecord> &records)
 
 QSqlQuery MediaModel::query()
 {
-    QString q;
-    QStringList parts = m_structure.split("|");
     QSqlDriver *driver = Backend::instance()->mediaDatabase().driver();
-    QString curPart = parts[m_cursor.count()];
-    QStringList curParts = curPart.split(",");
     QStringList escapedCurParts;
+    QStringList curParts = m_layoutInfo[m_cursor.count()];
     for (int i = 0; i < curParts.count(); i++)
         escapedCurParts.append(driver->escapeIdentifier(curParts[i], QSqlDriver::FieldName));
     QString escapedCurPart = escapedCurParts.join(",");
@@ -271,14 +272,13 @@ QSqlQuery MediaModel::query()
     query.setForwardOnly(true);
 
     QStringList placeHolders;
-    const bool lastPart = m_cursor.count() == parts.count()-1;
+    const bool lastPart = m_cursor.count() == m_layoutInfo.count()-1;
     QString queryString = QString("SELECT %1 FROM %2 ").arg(lastPart ? "*" : escapedCurPart).arg(driver->escapeIdentifier(m_mediaType, QSqlDriver::TableName));
 
     if (!m_cursor.isEmpty()) {
         QStringList where;
         for (int i = 0; i < m_cursor.count(); i++) {
-            QString part = parts[i];
-            QStringList subParts = part.split(",");
+            QStringList subParts = m_layoutInfo[i];
             for (int j = 0; j < subParts.count(); j++) {
                 where.append(subParts[j] + " = ?");
                 placeHolders << m_cursor[i].value(subParts[j]).toString();

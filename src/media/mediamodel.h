@@ -60,6 +60,7 @@ private:
     QSqlQuery query();
 
     QString m_structure;
+    QList<QStringList> m_layoutInfo;
     QList<QHash<QString, QVariant> > m_data;
     bool m_loading, m_loaded;
 
