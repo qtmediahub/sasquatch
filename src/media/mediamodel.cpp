@@ -85,8 +85,6 @@ void MediaModel::setStructure(const QString &str)
 
 void MediaModel::enter(int index)
 {
-    Q_UNUSED(index);
-
     if (m_cursor.count() + 1 == m_layoutInfo.count() &&  index != 0 /* up on leaf node is OK */) {
         DEBUG << "Refusing to enter leaf node";
         return;
