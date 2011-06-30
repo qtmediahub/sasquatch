@@ -62,7 +62,7 @@ private slots:
 
 private:
     void initialize();
-    QSqlQuery query();
+    QSqlQuery buildQuery() const;
 
     QString m_structure;
     QList<QStringList> m_layoutInfo;

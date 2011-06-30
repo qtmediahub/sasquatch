@@ -3,7 +3,7 @@
 #include "dbreader.h"
 #include "backend.h"
 
-#define DEBUG if (1) qDebug() << __PRETTY_FUNCTION__
+#define DEBUG if (0) qDebug() << __PRETTY_FUNCTION__
 
 MediaModel::MediaModel(QObject *parent)
     : QAbstractItemModel(parent), m_loading(false), m_loaded(false), m_reader(0), m_readerThread(0)
@@ -162,7 +162,7 @@ void MediaModel::fetchMore(const QModelIndex &parent)
 
     m_loading = true;
 
-    QSqlQuery q = query();
+    QSqlQuery q = buildQuery();
     DEBUG << q.lastQuery();
     QMetaObject::invokeMethod(m_reader, "execute", Qt::QueuedConnection, Q_ARG(QSqlQuery, q));
 }
@@ -256,7 +256,7 @@ void MediaModel::handleDatabaseUpdated(const QList<QSqlRecord> &records)
     // not implemented yet
 }
 
-QSqlQuery MediaModel::query()
+QSqlQuery MediaModel::buildQuery() const
 {
     QSqlDriver *driver = Backend::instance()->mediaDatabase().driver();
 
