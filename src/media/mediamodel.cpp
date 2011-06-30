@@ -251,37 +251,49 @@ void MediaModel::handleDatabaseUpdated(const QList<QSqlRecord> &records)
     // not implemented yet
 }
 
-// ## BIG FAT FIXME: Fix the string escaping to prevent sql injection!
 QSqlQuery MediaModel::query()
 {
     QString q;
     QStringList parts = m_structure.split("|");
+    QSqlDriver *driver = Backend::instance()->mediaDatabase().driver();
     QString curPart = parts[m_cursor.count()];
+    QStringList curParts = curPart.split(",");
+    QStringList escapedCurParts;
+    for (int i = 0; i < curParts.count(); i++)
+        escapedCurParts.append(driver->escapeIdentifier(curParts[i], QSqlDriver::FieldName));
+    QString escapedCurPart = escapedCurParts.join(",");
 
     QSqlQuery query(Backend::instance()->mediaDatabase());
     query.setForwardOnly(true);
 
-    QStringList where;
-    for (int i = 0; i < m_cursor.count(); i++) {
-        QString part = parts[i];
-        QStringList subParts = part.split(",");
-        for (int j = 0; j < subParts.count(); j++)
-            where.append(subParts[j] + " = \"" + m_cursor[i].value(subParts[j]).toString() + "\"");
-    }
-
+    QStringList placeHolders;
     const bool lastPart = m_cursor.count() == parts.count()-1;
-    QString queryString = QString("SELECT %1 FROM %2 ").arg(lastPart ? "*" : curPart).arg(m_mediaType);
-    if (!where.isEmpty()) {
-        QString conditions = where.join(" AND ");
-        queryString.append(QString("WHERE %1 ").arg(conditions));
+    QString queryString = QString("SELECT %1 FROM %2 ").arg(lastPart ? "*" : escapedCurPart).arg(driver->escapeIdentifier(m_mediaType, QSqlDriver::TableName));
+
+    if (!m_cursor.isEmpty()) {
+        QStringList where;
+        for (int i = 0; i < m_cursor.count(); i++) {
+            QString part = parts[i];
+            QStringList subParts = part.split(",");
+            for (int j = 0; j < subParts.count(); j++) {
+                where.append(subParts[j] + " = ?");
+                placeHolders << m_cursor[i].value(subParts[j]).toString();
+            }
+        }
+
+        queryString.append(QString("WHERE %1 ").arg(where.join(" AND ")));
     }
 
     if (!lastPart)
-        queryString.append(QString("GROUP BY %1 ").arg(curPart));
+        queryString.append(QString("GROUP BY %1 ").arg(escapedCurPart));
 
-    queryString.append(QString("ORDER BY %1").arg(curPart));
+    queryString.append(QString("ORDER BY %1").arg(escapedCurPart));
 
     query.prepare(queryString);
+
+    foreach(const QString &placeHolder, placeHolders)
+        query.addBindValue(placeHolder);
+
     return query;
 }
 
