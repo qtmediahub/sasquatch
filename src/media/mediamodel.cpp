@@ -273,7 +273,9 @@ QSqlQuery MediaModel::query()
 
     QStringList placeHolders;
     const bool lastPart = m_cursor.count() == m_layoutInfo.count()-1;
-    QString queryString = QString("SELECT %1 FROM %2 ").arg(lastPart ? "*" : escapedCurPart).arg(driver->escapeIdentifier(m_mediaType, QSqlDriver::TableName));
+    QString queryString;
+    queryString.append("SELECT " + (lastPart ? QString("*") : escapedCurPart));
+    queryString.append(" FROM " + driver->escapeIdentifier(m_mediaType, QSqlDriver::TableName));
 
     if (!m_cursor.isEmpty()) {
         QStringList where;
@@ -285,13 +287,13 @@ QSqlQuery MediaModel::query()
             }
         }
 
-        queryString.append(QString("WHERE %1 ").arg(where.join(" AND ")));
+        queryString.append(" WHERE " + where.join(" AND "));
     }
 
     if (!lastPart)
-        queryString.append(QString("GROUP BY %1 ").arg(escapedCurPart));
+        queryString.append(" GROUP BY " + escapedCurPart);
 
-    queryString.append(QString("ORDER BY %1").arg(escapedCurPart));
+    queryString.append(" ORDER BY " + escapedCurPart);
 
     query.prepare(queryString);
 
