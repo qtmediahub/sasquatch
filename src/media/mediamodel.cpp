@@ -26,11 +26,15 @@ QString MediaModel::mediaType() const
 
 void MediaModel::setMediaType(const QString &type)
 {
-    m_mediaType = type;
-    emit mediaTypeChanged();
+    if (type == m_mediaType)
+        return;
 
     initialize();
 
+    m_mediaType = type;
+    emit mediaTypeChanged();
+
+    // Add the fields of the table as role names
     QSqlDriver *driver = Backend::instance()->mediaDatabase().driver();
     QSqlRecord record = driver->record(m_mediaType);
     if (record.isEmpty())
@@ -49,7 +53,13 @@ void MediaModel::setMediaType(const QString &type)
 
 void MediaModel::addSearchPath(const QString &path, const QString &name)
 {
-    QMetaObject::invokeMethod(MediaScanner::instance(), "addSearchPath", Qt::QueuedConnection, Q_ARG(QString, "picture"), Q_ARG(QString, path), Q_ARG(QString, name));
+    if (m_mediaType.isEmpty()) {
+        qWarning() << m_mediaType << " is not set yet";
+        return;
+    }
+
+    QMetaObject::invokeMethod(MediaScanner::instance(), "addSearchPath", Qt::QueuedConnection, 
+                              Q_ARG(QString, m_mediaType), Q_ARG(QString, path), Q_ARG(QString, name));
 }
 
 void MediaModel::removeSearchPath(int index)
@@ -65,9 +75,8 @@ QString MediaModel::structure() const
 void MediaModel::setStructure(const QString &str)
 {
     m_structure = str;
-    emit structureChanged();
-
     initialize();
+    emit structureChanged();
 }
 
 void MediaModel::enter(int index)
@@ -170,13 +179,12 @@ void MediaModel::initialize()
 
     m_data.clear();
 
-    DbReader *newReader = new DbReader;
     if (m_reader) {
         disconnect(m_reader, 0, this, 0);
         m_reader->stop();
         m_reader->deleteLater();
     }
-    m_reader = newReader;
+    m_reader = new DbReader;
 
     if (!m_readerThread) {
         m_readerThread = new QThread(this);
@@ -214,9 +222,7 @@ void MediaModel::handleDataReady(DbReader *reader, const QList<QSqlRecord> &reco
         beginInsertRows(QModelIndex(), 0, records.count() - 1);
     }
 
-    bool isLeaf = false;
-    if (m_cursor.count() + 1 == m_structure.split("|").count())
-        isLeaf = true;
+    const bool isLeaf = m_cursor.count() + 1 == m_structure.split("|").count();
 
     for (int i = 0; i < records.count(); i++) {
         QHash<QString, QVariant> data;
