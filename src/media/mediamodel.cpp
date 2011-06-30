@@ -261,11 +261,6 @@ QSqlQuery MediaModel::query()
     QSqlQuery query(Backend::instance()->mediaDatabase());
     query.setForwardOnly(true);
 
-    if (parts.count() == 1) {
-        query.prepare(QString("SELECT * FROM %1").arg(m_mediaType));
-        return query;
-    }
-
     QStringList where;
     for (int i = 0; i < m_cursor.count(); i++) {
         QString part = parts[i];
@@ -273,14 +268,20 @@ QSqlQuery MediaModel::query()
         for (int j = 0; j < subParts.count(); j++)
             where.append(subParts[j] + " = \"" + m_cursor[i].value(subParts[j]).toString() + "\"");
     }
-    QString conditions = where.join(" AND ");
 
-    if (conditions.isEmpty()) {
-        query.prepare(QString("SELECT * FROM %1 GROUP BY %2").arg(m_mediaType).arg(curPart));
-    } else {
-        query.prepare(QString("SELECT DISTINCT %1 FROM %2 WHERE %3").arg(curPart).arg(m_mediaType).arg(conditions));
+    const bool lastPart = m_cursor.count() == parts.count()-1;
+    QString queryString = QString("SELECT %1 FROM %2 ").arg(lastPart ? "*" : curPart).arg(m_mediaType);
+    if (!where.isEmpty()) {
+        QString conditions = where.join(" AND ");
+        queryString.append(QString("WHERE %1 ").arg(conditions));
     }
 
+    if (!lastPart)
+        queryString.append(QString("GROUP BY %1 ").arg(curPart));
+
+    queryString.append(QString("ORDER BY %1").arg(curPart));
+
+    query.prepare(queryString);
     return query;
 }
 
