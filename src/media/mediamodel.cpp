@@ -41,11 +41,11 @@ void MediaModel::setMediaType(const QString &type)
         qWarning() << "Table " << type << " is not valid it seems";
 
     QHash<int, QByteArray> hash = roleNames();
-    hash.insert(Qt::UserRole, "dotdot");
-    hash.insert(Qt::UserRole+1, "isLeaf");
+    hash.insert(DotDotRole, "dotdot");
+    hash.insert(IsLeafRole, "isLeaf");
 
     for (int i = 0; i < record.count(); i++) {
-        hash.insert(Qt::UserRole + i + 2, record.fieldName(i).toUtf8());
+        hash.insert(FieldRolesBegin + i, record.fieldName(i).toUtf8());
     }
 
     setRoleNames(hash);
@@ -113,9 +113,7 @@ QVariant MediaModel::data(const QModelIndex &index, int role) const
     if (!index.isValid())
         return QVariant();
     
-    const QHash<QString, QVariant> &data = m_data[index.row()];
-    const QHash<int, QByteArray> hash = roleNames();
-    return data.value(hash.value(role));
+    return m_data.value(index.row()).value(role);
 }
 
 QModelIndex MediaModel::index(int row, int col, const QModelIndex &parent) const
@@ -212,10 +210,10 @@ void MediaModel::handleDataReady(DbReader *reader, const QList<QSqlRecord> &reco
 
     if (!m_cursor.isEmpty()) {
         beginInsertRows(QModelIndex(), 0, records.count());
-        QHash<QString, QVariant> data;
-        data.insert("display", tr(".."));
-        data.insert("dotdot", true);
-        data.insert("isLeaf", false);
+        QHash<int, QVariant> data;
+        data.insert(Qt::DisplayRole, tr(".."));
+        data.insert(DotDotRole, true);
+        data.insert(IsLeafRole, false);
         m_data.append(data);
     } else {
         beginInsertRows(QModelIndex(), 0, records.count() - 1);
@@ -223,23 +221,27 @@ void MediaModel::handleDataReady(DbReader *reader, const QList<QSqlRecord> &reco
 
     const bool isLeaf = m_cursor.count() + 1 == m_layoutInfo.count();
 
+    QSqlDriver *driver = Backend::instance()->mediaDatabase().driver();
+    const QSqlRecord tableRecord = driver->record(m_mediaType);
+
     for (int i = 0; i < records.count(); i++) {
-        QHash<QString, QVariant> data;
+        QHash<int, QVariant> data;
         for (int j = 0; j < records[i].count(); j++) {
-            data.insert(records[i].fieldName(j), records[i].value(j));
+            int idx = tableRecord.indexOf(records[i].fieldName(j));
+            data.insert(FieldRolesBegin + idx, records[i].value(j));
         }
 
+        // Provide 'display' role as , separated values
         QStringList cols = m_layoutInfo.value(m_cursor.count());
         QStringList displayString;
         for (int j = 0; j < cols.count(); j++) {
             displayString << records[i].value(cols[j]).toString();
         }
-        data.insert("display", displayString.join(", "));
-        data.insert("dotdot", false);
-        data.insert("isLeaf", isLeaf);
+        data.insert(Qt::DisplayRole, displayString.join(", "));
+        data.insert(DotDotRole, false);
+        data.insert(IsLeafRole, isLeaf);
 
         m_data.append(data);
-
     }
 
     m_loading = false;
@@ -257,6 +259,7 @@ void MediaModel::handleDatabaseUpdated(const QList<QSqlRecord> &records)
 QSqlQuery MediaModel::query()
 {
     QSqlDriver *driver = Backend::instance()->mediaDatabase().driver();
+
     QStringList escapedCurParts;
     QStringList curParts = m_layoutInfo[m_cursor.count()];
     for (int i = 0; i < curParts.count(); i++)
@@ -274,11 +277,13 @@ QSqlQuery MediaModel::query()
 
     if (!m_cursor.isEmpty()) {
         QStringList where;
+        const QSqlRecord tableRecord = driver->record(m_mediaType);
         for (int i = 0; i < m_cursor.count(); i++) {
             QStringList subParts = m_layoutInfo[i];
             for (int j = 0; j < subParts.count(); j++) {
                 where.append(subParts[j] + " = ?");
-                placeHolders << m_cursor[i].value(subParts[j]).toString();
+                const int role = FieldRolesBegin + tableRecord.indexOf(subParts[j]);
+                placeHolders << m_cursor[i].value(role).toString();
             }
         }
 

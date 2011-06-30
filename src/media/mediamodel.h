@@ -18,6 +18,12 @@ class MediaModel : public QAbstractItemModel
     Q_PROPERTY(QString part READ part NOTIFY partChanged)
 
 public:
+    enum CustomRole {
+        DotDotRole = Qt::UserRole,
+        IsLeafRole,
+        FieldRolesBegin
+    };
+
     MediaModel(QObject *parent = 0);
     ~MediaModel();
 
@@ -60,10 +66,10 @@ private:
 
     QString m_structure;
     QList<QStringList> m_layoutInfo;
-    QList<QHash<QString, QVariant> > m_data;
+    QList<QHash<int, QVariant> > m_data;
     bool m_loading, m_loaded;
 
-    QList<QHash<QString, QVariant> > m_cursor;
+    QList<QHash<int, QVariant> > m_cursor;
 
     DbReader *m_reader;
     QThread *m_readerThread;
