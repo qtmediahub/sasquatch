@@ -85,7 +85,7 @@ void MediaModel::setStructure(const QString &str)
 
 void MediaModel::enter(int index)
 {
-    if (m_cursor.count() + 1 == m_layoutInfo.count() &&  index != 0 /* up on leaf node is OK */) {
+    if (m_cursor.count() + 1 == m_layoutInfo.count() && index != 0 /* up on leaf node is OK */) {
         DEBUG << "Refusing to enter leaf node";
         return;
     }
@@ -96,11 +96,8 @@ void MediaModel::enter(int index)
     }
 
     DEBUG << "Entering " << index;
-
     m_cursor.append(m_data[index]);
-
     initialize();
-
     emit partChanged();
 }
 

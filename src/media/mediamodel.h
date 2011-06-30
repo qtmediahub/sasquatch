@@ -21,7 +21,6 @@ public:
     MediaModel(QObject *parent = 0);
     ~MediaModel();
 
-    // callable from QML
     Q_INVOKABLE void addSearchPath(const QString &mediaPath, const QString &name);
     Q_INVOKABLE void removeSearchPath(int index);
 
