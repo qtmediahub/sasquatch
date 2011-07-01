@@ -408,9 +408,7 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
         {
 #ifdef GLVIEWPORT
             QGLWidget *viewport = new QGLWidget(declarativeWidget);
-            viewport->setAttribute(Qt::WA_OpaquePaintEvent);
-            viewport->setAttribute(Qt::WA_NoSystemBackground);
-            viewport->setAutoFillBackground(false);
+
             declarativeWidget->setViewport(viewport);
 #endif //GLVIEWPORT
             declarativeWidget->setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
@@ -418,6 +416,10 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
             declarativeWidget->setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
         }
 #endif //SCENEGRAPH
+        QWidget *viewport = declarativeWidget->viewport();
+        viewport->setAttribute(Qt::WA_OpaquePaintEvent);
+        viewport->setAttribute(Qt::WA_NoSystemBackground);
+        viewport->setAutoFillBackground(false);
         //QSGEngine is not an equivalent class, this class holds for both
         QDeclarativeEngine *engine = declarativeWidget->engine();
         QObject::connect(engine, SIGNAL(quit()), qApp, SLOT(quit()));
