@@ -38,6 +38,7 @@ int main(int argc, char** argv)
     format.setSwapInterval(1);
     QGLFormat::setDefaultFormat(format);
 #ifdef GLGS
+#error I am gonna assume you are clueless and break until you remove me
     //Only legitimate use is in fullscreen QGraphicsView derived classes!
     //If you use this in conjunction with our traditional QWidget style functionality
     //You are in for a rough ride

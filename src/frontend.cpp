@@ -161,6 +161,18 @@ void QMLUtils::applyWebViewFocusFix(QDeclarativeItem *item) // See https://bugs.
     }
 }
 
+namespace Utils
+{
+    static void optimizeWidgetAttributes(QWidget *widget, bool transparent = false) {
+        widget->setAttribute(Qt::WA_OpaquePaintEvent);
+        widget->setAutoFillBackground(false);
+        if (transparent)
+            widget->setAttribute(Qt::WA_TranslucentBackground);
+        else
+            widget->setAttribute(Qt::WA_NoSystemBackground);
+    }
+};
+
 QObject* QMLUtils::focusItem() const {
 #ifdef SCENEGRAPH
     return qobject_cast<QSGView*>(qmlContainer)->activeFocusItem();
@@ -191,20 +203,33 @@ public slots:
 private:
     QTimer resizeSettleTimer;
     QWidget *m_prey;
+    QWidget *viewport;
 };
 
 WidgetWrapper::WidgetWrapper(QWidget *prey)
     : QWidget(0),
-      m_prey(prey)
+      m_prey(prey),
+      viewport(0)
 {
+    QAbstractScrollArea *scrollArea = qobject_cast<QAbstractScrollArea*>(prey);
+
+    if (scrollArea)
+        viewport = scrollArea->viewport();
+
+    prey->setParent(this);
+
     //Until I introduce orientation handling
 #if defined(Q_WS_MAEMO_5)
     setAttribute(Qt::WA_LockPortraitOrientation, true);
 #endif
-    setAttribute(Qt::WA_OpaquePaintEvent);
-    setAttribute(Qt::WA_NoSystemBackground);
+    Utils::optimizeWidgetAttributes(this, true);
+    Utils::optimizeWidgetAttributes(prey, true);
 
-    m_prey->setParent(this);
+    if (viewport) {
+        //Does not appear to work here
+        //Not sure why
+        Utils::optimizeWidgetAttributes(viewport, true);
+    }
 
     installEventFilter(Backend::instance());
 
@@ -234,10 +259,11 @@ void WidgetWrapper::handleResize()
 {
     m_prey->setFixedSize(size());
 
+    //We are deliberately avoiding this functionality for QML
+    //since it handles it indepedently
     QGraphicsView *gv = (QString(m_prey->metaObject()->className()).compare("QGraphicsView") == 0) ? qobject_cast<QGraphicsView*>(m_prey) : 0;
     if (gv && Config::isEnabled("scale-ui", false)) {
         gv->resetMatrix();
-        //Needs to be scaled by res of top level qml file
         gv->scale(qreal(width())/1280, qreal(height())/720);
     }
 }
@@ -428,9 +454,6 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
         declarativeWidget->setResizeMode(QSGView::SizeRootObjectToView);
 #else
         DeclarativeView *declarativeWidget = new DeclarativeView;
-        declarativeWidget->setAutoFillBackground(false);
-        declarativeWidget->setAttribute(Qt::WA_OpaquePaintEvent);
-        declarativeWidget->setAttribute(Qt::WA_NoSystemBackground);
 
         if (Config::isEnabled("smooth-scaling", true))
             declarativeWidget->setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing);
@@ -446,6 +469,9 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
         {
 #ifdef GLVIEWPORT
             QGLWidget *viewport = new QGLWidget(declarativeWidget);
+            //Why do I have to set this here?
+            //Why can't I set it in the WidgetWrapper?
+            Utils::optimizeWidgetAttributes(viewport, false);
 
             declarativeWidget->setViewport(viewport);
 #endif //GLVIEWPORT
@@ -454,10 +480,6 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
             declarativeWidget->setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
         }
 #endif //SCENEGRAPH
-        QWidget *viewport = declarativeWidget->viewport();
-        viewport->setAttribute(Qt::WA_OpaquePaintEvent);
-        viewport->setAttribute(Qt::WA_NoSystemBackground);
-        viewport->setAutoFillBackground(false);
         //QSGEngine is not an equivalent class, this class holds for both
         QDeclarativeEngine *engine = declarativeWidget->engine();
         QObject::connect(engine, SIGNAL(quit()), qApp, SLOT(quit()));
