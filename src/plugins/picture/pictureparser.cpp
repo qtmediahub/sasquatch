@@ -29,6 +29,11 @@ static QString determineTitle(const ExifReader &reader, const QFileInfo &fi)
 
 static QByteArray determineThumbnail(const ExifReader &reader, const QFileInfo &info)
 {
+    QByteArray md5 = QCryptographicHash::hash("file://" + QFile::encodeName(info.absoluteFilePath()), QCryptographicHash::Md5).toHex();
+    QFileInfo thumbnailInfo(MediaScanner::instance()->thumbnailPath() + md5 + ".png");
+    if (!thumbnailInfo.exists())
+        return md5;
+
     const int previewWidth = Config::value("thumbnail-size", "256").toInt();
 
     QImageReader imageReader(info.absoluteFilePath());
@@ -47,12 +52,8 @@ static QByteArray determineThumbnail(const ExifReader &reader, const QFileInfo &
     default: break;
     }
 
-    QByteArray ba;
-    QBuffer buffer(&ba);
-    buffer.open(QBuffer::WriteOnly);
-    tmp.save(&buffer, "PNG");
-    buffer.close();
-    return ba;
+    tmp.save(thumbnailInfo.absoluteFilePath());
+    return md5;
 }
 
 // ## See if DELETE+INSERT is the best approach. Sqlite3 supports INSERT OR IGNORE which could aslo be used

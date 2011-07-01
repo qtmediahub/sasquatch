@@ -24,6 +24,11 @@ MediaScanner::MediaScanner(QObject *parent)
 {
 }
 
+QString MediaScanner::thumbnailPath() const
+{
+    return QDir::homePath() + "/.thumbnails/qtmediahub/";
+}
+
 void MediaScanner::initialize()
 {
     m_db = QSqlDatabase::cloneDatabase(Backend::instance()->mediaDatabase(), CONNECTION_NAME);
@@ -33,6 +38,13 @@ void MediaScanner::initialize()
     //query.exec("PRAGMA synchronous=OFF"); // dangerous, can corrupt db
     //query.exec("PRAGMA journal_mode=WAL");
     query.exec("PRAGMA count_changes=OFF");
+
+    // check if thumbnail folder exists
+    QFileInfo thumbnailFolderInfo(thumbnailPath()); // TODO: make the path configureable
+    if (!thumbnailFolderInfo.exists()) {
+        QDir dir;
+        dir.mkpath(thumbnailFolderInfo.absoluteFilePath());
+    }
 }
 
 MediaScanner::~MediaScanner()

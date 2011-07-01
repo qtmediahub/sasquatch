@@ -62,6 +62,7 @@ void MediaModel::setMediaType(const QString &type)
     QHash<int, QByteArray> hash = roleNames();
     hash.insert(DotDotRole, "dotdot");
     hash.insert(IsLeafRole, "isLeaf");
+    hash.insert(PreviewUrlRole, "previewUrl");
 
     for (int i = 0; i < record.count(); i++) {
         hash.insert(FieldRolesBegin + i, record.fieldName(i).toUtf8());
@@ -260,6 +261,9 @@ void MediaModel::handleDataReady(DbReader *reader, const QList<QSqlRecord> &reco
         data.insert(DotDotRole, false);
         data.insert(IsLeafRole, isLeaf);
 
+        QByteArray thumbnail = records[i].value("thumbnail").toByteArray();
+        data.insert(PreviewUrlRole, thumbnail.startsWith("file://") ? thumbnail : "file://" + MediaScanner::instance()->thumbnailPath() + thumbnail + ".png");
+
         m_data.append(data);
     }
 
@@ -291,7 +295,9 @@ QSqlQuery MediaModel::buildQuery() const
     QStringList placeHolders;
     const bool lastPart = m_cursor.count() == m_layoutInfo.count()-1;
     QString queryString;
-    queryString.append("SELECT " + (lastPart ? QString("*") : escapedCurPart));
+    // SQLite allows us to select columns that are not present in the GROUP BY. We use this feature
+    // to select thumbnails for non-leaf nodes
+    queryString.append("SELECT *");
     queryString.append(" FROM " + driver->escapeIdentifier(m_mediaType, QSqlDriver::TableName));
 
     if (!m_cursor.isEmpty()) {

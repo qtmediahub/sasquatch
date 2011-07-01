@@ -30,6 +30,8 @@ public:
 
     void stop() { m_stop = true; }
 
+    QString thumbnailPath() const;
+
 public slots:
     void initialize();
     void addSearchPath(const QString &type, const QString &path, const QString &name);

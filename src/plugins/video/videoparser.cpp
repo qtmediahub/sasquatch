@@ -28,7 +28,7 @@ bool VideoParser::canRead(const QFileInfo &info) const
 
 #define CAPS "video/x-raw-rgb,pixel-aspect-ratio=1/1,bpp=(int)24,depth=(int)24,endianness=(int)4321,red_mask=(int)0xff0000, green_mask=(int)0x00ff00, blue_mask=(int)0x0000ff"
 
-static QByteArray generateThumbnailGstreamer(const QFileInfo &fileInfo)
+static QImage generateThumbnailGstreamer(const QFileInfo &fileInfo)
 {
     GstElement *pipeline, *sink;
     gint width, height;
@@ -48,7 +48,7 @@ static QByteArray generateThumbnailGstreamer(const QFileInfo &fileInfo)
     if (error != NULL) {
         qDebug() <<  "could not construct pipeline: " << error->message;
         g_error_free (error);
-        return QByteArray();
+        return QImage();
     }
 
 
@@ -59,18 +59,18 @@ static QByteArray generateThumbnailGstreamer(const QFileInfo &fileInfo)
     switch (ret) {
     case GST_STATE_CHANGE_FAILURE:
         qDebug() << "failed to play the file";
-        return QByteArray();
+        return QImage();
     case GST_STATE_CHANGE_NO_PREROLL:
 
         qDebug() << "live sources not supported yet";
-        return QByteArray();
+        return QImage();
     default:
         break;
     }
     ret = gst_element_get_state (pipeline, NULL, NULL, 5 * GST_SECOND);
     if (ret == GST_STATE_CHANGE_FAILURE) {
         qDebug() << "failed to play the file";
-        return QByteArray();
+        return QImage();
     }
 
     /* get the duration */
@@ -92,7 +92,7 @@ static QByteArray generateThumbnailGstreamer(const QFileInfo &fileInfo)
         caps = GST_BUFFER_CAPS (buffer);
         if (!caps) {
             qDebug() <<  "could not get snapshot format";
-            return QByteArray();
+            return QImage();
         }
         s = gst_caps_get_structure (caps, 0);
 
@@ -100,7 +100,7 @@ static QByteArray generateThumbnailGstreamer(const QFileInfo &fileInfo)
         res |= gst_structure_get_int (s, "height", &height);
         if (!res) {
             qDebug() << "could not get snapshot dimension";
-            return QByteArray();
+            return QImage();
         }
 
         QImage image(GST_BUFFER_DATA (buffer), width, height, GST_ROUND_UP_4 (width * 3), QImage::Format_RGB888);
@@ -109,18 +109,10 @@ static QByteArray generateThumbnailGstreamer(const QFileInfo &fileInfo)
         gst_object_unref (pipeline);
 
         const int previewWidth = Config::value("thumbnail-size", "256").toInt();
-        QImage tmp = image.width() <= previewWidth ? image: image.scaledToWidth(previewWidth, Qt::SmoothTransformation);
-
-        QByteArray ba;
-        QBuffer buffer(&ba);
-        buffer.open(QBuffer::WriteOnly);
-        tmp.save(&buffer, "PNG");
-        buffer.close();
-
-        return ba;
+        return image.width() <= previewWidth ? image: image.scaledToWidth(previewWidth, Qt::SmoothTransformation);
     } else {
         qDebug() << "could not make snapshot";
-        return QByteArray();
+        return QImage();
     }
 }
 #endif
@@ -129,8 +121,19 @@ static QByteArray generateThumbnail(const QFileInfo &fileInfo)
 {
     if (!Config::isEnabled("video-thumbnails", true))
         return QByteArray();
+
+    QByteArray md5 = QCryptographicHash::hash("file://" + QFile::encodeName(fileInfo.absoluteFilePath()), QCryptographicHash::Md5).toHex();
+    QFileInfo thumbnailInfo(MediaScanner::instance()->thumbnailPath() + md5 + ".png");
+    if (!thumbnailInfo.exists())
+        return md5;
+
 #ifdef THUMBNAIL_GSTREAMER
-    return generateThumbnailGstreamer(fileInfo);
+    QImage image = generateThumbnailGstreamer(fileInfo);
+    if (image.isNull())
+        return QByteArray();
+
+    image.save(thumbnailInfo.absoluteFilePath());
+    return md5;
 #else
     return QByteArray();
 #endif

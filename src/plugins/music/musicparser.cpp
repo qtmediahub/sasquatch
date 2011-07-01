@@ -58,6 +58,11 @@ QString determineAlbum(const TagReader &reader, const QFileInfo &fi)
 
 QByteArray determineThumbnail(const TagReader &reader, const QFileInfo &fi)
 {
+    QByteArray md5 = QCryptographicHash::hash("file://" + QFile::encodeName(fi.absoluteFilePath()), QCryptographicHash::Md5).toHex();
+    QFileInfo thumbnailInfo(MediaScanner::instance()->thumbnailPath() + md5 + ".png");
+    if (!thumbnailInfo.exists())
+        return md5;
+
     // Thumbnail is determined from following
     // 1. Embedded thumbnail
     // 2. foo.mp3 -> foo.{jpg,png,gif,bmp}
@@ -65,9 +70,11 @@ QByteArray determineThumbnail(const TagReader &reader, const QFileInfo &fi)
     // 4. default image (empty)
 
     // 1
-    QByteArray ba = reader.thumbnail();
-    if (!ba.isNull())
-        return ba;
+    QImage img = reader.thumbnailImage();
+    if (!img.isNull()) {
+        img.save(thumbnailInfo.absoluteFilePath());
+        return md5;
+    }
 
     QDir dir = fi.absoluteDir();
     const char *supportedExtensions[] = { ".jpg", ".png", ".gif", ".bmp" }; // prioritized

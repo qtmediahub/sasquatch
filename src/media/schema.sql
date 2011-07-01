@@ -17,7 +17,7 @@ CREATE TABLE music (
     year INTEGER,
     genre TEXT,
     comment TEXT,
-    thumbnail BLOB,
+    thumbnail TEXT,
 
     length INTEGER,
     bitrate INTEGER,
@@ -39,7 +39,7 @@ CREATE TABLE video (
     filepath TEXT NOT NULL UNIQUE,
 
     title TEXT,
-    thumbnail BLOB,
+    thumbnail TEXT,
 
     /* stat information */
     directory TEXT NOT NULL,
@@ -53,7 +53,7 @@ CREATE TABLE picture (
     filepath TEXT NOT NULL UNIQUE,
 
     title TEXT,
-    thumbnail BLOB,
+    thumbnail TEXT,
 
     /* exif */
     comments TEXT,
