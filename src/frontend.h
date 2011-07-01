@@ -31,11 +31,13 @@ class Frontend : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(bool transforms READ transforms NOTIFY frontendChanged)
+    Q_PROPERTY(int framerateCap READ framerateCap NOTIFY framerateCapChanged)
 public:
     Frontend(QObject *p = 0);
     ~Frontend();
 
     bool transforms() const;
+    int framerateCap() const;
     void show();
     bool setSkin(const QString &name);
 
@@ -43,6 +45,7 @@ public:
 
 signals:
     void frontendChanged();
+    void framerateCapChanged();
 
 private:
     FrontendPrivate *d;

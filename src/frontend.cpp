@@ -77,31 +77,66 @@ static QmlJsDebuggingEnabler enableDebuggingHelper;
 class DeclarativeView : public QDeclarativeView {
     Q_OBJECT
 public:
-    DeclarativeView()
-        : QDeclarativeView(0)
-    {
-        connect(this, SIGNAL(statusChanged(QDeclarativeView::Status)), this, SLOT(handleStatusChanged(QDeclarativeView::Status)));
-    }
+    DeclarativeView();
+    void setSource(const QUrl &url);
 
-    void setSource(const QUrl &url) {
-        this->url = url;
-        QMetaObject::invokeMethod(this, "handleSourceChanged", Qt::QueuedConnection);
-    }
+protected:
+    void paintEvent(QPaintEvent *event);
+    void timerEvent(QTimerEvent *event);
 
 public slots:
-    void handleSourceChanged() {
-        QDeclarativeView::setSource(url);
-    }
+    void handleSourceChanged();
+    void handleStatusChanged(QDeclarativeView::Status status);
 
-    void handleStatusChanged(QDeclarativeView::Status status) {
-        if (status == QDeclarativeView::Ready) {
-            activateWindow();
-        }
-    }
+signals:
+    void fpsCap(int);
 
 private:
+    int frameCount;
+    int timeSigma;
+    QElapsedTimer frameTimer;
     QUrl url;
 };
+
+
+DeclarativeView::DeclarativeView()
+    : QDeclarativeView(0),
+      frameCount(0)
+{
+    startTimer(1000);
+    connect(this, SIGNAL(statusChanged(QDeclarativeView::Status)), this, SLOT(handleStatusChanged(QDeclarativeView::Status)));
+}
+
+void DeclarativeView::setSource(const QUrl &url) {
+    this->url = url;
+    QMetaObject::invokeMethod(this, "handleSourceChanged", Qt::QueuedConnection);
+}
+
+void DeclarativeView::paintEvent(QPaintEvent *event) {
+    frameTimer.restart();
+    QGraphicsView::paintEvent(event);
+    timeSigma += frameTimer.elapsed();
+    ++frameCount;
+}
+
+void DeclarativeView::timerEvent(QTimerEvent *event) {
+    if (timeSigma) {
+        int cap = 1000*frameCount/timeSigma;
+        timeSigma = frameCount = 0;
+        emit fpsCap(cap);
+    }
+    QDeclarativeView::timerEvent(event);
+}
+
+void DeclarativeView::handleSourceChanged() {
+    QDeclarativeView::setSource(url);
+}
+
+void DeclarativeView::handleStatusChanged(QDeclarativeView::Status status) {
+    if (status == QDeclarativeView::Ready) {
+        activateWindow();
+    }
+}
 
 class QMLUtils : public QObject
 {
@@ -238,11 +273,14 @@ public slots:
     void grow();
     void shrink();
 
+    void handleFPSCapChanged(int);
+
 public:
     const QRect defaultGeometry;
     bool overscanWorkAround;
     bool attemptingFullScreen;
 
+    int fpsCap;
     QTranslator frontEndTranslator;
     Skin *skin;
     ActionMapper *actionMapper;
@@ -260,6 +298,7 @@ FrontendPrivate::FrontendPrivate(Frontend *p)
       defaultGeometry(0, 0, 1080, 720),
       overscanWorkAround(Config::isEnabled("overscan", false)),
       attemptingFullScreen(Config::isEnabled("fullscreen", true)),
+      fpsCap(0),
       actionMapper(0),
       mediaPlayerRpc(0),
       trackpad(0),
@@ -393,7 +432,6 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
         declarativeWidget->setAttribute(Qt::WA_OpaquePaintEvent);
         declarativeWidget->setAttribute(Qt::WA_NoSystemBackground);
 
-
         if (Config::isEnabled("smooth-scaling", true))
             declarativeWidget->setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing);
 
@@ -485,6 +523,8 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
 
         rootContext = declarativeWidget->rootContext();
         declarativeWidget->setSource(targetUrl);
+
+        connect(declarativeWidget, SIGNAL(fpsCap(int)), SLOT(handleFPSCapChanged(int)));
     }
 }
 
@@ -564,6 +604,12 @@ void FrontendPrivate::shrink()
     skinWidget->setGeometry(skinWidget->geometry().adjusted(1,1,-1,-1));
 }
 
+void FrontendPrivate::handleFPSCapChanged(int fpsCap)
+{
+    this->fpsCap = fpsCap;
+    QMetaObject::invokeMethod(q, "framerateCapChanged");
+}
+
 void FrontendPrivate::toggleFullScreen()
 {
     if (attemptingFullScreen) {
@@ -599,6 +645,10 @@ bool Frontend::transforms() const
 #else
     return false;
 #endif
+}
+
+int Frontend::framerateCap() const {
+    return d->fpsCap;
 }
 
 void Frontend::show()
