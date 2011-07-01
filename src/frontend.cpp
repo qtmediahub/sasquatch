@@ -142,7 +142,6 @@ public:
     ~WidgetWrapper();
 
 protected:
-    void paintEvent(QPaintEvent *e);
     void resizeEvent(QResizeEvent *e);
 
 signals:
@@ -187,13 +186,6 @@ WidgetWrapper::WidgetWrapper(QWidget *prey)
 WidgetWrapper::~WidgetWrapper()
 {
     delete m_prey;
-}
-
-void WidgetWrapper::paintEvent(QPaintEvent *e)
-{
-    Q_UNUSED(e)
-    QPainter p(this);
-    p.fillRect(rect(), Qt::black);
 }
 
 void WidgetWrapper::resizeEvent(QResizeEvent *e)
