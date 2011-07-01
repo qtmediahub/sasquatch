@@ -61,7 +61,7 @@ QByteArray determineThumbnail(const TagReader &reader, const QFileInfo &fi)
     QByteArray md5 = QCryptographicHash::hash("file://" + QFile::encodeName(fi.absoluteFilePath()), QCryptographicHash::Md5).toHex();
     QFileInfo thumbnailInfo(MediaScanner::instance()->thumbnailPath() + md5 + ".png");
     if (thumbnailInfo.exists())
-        return QUrl(thumbnailInfo.absoluteFilePath()).toString().toAscii();
+        return QUrl::fromLocalFile(thumbnailInfo.absoluteFilePath()).toEncoded();
 
     // Thumbnail is determined from following
     // 1. Embedded thumbnail
@@ -73,7 +73,7 @@ QByteArray determineThumbnail(const TagReader &reader, const QFileInfo &fi)
     QImage img = reader.thumbnailImage();
     if (!img.isNull()) {
         img.save(thumbnailInfo.absoluteFilePath());
-        return QUrl(thumbnailInfo.absoluteFilePath()).toString().toAscii();
+        return QUrl::fromLocalFile(thumbnailInfo.absoluteFilePath()).toEncoded();
     }
 
     QDir dir = fi.absoluteDir();
@@ -82,20 +82,20 @@ QByteArray determineThumbnail(const TagReader &reader, const QFileInfo &fi)
     // 2
     for (unsigned i = 0; i < sizeof(supportedExtensions)/sizeof(char *); i++) {
         if (dir.exists(fi.baseName() + supportedExtensions[i]))
-            return QByteArray("file://") + QFile::encodeName(dir.absoluteFilePath(fi.baseName())) + supportedExtensions[i];
+            return QUrl::fromLocalFile(dir.absoluteFilePath(fi.baseName()) + supportedExtensions[i]).toEncoded();
     }
 
     // 3
     QString album = reader.album().simplified();
     for (unsigned i = 0; i < sizeof(supportedExtensions)/sizeof(char *); i++) {
         if (dir.exists(album + supportedExtensions[i]))
-            return QByteArray("file://") + QFile::encodeName(dir.absoluteFilePath(album)) + supportedExtensions[i];
+            return QUrl::fromLocalFile(dir.absoluteFilePath(album) + supportedExtensions[i]).toEncoded();
         if (dir.exists(QString("album") + supportedExtensions[i]))
-            return QByteArray("file://") + QFile::encodeName(dir.absoluteFilePath("album")) + supportedExtensions[i];
+            return QUrl::fromLocalFile(dir.absoluteFilePath("album") + supportedExtensions[i]).toEncoded();
         if (dir.exists(QString("cover") + supportedExtensions[i]))
-            return QByteArray("file://") + QFile::encodeName(dir.absoluteFilePath("cover")) + supportedExtensions[i];
+            return QUrl::fromLocalFile(dir.absoluteFilePath("cover") + supportedExtensions[i]).toEncoded();
         if (dir.exists(QString("folder") + supportedExtensions[i]))
-            return QByteArray("file://") + QFile::encodeName(dir.absoluteFilePath("folder")) + supportedExtensions[i];
+            return QUrl::fromLocalFile(dir.absoluteFilePath("folder") + supportedExtensions[i]).toEncoded();
     }
 
     return QByteArray();
