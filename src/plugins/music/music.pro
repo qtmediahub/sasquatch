@@ -17,12 +17,10 @@ unix: system(pkg-config --exists taglib) {
 QT += sql
 
 HEADERS += musicplugin.h \
-           musicmodel.h \
            musicparser.h \
            tagreader.h
 
 SOURCES += musicplugin.cpp \
-           musicmodel.cpp \
            musicparser.cpp \
            tagreader.cpp
 

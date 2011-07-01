@@ -1,17 +1,13 @@
 #include "pictureplugin.h"
+#include "pictureparser.h"
 
 #include <QtPlugin>
 
 PicturePlugin::PicturePlugin()
     : QMHPlugin(tr("Pictures"), Picture)
 {
-    m_model = new PictureModel(this);
-}
-
-void PicturePlugin::registerPlugin(QDeclarativeContext *context)
-{
-    if (context)
-        context->engine()->addImageProvider("picturemodel", new PictureModelImageProvider);
+    PictureParser *parser = new PictureParser;
+    MediaScanner::instance()->addParser(parser);
 }
 
 Q_EXPORT_PLUGIN2(picture, PicturePlugin)

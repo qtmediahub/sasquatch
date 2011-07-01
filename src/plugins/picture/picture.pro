@@ -16,12 +16,10 @@ unix: system(pkg-config --exists libexif) {
 }
 
 HEADERS += pictureplugin.h \
-           picturemodel.h \
            pictureparser.h \
            exifreader.h
 
 SOURCES += pictureplugin.cpp \
-           picturemodel.cpp \
            pictureparser.cpp \
            exifreader.cpp
 

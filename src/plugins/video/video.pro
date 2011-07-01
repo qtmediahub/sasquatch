@@ -13,10 +13,8 @@ gstreamer {
 
 HEADERS += \
         videoplugin.h \
-        videomodel.h \
         videoparser.h
 
 SOURCES += \
         videoplugin.cpp \
-        videomodel.cpp \
         videoparser.cpp

@@ -1,18 +1,13 @@
 #include "videoplugin.h"
+#include "videoparser.h"
 
 #include <QtPlugin>
 
 VideoPlugin::VideoPlugin()
     : QMHPlugin(tr("Video"), Video)
 {
-    m_model = new VideoModel(this);
-}
-
-void VideoPlugin::registerPlugin(QDeclarativeContext *context)
-{
-    if (context) {
-        context->engine()->addImageProvider("videomodel", new VideoModelImageProvider);
-    }
+    VideoParser *parser = new VideoParser;
+    MediaScanner::instance()->addParser(parser);
 }
 
 Q_EXPORT_PLUGIN2(video, VideoPlugin)
