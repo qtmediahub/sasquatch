@@ -124,8 +124,8 @@ static QByteArray generateThumbnail(const QFileInfo &fileInfo)
 
     QByteArray md5 = QCryptographicHash::hash("file://" + QFile::encodeName(fileInfo.absoluteFilePath()), QCryptographicHash::Md5).toHex();
     QFileInfo thumbnailInfo(MediaScanner::instance()->thumbnailPath() + md5 + ".png");
-    if (!thumbnailInfo.exists())
-        return md5;
+    if (thumbnailInfo.exists())
+        return QUrl::fromLocalFile(thumbnailInfo.absoluteFilePath()).toEncoded();
 
 #ifdef THUMBNAIL_GSTREAMER
     QImage image = generateThumbnailGstreamer(fileInfo);
@@ -133,7 +133,7 @@ static QByteArray generateThumbnail(const QFileInfo &fileInfo)
         return QByteArray();
 
     image.save(thumbnailInfo.absoluteFilePath());
-    return md5;
+    return QUrl::fromLocalFile(thumbnailInfo.absoluteFilePath()).toEncoded();;
 #else
     return QByteArray();
 #endif
