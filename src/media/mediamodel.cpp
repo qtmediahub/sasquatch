@@ -261,8 +261,7 @@ void MediaModel::handleDataReady(DbReader *reader, const QList<QSqlRecord> &reco
         data.insert(DotDotRole, false);
         data.insert(IsLeafRole, isLeaf);
 
-        QByteArray thumbnail = records[i].value("thumbnail").toByteArray();
-        data.insert(PreviewUrlRole, thumbnail.startsWith("file://") ? thumbnail : "file://" + MediaScanner::instance()->thumbnailPath() + thumbnail + ".png");
+        data.insert(PreviewUrlRole, records[i].value("thumbnail").toByteArray());
 
         m_data.append(data);
     }

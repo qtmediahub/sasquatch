@@ -60,8 +60,8 @@ QByteArray determineThumbnail(const TagReader &reader, const QFileInfo &fi)
 {
     QByteArray md5 = QCryptographicHash::hash("file://" + QFile::encodeName(fi.absoluteFilePath()), QCryptographicHash::Md5).toHex();
     QFileInfo thumbnailInfo(MediaScanner::instance()->thumbnailPath() + md5 + ".png");
-    if (!thumbnailInfo.exists())
-        return md5;
+    if (thumbnailInfo.exists())
+        return QUrl(thumbnailInfo.absoluteFilePath()).toString().toAscii();
 
     // Thumbnail is determined from following
     // 1. Embedded thumbnail
@@ -73,7 +73,7 @@ QByteArray determineThumbnail(const TagReader &reader, const QFileInfo &fi)
     QImage img = reader.thumbnailImage();
     if (!img.isNull()) {
         img.save(thumbnailInfo.absoluteFilePath());
-        return md5;
+        return QUrl(thumbnailInfo.absoluteFilePath()).toString().toAscii();
     }
 
     QDir dir = fi.absoluteDir();
