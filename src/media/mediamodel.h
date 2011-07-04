@@ -40,6 +40,7 @@ public:
     enum CustomRole {
         DotDotRole = Qt::UserRole,
         IsLeafRole,
+        ModelIndexRole,
         PreviewUrlRole,
         FieldRolesBegin
     };

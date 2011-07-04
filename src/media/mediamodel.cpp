@@ -62,6 +62,7 @@ void MediaModel::setMediaType(const QString &type)
     QHash<int, QByteArray> hash = roleNames();
     hash.insert(DotDotRole, "dotdot");
     hash.insert(IsLeafRole, "isLeaf");
+    hash.insert(ModelIndexRole,"modelIndex");
     hash.insert(PreviewUrlRole, "previewUrl");
 
     for (int i = 0; i < record.count(); i++) {
@@ -132,6 +133,9 @@ QVariant MediaModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid())
         return QVariant();
+
+    if (role == ModelIndexRole)
+        return qVariantFromValue(index);
     
     return m_data.value(index.row()).value(role);
 }

@@ -18,22 +18,17 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 ****************************************************************************/
 
 #include "playlist.h"
-#include "media.h"
-#include "global.h"
 
-#include <QList>
-#include <QMetaEnum>
-#include <QModelIndex>
+#include "mediamodel.h"
+#include "backend.h"
 
 #define DEBUG if (0) qDebug() << __PRETTY_FUNCTION__
 
 Playlist::Playlist(QObject *parent)
     : QAbstractListModel(parent)
     , m_playMode(Normal)
+    , m_driver(0)
 {
-    QHash<int, QByteArray> roleNames = QAbstractListModel::roleNames();
-    roleNames.unite(Media::roleNames());
-    setRoleNames(roleNames);
 }
 
 Playlist::~Playlist()
@@ -42,66 +37,56 @@ Playlist::~Playlist()
 
 QVariant Playlist::data(const QModelIndex &index, int role) const
 {
-    QVariant rv;
-
     if (!index.isValid())
-        return rv;
+        return QVariant();
 
-    const PlaylistItem &info = content.at(index.row());
-    if (role == Qt::DisplayRole || role == Media::TitleRole) {
-        return info.name;
-    } else if (role == Media::PreviewUrlRole) {
-        return info.previewUrl;
-    } else if (role == Media::FilePathRole) {
-        return info.filePath;
-    } else if (role == Media::ModelIndexRole) {
-        return qVariantFromValue(index);
-    }
-
-    return rv;
+    return m_data.value(index.row()).value(role);
 }
 
 int Playlist::rowCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
-    return content.count();
+    return m_data.count();
 }
 
 QVariant Playlist::add(const QModelIndex &index, PlaylistRoles role, DepthRoles depth)
 {
+    DEBUG << "add item" << index;
+
     if (!index.isValid()) {
         DEBUG << "index is not valid, epic fail";
         return QVariant(); // we don't have a model() to work with
     }
 
-    if (role == Playlist::Replace && rowCount() > 0) {
-        beginRemoveRows(QModelIndex(), 0, rowCount()-1);
-        content.clear();
-        endRemoveRows();
+    int start = rowCount()-1 < 0 ? 0 : rowCount()-1;
+    int end = rowCount() < 0 ? 1 : rowCount();
+
+    emit beginInsertRows(QModelIndex(), start, end);
+
+    // Add the fields of the table as role names
+    if (!m_driver)
+        return QVariant();
+
+    QSqlRecord record = m_driver->record(m_mediaType);
+    if (record.isEmpty()) {
+        DEBUG << "Table " << m_mediaType << " is not valid it seems";
+        return QVariant();
     }
 
-    // check if already in playlist
-    int pos = -1;
-    for (int i = 0; i < content.count(); ++i) {
-        if (content.at(i).filePath == index.data(Media::FilePathRole).toString()) {
-            pos = i;
-            break;
-        }
+    QHash<int, QVariant> dataset;
+    dataset.insert(PreviewUrlRole, index.data(MediaModel::PreviewUrlRole));
+
+    for (int i = 0; i < record.count(); i++) {
+        dataset.insert(FieldRolesBegin + i, index.data(MediaModel::FieldRolesBegin + i));
     }
 
-    if (pos == -1) {
-        if (depth == Playlist::Flat) {
-            // ## this needs to support fetchmore?
-            QModelIndex parent = index.parent();
-            for (int i = 0; i < index.model()->rowCount(parent); i++)
-                appendItem(parent.child(i, 0));
-        }
-        pos = index.row(); // ## incorrect if it's invalid
-    }
+    m_data.append(dataset);
+
+    emit endInsertRows();
 
     DEBUG << "Playlist now has " << rowCount() << " items";
 
-    return qVariantFromValue(createIndex(pos, 0));
+    return qVariantFromValue(createIndex(m_data.count()-1, 0));
 }
 
 QModelIndex Playlist::index(int row) const
@@ -145,18 +130,52 @@ void Playlist::setPlayMode(Playlist::PlayModeRoles mode)
     }
 }
 
-void Playlist::appendItem(const QModelIndex  &index)
+QString Playlist::mediaType() const
 {
-    int start = rowCount()-1 < 0 ? 0 : rowCount()-1;
-    int end = rowCount() < 0 ? 1 : rowCount();
+    return m_mediaType;
+}
 
-    emit beginInsertRows(QModelIndex(), start, end);
-    PlaylistItem item;
-    item.name = index.data(Qt::DisplayRole).toString();
-    item.filePath = index.data(Media::FilePathRole).toString();
-    item.previewUrl = index.data(Media::PreviewUrlRole).toString();
-    item.title = index.data(Media::TitleRole).toString();
-    content.append(item);
-    emit endInsertRows();
+void Playlist::setMediaType(const QString &type)
+{
+    if (type == m_mediaType)
+        return;
+
+    beginResetModel();
+    m_data.clear();
+    endResetModel();
+
+    m_mediaType = type;
+    emit mediaTypeChanged();
+
+    // Add the fields of the table as role names
+    if (!m_driver)
+        m_driver = Backend::instance()->mediaDatabase().driver();
+
+    QSqlRecord record = m_driver->record(m_mediaType);
+    if (record.isEmpty())
+        qWarning() << "Table " << type << " is not valid it seems";
+
+    QHash<int, QByteArray> hash = roleNames();
+    hash.insert(PreviewUrlRole, "previewUrl");
+
+    for (int i = 0; i < record.count(); i++) {
+        hash.insert(FieldRolesBegin + i, record.fieldName(i).toUtf8());
+    }
+
+    setRoleNames(hash);
+}
+
+int Playlist::getRoleByName(const QString &roleName) const
+{
+    QHash<int, QByteArray> hash = roleNames();
+    QHashIterator<int, QByteArray> i(hash);
+     while (i.hasNext()) {
+         i.next();
+         if (i.value() == roleName) {
+             return i.key();
+         }
+     }
+
+    return -1;
 }
 

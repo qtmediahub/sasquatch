@@ -21,20 +21,13 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #define PLAYLIST_H
 
 #include <QtGui>
-
-struct PlaylistItem
-{
-    QString name;
-    QString filePath;
-    QString previewUrl;
-    QString title;
-};
+#include <QtSql>
 
 class Playlist : public QAbstractListModel
 {
     Q_OBJECT
     Q_PROPERTY(PlayModeRoles playMode READ playMode WRITE setPlayMode NOTIFY playModeChanged)
-    Q_ENUMS(CustomRoles)
+    Q_PROPERTY(QString mediaType READ mediaType WRITE setMediaType NOTIFY mediaTypeChanged)
     Q_ENUMS(PlaylistRoles)
     Q_ENUMS(DepthRoles)
     Q_ENUMS(PlayModeRoles)
@@ -42,6 +35,8 @@ class Playlist : public QAbstractListModel
 public:
     Playlist(QObject *parent = 0);
     ~Playlist();
+
+    void initialize();
 
     enum PlaylistRoles {
         Replace,
@@ -59,17 +54,25 @@ public:
         Shuffle
     };
 
+    enum CustomRole {
+        PreviewUrlRole = Qt::UserRole,
+        FieldRolesBegin
+    };
+
     Q_INVOKABLE int rowCount(const QModelIndex &parent = QModelIndex()) const;
     Q_INVOKABLE QModelIndex index(int row) const;
     Q_INVOKABLE int row(const QModelIndex &idx) const { return idx.row(); }
     Q_INVOKABLE QVariant data(const QModelIndex &index, int role) const;
-
     Q_INVOKABLE QVariant add(const QModelIndex &index, PlaylistRoles role = Replace, DepthRoles depth = Single);
-
     Q_INVOKABLE QModelIndex playNextIndex(const QModelIndex &idx) const;
     Q_INVOKABLE QModelIndex playPreviousIndex(const QModelIndex &idx) const;
 
+    Q_INVOKABLE int getRoleByName(const QString &roleName) const;
+
     PlayModeRoles playMode() const { return m_playMode; }
+
+    QString mediaType() const;
+    void setMediaType(const QString &type);
 
 public slots:
     void setPlayMode(PlayModeRoles mode);
@@ -77,12 +80,13 @@ public slots:
 signals:
     void countChanged();
     void playModeChanged();
+    void mediaTypeChanged();
 
 private:
-    void appendItem(const QModelIndex &index);
-
-    QList<PlaylistItem> content;
+    QList<QHash<int, QVariant> > m_data;
     PlayModeRoles m_playMode;
+    QString m_mediaType;
+    QSqlDriver *m_driver;
 };
 
 #endif // PLAYLIST_H
