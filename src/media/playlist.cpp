@@ -58,6 +58,12 @@ QVariant Playlist::add(const QModelIndex &index, PlaylistRoles role, DepthRoles 
         return QVariant(); // we don't have a model() to work with
     }
 
+    if (role == Playlist::Replace) {
+        beginResetModel();
+        m_data.clear();
+        endResetModel();
+    }
+
     int start = rowCount()-1 < 0 ? 0 : rowCount()-1;
     int end = rowCount() < 0 ? 1 : rowCount();
 
