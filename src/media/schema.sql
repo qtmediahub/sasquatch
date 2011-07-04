@@ -55,6 +55,9 @@ CREATE TABLE picture (
     title TEXT,
     thumbnail TEXT,
 
+    year INTEGER,
+    month INTEGER,
+
     /* exif */
     comments TEXT,
     description TEXT,

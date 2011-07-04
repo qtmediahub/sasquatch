@@ -72,9 +72,9 @@ QList<QSqlRecord> PictureParser::updateMediaInfos(const QList<QFileInfo> &fis)
         if (!query.exec())
             DEBUG << query.lastError().text();
 
-        if (!query.prepare("INSERT INTO picture (filepath, title, thumbnail, comments, description, created, camera_model, camera_make, latitude, longitude, altitude, orientation, "
+        if (!query.prepare("INSERT INTO picture (filepath, title, thumbnail, year, month, comments, description, created, camera_model, camera_make, latitude, longitude, altitude, orientation, "
                            "aperture, focal_length, exposure_time, exposure_mode, white_balance, light_source, iso_speed, digital_zoom_ratio, flash_usage, color_space, directory, mtime, ctime, filesize) "
-                           " VALUES (:filepath, :title, :thumbnail, :comments, :description, :created, :camera_model, :camera_make, :latitude, :longitude, :altitude, :orientation, "
+                           " VALUES (:filepath, :title, :thumbnail, :year, :month, :comments, :description, :created, :camera_model, :camera_make, :latitude, :longitude, :altitude, :orientation, "
                            ":aperture, :focal_length, :exposure_time, :exposure_mode, :white_balance, :light_source, :iso_speed, :digital_zoom_ratio, :flash_usage, :color_space, :directory, :mtime, :ctime, :filesize)")) {
             DEBUG << query.lastError().text();
             return records;
@@ -84,9 +84,13 @@ QList<QSqlRecord> PictureParser::updateMediaInfos(const QList<QFileInfo> &fis)
         query.bindValue(":title", determineTitle(reader, fi));
         query.bindValue(":thumbnail", determineThumbnail(reader, fi));
 
+        QDateTime tmp = reader.creationTime();
+        query.bindValue(":year", tmp.toString("yyyy").toInt());
+        query.bindValue(":month", tmp.toString("MM").toInt());
+
         query.bindValue(":comments", reader.userComments());
         query.bindValue(":description", reader.imageDescription());
-        query.bindValue(":created", reader.creationTime());
+        query.bindValue(":created", tmp);
         query.bindValue(":camera_model", reader.cameraModel());
         query.bindValue(":camera_make", reader.cameraMake());
 
