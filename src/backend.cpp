@@ -433,7 +433,7 @@ void Backend::initialize()
     if (!Config::isEnabled("headless", false)) {
         d->frontend = new Frontend();
     }
-    if (Config::isEnabled("system-tray", false)) {
+    if (Config::isEnabled("systray", true)) {
         d->systray = new QSystemTrayIcon(QIcon(":/images/petite-ganesh-22x22.jpg"), this);
         d->systray->setVisible(true);
         QMenu *contextMenu = new QMenu;
