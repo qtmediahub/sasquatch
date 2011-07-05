@@ -40,7 +40,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "rpc/rpcconnection.h"
 #include "qmh-config.h"
 #include "skin.h"
-#include "media/media.h"
 #include "dirmodel.h"
 #include "media/playlist.h"
 #include "file.h"
@@ -496,7 +495,6 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
         qmlRegisterType<Playlist>("Playlist", 1, 0, "Playlist");
         qmlRegisterType<MediaModel>("MediaModel", 1, 0, "MediaModel");
         qmlRegisterType<RpcConnection>("RpcConnection", 1, 0, "RpcConnection");
-        qmlRegisterUncreatableType<Media>("Media", 1, 0, "Media", "Only enums here, move on");
 
         mediaPlayerRpc = new MediaPlayerRpc(declarativeWidget);
         trackpad = new Trackpad(declarativeWidget);
