@@ -33,11 +33,6 @@ class Playlist : public QAbstractListModel
     Q_ENUMS(PlayModeRoles)
 
 public:
-    Playlist(QObject *parent = 0);
-    ~Playlist();
-
-    void initialize();
-
     enum PlaylistRoles {
         Replace,
         Append
@@ -59,26 +54,27 @@ public:
         FieldRolesBegin
     };
 
-    Q_INVOKABLE int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    Q_INVOKABLE QModelIndex index(int row) const;
-    Q_INVOKABLE int row(const QModelIndex &idx) const { return idx.row(); }
-    Q_INVOKABLE QVariant data(const QModelIndex &index, int role) const;
+    Playlist(QObject *parent = 0);
+    void initialize();
+
     Q_INVOKABLE QVariant add(const QModelIndex &index, PlaylistRoles role = Replace, DepthRoles depth = Single);
+    Q_INVOKABLE int getRoleByName(const QString &roleName) const;
+
     Q_INVOKABLE QModelIndex playNextIndex(const QModelIndex &idx) const;
     Q_INVOKABLE QModelIndex playPreviousIndex(const QModelIndex &idx) const;
 
-    Q_INVOKABLE int getRoleByName(const QString &roleName) const;
-
-    PlayModeRoles playMode() const { return m_playMode; }
+    PlayModeRoles playMode() const;
+    void setPlayMode(PlayModeRoles mode);
 
     QString mediaType() const;
     void setMediaType(const QString &type);
 
-public slots:
-    void setPlayMode(PlayModeRoles mode);
+    // reimp
+    Q_INVOKABLE int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    Q_INVOKABLE QModelIndex index(int row) const;
+    Q_INVOKABLE QVariant data(const QModelIndex &index, int role) const;
 
 signals:
-    void countChanged();
     void playModeChanged();
     void mediaTypeChanged();
 

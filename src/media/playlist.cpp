@@ -31,10 +31,6 @@ Playlist::Playlist(QObject *parent)
 {
 }
 
-Playlist::~Playlist()
-{
-}
-
 QVariant Playlist::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid())
@@ -126,6 +122,11 @@ QModelIndex Playlist::playPreviousIndex(const QModelIndex &idx) const
         prev = index(idx.row()-1);
 
     return prev;
+}
+
+Playlist::PlayModeRoles Playlist::playMode() const
+{
+    return m_playMode;
 }
 
 void Playlist::setPlayMode(Playlist::PlayModeRoles mode)
