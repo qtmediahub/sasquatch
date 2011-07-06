@@ -22,7 +22,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "mediamodel.h"
 #include "backend.h"
 
-#define DEBUG if (1) qDebug() << __PRETTY_FUNCTION__
+#define DEBUG if (0) qDebug() << __PRETTY_FUNCTION__
 
 Playlist::Playlist(QObject *parent)
     : QAbstractListModel(parent)
