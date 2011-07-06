@@ -23,5 +23,7 @@ signals:
     void databaseUpdated(const QList<QSqlRecord> &records);
 };
 
+Q_DECLARE_METATYPE(MediaParser *);
+
 #endif // MEDIAPARSER_H
 

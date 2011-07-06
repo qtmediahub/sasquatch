@@ -7,7 +7,8 @@ VideoPlugin::VideoPlugin()
     : QMHPlugin(tr("Video"), Video)
 {
     VideoParser *parser = new VideoParser;
-    MediaScanner::instance()->addParser(parser);
+    QMetaObject::invokeMethod(MediaScanner::instance(), "addParser", Qt::QueuedConnection, 
+                              Q_ARG(MediaParser *, parser));
 }
 
 Q_EXPORT_PLUGIN2(video, VideoPlugin)

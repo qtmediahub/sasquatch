@@ -22,6 +22,7 @@ MediaScanner *MediaScanner::instance()
 MediaScanner::MediaScanner(QObject *parent)
     : QObject(parent), m_stop(false)
 {
+    qRegisterMetaType<MediaParser *>();
 }
 
 QString MediaScanner::thumbnailPath() const
@@ -53,10 +54,9 @@ MediaScanner::~MediaScanner()
     QSqlDatabase::removeDatabase(CONNECTION_NAME);
 }
 
-// called from gui-thread!
 void MediaScanner::addParser(MediaParser *parser)
 {
-    m_parsers.insert(parser->type(), parser); // ## FIXME: Needs to be locked
+    m_parsers.insert(parser->type(), parser);
     QMetaObject::invokeMethod(MediaScanner::instance(), "refresh", Qt::QueuedConnection, Q_ARG(QString, parser->type()));
 }
 

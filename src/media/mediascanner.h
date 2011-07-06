@@ -11,7 +11,8 @@
 class MediaParser;
 
 // MediaScanner is designed to be run in a separate thread. Do not call the methods
-// below directly from the ui thread (except addParser())!
+// below directly from the ui thread. None of the methods below are thread-safe!
+// except stop()
 class QMH_EXPORT MediaScanner : public QObject
 {
     Q_OBJECT
@@ -30,8 +31,6 @@ public:
         bool valid() const { return !name.isEmpty(); }
     };
 
-    void addParser(MediaParser *);
-
     void stop() { m_stop = true; }
 
     QString thumbnailPath() const;
@@ -42,6 +41,7 @@ public slots:
     void initialize();
     void addSearchPath(const QString &type, const QString &path, const QString &name);
     void refresh(const QString &type = QString());
+    void addParser(MediaParser *);
     
 signals:
     void currentScanPathChanged();
