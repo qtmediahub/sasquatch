@@ -31,6 +31,12 @@ MediaModel::MediaModel(QObject *parent)
 
 MediaModel::~MediaModel()
 {
+    if (m_reader) {
+        m_reader->stop();
+        m_reader->deleteLater();
+        m_readerThread->quit();
+        m_readerThread->wait();
+    }
 }
 
 QString MediaModel::part() const

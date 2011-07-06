@@ -247,9 +247,9 @@ BackendPrivate::~BackendPrivate()
 #endif
 
     MediaScanner::instance()->stop();
+    MediaScanner::instance()->deleteLater();
     scannerThread->quit();
     scannerThread->wait();
-    delete MediaScanner::instance();
 
     mediaDb = QSqlDatabase();
     QSqlDatabase::removeDatabase(DATABASE_CONNECTION_NAME);
