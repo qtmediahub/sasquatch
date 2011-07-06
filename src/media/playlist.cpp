@@ -101,6 +101,7 @@ int Playlist::add(const QModelIndex &index, PlaylistRoles role, DepthRoles depth
     if (depth == Playlist::Single) {
         QHash<int, QVariant> dataset;
         dataset.insert(PreviewUrlRole, index.data(MediaModel::PreviewUrlRole));
+        dataset.insert(Qt::DisplayRole, index.data(Qt::DisplayRole));
 
         for (int i = 0; i < record.count(); i++) {
             dataset.insert(FieldRolesBegin + i, index.data(MediaModel::FieldRolesBegin + i));
@@ -114,6 +115,7 @@ int Playlist::add(const QModelIndex &index, PlaylistRoles role, DepthRoles depth
             if (idx.isValid()) {
                 QHash<int, QVariant> dataset;
                 dataset.insert(PreviewUrlRole, idx.data(MediaModel::PreviewUrlRole));
+                dataset.insert(Qt::DisplayRole, idx.data(Qt::DisplayRole));
 
                 for (int i = 0; i < record.count(); i++) {
                     dataset.insert(FieldRolesBegin + i, idx.data(MediaModel::FieldRolesBegin + i));
