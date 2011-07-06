@@ -14,6 +14,7 @@ DbReader::DbReader(QObject *parent)
 
 DbReader::~DbReader()
 {
+    m_db = QSqlDatabase();
     QSqlDatabase::removeDatabase(m_db.connectionName());
 }
 
