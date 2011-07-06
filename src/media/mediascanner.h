@@ -35,7 +35,7 @@ public:
 public slots:
     void initialize();
     void addSearchPath(const QString &type, const QString &path, const QString &name);
-    void refresh();
+    void refresh(const QString &type = QString());
     
 private:
     MediaScanner(QObject *parent = 0);
