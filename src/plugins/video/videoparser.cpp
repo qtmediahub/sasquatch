@@ -166,11 +166,11 @@ QList<QSqlRecord> VideoParser::updateMediaInfos(const QList<QFileInfo> &fis)
         query.prepare("DELETE FROM video WHERE filepath=:filepath");
         query.bindValue(":filepath", fi.absoluteFilePath());
         if (!query.exec())
-            DEBUG << query.lastError().text();
+            qWarning() << query.lastError().text();
 
         if (!query.prepare("INSERT INTO video (filepath, title, thumbnail, directory, mtime, ctime, filesize) "
                            " VALUES (:filepath, :title, :thumbnail, :directory, :mtime, :ctime, :filesize)")) {
-            DEBUG << query.lastError().text();
+            qWarning() << query.lastError().text();
             return records;
         }
 
@@ -184,7 +184,7 @@ QList<QSqlRecord> VideoParser::updateMediaInfos(const QList<QFileInfo> &fis)
         query.bindValue(":filesize", fi.size());
 
         if (!query.exec())
-            DEBUG << query.lastError().text();
+            qWarning() << query.lastError().text();
         
         QSqlRecord record;
         record.append(QSqlField("id", QVariant::Int));

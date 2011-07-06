@@ -22,7 +22,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "dbreader.h"
 #include "backend.h"
 
-#define DEBUG if (1) qDebug() << __PRETTY_FUNCTION__
+#define DEBUG if (0) qDebug() << __PRETTY_FUNCTION__
 
 MediaModel::MediaModel(QObject *parent)
     : QAbstractItemModel(parent), m_loading(false), m_loaded(false), m_reader(0), m_readerThread(0)

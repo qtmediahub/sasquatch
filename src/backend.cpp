@@ -452,7 +452,6 @@ void Backend::initialize()
 
     // This is here because MediaScanner::initialize() uses Backend::instance()
     QMetaObject::invokeMethod(MediaScanner::instance(), "initialize", Qt::QueuedConnection);
-    QMetaObject::invokeMethod(MediaScanner::instance(), "refresh", Qt::QueuedConnection);
 }
 
 void BackendPrivate::initializeMedia()

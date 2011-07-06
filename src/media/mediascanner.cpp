@@ -56,6 +56,7 @@ void MediaScanner::addParser(MediaParser *parser)
 {
     parser->setDatabase(m_db);
     m_parsers.insert(parser->type(), parser);
+    QMetaObject::invokeMethod(MediaScanner::instance(), "refresh", Qt::QueuedConnection, Q_ARG(QString, parser->type()));
 }
 
 void MediaScanner::addSearchPath(const QString &type, const QString &_path, const QString &name)
@@ -129,11 +130,19 @@ void MediaScanner::scan(MediaParser *parser, const QString &path)
         parser->updateMediaInfos(diskFileInfos);
 }
 
-void MediaScanner::refresh()
+void MediaScanner::refresh(const QString &type)
 {
+    DEBUG << "Refreshing " << type;
+
     QSqlQuery query(m_db);
     query.setForwardOnly(true);
-    query.exec("SELECT type, path FROM directories");
+    if (type.isEmpty()) {
+        query.exec("SELECT type, path FROM directories");
+    } else {
+        query.prepare("SELECT type, path FROM directories WHERE type = :1");
+        query.addBindValue(type);
+        query.exec();
+    }
 
     QList<QPair<QString, QString> > dirs;
     while (query.next()) {
