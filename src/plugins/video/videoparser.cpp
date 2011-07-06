@@ -139,10 +139,17 @@ static QByteArray generateThumbnail(const QFileInfo &fileInfo)
 #endif
 }
 
+// clearly needs more advanced recognizer
 static QString determineTitle(const QFileInfo &info)
 {
-    QString title = info.baseName();
+    QString title = info.fileName();
+
+    title.remove(title.lastIndexOf('.'), title.length());
+    title.replace(QRegExp("[\._\-]"), " ");
+    title.replace(QRegExp("xvid|rip|hdtv", Qt::CaseInsensitive), "" );
+    title.simplified();
     title[0] = title[0].toUpper();
+
     return title;
 }
 
