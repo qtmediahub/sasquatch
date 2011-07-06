@@ -22,7 +22,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "dbreader.h"
 #include "backend.h"
 
-#define DEBUG if (0) qDebug() << __PRETTY_FUNCTION__
+#define DEBUG if (1) qDebug() << __PRETTY_FUNCTION__
 
 MediaModel::MediaModel(QObject *parent)
     : QAbstractItemModel(parent), m_loading(false), m_loaded(false), m_reader(0), m_readerThread(0)
@@ -48,7 +48,7 @@ void MediaModel::setMediaType(const QString &type)
     if (type == m_mediaType)
         return;
 
-    initialize();
+    DEBUG << type;
 
     m_mediaType = type;
     emit mediaTypeChanged();
@@ -70,6 +70,8 @@ void MediaModel::setMediaType(const QString &type)
     }
 
     setRoleNames(hash);
+
+    initialize();
 }
 
 void MediaModel::addSearchPath(const QString &path, const QString &name)
@@ -95,11 +97,15 @@ QString MediaModel::structure() const
 
 void MediaModel::setStructure(const QString &str)
 {
+    if (str == m_structure)
+        return;
+    DEBUG << str;
     m_structure = str;
-    initialize();
     m_layoutInfo.clear();
     foreach(const QString &part, m_structure.split("|"))
         m_layoutInfo.append(part.split(","));
+
+    initialize();
 
     emit structureChanged();
 }
@@ -174,8 +180,11 @@ bool MediaModel::hasChildren(const QModelIndex &parent) const
 
 bool MediaModel::canFetchMore(const QModelIndex &parent) const
 {
-    if (parent.isValid() || m_mediaType.isEmpty() || m_layoutInfo.isEmpty())
+    if (parent.isValid() || m_mediaType.isEmpty() || m_layoutInfo.isEmpty()) {
+        DEBUG << "false " << parent.isValid() << m_mediaType.isEmpty() << m_layoutInfo.isEmpty();
         return false;
+    }
+    DEBUG << "true";
     return !m_loading && !m_loaded;
 }
 
@@ -192,12 +201,8 @@ void MediaModel::fetchMore(const QModelIndex &parent)
 }
 
 void MediaModel::initialize()
-{
+{    
     DEBUG << "";
-
-    beginResetModel();
-
-    m_data.clear();
 
     DbReader *newReader = new DbReader;
     if (m_reader) {
@@ -216,8 +221,9 @@ void MediaModel::initialize()
     connect(m_reader, SIGNAL(dataReady(DbReader *, QList<QSqlRecord>, void *)),
             this, SLOT(handleDataReady(DbReader *, QList<QSqlRecord>, void *)));
 
+    beginResetModel();
     m_loading = m_loaded = false;
-
+    m_data.clear();
     endResetModel();
 }
 
