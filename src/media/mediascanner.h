@@ -13,6 +13,8 @@ class MediaParser;
 class QMH_EXPORT MediaScanner : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(QString currentScanPath READ currentScanPath NOTIFY currentScanPathChanged)
+
 public:
     static MediaScanner *instance();
     ~MediaScanner();
@@ -32,11 +34,16 @@ public:
 
     QString thumbnailPath() const;
 
+    QString currentScanPath() const { return m_currentScanPath; }
+
 public slots:
     void initialize();
     void addSearchPath(const QString &type, const QString &path, const QString &name);
     void refresh(const QString &type = QString());
     
+signals:
+    void currentScanPathChanged();
+
 private:
     MediaScanner(QObject *parent = 0);
     void scan(MediaParser *parser, const QString &path);
@@ -45,6 +52,8 @@ private:
     volatile bool m_stop;
     QSqlDatabase m_db;
     QString m_errorString;
+
+    QString m_currentScanPath;
 
     QHash<QString, MediaParser *> m_parsers;
 };

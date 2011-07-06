@@ -92,6 +92,9 @@ void MediaScanner::scan(MediaParser *parser, const QString &path)
         QFileInfoList fileInfosInDisk = QDir(curdir).entryInfoList(QDir::Files|QDir::Dirs|QDir::NoDotAndDotDot|QDir::NoSymLinks);
         QHash<QString, FileInfo> fileInfosInDb = parser->findFilesByPath(curdir);
 
+        m_currentScanPath = curdir;
+        emit currentScanPathChanged();
+
         DEBUG << "Scanning " << curdir << fileInfosInDisk.count() << " files in disk and " << fileInfosInDb.count() << "in database";
 
         foreach(const QFileInfo &diskFileInfo, fileInfosInDisk) {
@@ -128,6 +131,9 @@ void MediaScanner::scan(MediaParser *parser, const QString &path)
 
     if (!diskFileInfos.isEmpty())
         parser->updateMediaInfos(diskFileInfos);
+
+    m_currentScanPath.clear();
+    emit currentScanPathChanged();
 }
 
 void MediaScanner::refresh(const QString &type)
