@@ -22,13 +22,19 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "mediamodel.h"
 #include "backend.h"
 
-#define DEBUG if (0) qDebug() << __PRETTY_FUNCTION__
+#define DEBUG if (1) qDebug() << __PRETTY_FUNCTION__
 
 Playlist::Playlist(QObject *parent)
     : QAbstractListModel(parent)
     , m_playMode(Normal)
     , m_driver(0)
+    , m_currentIndex(-1)
 {
+}
+
+QVariant Playlist::data(int index, int role) const
+{
+    return data(createIndex(index, 0), role);
 }
 
 QVariant Playlist::data(const QModelIndex &index, int role) const
@@ -45,19 +51,19 @@ int Playlist::rowCount(const QModelIndex &parent) const
     return m_data.count();
 }
 
-QVariant Playlist::add(const QModelIndex &index, PlaylistRoles role, DepthRoles depth)
+int Playlist::add(const QModelIndex &index, PlaylistRoles role, DepthRoles depth)
 {
     DEBUG << "add item" << index;
 
     if (!index.isValid()) {
         DEBUG << "index is not valid, epic fail";
-        return QVariant(); // we don't have a model() to work with
+        return -1; // we don't have a model() to work with
     }
 
     const MediaModel *model = qobject_cast<const MediaModel*>(index.model());
     if (!model) {
         DEBUG << "model of index is not a MediaModel";
-        return QVariant();
+        return -1;
     }
 
     // if new item is not same type make this playlist of new type
@@ -77,12 +83,12 @@ QVariant Playlist::add(const QModelIndex &index, PlaylistRoles role, DepthRoles 
 
     // Add the fields of the table as role names
     if (!m_driver)
-        return QVariant();
+        return -1;
 
     QSqlRecord record = m_driver->record(m_mediaType);
     if (record.isEmpty()) {
         DEBUG << "Table " << m_mediaType << " is not valid it seems";
-        return QVariant();
+        return -1;
     }
 
     int pos = -1;
@@ -121,7 +127,7 @@ QVariant Playlist::add(const QModelIndex &index, PlaylistRoles role, DepthRoles 
 
     DEBUG << "Playlist now has " << rowCount() << " items";
 
-    return qVariantFromValue(createIndex(pos, 0));
+    return pos;
 }
 
 QModelIndex Playlist::index(int row) const
@@ -129,32 +135,42 @@ QModelIndex Playlist::index(int row) const
     return createIndex(row, 0);
 }
 
-QModelIndex Playlist::playNextIndex(const QModelIndex &idx) const
+void Playlist::setCurrentIndex(int index)
 {
-    QModelIndex next;
+    if (m_currentIndex == index)
+        return;
 
-    if (m_playMode == Shuffle) {
-        next = index(int((qreal(qrand())/RAND_MAX)*rowCount()));
-    } else {
-        if (idx.row() >= rowCount()-1)
-            next = index(0);
-        else
-            next = index(idx.row()+1);
+    if (index >= rowCount() || index < 0) {
+        DEBUG << "Invalid index " << index;
+        return;
     }
 
-    return next;
+    DEBUG << "Index changed to " << index;
+    m_currentIndex = index;
+    emit currentIndexChanged();
 }
 
-QModelIndex Playlist::playPreviousIndex(const QModelIndex &idx) const
+int Playlist::currentIndex() const
 {
-    QModelIndex prev;
+    return m_currentIndex;
+}
 
-    if (idx.row() <= 0)
-        prev = index(rowCount()-1);
-    else
-        prev = index(idx.row()-1);
+void Playlist::next()
+{
+    int index;
+    if (m_playMode == Shuffle) {
+        index = int((qreal(qrand())/RAND_MAX)*rowCount());
+    } else {
+        index = m_currentIndex >= rowCount()-1 ? 0 : m_currentIndex+1;
+    }
 
-    return prev;
+    setCurrentIndex(index);
+}
+
+void Playlist::previous()
+{
+    int index = m_currentIndex <= 0 ? rowCount()-1 : m_currentIndex-1;
+    setCurrentIndex(index);
 }
 
 Playlist::PlayModeRoles Playlist::playMode() const

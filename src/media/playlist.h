@@ -27,7 +27,9 @@ class Playlist : public QAbstractListModel
 {
     Q_OBJECT
     Q_PROPERTY(PlayModeRoles playMode READ playMode WRITE setPlayMode NOTIFY playModeChanged)
-    Q_PROPERTY(QString mediaType READ mediaType WRITE setMediaType NOTIFY mediaTypeChanged)
+    Q_PROPERTY(QString mediaType READ mediaType NOTIFY mediaTypeChanged)
+    Q_PROPERTY(int currentIndex READ currentIndex WRITE setCurrentIndex NOTIFY currentIndexChanged)
+
     Q_ENUMS(PlaylistRoles)
     Q_ENUMS(DepthRoles)
     Q_ENUMS(PlayModeRoles)
@@ -57,32 +59,40 @@ public:
     Playlist(QObject *parent = 0);
     void initialize();
 
-    Q_INVOKABLE QVariant add(const QModelIndex &index, PlaylistRoles role = Replace, DepthRoles depth = Single);
+    Q_INVOKABLE int add(const QModelIndex &index, PlaylistRoles role = Replace, DepthRoles depth = Single);
     Q_INVOKABLE int getRoleByName(const QString &roleName) const;
 
-    Q_INVOKABLE QModelIndex playNextIndex(const QModelIndex &idx) const;
-    Q_INVOKABLE QModelIndex playPreviousIndex(const QModelIndex &idx) const;
+    Q_INVOKABLE void next();
+    Q_INVOKABLE void previous();
 
     PlayModeRoles playMode() const;
     void setPlayMode(PlayModeRoles mode);
 
     QString mediaType() const;
-    void setMediaType(const QString &type);
+
+    void setCurrentIndex(int idx);
+    int currentIndex() const;
 
     // reimp
     Q_INVOKABLE int rowCount(const QModelIndex &parent = QModelIndex()) const;
     Q_INVOKABLE QModelIndex index(int row) const;
-    Q_INVOKABLE QVariant data(const QModelIndex &index, int role) const;
+    Q_INVOKABLE QVariant data(int idx, int role) const;
+
+    QVariant data(const QModelIndex &index, int role) const;
 
 signals:
     void playModeChanged();
     void mediaTypeChanged();
+    void currentIndexChanged();
 
 private:
+    void setMediaType(const QString &type);
+
     QList<QHash<int, QVariant> > m_data;
     PlayModeRoles m_playMode;
     QString m_mediaType;
     QSqlDriver *m_driver;
+    int m_currentIndex;
 };
 
 #endif // PLAYLIST_H
