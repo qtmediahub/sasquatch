@@ -184,7 +184,7 @@ bool MediaModel::canFetchMore(const QModelIndex &parent) const
         DEBUG << "false " << parent.isValid() << m_mediaType.isEmpty() << m_layoutInfo.isEmpty();
         return false;
     }
-    DEBUG << "true";
+    DEBUG << !m_loading && !m_loaded;
     return !m_loading && !m_loaded;
 }
 
