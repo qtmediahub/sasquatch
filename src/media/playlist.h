@@ -62,8 +62,8 @@ public:
     Q_INVOKABLE int add(const QModelIndex &index, PlaylistRoles role = Replace, DepthRoles depth = Single);
     Q_INVOKABLE int getRoleByName(const QString &roleName) const;
 
-    Q_INVOKABLE void next();
-    Q_INVOKABLE void previous();
+    Q_INVOKABLE int next();
+    Q_INVOKABLE int previous();
 
     PlayModeRoles playMode() const;
     void setPlayMode(PlayModeRoles mode);

@@ -155,7 +155,7 @@ int Playlist::currentIndex() const
     return m_currentIndex;
 }
 
-void Playlist::next()
+int Playlist::next()
 {
     int index;
     if (m_playMode == Shuffle) {
@@ -165,12 +165,14 @@ void Playlist::next()
     }
 
     setCurrentIndex(index);
+    return m_currentIndex;
 }
 
-void Playlist::previous()
+int Playlist::previous()
 {
     int index = m_currentIndex <= 0 ? rowCount()-1 : m_currentIndex-1;
     setCurrentIndex(index);
+    return m_currentIndex;
 }
 
 Playlist::PlayModeRoles Playlist::playMode() const
