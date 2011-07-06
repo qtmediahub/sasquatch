@@ -51,6 +51,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <QDebug>
 
+#define DATABASE_CONNECTION_NAME "Backend"
+
 class SkinSelector : public QDialog
 {
     Q_OBJECT
@@ -248,6 +250,9 @@ BackendPrivate::~BackendPrivate()
     scannerThread->quit();
     scannerThread->wait();
     delete MediaScanner::instance();
+
+    mediaDb = QSqlDatabase();
+    QSqlDatabase::removeDatabase(DATABASE_CONNECTION_NAME);
 }
 
 void BackendPrivate::handleDirChanged(const QString &dir)
@@ -464,7 +469,7 @@ void BackendPrivate::initializeMedia()
     const QString DATABASE_NAME(QDesktopServices::storageLocation(QDesktopServices::DataLocation).append("/media.db"));
     QDir dir;
     dir.mkpath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
-    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
+    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE", DATABASE_CONNECTION_NAME);
     db.setDatabaseName(DATABASE_NAME);
 
     if (!db.open()) {
