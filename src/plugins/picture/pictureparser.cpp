@@ -70,13 +70,13 @@ QList<QSqlRecord> PictureParser::updateMediaInfos(const QList<QFileInfo> &fis)
         query.prepare("DELETE FROM picture WHERE filepath=:filepath");
         query.bindValue(":filepath", fi.absoluteFilePath());
         if (!query.exec())
-            DEBUG << query.lastError().text();
+            qWarning() << query.lastError().text();
 
         if (!query.prepare("INSERT INTO picture (filepath, title, thumbnail, year, month, comments, description, created, camera_model, camera_make, latitude, longitude, altitude, orientation, "
                            "aperture, focal_length, exposure_time, exposure_mode, white_balance, light_source, iso_speed, digital_zoom_ratio, flash_usage, color_space, directory, mtime, ctime, filesize) "
                            " VALUES (:filepath, :title, :thumbnail, :year, :month, :comments, :description, :created, :camera_model, :camera_make, :latitude, :longitude, :altitude, :orientation, "
                            ":aperture, :focal_length, :exposure_time, :exposure_mode, :white_balance, :light_source, :iso_speed, :digital_zoom_ratio, :flash_usage, :color_space, :directory, :mtime, :ctime, :filesize)")) {
-            DEBUG << query.lastError().text();
+            qWarning() << query.lastError().text();
             return records;
         }
 
@@ -121,7 +121,7 @@ QList<QSqlRecord> PictureParser::updateMediaInfos(const QList<QFileInfo> &fis)
         query.bindValue(":filesize", fi.size());
 
         if (!query.exec())
-            DEBUG << query.lastError().text();
+            qWarning() << query.lastError().text();
         
         QSqlRecord record;
         record.append(QSqlField("id", QVariant::Int));

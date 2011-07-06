@@ -123,11 +123,11 @@ QList<QSqlRecord> MusicParser::updateMediaInfos(const QList<QFileInfo> &fis)
         query.prepare("DELETE FROM music WHERE filepath=:filepath");
         query.bindValue(":filepath", fi.absoluteFilePath());
         if (!query.exec())
-            DEBUG << query.lastError().text();
+            qWarning() << query.lastError().text();
 
         if (!query.prepare("INSERT INTO music (filepath, title, album, artist, track, year, genre, comment, thumbnail, length, bitrate, samplerate, directory, mtime, ctime, filesize) "
                            " VALUES (:filepath, :title, :album, :artist, :track, :year, :genre, :comment, :thumbnail, :length, :bitrate, :samplerate, :directory, :mtime, :ctime, :filesize)")) {
-            DEBUG << query.lastError().text();
+            qWarning() << query.lastError().text();
             return records;
         }
 
@@ -151,7 +151,7 @@ QList<QSqlRecord> MusicParser::updateMediaInfos(const QList<QFileInfo> &fis)
         query.bindValue(":filesize", fi.size());
 
         if (!query.exec())
-            DEBUG << query.lastError().text();
+            qWarning() << query.lastError().text();
         
         QSqlRecord record;
         record.append(QSqlField("id", QVariant::Int));
