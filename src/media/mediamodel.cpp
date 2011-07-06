@@ -193,6 +193,8 @@ void MediaModel::fetchMore(const QModelIndex &parent)
     if (!canFetchMore(parent))
         return;
 
+    DEBUG << "";
+
     m_loading = true;
 
     QSqlQuery q = buildQuery();

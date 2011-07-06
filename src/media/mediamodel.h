@@ -72,6 +72,9 @@ public:
     bool canFetchMore(const QModelIndex &parent) const;
     void fetchMore(const QModelIndex &parent);
 
+    // PathView hack
+    Q_INVOKABLE void reset() { QAbstractItemModel::reset(); }
+
 signals:
     void structureChanged();
     void mediaTypeChanged();
