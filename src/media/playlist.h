@@ -77,6 +77,7 @@ public:
     Q_INVOKABLE int rowCount(const QModelIndex &parent = QModelIndex()) const;
     Q_INVOKABLE QModelIndex index(int row) const;
     Q_INVOKABLE QVariant data(int idx, int role) const;
+    Q_INVOKABLE QVariant data(int idx, const QString &role) const;
 
     QVariant data(const QModelIndex &index, int role) const;
 

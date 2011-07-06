@@ -32,6 +32,11 @@ Playlist::Playlist(QObject *parent)
 {
 }
 
+QVariant Playlist::data(int index, const QString &role) const
+{
+    return data(createIndex(index, 0), getRoleByName(role));
+}
+
 QVariant Playlist::data(int index, int role) const
 {
     return data(createIndex(index, 0), role);
