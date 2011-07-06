@@ -54,6 +54,16 @@ QVariant Playlist::add(const QModelIndex &index, PlaylistRoles role, DepthRoles 
         return QVariant(); // we don't have a model() to work with
     }
 
+    const MediaModel *model = qobject_cast<const MediaModel*>(index.model());
+    if (!model) {
+        DEBUG << "model of index is not a MediaModel";
+        return QVariant();
+    }
+
+    // if new item is not same type make this playlist of new type
+    if (model->mediaType() != m_mediaType)
+        setMediaType(model->mediaType());
+
     if (role == Playlist::Replace) {
         beginResetModel();
         m_data.clear();
