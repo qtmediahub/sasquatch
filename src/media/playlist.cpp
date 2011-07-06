@@ -85,20 +85,43 @@ QVariant Playlist::add(const QModelIndex &index, PlaylistRoles role, DepthRoles 
         return QVariant();
     }
 
-    QHash<int, QVariant> dataset;
-    dataset.insert(PreviewUrlRole, index.data(MediaModel::PreviewUrlRole));
+    int pos = -1;
 
-    for (int i = 0; i < record.count(); i++) {
-        dataset.insert(FieldRolesBegin + i, index.data(MediaModel::FieldRolesBegin + i));
+    if (depth == Playlist::Single) {
+        QHash<int, QVariant> dataset;
+        dataset.insert(PreviewUrlRole, index.data(MediaModel::PreviewUrlRole));
+
+        for (int i = 0; i < record.count(); i++) {
+            dataset.insert(FieldRolesBegin + i, index.data(MediaModel::FieldRolesBegin + i));
+        }
+
+        m_data.append(dataset);
+        pos = m_data.count()-1;
+    } else if (depth == Playlist::Flat || depth == Playlist::Recursive) {
+        for(int i = 0; i < model->rowCount(); i++) {
+            QModelIndex idx = model->index(i, 0, QModelIndex());
+            if (idx.isValid()) {
+                QHash<int, QVariant> dataset;
+                dataset.insert(PreviewUrlRole, idx.data(MediaModel::PreviewUrlRole));
+
+                for (int i = 0; i < record.count(); i++) {
+                    dataset.insert(FieldRolesBegin + i, idx.data(MediaModel::FieldRolesBegin + i));
+                }
+
+                m_data.append(dataset);
+                if (idx == index)
+                    pos = m_data.count()-1;
+            }
+        }
+    } else {
+        qWarning() << __PRETTY_FUNCTION__ << "depth not handled, yet";
     }
-
-    m_data.append(dataset);
 
     emit endInsertRows();
 
     DEBUG << "Playlist now has " << rowCount() << " items";
 
-    return qVariantFromValue(createIndex(m_data.count()-1, 0));
+    return qVariantFromValue(createIndex(pos, 0));
 }
 
 QModelIndex Playlist::index(int row) const
