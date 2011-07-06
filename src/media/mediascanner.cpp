@@ -49,13 +49,14 @@ void MediaScanner::initialize()
 
 MediaScanner::~MediaScanner()
 {
+    m_db = QSqlDatabase();
     QSqlDatabase::removeDatabase(CONNECTION_NAME);
 }
 
+// called from gui-thread!
 void MediaScanner::addParser(MediaParser *parser)
 {
-    parser->setDatabase(m_db);
-    m_parsers.insert(parser->type(), parser);
+    m_parsers.insert(parser->type(), parser); // ## FIXME: Needs to be locked
     QMetaObject::invokeMethod(MediaScanner::instance(), "refresh", Qt::QueuedConnection, Q_ARG(QString, parser->type()));
 }
 
@@ -90,7 +91,7 @@ void MediaScanner::scan(MediaParser *parser, const QString &path)
     while (!dirQ.isEmpty() && !m_stop) {
         QString curdir = dirQ.dequeue();
         QFileInfoList fileInfosInDisk = QDir(curdir).entryInfoList(QDir::Files|QDir::Dirs|QDir::NoDotAndDotDot|QDir::NoSymLinks);
-        QHash<QString, FileInfo> fileInfosInDb = parser->findFilesByPath(curdir);
+        QHash<QString, FileInfo> fileInfosInDb = parser->findFilesByPath(curdir, m_db);
 
         m_currentScanPath = curdir;
         emit currentScanPathChanged();
@@ -113,7 +114,7 @@ void MediaScanner::scan(MediaParser *parser, const QString &path)
 
                 diskFileInfos.append(diskFileInfo);
                 if (diskFileInfos.count() > BULK_LIMIT) {
-                    QList<QSqlRecord> records = parser->updateMediaInfos(diskFileInfos);
+                    QList<QSqlRecord> records = parser->updateMediaInfos(diskFileInfos, m_db);
                     diskFileInfos.clear();
                 }
                 DEBUG << diskFileInfo.absoluteFilePath() << " : added";
@@ -130,7 +131,7 @@ void MediaScanner::scan(MediaParser *parser, const QString &path)
     }
 
     if (!diskFileInfos.isEmpty())
-        parser->updateMediaInfos(diskFileInfos);
+        parser->updateMediaInfos(diskFileInfos, m_db);
 
     m_currentScanPath.clear();
     emit currentScanPathChanged();

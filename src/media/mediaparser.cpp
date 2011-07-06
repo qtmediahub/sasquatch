@@ -8,10 +8,10 @@ MediaParser::MediaParser()
 {
 }
 
-QHash<QString, MediaScanner::FileInfo> MediaParser::findFilesByPath(const QString &path)
+QHash<QString, MediaScanner::FileInfo> MediaParser::findFilesByPath(const QString &path, QSqlDatabase db)
 {
     QHash<QString, MediaScanner::FileInfo> hash;
-    QSqlQuery query(m_db);
+    QSqlQuery query(db);
     query.setForwardOnly(true);
     query.prepare(QString("SELECT filepath, mtime, ctime, filesize FROM %1 WHERE directory=:path").arg(type()));
     query.bindValue(":path", path);

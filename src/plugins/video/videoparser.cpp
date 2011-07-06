@@ -155,11 +155,11 @@ static QString determineTitle(const QFileInfo &info)
 
 // ## See if DELETE+INSERT is the best approach. Sqlite3 supports INSERT OR IGNORE which could aslo be used
 // ## Also check other upsert methods
-QList<QSqlRecord> VideoParser::updateMediaInfos(const QList<QFileInfo> &fis)
+QList<QSqlRecord> VideoParser::updateMediaInfos(const QList<QFileInfo> &fis, QSqlDatabase db)
 {
     QList<QSqlRecord> records;
-    QSqlQuery query(m_db);
-    ScopedTransaction transaction(m_db);
+    QSqlQuery query(db);
+    ScopedTransaction transaction(db);
 
     foreach(const QFileInfo &fi, fis) {
         DEBUG << "Updating " << fi.absoluteFilePath();

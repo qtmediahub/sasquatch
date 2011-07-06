@@ -10,6 +10,8 @@
 
 class MediaParser;
 
+// MediaScanner is designed to be run in a separate thread. Do not call the methods
+// below directly from the ui thread (except addParser())!
 class QMH_EXPORT MediaScanner : public QObject
 {
     Q_OBJECT
