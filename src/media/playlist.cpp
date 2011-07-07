@@ -113,6 +113,9 @@ int Playlist::add(const QModelIndex &index, PlaylistRoles role, DepthRoles depth
         for(int i = 0; i < model->rowCount(); i++) {
             QModelIndex idx = model->index(i, 0, QModelIndex());
             if (idx.isValid()) {
+                if (idx.data(MediaModel::DotDotRole).toBool())
+                    continue;
+
                 QHash<int, QVariant> dataset;
                 dataset.insert(PreviewUrlRole, idx.data(MediaModel::PreviewUrlRole));
                 dataset.insert(Qt::DisplayRole, idx.data(Qt::DisplayRole));
