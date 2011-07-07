@@ -117,9 +117,26 @@ QStringList ActionMapper::availableMaps() const
 
 bool ActionMapper::eventFilter(QObject *obj, QEvent *event)
 {
+    static QHash<int,int> repeatingKeys;
+    static int keyDiscardRate = Config::value("keyDiscardRate", 15);
     if (event->type() == QEvent::KeyPress || event->type() == QEvent::KeyRelease) {
         QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
-        if (m_actionMap.contains(keyEvent->key())) {
+        int key = keyEvent->key();
+        if (m_actionMap.contains(key)) {
+            //squash key events
+            if (keyEvent->isAutoRepeat()) {
+                if (repeatingKeys.contains(key)) {
+                    repeatingKeys[key] += 1;
+                    if (repeatingKeys[key]%keyDiscardRate > 1) {
+                        return true;
+                    }
+                } else {
+                    repeatingKeys[key] = 0;
+                }
+            } else {
+                repeatingKeys.remove(key);
+            }
+            //end squash
             QKeyEvent *e = new QKeyEvent(keyEvent->type()
                         , m_internalActionMap.value(m_actionMap.value(keyEvent->key()))
                         , keyEvent->modifiers()
