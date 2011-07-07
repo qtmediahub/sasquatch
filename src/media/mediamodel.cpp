@@ -279,7 +279,7 @@ void MediaModel::handleDataReady(DbReader *reader, const QList<QSqlRecord> &reco
         data.insert(DotDotRole, false);
         data.insert(IsLeafRole, isLeaf);
 
-        data.insert(PreviewUrlRole, records[i].value("thumbnail").toString());
+        data.insert(PreviewUrlRole, QUrl::fromEncoded(records[i].value("thumbnail").toByteArray()));
 
         m_data.append(data);
     }
