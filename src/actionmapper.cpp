@@ -117,15 +117,20 @@ QStringList ActionMapper::availableMaps() const
 
 bool ActionMapper::eventFilter(QObject *obj, QEvent *event)
 {
-    static QHash<int,int> repeatingKeys;
-    static int keyDiscardRate = Config::value("keyDiscardRate", 15);
+    static int keyDiscardRate = qMax(1, Config::value("keyDiscardRate", 15));
+    static int primitiveKeyCompression = Config::value("keyCompress", true);
+
     if (event->type() == QEvent::KeyPress || event->type() == QEvent::KeyRelease) {
         QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
         int key = keyEvent->key();
-        if (m_actionMap.contains(key)) {
+        if (m_actionMap.contains(key))
+        {
             //squash key events
-            if (keyEvent->isAutoRepeat()) {
-                if (repeatingKeys.contains(key)) {
+            if (primitiveKeyCompression
+                    && keyEvent->isAutoRepeat())
+            {
+                if (repeatingKeys.contains(key))
+                {
                     repeatingKeys[key] += 1;
                     if (repeatingKeys[key]%keyDiscardRate > 1) {
                         return true;

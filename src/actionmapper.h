@@ -75,6 +75,7 @@ private:
     QStringList m_maps;
     QHash<int, Action> m_actionMap;
     QHash<Action, Qt::Key> m_internalActionMap;
+    QHash<int,int> repeatingKeys;
 };
 
 QML_DECLARE_TYPE(ActionMapper)
