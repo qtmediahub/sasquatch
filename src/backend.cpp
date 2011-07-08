@@ -180,6 +180,7 @@ BackendPrivate::BackendPrivate(Backend *p)
     actions.append(quitAction);
 
     // TODO: check install prefix
+    skinPaths << QCoreApplication::applicationDirPath() + "/../../skins/"; // unified repo
     skinPaths << "/usr/share/qtmediahub/skins/";
     skinPaths << QDir::homePath() + "/.qtmediahub/skins/";
     skinPaths << QDir(Config::value("skins", QString(basePath % "/skins"))).absolutePath();
