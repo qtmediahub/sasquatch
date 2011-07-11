@@ -119,6 +119,12 @@ void MediaModel::setStructure(const QString &str)
 
 void MediaModel::enter(int index)
 {
+    //Allow negative indexing
+    if (index < 0) {
+        back(-index);
+        return;
+    }
+
     if (m_cursor.count() + 1 == m_layoutInfo.count() && index != 0 /* up on leaf node is OK */) {
         DEBUG << "Refusing to enter leaf node";
         return;
@@ -135,11 +141,15 @@ void MediaModel::enter(int index)
     emit partChanged();
 }
 
-void MediaModel::back()
+void MediaModel::back(int count)
 {
-    m_cursor.removeLast();
-    initialize();
-    emit partChanged();
+    if (m_cursor.count() >= count)
+    {
+        for (int i = 0; i < count; ++i)
+            m_cursor.removeLast();
+        initialize();
+        emit partChanged();
+    }
 }
 
 QVariant MediaModel::data(const QModelIndex &index, int role) const

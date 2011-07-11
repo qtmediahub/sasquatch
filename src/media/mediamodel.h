@@ -57,7 +57,7 @@ public:
     QString mediaType() const;
     void setMediaType(const QString &type);
 
-    Q_INVOKABLE void back();
+    Q_INVOKABLE void back(int count = 1);
     Q_INVOKABLE void enter(int index);
 
     QString part() const;
