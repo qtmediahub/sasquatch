@@ -125,12 +125,12 @@ void MediaModel::enter(int index)
         return;
     }
 
-    if (m_cursor.count() + 1 == m_layoutInfo.count() && index != 0 /* up on leaf node is OK */) {
+    if (m_cursor.count() + 1 == m_layoutInfo.count() && !m_data.at(index)[DotDotRole].toBool() /* up on leaf node is OK */) {
         DEBUG << "Refusing to enter leaf node";
         return;
     }
 
-    if (index == 0 && !m_cursor.isEmpty()) {
+    if (m_data.at(index)[DotDotRole].toBool() && !m_cursor.isEmpty()) {
         back();
         return;
     }
