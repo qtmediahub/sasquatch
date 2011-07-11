@@ -259,11 +259,6 @@ void MediaModel::handleDataReady(DbReader *reader, const QList<QSqlRecord> &reco
 
     if (!m_cursor.isEmpty()) {
         beginInsertRows(QModelIndex(), 0, records.count());
-        QHash<int, QVariant> data;
-        data.insert(Qt::DisplayRole, tr(".."));
-        data.insert(DotDotRole, true);
-        data.insert(IsLeafRole, false);
-        m_data.append(data);
     } else {
         beginInsertRows(QModelIndex(), 0, records.count() - 1);
     }
@@ -292,6 +287,14 @@ void MediaModel::handleDataReady(DbReader *reader, const QList<QSqlRecord> &reco
 
         data.insert(PreviewUrlRole, QUrl::fromEncoded(records[i].value("thumbnail").toByteArray()));
 
+        m_data.append(data);
+    }
+
+    if (!m_cursor.isEmpty()) {
+        QHash<int, QVariant> data;
+        data.insert(Qt::DisplayRole, tr(".."));
+        data.insert(DotDotRole, true);
+        data.insert(IsLeafRole, false);
         m_data.append(data);
     }
 
