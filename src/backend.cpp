@@ -26,6 +26,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "skin.h"
 #include "scopedtransaction.h"
 #include "media/mediascanner.h"
+#include "media/mediamodel.h"
 
 #ifdef QMH_AVAHI
 #include "qavahiservicebrowsermodel.h"
@@ -586,6 +587,22 @@ QObject *Backend::targetsModel() const
 #endif
     }
     return d->targetsModel;
+}
+
+void Backend::addMediaSearchPath(const QString &type, const QString &name, const QString &path)
+{
+    MediaModel *model = new MediaModel(this);
+    model->setMediaType(type);
+    connect(model, SIGNAL(scanFinished()), model, SLOT(deleteLater()));
+    model->addSearchPath(path, name);
+}
+
+void Backend::removeMediaSearchPath(const QString &type, const QString &name)
+{
+    MediaModel *model = new MediaModel(this);
+    model->setMediaType(type);
+    model->removeSearchPath(name);
+    model->deleteLater();
 }
 
 #include "backend.moc"

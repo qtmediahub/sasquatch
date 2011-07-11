@@ -87,13 +87,14 @@ void MediaModel::addSearchPath(const QString &path, const QString &name)
         return;
     }
 
+    connect(MediaScanner::instance(), SIGNAL(scanFinished()), this, SIGNAL(scanFinished()));
     QMetaObject::invokeMethod(MediaScanner::instance(), "addSearchPath", Qt::QueuedConnection, 
                               Q_ARG(QString, m_mediaType), Q_ARG(QString, path), Q_ARG(QString, name));
 }
 
-void MediaModel::removeSearchPath(int index)
+void MediaModel::removeSearchPath(const QString &name)
 {
-    Q_UNUSED(index);
+    Q_UNUSED(name);
 }
 
 QString MediaModel::structure() const

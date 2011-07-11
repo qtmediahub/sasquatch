@@ -154,6 +154,7 @@ void MediaScanner::scan(MediaParser *parser, const QString &path)
 
     m_currentScanPath.clear();
     emit currentScanPathChanged();
+    emit scanFinished();
 }
 
 void MediaScanner::refresh(const QString &type)

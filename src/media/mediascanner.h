@@ -64,6 +64,7 @@ public slots:
     
 signals:
     void currentScanPathChanged();
+    void scanFinished();
 
 private:
     MediaScanner(QObject *parent = 0);
