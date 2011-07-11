@@ -24,6 +24,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QList>
 #include <QDateTime>
 #include <QtSql>
+#include <QDesktopServices>
+
 #include "global.h"
 
 #include "qmhplugin.h"
@@ -44,8 +46,9 @@ class QMH_EXPORT Backend : public QObject
 
 public:
     static Backend *instance();
-
     ~Backend();
+
+    static QString storageLocation(QDesktopServices::StandardLocation type);
 
     QString language() const;
 

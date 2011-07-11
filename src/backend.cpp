@@ -151,7 +151,7 @@ BackendPrivate::BackendPrivate(Backend *p)
       thumbnailPath(Config::value("thumbnail-path", QDir::homePath() + "/.thumbnails/" + qApp->applicationName() + "/")),
       inputIdleTimer(this),
       backendTranslator(0),
-      logFile(QDesktopServices::storageLocation(QDesktopServices::TempLocation)
+      logFile(Backend::storageLocation(QDesktopServices::TempLocation)
           .append("/")
           .append(qApp->applicationName())
           .append(".log")),
@@ -435,6 +435,12 @@ Backend::~Backend()
     s_instance = 0;
 }
 
+QString Backend::storageLocation(QDesktopServices::StandardLocation type)
+{
+    QString location = QDesktopServices::storageLocation(type);
+    return location.isEmpty() ? QString("/tmp") : location;
+}
+
 void Backend::initialize()
 {
     if (!Config::isEnabled("headless", false)) {
@@ -468,9 +474,9 @@ void BackendPrivate::initializeMedia()
         return;
     }
 
-    const QString DATABASE_NAME(QDesktopServices::storageLocation(QDesktopServices::DataLocation).append("/media.db"));
+    const QString DATABASE_NAME(Backend::storageLocation(QDesktopServices::DataLocation).append("/media.db"));
     QDir dir;
-    dir.mkpath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
+    dir.mkpath(Backend::storageLocation(QDesktopServices::DataLocation));
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE", DATABASE_CONNECTION_NAME);
     db.setDatabaseName(DATABASE_NAME);
 
