@@ -17,7 +17,7 @@ class QMH_EXPORT QMHPlugin : public QObject
     Q_PROPERTY(QObject* visualElement READ visualElement CONSTANT)
 
 public:
-    enum PluginRole { Undefined, Unadvertized, Music, Video, Picture, Dashboard, Weather, SingletonRoles, Store, Web, Application, Game, Map, RoleCount };
+    enum PluginRole { Undefined, Unadvertized, Music, Video, Picture, Dashboard, Weather, SingletonRoles, Store, Web, Application, Game, Map, Radio, RoleCount };
 
     QMHPlugin(const QString &name, PluginRole role, QObject *parent = 0)
         : QObject(parent), m_name(name), m_role(role)

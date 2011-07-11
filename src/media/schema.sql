@@ -18,6 +18,7 @@ CREATE TABLE music (
     genre TEXT,
     comment TEXT,
     thumbnail TEXT,
+    uri TEXT,
 
     length INTEGER,
     bitrate INTEGER,
@@ -40,6 +41,7 @@ CREATE TABLE video (
 
     title TEXT,
     thumbnail TEXT,
+    uri TEXT,
 
     /* stat information */
     directory TEXT NOT NULL,
@@ -89,3 +91,19 @@ CREATE TABLE picture (
     filesize INTEGER NOT NULL
 );
 
+CREATE TABLE radio (
+    id INTEGER PRIMARY KEY, /* alias for ROWID, see http://www.sqlite.org/autoinc.html */
+    filepath TEXT NOT NULL UNIQUE,
+
+    title TEXT,
+    thumbnail TEXT,
+
+    length INTEGER,
+    uri TEXT,
+
+    /* stat information */
+    directory TEXT NOT NULL,
+    mtime INTEGER NOT NULL,
+    ctime INTEGER NOT NULL,
+    filesize INTEGER NOT NULL
+);

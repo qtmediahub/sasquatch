@@ -144,8 +144,8 @@ QList<QSqlRecord> MusicParser::updateMediaInfos(const QList<QFileInfo> &fis, QSq
         if (!query.exec())
             qWarning() << query.lastError().text();
 
-        if (!query.prepare("INSERT INTO music (filepath, title, album, artist, track, year, genre, comment, thumbnail, length, bitrate, samplerate, directory, mtime, ctime, filesize) "
-                           " VALUES (:filepath, :title, :album, :artist, :track, :year, :genre, :comment, :thumbnail, :length, :bitrate, :samplerate, :directory, :mtime, :ctime, :filesize)")) {
+        if (!query.prepare("INSERT INTO music (filepath, title, album, artist, track, year, genre, comment, thumbnail, uri, length, bitrate, samplerate, directory, mtime, ctime, filesize) "
+                           " VALUES (:filepath, :title, :album, :artist, :track, :year, :genre, :comment, :thumbnail, :uri, :length, :bitrate, :samplerate, :directory, :mtime, :ctime, :filesize)")) {
             qWarning() << query.lastError().text();
             return records;
         }
@@ -159,6 +159,7 @@ QList<QSqlRecord> MusicParser::updateMediaInfos(const QList<QFileInfo> &fis, QSq
         query.bindValue(":genre", reader.genre());
         query.bindValue(":comment", reader.comment());
         query.bindValue(":thumbnail", determineThumbnail(reader, fi));
+        query.bindValue(":uri", fi.absoluteFilePath());
 
         query.bindValue(":length", reader.length());
         query.bindValue(":bitrate", reader.bitrate());

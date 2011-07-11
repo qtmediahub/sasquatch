@@ -187,8 +187,8 @@ QList<QSqlRecord> VideoParser::updateMediaInfos(const QList<QFileInfo> &fis, QSq
         if (!query.exec())
             qWarning() << query.lastError().text();
 
-        if (!query.prepare("INSERT INTO video (filepath, title, thumbnail, directory, mtime, ctime, filesize) "
-                           " VALUES (:filepath, :title, :thumbnail, :directory, :mtime, :ctime, :filesize)")) {
+        if (!query.prepare("INSERT INTO video (filepath, title, thumbnail, uri, directory, mtime, ctime, filesize) "
+                           " VALUES (:filepath, :title, :thumbnail, :uri, :directory, :mtime, :ctime, :filesize)")) {
             qWarning() << query.lastError().text();
             return records;
         }
@@ -196,6 +196,7 @@ QList<QSqlRecord> VideoParser::updateMediaInfos(const QList<QFileInfo> &fis, QSq
         query.bindValue(":filepath", fi.absoluteFilePath());
         query.bindValue(":title", determineTitle(fi));
         query.bindValue(":thumbnail", generateThumbnail(fi));
+        query.bindValue(":uri", fi.absoluteFilePath());
 
         query.bindValue(":directory", fi.absolutePath());
         query.bindValue(":mtime", fi.lastModified().toTime_t());
