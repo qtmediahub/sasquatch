@@ -270,7 +270,10 @@ void MediaModel::handleDataReady(DbReader *reader, const QList<QSqlRecord> &reco
         QHash<int, QVariant> data;
         for (int j = 0; j < records[i].count(); j++) {
             int idx = tableRecord.indexOf(records[i].fieldName(j));
-            data.insert(FieldRolesBegin + idx, records[i].value(j));
+            if (records[i].fieldName(j) == "uri")
+                data.insert(FieldRolesBegin + idx, QUrl::fromEncoded(records[i].value(j).toByteArray()));
+            else
+                data.insert(FieldRolesBegin + idx, records[i].value(j));
         }
 
         // Provide 'display' role as , separated values

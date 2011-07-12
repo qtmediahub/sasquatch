@@ -159,7 +159,7 @@ QList<QSqlRecord> MusicParser::updateMediaInfos(const QList<QFileInfo> &fis, QSq
         query.bindValue(":genre", reader.genre());
         query.bindValue(":comment", reader.comment());
         query.bindValue(":thumbnail", determineThumbnail(reader, fi));
-        query.bindValue(":uri", fi.absoluteFilePath());
+        query.bindValue(":uri", QUrl::fromLocalFile(fi.absoluteFilePath()).toEncoded());
 
         query.bindValue(":length", reader.length());
         query.bindValue(":bitrate", reader.bitrate());

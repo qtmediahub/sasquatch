@@ -196,7 +196,7 @@ QList<QSqlRecord> VideoParser::updateMediaInfos(const QList<QFileInfo> &fis, QSq
         query.bindValue(":filepath", fi.absoluteFilePath());
         query.bindValue(":title", determineTitle(fi));
         query.bindValue(":thumbnail", generateThumbnail(fi));
-        query.bindValue(":uri", fi.absoluteFilePath());
+        query.bindValue(":uri", QUrl::fromLocalFile(fi.absoluteFilePath()).toEncoded());
 
         query.bindValue(":directory", fi.absolutePath());
         query.bindValue(":mtime", fi.lastModified().toTime_t());

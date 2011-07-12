@@ -42,7 +42,7 @@ QString cleanString(QString str)
 }
 
 struct RadioInfo {
-    QString uri;
+    QUrl uri;
     QString title;
     QString thumbnail;
     int length;
@@ -68,7 +68,7 @@ static RadioInfo *readPLS(QFileInfo fileInfo)
     int length = settings.value("playlist/Length1", "").toInt();
 
     RadioInfo *info = new RadioInfo();
-    info->uri = file;
+    info->uri = QUrl(file);
     info->title = title;
     info->length = length;
 
@@ -82,7 +82,7 @@ static RadioInfo *readASX(QFileInfo fileInfo)
         return 0;
 
     QString title;
-    QString uri;
+    QUrl uri;
     QString banner;
 
     QXmlStreamReader reader(&file);
@@ -113,11 +113,11 @@ static RadioInfo *readASX(QFileInfo fileInfo)
             }
         }
 
-        if (title != "" && uri != "")
+        if (title != "" && uri.isEmpty())
             break;
     }
 
-    if(reader.hasError() || title == "" || uri == "") {
+    if(reader.hasError() || title == "" || uri.isEmpty()) {
         reader.clear();
         return 0;
     }
@@ -125,7 +125,7 @@ static RadioInfo *readASX(QFileInfo fileInfo)
     reader.clear();
 
     RadioInfo *info = new RadioInfo();
-    info->uri = uri;
+    info->uri = QUrl(uri);
     info->title = title;
     info->thumbnail = banner;
 
@@ -170,7 +170,7 @@ QList<QSqlRecord> RadioParser::updateMediaInfos(const QList<QFileInfo> &fis, QSq
         query.bindValue(":thumbnail", info->thumbnail);
 
         query.bindValue(":length", info->length);
-        query.bindValue(":uri", info->uri);
+        query.bindValue(":uri", info->uri.toEncoded());
 
         query.bindValue(":directory", fi.absolutePath());
         query.bindValue(":mtime", fi.lastModified().toTime_t());
