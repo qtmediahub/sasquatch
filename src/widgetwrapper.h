@@ -8,6 +8,11 @@ class WidgetWrapper : public QWidget
 {
     Q_OBJECT
 public:
+    enum ScreenOrientation {
+        ScreenOrientationLockPortrait,
+        ScreenOrientationLockLandscape,
+        ScreenOrientationAuto
+    };
     WidgetWrapper(QWidget *prey);
     ~WidgetWrapper();
 
@@ -20,6 +25,7 @@ signals:
     void toggleFullScreen();
 
 public slots:
+    void setOrientation(ScreenOrientation orientation);
     void handleResize();
     void resetUI();
 
