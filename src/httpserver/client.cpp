@@ -96,6 +96,10 @@ void Client::readVideoRequest()
 
 void Client::readMusicRequest()
 {
+    QString id = m_get.right(m_get.length()-m_get.lastIndexOf("/")-1);
+    sendFile(getMediaUrl("music", id.toInt()).toLocalFile());
+
+    m_socket->close();
 }
 
 void Client::readPictureRequest()
