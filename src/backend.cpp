@@ -27,7 +27,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "scopedtransaction.h"
 #include "media/mediascanner.h"
 #include "media/mediamodel.h"
-#include "httpserver/httpserver.h"
 
 #ifdef QMH_AVAHI
 #include "qavahiservicebrowsermodel.h"
@@ -463,8 +462,6 @@ void Backend::initialize()
         publisher->publish(QHostInfo::localHostName(), "_qmh._tcp", 1234, "Qt Media Hub JSON-RPCv2 interface");
     }
 #endif
-
-    HttpServer *server = new HttpServer(Config::value("stream-port", "1337").toInt(), this);
 
     // This is here because MediaScanner::initialize() uses Backend::instance()
     QMetaObject::invokeMethod(MediaScanner::instance(), "initialize", Qt::QueuedConnection);
