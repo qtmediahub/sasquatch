@@ -7,18 +7,20 @@
 class HttpServer : public QTcpServer
 {
     Q_OBJECT
-    Q_PROPERTY(QString base READ base WRITE setBase NOTIFY baseChanged)
+    Q_PROPERTY(QString address READ address NOTIFY addressChanged)
+    Q_PROPERTY(int port READ port NOTIFY portChanged)
 
 public:
     HttpServer(quint16 port, QObject* parent = 0);
 
     void incomingConnection(int socket);
 
-    void setBase(const QString &b);
-    QString base() const;
+    QString address() const { return serverAddress().toString(); }
+    int port() const { return serverPort(); }
 
 signals:
-    void baseChanged();
+    void addressChanged();
+    void portChanged();
 
 private:
     QString m_base;

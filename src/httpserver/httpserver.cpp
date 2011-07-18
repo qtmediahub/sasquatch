@@ -6,6 +6,10 @@ HttpServer::HttpServer(quint16 port, QObject *parent) :
     QTcpServer(parent)
 {
     listen(QHostAddress::Any, port);
+
+    emit addressChanged();
+    emit portChanged();
+
     qDebug() << "Streaming server listening" << serverAddress().toString() << "on" << serverPort();
 }
 
@@ -22,16 +26,3 @@ void HttpServer::incomingConnection(int socket)
     thread->start();
 }
 
-void HttpServer::setBase(const QString &b)
-{
-    if (b == m_base)
-        return;
-
-    m_base = b;
-    emit baseChanged();
-}
-
-QString HttpServer::base() const
-{
-    return m_base;
-}
