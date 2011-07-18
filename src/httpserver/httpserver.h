@@ -15,15 +15,19 @@ public:
 
     void incomingConnection(int socket);
 
-    QString address() const { return serverAddress().toString(); }
+    QString address() const { return m_address; }
     int port() const { return serverPort(); }
 
 signals:
     void addressChanged();
     void portChanged();
 
+private slots:
+    void getHostAddress(QHostInfo info);
+
 private:
     QString m_base;
+    QString m_address;
 };
 
 #endif // HTTPSERVER_H

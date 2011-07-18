@@ -7,10 +7,9 @@ HttpServer::HttpServer(quint16 port, QObject *parent) :
 {
     listen(QHostAddress::Any, port);
 
-    emit addressChanged();
     emit portChanged();
 
-    qDebug() << "Streaming server listening" << serverAddress().toString() << "on" << serverPort();
+    QHostInfo::lookupHost(QHostInfo::localHostName(), this, SLOT(getHostAddress(QHostInfo)));
 }
 
 void HttpServer::incomingConnection(int socket)
@@ -24,5 +23,17 @@ void HttpServer::incomingConnection(int socket)
     connect(client, SIGNAL(disconnected()), thread, SLOT(quit()));
     connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
     thread->start();
+}
+
+void HttpServer::getHostAddress(QHostInfo info)
+{
+    // FIXME
+    if (!info.addresses().isEmpty()) {
+        m_address = info.addresses().first().toString();
+    }
+
+    emit addressChanged();
+
+    qDebug() << "Streaming server listening" << m_address << "on" << serverPort();
 }
 
