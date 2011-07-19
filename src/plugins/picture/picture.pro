@@ -11,7 +11,7 @@ unix: system(pkg-config --exists libexif) {
     message(Use system libexif)
 } else {
     include(../../3rdparty/libexif-0.6.19/libexif/libexif.pri)
-    INCLUDEPATH += ../../3rdparty/libexif
+    INCLUDEPATH += ../../3rdparty/libexif-0.6.19
     message(Use libexif from 3rdparty)
 }
 
