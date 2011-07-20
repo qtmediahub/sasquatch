@@ -2,6 +2,21 @@ QtMediaHub requires:
 
 :Qt:
 
+Qt requires a host of dependencies, you can either repeatedly rerun
+configure installing deps as you go until Qt has detected all the
+functionality you require, or you can run:
+
+Ubuntu:
+
+apt-get build-dep qt4-x11
+
+Meego:
+
+zypper source-install qt
+
+You will need pkg-config and git (git-core package on demented distros) to follow
+these instructions.
+
 We maintain a known functional Qt 4.7 branch qmh-qt-4.7-baseline which
 resides at:
 
