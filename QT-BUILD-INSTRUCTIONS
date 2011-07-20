@@ -1,5 +1,20 @@
 QtMediaHub requires:
 
+:Some Qt knowledge:
+
+Please read:
+
+http://doc.trolltech.com/4.7-snapshot/gettingstarted-develop.html#deployment
+
+to get familiar with Qt specific build considerations.
+
+If you are new to Linux development, I urge you to try to run Gentoo Linux:
+
+http://www.gentoo.org/
+
+which will embolden you to Linux development and which has some killer
+documentation.
+
 :Qt:
 
 Qt requires a host of dependencies, you can either repeatedly rerun

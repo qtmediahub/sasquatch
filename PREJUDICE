@@ -1,0 +1,8 @@
+A large component of the dev team runs on Arch Linux; this should run well
+on any modern X11 based Linux platform, and we are actively in the process
+of testing/adjusting Qt Media Hub to run fantastically independently of
+X11.
+
+Qt Media Hub is also tested with regularity on Mac OS 10.6 (with ports
+supplying all the deps, pkg-config carrying the load and XCode 4 doing the
+real heavy lifting)
