@@ -102,7 +102,16 @@ void HttpClient::readVideoRequest()
 void HttpClient::readMusicRequest()
 {
     QString id = m_get.right(m_get.length()-m_get.lastIndexOf("/")-1);
-    sendFile(getMediaUrl("music", id.toInt()).toLocalFile());
+
+    if (m_request.contains("Range")) {
+        QString offsetString = m_request.value("Range");
+        offsetString.remove(0, 6);
+        qint64 offset = offsetString.split("-").at(0).toLongLong();
+        sendPartial(getMediaUrl("music", id.toInt()).toLocalFile(), offset);
+    } else {
+        sendFile(getMediaUrl("music", id.toInt()).toLocalFile());
+    }
+
 
     m_socket->close();
 }
