@@ -17,42 +17,45 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 ****************************************************************************/
 
-#include "httpserver.h"
+#ifndef HTTPCLIENT_H
+#define HTTPCLIENT_H
 
-#include "httpclient.h"
+#include <QObject>
+#include <QtNetwork>
 
-HttpServer::HttpServer(quint16 port, QObject *parent) :
-    QTcpServer(parent)
+class HttpServer;
+
+class HttpClient : public QObject
 {
-    listen(QHostAddress::Any, port);
+    Q_OBJECT
+public:
+    explicit HttpClient(int sockfd, HttpServer *server, QObject *parent = 0);
 
-    emit portChanged();
+signals:
+    void error(QTcpSocket::SocketError socketError);
+    void disconnected();
 
-    QHostInfo::lookupHost(QHostInfo::localHostName(), this, SLOT(getHostAddress(QHostInfo)));
-}
+private slots:
+    void readClient();
+    void discardClient();
 
-void HttpServer::incomingConnection(int socket)
-{
-    qDebug() << "New Connection";
+private:
+    void readVideoRequest();
+    void readMusicRequest();
+    void readPictureRequest();
 
-    QThread *thread = new QThread(this);
-    HttpClient *client = new HttpClient(socket, this);
-    client->moveToThread(thread);
-    connect(client, SIGNAL(disconnected()), client, SLOT(deleteLater()));
-    connect(client, SIGNAL(disconnected()), thread, SLOT(quit()));
-    connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
-    thread->start();
-}
+    QUrl getMediaUrl(QString mediaType, int id, QString field = "uri");
+    bool sendFile(QString fileName);
+    bool sendPartial(QString fileName, qint64 offset);
 
-void HttpServer::getHostAddress(QHostInfo info)
-{
-    // FIXME check if address is really the one we want
-    if (!info.addresses().isEmpty()) {
-        m_address = info.addresses().first().toString();
-    }
+    void answerOk(qint64 length);
+    void answerNotFound();
 
-    emit addressChanged();
+    QTcpSocket *m_socket;
+    HttpServer *m_server;
+    QFile m_file;
+    QHash<QString, QString> m_request;
+    QString m_get;
+};
 
-    qDebug() << "Streaming server listening" << m_address << "on" << serverPort();
-}
-
+#endif // HTTPCLIENT_H

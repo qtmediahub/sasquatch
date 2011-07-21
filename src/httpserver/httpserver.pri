@@ -2,12 +2,14 @@
 QT += network
 
 SOURCES += \
-    $$PWD/client.cpp \
+    $$PWD/httpclient.cpp \
     $$PWD/httpserver.cpp
 
 HEADERS += \
-    $$PWD/client.h \
+    $$PWD/httpclient.h \
     $$PWD/httpserver.h
+
+
 
 
 
