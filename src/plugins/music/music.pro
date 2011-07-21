@@ -9,8 +9,11 @@ unix: system(pkg-config --exists taglib) {
     PKGCONFIG += taglib
     message(Use system taglib)
 } else {
-    include(../../3rdparty/taglib/taglib.pri)
-    INCLUDEPATH += ../../3rdparty/taglib ../../3rdparty/taglib/mpeg ../../3rdparty/taglib/id3v2/ ../../3rdparty/taglib/id3v2/frames/
+    include($$PROJECTROOT/src/3rdparty/taglib/taglib.pri)
+    INCLUDEPATH +=  $$PROJECTROOT/src/3rdparty/taglib \
+                    $$PROJECTROOT/src/3rdparty/taglib/mpeg \
+                    $$PROJECTROOT/src/3rdparty/taglib/id3v2/ \
+                    $$PROJECTROOT/src/3rdparty/taglib/id3v2/frames/
     message(Use taglib from 3rdparty)
 }
 
