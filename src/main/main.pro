@@ -2,8 +2,8 @@ include($$PROJECTROOT/src/common.pri)
 include($$PROJECTROOT/src/core-common.pri)
 
 TEMPLATE = app
-TARGET = qmh
-DESTDIR = $${PROJECTROOT}/hub
+TARGET = ../../hub/qmh
+#DESTDIR = $${PROJECTROOT}/hub
 DEPENDPATH += .
 INCLUDEPATH += $${PROJECTROOT}/src/
 
