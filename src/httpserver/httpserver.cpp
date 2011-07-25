@@ -26,9 +26,9 @@ HttpServer::HttpServer(quint16 port, QObject *parent) :
 {
     listen(QHostAddress::Any, port);
 
-    emit portChanged();
+    m_address = getAddress();
 
-    QHostInfo::lookupHost(QHostInfo::localHostName(), this, SLOT(getHostAddress(QHostInfo)));
+    qDebug() << "Streaming server listening" << m_address << "on" << serverPort();
 }
 
 void HttpServer::incomingConnection(int socket)
@@ -42,15 +42,17 @@ void HttpServer::incomingConnection(int socket)
     thread->start();
 }
 
-void HttpServer::getHostAddress(QHostInfo info)
+QString HttpServer::getAddress()
 {
-    // FIXME check if address is really the one we want
-    if (!info.addresses().isEmpty()) {
-        m_address = info.addresses().first().toString();
+    foreach (QNetworkInterface i, QNetworkInterface::allInterfaces()) {
+        if (!(i.flags() & QNetworkInterface::IsLoopBack) && (i.flags() & QNetworkInterface::IsUp)) {
+            foreach (QNetworkAddressEntry a,  i.addressEntries()) {
+                if (a.ip().protocol() == QAbstractSocket::IPv4Protocol) {
+                    return a.ip().toString();
+                }
+            }
+        }
     }
 
-    emit addressChanged();
-
-    qDebug() << "Streaming server listening" << m_address << "on" << serverPort();
+    return QString();
 }
-

@@ -41,10 +41,9 @@ signals:
     void addressChanged();
     void portChanged();
 
-private slots:
-    void getHostAddress(QHostInfo info);
-
 private:
+    QString getAddress();
+
     QString m_base;
     QString m_address;
 };
