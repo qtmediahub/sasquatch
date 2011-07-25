@@ -5,6 +5,3 @@ SUBDIRS = music \
           picture \
           radio
 
-contains(QT_CONFIG, dbus) {
-    SUBDIRS += appstore
-}
