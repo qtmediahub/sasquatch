@@ -14,7 +14,6 @@ class QMH_EXPORT MediaPlugin : public QObject
     Q_ENUMS(PluginRole)
     Q_PROPERTY(QString name READ name CONSTANT)
     Q_PROPERTY(PluginRole role READ role CONSTANT)
-    Q_PROPERTY(QObject* visualElement READ visualElement CONSTANT)
 
 public:
     enum PluginRole { Undefined, Unadvertized, Music, Video, Picture, Dashboard, Weather, SingletonRoles, Store, Web, Application, Game, Map, Radio, RoleCount };
@@ -27,13 +26,9 @@ public:
 
     QString name() const { return m_name; }
     PluginRole role() const { return m_role; }
-    virtual QObject* visualElement() const { return 0; }
 
-    //These plugins should be equally usable from html
     virtual void registerPlugin(QDeclarativeContext *context = 0) { Q_UNUSED(context); }
     virtual void unregisterPlugin() { /*no impl*/ }
-
-    virtual bool dependenciesSatisfied() const { return true; }
 
 private:
     QString m_name;
