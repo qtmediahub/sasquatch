@@ -23,7 +23,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QtPlugin>
 
 VideoPlugin::VideoPlugin()
-    : QMHPlugin(tr("Video"), Video)
+    : MediaPlugin(tr("Video"), Video)
 {
     VideoParser *parser = new VideoParser;
     QMetaObject::invokeMethod(MediaScanner::instance(), "addParser", Qt::QueuedConnection, 

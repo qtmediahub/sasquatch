@@ -1,5 +1,5 @@
-#ifndef QMHPLUGIN_H
-#define QMHPLUGIN_H
+#ifndef MEDIAPLUGIN_H
+#define MEDIAPLUGIN_H
 
 #include <QObject>
 #include <QStringList>
@@ -8,7 +8,7 @@
 
 class QDeclarativeContext;
 
-class QMH_EXPORT QMHPlugin : public QObject
+class QMH_EXPORT MediaPlugin : public QObject
 {
     Q_OBJECT
     Q_ENUMS(PluginRole)
@@ -19,11 +19,11 @@ class QMH_EXPORT QMHPlugin : public QObject
 public:
     enum PluginRole { Undefined, Unadvertized, Music, Video, Picture, Dashboard, Weather, SingletonRoles, Store, Web, Application, Game, Map, Radio, RoleCount };
 
-    QMHPlugin(const QString &name, PluginRole role, QObject *parent = 0)
+    MediaPlugin(const QString &name, PluginRole role, QObject *parent = 0)
         : QObject(parent), m_name(name), m_role(role)
     {}
 
-    virtual ~QMHPlugin() { /*no impl*/ }
+    virtual ~MediaPlugin() { /*no impl*/ }
 
     QString name() const { return m_name; }
     PluginRole role() const { return m_role; }
@@ -40,6 +40,6 @@ private:
     PluginRole m_role;
 };
 
-Q_DECLARE_INTERFACE(QMHPlugin, "com.nokia.QMH.Plugin/1.0")
+Q_DECLARE_INTERFACE(MediaPlugin, "com.qtmediahub.MediaPlugin/1.0")
 
-#endif // QMHPLUGIN_H
+#endif // MEDIAPLUGIN_H

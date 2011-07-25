@@ -23,7 +23,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QObject>
 
 class FrontendPrivate;
-class QMHPlugin;
+class MediaPlugin;
 
 /*Logic abstracting what is handling the rendering and resolution selection*/
 
@@ -41,7 +41,7 @@ public:
     void show();
     bool setSkin(const QString &name);
 
-    void initializePlugin(QMHPlugin *plugin);
+    void initializePlugin(MediaPlugin *plugin);
 
 signals:
     void frontendChanged();

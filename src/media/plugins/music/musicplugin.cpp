@@ -24,7 +24,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QtDeclarative>
 
 MusicPlugin::MusicPlugin()
-    : QMHPlugin(tr("Music"), Music)
+    : MediaPlugin(tr("Music"), Music)
 {
     MusicParser *parser = new MusicParser;
     QMetaObject::invokeMethod(MediaScanner::instance(), "addParser", Qt::QueuedConnection, 

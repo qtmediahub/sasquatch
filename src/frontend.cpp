@@ -45,7 +45,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "dirmodel.h"
 #include "media/playlist.h"
 #include "file.h"
-#include "qmhplugin.h"
+#include "media/mediaplugin.h"
 #include "devicemanager.h"
 #include "powermanager.h"
 #include "media/mediamodel.h"
@@ -388,7 +388,7 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
 
         // register dataproviders to QML
         qmlRegisterUncreatableType<ActionMapper>("ActionMapper", 1, 0, "ActionMapper", "For enums. For methods use actionmap global variable");
-        qmlRegisterUncreatableType<QMHPlugin>("QMHPlugin", 1, 0, "QMHPlugin", "Only for enums");
+        qmlRegisterUncreatableType<MediaPlugin>("QMHPlugin", 1, 0, "QMHPlugin", "Only for enums"); // ## still registered as QMHPlugin for compat with skins
         qmlRegisterType<DirModel>("DirModel", 1, 0, "DirModel");
         qmlRegisterType<File>("File", 1, 0, "File");
         qmlRegisterType<Playlist>("Playlist", 1, 0, "Playlist");
@@ -427,8 +427,8 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
         runtime->insert("httpServer", qVariantFromValue(static_cast<QObject *>(httpServer)));
         runtime->insert("config", qVariantFromValue(static_cast<QObject *>(Config::instance())));
 
-        QHash<QString, QMHPlugin *> engines = Backend::instance()->engines();
-        for (QHash<QString, QMHPlugin *>::const_iterator it = engines.constBegin(); it != engines.constEnd(); ++it) {
+        QHash<QString, MediaPlugin *> engines = Backend::instance()->engines();
+        for (QHash<QString, MediaPlugin *>::const_iterator it = engines.constBegin(); it != engines.constEnd(); ++it) {
             it.value()->registerPlugin(declarativeWidget->rootContext());
         }
 
@@ -556,7 +556,7 @@ Frontend::~Frontend()
     d = 0;
 }
 
-void Frontend::initializePlugin(QMHPlugin *plugin)
+void Frontend::initializePlugin(MediaPlugin *plugin)
 {
     if (d->rootContext)
         plugin->registerPlugin(d->rootContext);

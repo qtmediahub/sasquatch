@@ -23,7 +23,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QtPlugin>
 
 PicturePlugin::PicturePlugin()
-    : QMHPlugin(tr("Pictures"), Picture)
+    : MediaPlugin(tr("Pictures"), Picture)
 {
     PictureParser *parser = new PictureParser;
     QMetaObject::invokeMethod(MediaScanner::instance(), "addParser", Qt::QueuedConnection, 

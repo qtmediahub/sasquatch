@@ -22,12 +22,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <QObject>
 #include <QDeclarativeContext>
-#include "qmhplugin.h"
+#include "mediaplugin.h"
 
-class VideoPlugin : public QMHPlugin
+class VideoPlugin : public MediaPlugin
 {
     Q_OBJECT
-    Q_INTERFACES(QMHPlugin)
+    Q_INTERFACES(MediaPlugin)
 
 public:
     VideoPlugin();

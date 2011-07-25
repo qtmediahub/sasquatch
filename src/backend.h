@@ -28,7 +28,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "global.h"
 
-#include "qmhplugin.h"
+#include "media/mediaplugin.h"
 
 class QUrl;
 class BackendPrivate;
@@ -71,7 +71,7 @@ public:
     Frontend* frontend() const;
     QSqlDatabase mediaDatabase() const;
 
-    QHash<QString, QMHPlugin *> engines() const;
+    QHash<QString, MediaPlugin *> engines() const;
 
     Q_INVOKABLE void loadEngines(const QStringList &whiteList = QStringList(), const QStringList &blackList = QStringList());
     Q_INVOKABLE QStringList loadedEngineNames() const;

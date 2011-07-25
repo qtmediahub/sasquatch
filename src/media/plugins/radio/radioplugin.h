@@ -22,14 +22,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <QObject>
 
-#include "qmhplugin.h"
+#include "mediaplugin.h"
 
 class QDeclarativeContext;
 
-class RadioPlugin : public QMHPlugin
+class RadioPlugin : public MediaPlugin
 {
     Q_OBJECT
-    Q_INTERFACES(QMHPlugin)
+    Q_INTERFACES(MediaPlugin)
 
 public:
     RadioPlugin();

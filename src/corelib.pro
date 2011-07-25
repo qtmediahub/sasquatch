@@ -4,7 +4,6 @@ DESTDIR = ../hub/lib
 TEMPLATE = lib
 TARGET = qmhcore
 DEPENDPATH += .
-INCLUDEPATH += . ./plugins/qmhplugin
 
 QMAKE_CFLAGS_RELEASE += -fvisibility=hidden -fvisibility-inlines-hidden
 QMAKE_CFLAGS_DEBUG += -fvisibility=hidden -fvisibility-inlines-hidden
@@ -31,7 +30,6 @@ HEADERS += qmh-config.h \
     global.h \
     frontend.h \
     backend.h \
-    qmhplugin.h \
     dirmodel.h \
     file.h \
     actionmapper.h \

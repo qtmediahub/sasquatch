@@ -19,12 +19,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "backend.h"
 #include "frontend.h"
-#include "qmhplugin.h"
 
 #include "qmh-config.h"
 #include "rpc/rpcconnection.h"
 #include "skin.h"
 #include "scopedtransaction.h"
+#include "media/mediaplugin.h"
 #include "media/mediascanner.h"
 #include "media/mediamodel.h"
 
@@ -105,7 +105,7 @@ public:
 
     Frontend *frontend;
 
-    QHash<QString, QMHPlugin*> engines;
+    QHash<QString, MediaPlugin *> engines;
     QList<QAction*> actions;
 
     const QString platformOffset;
@@ -283,15 +283,6 @@ void BackendPrivate::resetLanguage()
     qApp->installTranslator(backendTranslator);
 
     qDeleteAll(pluginTranslators.begin(), pluginTranslators.end());
-
-    //FixMe: translation should be tied to filename (not role!)
-    /*
-    foreach(QMHPlugin *plugin, engines) {
-        QTranslator *pluginTranslator = new QTranslator(this);
-        pluginTranslator->load(baseTranslationPath % plugin->role() % "_" % language % ".qm");
-        pluginTranslators << pluginTranslator;
-        qApp->installTranslator(pluginTranslator);
-    }*/
 }
 
 void BackendPrivate::discoverSkins()
@@ -325,7 +316,7 @@ void BackendPrivate::discoverSkins()
     }
 }
 
-QHash<QString, QMHPlugin *> Backend::engines() const
+QHash<QString, MediaPlugin *> Backend::engines() const
 {
     return d->engines;
 }
@@ -356,12 +347,12 @@ void Backend::loadEngines(const QStringList &whiteList, const QStringList &black
             continue;
         }
 
-        QMHPlugin *plugin = qobject_cast<QMHPlugin*>(pluginLoader.instance());
+        MediaPlugin *plugin = qobject_cast<MediaPlugin*>(pluginLoader.instance());
         if (!plugin)
             qWarning() << tr("Invalid QMH plugin present: %1").arg(qualifiedFileName);
         else if (!plugin->dependenciesSatisfied())
             qWarning() << tr("Can't meet dependencies for %1").arg(qualifiedFileName);
-        else if (plugin->role() < QMHPlugin::Unadvertized || plugin->role() >= QMHPlugin::RoleCount)
+        else if (plugin->role() < MediaPlugin::Unadvertized || plugin->role() >= MediaPlugin::RoleCount)
             qWarning() << tr("Plugin %1 has an undefined role").arg(qualifiedFileName);
         else {
             plugin->setParent(this);
