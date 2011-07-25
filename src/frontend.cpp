@@ -51,6 +51,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "media/mediamodel.h"
 #include "media/mediascanner.h"
 #include "httpserver/httpserver.h"
+#include "customcursor.h"
 
 #if defined(QMLJSDEBUGGER) && QT_VERSION < 0x040800
 
@@ -414,6 +415,7 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
         runtime->insert("skin", qVariantFromValue(static_cast<QObject *>(skin)));
         runtime->insert("backend", qVariantFromValue(static_cast<QObject *>(Backend::instance())));
         runtime->insert("mediaScanner", qVariantFromValue(static_cast<QObject *>(MediaScanner::instance())));
+        runtime->insert("cursor", qVariantFromValue(static_cast<QObject *>(new CustomCursor(declarativeWidget))));
 
         engine->addPluginPath(Backend::instance()->resourcePath() % "/lib");
         engine->addImportPath(Backend::instance()->resourcePath() % "/imports");

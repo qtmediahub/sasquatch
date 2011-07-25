@@ -24,7 +24,8 @@ SOURCES += qmh-config.cpp \
     dbreader.cpp \
     devicemanager.cpp \
     powermanager.cpp \
-    widgetwrapper.cpp
+    widgetwrapper.cpp \
+    customcursor.cpp
 
 HEADERS += qmh-config.h \
     global.h \
@@ -42,7 +43,8 @@ HEADERS += qmh-config.h \
     devicemanager.h \
     powermanager.h \
     widgetwrapper.h \
-    qmh-util.h
+    qmh-util.h \
+    customcursor.h
 
 include(rpc/rpc.pri)
 include(media/media.pri)
