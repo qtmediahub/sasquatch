@@ -50,6 +50,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "powermanager.h"
 #include "media/mediamodel.h"
 #include "media/mediascanner.h"
+#include "httpserver/httpserver.h"
 
 #if defined(QMLJSDEBUGGER) && QT_VERSION < 0x040800
 
@@ -207,6 +208,7 @@ public:
     ActionMapper *actionMapper;
     MediaPlayerRpc *mediaPlayerRpc;
     Trackpad *trackpad;
+    HttpServer *httpServer;
     QWidget *skinWidget;
     QDeclarativePropertyMap *runtime;
     QDeclarativeContext *rootContext;
@@ -418,6 +420,9 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
         engine->addImportPath(Backend::instance()->basePath() % "/imports");
         engine->addImportPath(skin->path());
 
+        httpServer = new HttpServer(Config::value("stream-port", "1337").toInt(), this);
+
+        runtime->insert("httpServer", qVariantFromValue(static_cast<QObject *>(httpServer)));
         runtime->insert("config", qVariantFromValue(static_cast<QObject *>(Config::instance())));
 
         QHash<QString, QMHPlugin *> engines = Backend::instance()->engines();

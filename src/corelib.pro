@@ -46,6 +46,7 @@ HEADERS += qmh-config.h \
 
 include(rpc/rpc.pri)
 include(media/media.pri)
+include(httpserver/httpserver.pri)
 
 #for() structure does not work with lupdate
 TRANSLATIONS = $$system(cat $$DESTDIR/supported_languages | while read i; do echo translations/"$i".ts; done)
