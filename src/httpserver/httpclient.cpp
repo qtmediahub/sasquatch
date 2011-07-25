@@ -51,11 +51,9 @@ void HttpClient::readClient()
                 m_request.insert(lineTokens[0], lineTokens[1].trimmed().replace("\r\n",""));
             }
         }
-        qDebug() << m_request;
 
         if (tokens[0] == "GET") {
             m_get = tokens[1];
-            qDebug() << "GET" << m_get;
             if (m_get.startsWith("/video"))
                 readVideoRequest();
             else if(m_get.startsWith("/music"))
@@ -78,8 +76,6 @@ void HttpClient::discardClient()
 
     m_socket->deleteLater();
     emit disconnected();
-
-    qDebug() << "Connection closed";
 }
 
 
@@ -175,8 +171,6 @@ bool HttpClient::sendFile(QString fileName)
 {
     int chunk = 1024*16;
 
-    qDebug() << "start send file";
-
     m_file.setFileName(fileName);
     m_file.open(QIODevice::ReadOnly);
     if (!m_file.isOpen()) {
@@ -196,9 +190,6 @@ bool HttpClient::sendFile(QString fileName)
         sleep(0.1);
     }
 
-    if (m_socket->state() != QAbstractSocket::ConnectedState)
-        qDebug() << "fully sent connection closed";
-
     return  true;
 }
 
@@ -214,8 +205,6 @@ bool HttpClient::sendPartial(QString fileName, qint64 offset)
         answerNotFound();
         return false;
     }
-
-    qDebug() << "sendPartial offset" << offset;
 
     QByteArray ba;
     ba.resize(chunk);
@@ -241,8 +230,6 @@ bool HttpClient::sendPartial(QString fileName, qint64 offset)
         m_socket->waitForBytesWritten();
         sleep(0.1);
     }
-
-    qDebug() << "sendPartial sent" << (m_socket->state() == QAbstractSocket::ConnectedState);
 
     return  true;
 }

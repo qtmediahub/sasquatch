@@ -33,8 +33,6 @@ HttpServer::HttpServer(quint16 port, QObject *parent) :
 
 void HttpServer::incomingConnection(int socket)
 {
-    qDebug() << "New Connection";
-
     QThread *thread = new QThread(this);
     HttpClient *client = new HttpClient(socket, this);
     client->moveToThread(thread);
