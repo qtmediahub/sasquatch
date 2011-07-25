@@ -4,8 +4,6 @@
 
 include(../plugins.pri)
 
-QT += sql
-
 HEADERS += radioplugin.h \
            radioparser.h
 

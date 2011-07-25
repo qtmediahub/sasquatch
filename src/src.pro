@@ -4,5 +4,5 @@ TEMPLATE = subdirs
 
 SUBDIRS += \
            corelib.pro \
-           plugins \
+           media/plugins \
            main/main.pro \
