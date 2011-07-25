@@ -611,4 +611,28 @@ void Backend::removeMediaSearchPath(const QString &type, const QString &name)
     model->deleteLater();
 }
 
+QStringList Backend::findApplications() const
+{
+    static QByteArray env = qgetenv("QMH_APPPATH");
+
+    QStringList appSearchPaths;
+    if (!env.isEmpty())
+        appSearchPaths << env;
+    appSearchPaths << QCoreApplication::applicationDirPath() + "/../../apps/"; // unified repo
+
+    QStringList apps;
+
+    foreach(const QString &appSearchPath, appSearchPaths) {
+        QStringList subdirs = QDir(appSearchPath).entryList(QDir::AllDirs | QDir::NoDotAndDotDot);
+        foreach(const QString &subdir, subdirs)  {
+            QString appPath(appSearchPath + '/' + subdir + '/');
+            QString fileName(appPath + "qmhmanifest.qml"); // look for apps/x/qmhmanifest.qml
+            QFile prospectiveFile(fileName);
+            if (prospectiveFile.exists())
+                apps << (QDir(appPath).absolutePath() + '/');
+        }
+    }
+    return apps;
+}
+
 #include "backend.moc"

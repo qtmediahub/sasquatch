@@ -76,6 +76,7 @@ public:
     Q_INVOKABLE void loadEngines(const QStringList &whiteList = QStringList(), const QStringList &blackList = QStringList());
     Q_INVOKABLE QStringList loadedEngineNames() const;
     Q_INVOKABLE QObject *engine(const QString &name) const;
+    Q_INVOKABLE QStringList findApplications() const;
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event);
