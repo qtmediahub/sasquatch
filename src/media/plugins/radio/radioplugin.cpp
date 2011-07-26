@@ -24,7 +24,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QtDeclarative>
 
 RadioPlugin::RadioPlugin()
-    : MediaPlugin(tr("Radio"), Radio)
+    : MediaPlugin(tr("Radio"))
 {
     RadioParser *parser = new RadioParser;
     QMetaObject::invokeMethod(MediaScanner::instance(), "addParser", Qt::QueuedConnection, 

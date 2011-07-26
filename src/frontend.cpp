@@ -45,7 +45,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "dirmodel.h"
 #include "media/playlist.h"
 #include "file.h"
-#include "media/mediaplugin.h"
 #include "devicemanager.h"
 #include "powermanager.h"
 #include "media/mediamodel.h"
@@ -388,7 +387,6 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
 
         // register dataproviders to QML
         qmlRegisterUncreatableType<ActionMapper>("ActionMapper", 1, 0, "ActionMapper", "For enums. For methods use actionmap global variable");
-        qmlRegisterUncreatableType<MediaPlugin>("QMHPlugin", 1, 0, "QMHPlugin", "Only for enums"); // ## still registered as QMHPlugin for compat with skins
         qmlRegisterType<DirModel>("DirModel", 1, 0, "DirModel");
         qmlRegisterType<File>("File", 1, 0, "File");
         qmlRegisterType<Playlist>("Playlist", 1, 0, "Playlist");

@@ -345,11 +345,9 @@ void Backend::loadEngines(const QStringList &whiteList, const QStringList &black
         }
 
         MediaPlugin *plugin = qobject_cast<MediaPlugin*>(pluginLoader.instance());
-        if (!plugin)
-            qWarning() << tr("Invalid QMH plugin present: %1").arg(qualifiedFileName);
-        else if (plugin->role() < MediaPlugin::Unadvertized || plugin->role() >= MediaPlugin::RoleCount)
-            qWarning() << tr("Plugin %1 has an undefined role").arg(qualifiedFileName);
-        else {
+        if (!plugin) {
+            qWarning() << tr("Invalid media plugin present: %1").arg(qualifiedFileName);
+        } else {
             plugin->setParent(this);
             d->engines.insert(engineName, plugin);
         }
