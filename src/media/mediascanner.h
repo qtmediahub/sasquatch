@@ -38,7 +38,7 @@ class QMH_EXPORT MediaScanner : public QObject
     Q_PROPERTY(QString currentScanPath READ currentScanPath NOTIFY currentScanPathChanged)
 
 public:
-    static MediaScanner *instance();
+    MediaScanner(QObject *parent = 0);
     ~MediaScanner();
 
     struct FileInfo {
@@ -51,8 +51,6 @@ public:
     };
 
     void stop() { m_stop = true; }
-
-    QString thumbnailPath() const;
 
     QString currentScanPath() const { return m_currentScanPath; }
 
@@ -67,7 +65,6 @@ signals:
     void scanFinished();
 
 private:
-    MediaScanner(QObject *parent = 0);
     void scan(MediaParser *parser, const QString &path);
 
     static MediaScanner *s_instance;

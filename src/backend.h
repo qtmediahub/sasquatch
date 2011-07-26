@@ -35,6 +35,7 @@ class BackendPrivate;
 class Skin;
 class Frontend;
 class QAction;
+class MediaScanner;
 
 class QMH_EXPORT Backend : public QObject
 {
@@ -68,7 +69,9 @@ public:
 
     QObject *targetsModel() const;
 
-    Frontend* frontend() const;
+    Frontend *frontend() const;
+
+    MediaScanner *mediaScanner() const;
     QSqlDatabase mediaDatabase() const;
 
     Q_INVOKABLE void loadEngines();

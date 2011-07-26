@@ -29,24 +29,16 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 const QString CONNECTION_NAME("MediaScanner");
 const int BULK_LIMIT = 100;
 
-MediaScanner *MediaScanner::s_instance = 0;
-
-MediaScanner *MediaScanner::instance()
-{
-    if (!s_instance)
-        s_instance = new MediaScanner;
-    return s_instance;
-}
-
 MediaScanner::MediaScanner(QObject *parent)
     : QObject(parent), m_stop(false)
 {
     qRegisterMetaType<MediaParser *>();
 }
 
-QString MediaScanner::thumbnailPath() const
+MediaScanner::~MediaScanner()
 {
-    return QDir::homePath() + "/.thumbnails/qtmediahub/";
+    m_db = QSqlDatabase();
+    QSqlDatabase::removeDatabase(CONNECTION_NAME);
 }
 
 void MediaScanner::initialize()
@@ -58,25 +50,12 @@ void MediaScanner::initialize()
     //query.exec("PRAGMA synchronous=OFF"); // dangerous, can corrupt db
     //query.exec("PRAGMA journal_mode=WAL");
     query.exec("PRAGMA count_changes=OFF");
-
-    // check if thumbnail folder exists
-    QFileInfo thumbnailFolderInfo(thumbnailPath()); // TODO: make the path configureable
-    if (!thumbnailFolderInfo.exists()) {
-        QDir dir;
-        dir.mkpath(thumbnailFolderInfo.absoluteFilePath());
-    }
-}
-
-MediaScanner::~MediaScanner()
-{
-    m_db = QSqlDatabase();
-    QSqlDatabase::removeDatabase(CONNECTION_NAME);
 }
 
 void MediaScanner::addParser(MediaParser *parser)
 {
     m_parsers.insert(parser->type(), parser);
-    QMetaObject::invokeMethod(MediaScanner::instance(), "refresh", Qt::QueuedConnection, Q_ARG(QString, parser->type()));
+    QMetaObject::invokeMethod(this, "refresh", Qt::QueuedConnection, Q_ARG(QString, parser->type()));
 }
 
 void MediaScanner::addSearchPath(const QString &type, const QString &_path, const QString &name)

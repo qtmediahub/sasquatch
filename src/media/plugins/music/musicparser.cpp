@@ -20,6 +20,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "musicparser.h"
 #include "tagreader.h"
 #include "scopedtransaction.h"
+#include "backend.h"
 #include <QtSql>
 
 #define DEBUG if (0) qDebug() << __PRETTY_FUNCTION__
@@ -78,7 +79,7 @@ QString determineAlbum(const TagReader &reader, const QFileInfo &fi)
 QByteArray determineThumbnail(const TagReader &reader, const QFileInfo &fi)
 {
     QByteArray md5 = QCryptographicHash::hash("file://" + QFile::encodeName(fi.absoluteFilePath()), QCryptographicHash::Md5).toHex();
-    QFileInfo thumbnailInfo(MediaScanner::instance()->thumbnailPath() + md5 + ".png");
+    QFileInfo thumbnailInfo(Backend::instance()->thumbnailPath() + md5 + ".png");
     if (thumbnailInfo.exists())
         return QUrl::fromLocalFile(thumbnailInfo.absoluteFilePath()).toEncoded();
 

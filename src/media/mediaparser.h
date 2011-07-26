@@ -28,6 +28,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 class QMH_EXPORT MediaParser : public QObject
 {
     Q_OBJECT
+
 public:
     MediaParser();
     virtual ~MediaParser() { }

@@ -412,7 +412,7 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
         runtime->insert("powerManager", qVariantFromValue(static_cast<QObject *>(new PowerManager(declarativeWidget))));
         runtime->insert("skin", qVariantFromValue(static_cast<QObject *>(skin)));
         runtime->insert("backend", qVariantFromValue(static_cast<QObject *>(Backend::instance())));
-        runtime->insert("mediaScanner", qVariantFromValue(static_cast<QObject *>(MediaScanner::instance())));
+        runtime->insert("mediaScanner", qVariantFromValue(static_cast<QObject *>(Backend::instance()->mediaScanner())));
         runtime->insert("cursor", qVariantFromValue(static_cast<QObject *>(new CustomCursor(declarativeWidget))));
 
         engine->addPluginPath(Backend::instance()->resourcePath() % "/lib");

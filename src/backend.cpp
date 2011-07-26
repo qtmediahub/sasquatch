@@ -27,6 +27,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "media/mediaplugin.h"
 #include "media/mediascanner.h"
 #include "media/mediamodel.h"
+#include "media/mediaparser.h"
 
 #ifdef QMH_AVAHI
 #include "qavahiservicebrowsermodel.h"
@@ -134,6 +135,7 @@ public:
 #endif
 
     QSqlDatabase mediaDb;
+    MediaScanner *mediaScanner;
     QThread *scannerThread;
 
     QAction *selectSkinAction;
@@ -157,7 +159,9 @@ BackendPrivate::BackendPrivate(Backend *p)
           .append(".log")),
       systray(0),
       targetsModel(0),
-          q(p)
+      mediaScanner(0),
+      scannerThread(0),
+      q(p)
 {
     QNetworkProxy proxy;
     if (Config::isEnabled("proxy", false)) {
@@ -245,8 +249,8 @@ BackendPrivate::~BackendPrivate()
     delete session;
 #endif
 
-    MediaScanner::instance()->stop();
-    MediaScanner::instance()->deleteLater();
+    mediaScanner->stop();
+    mediaScanner->deleteLater();
     scannerThread->quit();
     scannerThread->wait();
 
@@ -334,7 +338,7 @@ void Backend::loadEngines()
         foreach(const QString &key, plugin->parserKeys()) {
             MediaParser *parser = plugin->createParser(key);
             plugin->setParent(this);
-            QMetaObject::invokeMethod(MediaScanner::instance(), "addParser", Qt::QueuedConnection, 
+            QMetaObject::invokeMethod(d->mediaScanner, "addParser", Qt::QueuedConnection, 
                                       Q_ARG(MediaParser *, parser));
         }
     }
@@ -422,7 +426,7 @@ void Backend::initialize()
 #endif
 
     // This is here because MediaScanner::initialize() uses Backend::instance()
-    QMetaObject::invokeMethod(MediaScanner::instance(), "initialize", Qt::QueuedConnection);
+    QMetaObject::invokeMethod(d->mediaScanner, "initialize", Qt::QueuedConnection);
 }
 
 void BackendPrivate::initializeMedia()
@@ -451,8 +455,14 @@ void BackendPrivate::initializeMedia()
     }
 
     scannerThread = new QThread(q);
-    MediaScanner::instance()->moveToThread(scannerThread);
+    mediaScanner = new MediaScanner;
+    mediaScanner->moveToThread(scannerThread);
     scannerThread->start();
+}
+
+MediaScanner *Backend::mediaScanner() const
+{
+    return d->mediaScanner;
 }
 
 QSqlDatabase Backend::mediaDatabase() const
