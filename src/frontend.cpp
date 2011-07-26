@@ -427,11 +427,6 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
         runtime->insert("httpServer", qVariantFromValue(static_cast<QObject *>(httpServer)));
         runtime->insert("config", qVariantFromValue(static_cast<QObject *>(Config::instance())));
 
-        QHash<QString, MediaPlugin *> engines = Backend::instance()->engines();
-        for (QHash<QString, MediaPlugin *>::const_iterator it = engines.constBegin(); it != engines.constEnd(); ++it) {
-            it.value()->registerPlugin(declarativeWidget->rootContext());
-        }
-
         engine->rootContext()->setContextProperty("runtime", runtime);
 
         resetLanguage();
@@ -554,12 +549,6 @@ Frontend::~Frontend()
 {
     delete d;
     d = 0;
-}
-
-void Frontend::initializePlugin(MediaPlugin *plugin)
-{
-    if (d->rootContext)
-        plugin->registerPlugin(d->rootContext);
 }
 
 bool Frontend::transforms() const

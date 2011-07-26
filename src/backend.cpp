@@ -354,7 +354,6 @@ void Backend::loadEngines(const QStringList &whiteList, const QStringList &black
             qWarning() << tr("Plugin %1 has an undefined role").arg(qualifiedFileName);
         else {
             plugin->setParent(this);
-            d->frontend->initializePlugin(plugin);
             d->engines.insert(engineName, plugin);
         }
     }

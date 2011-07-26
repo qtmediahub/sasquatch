@@ -27,9 +27,6 @@ public:
     QString name() const { return m_name; }
     PluginRole role() const { return m_role; }
 
-    virtual void registerPlugin(QDeclarativeContext *context = 0) { Q_UNUSED(context); }
-    virtual void unregisterPlugin() { /*no impl*/ }
-
 private:
     QString m_name;
     PluginRole m_role;
