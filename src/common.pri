@@ -7,6 +7,17 @@ TEMP_DIR = .tmp
 OBJECTS_DIR = $$TEMP_DIR/.obj
 MOC_DIR = $$TEMP_DIR/.moc
 
+#/usr/share/apps/qtmediahub/
+#/usr/share/qtmediahub/
+
+unix:!symbian {
+    maemo5 {
+        INSTALL_PREFIX=/opt/usr/share/qtmediahub/
+    } else {
+        INSTALL_PREFIX=/usr/share/qtmediahub/
+    }
+} 
+
 # default options
 linux* {
     CONFIG += gstreamer
@@ -48,16 +59,6 @@ mac {
 maemo5 {
     QT += dbus
 }
-
-unix:!symbian {
-    maemo5 {
-        target.path = /opt/usr/bin
-    } else {
-        target.path = /usr/local/bin
-    }
-    INSTALLS += target
-}
-
 
 CONFIG(debug, debug|release):CONFIG += declarative_debug
 

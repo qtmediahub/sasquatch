@@ -9,7 +9,3 @@ HEADERS += radioplugin.h \
 
 SOURCES += radioplugin.cpp \
            radioparser.cpp
-
-
-
-

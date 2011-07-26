@@ -1,4 +1,3 @@
-include($$PROJECTROOT/src/common.pri)
 include($$PROJECTROOT/src/core-common.pri)
 
 TEMPLATE = app
@@ -22,3 +21,12 @@ QT += sql
 SOURCES += main.cpp
 
 RESOURCES = main.qrc
+
+unix:!symbian {
+    maemo5 {
+        target.path = /opt/usr/bin
+    } else {
+        target.path = /usr/local/bin
+    }
+    INSTALLS += target
+}

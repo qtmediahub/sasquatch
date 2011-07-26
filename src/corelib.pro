@@ -66,3 +66,8 @@ contains(QT_CONFIG, dbus) {
     SOURCES += devicemanagerdbus.cpp
     HEADERS += devicemanagerdbus.h
 }
+
+unix:!symbian {
+    target.path = $${INSTALL_PREFIX}/lib
+    INSTALLS += target
+}

@@ -26,5 +26,3 @@ HEADERS += musicplugin.h \
 SOURCES += musicplugin.cpp \
            musicparser.cpp \
            tagreader.cpp
-
-

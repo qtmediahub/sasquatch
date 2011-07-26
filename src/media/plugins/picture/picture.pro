@@ -21,4 +21,3 @@ HEADERS += pictureplugin.h \
 SOURCES += pictureplugin.cpp \
            pictureparser.cpp \
            exifreader.cpp
-

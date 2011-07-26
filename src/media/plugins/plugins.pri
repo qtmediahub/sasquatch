@@ -1,4 +1,3 @@
-include($$PROJECTROOT/src/common.pri)
 include($$PROJECTROOT/src/core-common.pri)
 
 TEMPLATE = lib
@@ -15,3 +14,8 @@ INCLUDEPATH += $${PROJECTROOT}/src $${PROJECTROOT}/src/media
 #LANGUAGES = english_us.ts \
 #            english_uk.ts \
 #            english_bob.ts
+
+unix:!symbian {
+    target.path = $${INSTALL_PREFIX}/plugins
+    INSTALLS += target
+}
