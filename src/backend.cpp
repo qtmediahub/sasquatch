@@ -313,56 +313,31 @@ void BackendPrivate::discoverSkins()
     }
 }
 
-QHash<QString, MediaPlugin *> Backend::engines() const
-{
-    return d->engines;
-}
-
-void Backend::loadEngines(const QStringList &whiteList, const QStringList &blackList)
+void Backend::loadEngines()
 {
     QStringList loaded;
     foreach(const QString &fileName, QDir(d->pluginPath).entryList(QDir::Files)) {
-        if (!(fileName.startsWith("lib") && (fileName.endsWith(".so") || fileName.endsWith(".dylib"))))
-            continue;
-        int extensionIndex = fileName.lastIndexOf(".");
-        QString engineName = fileName.mid(3, extensionIndex - 3);
-        if (d->engines.contains(engineName))
-            continue; // already loaded
-        if (!whiteList.isEmpty()) {
-            if (!whiteList.contains(engineName))
-                continue;
-        } else {
-            if (blackList.contains(engineName))
-                continue;
-        }
-        QString qualifiedFileName(d->pluginPath % "/" % fileName);
-
-        QPluginLoader pluginLoader(qualifiedFileName);
+        QString absoluteFilePath(d->pluginPath % "/" % fileName);
+        QPluginLoader pluginLoader(absoluteFilePath);
 
         if (!pluginLoader.load()) {
-            qWarning() << tr("Cant load plugin: %1 returns %2").arg(qualifiedFileName).arg(pluginLoader.errorString());
+            qWarning() << tr("Cant load plugin: %1 returns %2").arg(absoluteFilePath).arg(pluginLoader.errorString());
             continue;
         }
 
         MediaPlugin *plugin = qobject_cast<MediaPlugin*>(pluginLoader.instance());
         if (!plugin) {
-            qWarning() << tr("Invalid media plugin present: %1").arg(qualifiedFileName);
-        } else {
+            qWarning() << tr("Invalid media plugin present: %1").arg(absoluteFilePath);
+            pluginLoader.unload();
+            continue;
+        }
+        foreach(const QString &key, plugin->parserKeys()) {
+            MediaParser *parser = plugin->createParser(key);
             plugin->setParent(this);
-            d->engines.insert(engineName, plugin);
+            QMetaObject::invokeMethod(MediaScanner::instance(), "addParser", Qt::QueuedConnection, 
+                                      Q_ARG(MediaParser *, parser));
         }
     }
-    d->resetLanguage();
-}
-
-QStringList Backend::loadedEngineNames() const
-{
-    return d->engines.keys();
-}
-
-QObject *Backend::engine(const QString &name) const
-{
-    return d->engines.value(name);
 }
 
 void BackendPrivate::discoverActions()

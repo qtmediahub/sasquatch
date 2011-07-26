@@ -19,16 +19,18 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "radioplugin.h"
 #include "radioparser.h"
+#include <QtPlugin>
 
-#include <QtGui>
-#include <QtDeclarative>
-
-RadioPlugin::RadioPlugin()
-    : MediaPlugin(tr("Radio"))
+QStringList RadioPlugin::parserKeys() const
 {
-    RadioParser *parser = new RadioParser;
-    QMetaObject::invokeMethod(MediaScanner::instance(), "addParser", Qt::QueuedConnection, 
-                              Q_ARG(MediaParser *, parser));
+    return QStringList() << "radio";
+}
+
+MediaParser *RadioPlugin::createParser(const QString &key)
+{
+    if (key == "radio")
+        return new RadioParser;
+    return 0;
 }
 
 Q_EXPORT_PLUGIN2(radio, RadioPlugin)

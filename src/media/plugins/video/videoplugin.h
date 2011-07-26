@@ -21,7 +21,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #define VIDEOPLUGIN_H
 
 #include <QObject>
-#include <QDeclarativeContext>
 #include "mediaplugin.h"
 
 class VideoPlugin : public MediaPlugin
@@ -30,8 +29,11 @@ class VideoPlugin : public MediaPlugin
     Q_INTERFACES(MediaPlugin)
 
 public:
-    VideoPlugin();
-    ~VideoPlugin() {}
+    VideoPlugin() { }
+    ~VideoPlugin() { }
+
+    QStringList parserKeys() const;
+    MediaParser *createParser(const QString &key);
 };
 
 #endif // VIDEOPLUGIN_H

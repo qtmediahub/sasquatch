@@ -3,27 +3,20 @@
 
 #include <QObject>
 #include <QStringList>
-#include <QMetaEnum>
 #include "global.h"
 
-class QDeclarativeContext;
+class MediaParser;
 
 class QMH_EXPORT MediaPlugin : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QString name READ name CONSTANT)
 
 public:
-    MediaPlugin(const QString &name, QObject *parent = 0)
-        : QObject(parent), m_name(name)
-    {}
+    MediaPlugin() { }
+    virtual ~MediaPlugin() { }
 
-    virtual ~MediaPlugin() { /*no impl*/ }
-
-    QString name() const { return m_name; }
-
-private:
-    QString m_name;
+    virtual QStringList parserKeys() const = 0;
+    virtual MediaParser *createParser(const QString &key) = 0;
 };
 
 Q_DECLARE_INTERFACE(MediaPlugin, "com.qtmediahub.MediaPlugin/1.0")

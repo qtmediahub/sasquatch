@@ -22,12 +22,17 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <QtPlugin>
 
-VideoPlugin::VideoPlugin()
-    : MediaPlugin(tr("Video"))
+QStringList VideoPlugin::parserKeys() const
 {
-    VideoParser *parser = new VideoParser;
-    QMetaObject::invokeMethod(MediaScanner::instance(), "addParser", Qt::QueuedConnection, 
-                              Q_ARG(MediaParser *, parser));
+    return QStringList() << "video";
 }
+
+MediaParser *VideoPlugin::createParser(const QString &key)
+{
+    if (key == "video")
+        return new VideoParser;
+    return 0;
+}
+
 
 Q_EXPORT_PLUGIN2(video, VideoPlugin)

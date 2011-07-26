@@ -30,8 +30,11 @@ class PicturePlugin : public MediaPlugin
     Q_INTERFACES(MediaPlugin)
 
 public:
-    PicturePlugin();
-    ~PicturePlugin() {}
+    PicturePlugin() { }
+    ~PicturePlugin() { }
+
+    QStringList parserKeys() const;
+    MediaParser *createParser(const QString &key);
 };
 
 #endif // PICTUREPLUGIN_H

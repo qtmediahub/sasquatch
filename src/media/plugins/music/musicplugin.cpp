@@ -23,12 +23,16 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QtGui>
 #include <QtDeclarative>
 
-MusicPlugin::MusicPlugin()
-    : MediaPlugin(tr("Music"))
+QStringList MusicPlugin::parserKeys() const
 {
-    MusicParser *parser = new MusicParser;
-    QMetaObject::invokeMethod(MediaScanner::instance(), "addParser", Qt::QueuedConnection, 
-                              Q_ARG(MediaParser *, parser));
+    return QStringList() << "music";
+}
+
+MediaParser *MusicPlugin::createParser(const QString &key)
+{
+    if (key == "music")
+        return new MusicParser;
+    return 0;
 }
 
 Q_EXPORT_PLUGIN2(music, MusicPlugin)

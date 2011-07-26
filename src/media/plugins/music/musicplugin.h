@@ -24,16 +24,17 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "mediaplugin.h"
 
-class QDeclarativeContext;
-
 class MusicPlugin : public MediaPlugin
 {
     Q_OBJECT
     Q_INTERFACES(MediaPlugin)
 
 public:
-    MusicPlugin();
+    MusicPlugin() { }
     ~MusicPlugin() {}
+
+    QStringList parserKeys() const;
+    MediaParser *createParser(const QString &key);
 };
 
 #endif // MUSICPLUGIN_H

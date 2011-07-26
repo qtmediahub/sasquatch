@@ -22,12 +22,17 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <QtPlugin>
 
-PicturePlugin::PicturePlugin()
-    : MediaPlugin(tr("Pictures"))
+QStringList PicturePlugin::parserKeys() const
 {
-    PictureParser *parser = new PictureParser;
-    QMetaObject::invokeMethod(MediaScanner::instance(), "addParser", Qt::QueuedConnection, 
-                              Q_ARG(MediaParser *, parser));
+    return QStringList() << "picture";
 }
+
+MediaParser *PicturePlugin::createParser(const QString &key)
+{
+    if (key == "picture")
+        return new PictureParser;
+    return 0;
+}
+
 
 Q_EXPORT_PLUGIN2(picture, PicturePlugin)
