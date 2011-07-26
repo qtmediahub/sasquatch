@@ -35,6 +35,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "staticservicebrowsermodel.h"
 #endif
 
+#ifdef QT_SINGLE_APPLICATION
+#include "qtsingleapplication.h"
+#endif
+
 #include <QDir>
 #include <QString>
 #include <QPluginLoader>
@@ -104,6 +108,7 @@ public:
     void discoverActions();
     void initializeMedia();
 
+    bool primaryInstance;
     Frontend *frontend;
 
     QHash<QString, MediaPlugin *> engines;
@@ -144,6 +149,7 @@ public:
 
 BackendPrivate::BackendPrivate(Backend *p)
     : QObject(p),
+      primaryInstance(true),
       frontend(0),
   #ifdef Q_OS_MAC
       platformOffset("/../../.."),
@@ -162,6 +168,12 @@ BackendPrivate::BackendPrivate(Backend *p)
       scannerThread(0),
       q(p)
 {
+#ifdef QT_SINGLE_APPLICATION
+    QtSingleApplication* app = qobject_cast<QtSingleApplication*>(qApp);
+    if (app)
+        primaryInstance = !app->isRunning();
+#endif //QT_SINGLE_APPLICATION
+
     QString defaultBasePath("/usr/share/qtmediahub/");
     if (Config::value("testing", false) || !QDir(defaultBasePath).exists()) {
         qDebug() << "Either testing or uninstalled: running in build dir";
@@ -425,7 +437,7 @@ void Backend::initialize()
     }
 
 #ifdef QMH_AVAHI
-    if (Config::isEnabled("avahi", true) && Config::isEnabled("avahi-advertize", true)) {
+    if (d->primaryInstance && Config::isEnabled("avahi", true) && Config::isEnabled("avahi-advertize", true)) {
         QAvahiServicePublisher *publisher = new QAvahiServicePublisher(this);
         publisher->publish(QHostInfo::localHostName(), "_qtmediahub._tcp", 1234, "Qt Media Hub JSON-RPCv2 interface");
     }
