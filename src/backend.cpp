@@ -110,10 +110,8 @@ public:
     QList<QAction*> actions;
 
     const QString platformOffset;
-    const QString testingBasePath;
-    const QString installedBasePath;
 
-    const QString basePath;
+    QString basePath;
     QString pluginPath;
     QString resourcePath;
     const QString thumbnailPath;
@@ -150,9 +148,6 @@ BackendPrivate::BackendPrivate(Backend *p)
   #ifdef Q_OS_MAC
       platformOffset("/../../.."),
   #endif
-      testingBasePath(QCoreApplication::applicationDirPath() + platformOffset),
-      installedBasePath("/usr/share/qtmediahub/"),
-      basePath(Config::value("base-path", Config::value("testing", false) ? testingBasePath : installedBasePath)),
       // Use "large" instead of appName to fit freedesktop spec
       thumbnailPath(Config::value("thumbnail-path", QDir::homePath() + "/.thumbnails/" + qApp->applicationName() + "/")),
       inputIdleTimer(this),
@@ -167,6 +162,13 @@ BackendPrivate::BackendPrivate(Backend *p)
       scannerThread(0),
       q(p)
 {
+    QString defaultBasePath("/usr/share/qtmediahub/");
+    if (Config::value("testing", false) || !QDir(defaultBasePath).exists()) {
+        qDebug() << "Either testing or uninstalled: running in build dir";
+        defaultBasePath = QCoreApplication::applicationDirPath() + platformOffset;
+    }
+    basePath = Config::value("base-path",  defaultBasePath);
+
     QNetworkProxy proxy;
     if (Config::isEnabled("proxy", false)) {
         QString proxyHost(Config::value("proxy-host", "localhost").toString());
