@@ -1,7 +1,7 @@
 include($$PROJECTROOT/src/core-common.pri)
 
 TEMPLATE = app
-TARGET = ../../hub/qmh
+TARGET = ../../hub/qtmediahub
 #DESTDIR = $${PROJECTROOT}/hub
 DEPENDPATH += .
 INCLUDEPATH += $${PROJECTROOT}/src/

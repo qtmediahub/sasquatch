@@ -110,6 +110,8 @@ public:
     QList<QAction*> actions;
 
     const QString platformOffset;
+    const QString testingBasePath;
+    const QString installedBasePath;
 
     const QString basePath;
     QString pluginPath;
@@ -148,7 +150,9 @@ BackendPrivate::BackendPrivate(Backend *p)
   #ifdef Q_OS_MAC
       platformOffset("/../../.."),
   #endif
-      basePath(QCoreApplication::applicationDirPath() + platformOffset),
+      testingBasePath(QCoreApplication::applicationDirPath() + platformOffset),
+      installedBasePath("/usr/share/qtmediahub/"),
+      basePath(Config::value("base-path", Config::value("testing", false) ? testingBasePath : installedBasePath)),
       // Use "large" instead of appName to fit freedesktop spec
       thumbnailPath(Config::value("thumbnail-path", QDir::homePath() + "/.thumbnails/" + qApp->applicationName() + "/")),
       inputIdleTimer(this),
