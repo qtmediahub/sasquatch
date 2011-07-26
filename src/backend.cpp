@@ -188,16 +188,16 @@ BackendPrivate::BackendPrivate(Backend *p)
     skinPaths << QCoreApplication::applicationDirPath() + "/../../skins/"; // unified repo
     skinPaths << "/usr/share/qtmediahub/skins/";
     skinPaths << QDir::homePath() + "/.qtmediahub/skins/";
-    skinPaths << QDir(Config::value("skins", QString(basePath % "/skins"))).absolutePath();
+    skinPaths << QDir(Config::value("skins-path", QString(basePath % "/skins"))).absolutePath();
     if (!qgetenv("QMH_SKINPATH").isEmpty())
         skinPaths << QDir(qgetenv("QMH_SKINPATH")).absolutePath();
 
-    pluginPath = QDir(Config::value("plugins", QString(basePath % "/plugins"))).absolutePath();
+    pluginPath = QDir(Config::value("plugins-path", QString(basePath % "/plugins"))).absolutePath();
 
     if (!qgetenv("QMH_RESOURCEPATH").isEmpty())
         resourcePath = QDir(qgetenv("QMH_RESOURCEPATH")).absolutePath();
     else
-        resourcePath = QDir(Config::value("resources", QString(basePath % "/resources"))).absolutePath();
+        resourcePath = QDir(Config::value("resources-path", QString(basePath % "/resources"))).absolutePath();
 
     inputIdleTimer.setInterval(Config::value("idle-timeout", 120)*1000);
     inputIdleTimer.setSingleShot(true);

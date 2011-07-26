@@ -19,3 +19,5 @@ unix:!symbian {
     target.path = $${INSTALL_PREFIX}/plugins
     INSTALLS += target
 }
+
+TARGET = $${TARGET}parser
