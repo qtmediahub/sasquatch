@@ -204,10 +204,7 @@ BackendPrivate::BackendPrivate(Backend *p)
     logFile.open(QIODevice::Text|QIODevice::ReadWrite);
     log.setDevice(&logFile);
 
-    connect(&pathMonitor,
-            SIGNAL(directoryChanged(const QString &)),
-            this,
-            SLOT(handleDirChanged(const QString &)));
+    connect(&pathMonitor, SIGNAL(directoryChanged(QString)), this, SLOT(handleDirChanged(QString)));
 
     foreach (QString skinPath, skinPaths) {
         if (QDir(skinPath).exists())
