@@ -423,9 +423,9 @@ void Backend::initialize()
     }
 
 #ifdef QMH_AVAHI
-    if (Config::isEnabled("avahi", true)) {
+    if (Config::isEnabled("avahi", true) && Config::isEnabled("avahi-advertize", true)) {
         QAvahiServicePublisher *publisher = new QAvahiServicePublisher(this);
-        publisher->publish(QHostInfo::localHostName(), "_qmh._tcp", 1234, "Qt Media Hub JSON-RPCv2 interface");
+        publisher->publish(QHostInfo::localHostName(), "_qtmediahub._tcp", 1234, "Qt Media Hub JSON-RPCv2 interface");
     }
 #endif
 
@@ -557,7 +557,7 @@ QObject *Backend::targetsModel() const
         if (Config::isEnabled("avahi", true)) {
             QAvahiServiceBrowserModel *model = new QAvahiServiceBrowserModel(const_cast<Backend *>(this));
             model->setAutoResolve(true);
-            model->browse("_qmh._tcp", QAvahiServiceBrowserModel::HideIPv6 | QAvahiServiceBrowserModel::HideLocal);
+            model->browse("_qtmediahub._tcp", QAvahiServiceBrowserModel::HideIPv6 | QAvahiServiceBrowserModel::HideLocal);
             d->targetsModel = model;
         }
 #else
