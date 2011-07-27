@@ -23,8 +23,8 @@ import Playlist 1.0
 Item {
     id: root
 
-    property variant playlist
     property variant mediaItem
+    property alias mediaPlaylist: playlist
 
     function stop() {
         mediaItem.stop()
@@ -110,6 +110,11 @@ Item {
                 return thumbnail;
         }
         return mediaItem.hasVideo ? defaultVideo : defaultAudio;
+    }
+
+    Playlist {
+        id: playlist
+        playMode: Playlist.Normal
     }
 
     // RPC requests
