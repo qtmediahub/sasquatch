@@ -35,6 +35,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "staticservicebrowsermodel.h"
 #endif
 
+#ifdef QT_SINGLE_APPLICATION
+#include "qtsingleapplication.h"
+#endif
+
 #include <QDir>
 #include <QString>
 #include <QPluginLoader>
@@ -104,16 +108,15 @@ public:
     void discoverActions();
     void initializeMedia();
 
+    bool primarySession;
     Frontend *frontend;
 
     QHash<QString, MediaPlugin *> engines;
     QList<QAction*> actions;
 
     const QString platformOffset;
-    const QString testingBasePath;
-    const QString installedBasePath;
 
-    const QString basePath;
+    QString basePath;
     QString pluginPath;
     QString resourcePath;
     const QString thumbnailPath;
@@ -146,13 +149,11 @@ public:
 
 BackendPrivate::BackendPrivate(Backend *p)
     : QObject(p),
+      primarySession(true),
       frontend(0),
   #ifdef Q_OS_MAC
-      platformOffset("/../../.."),
+      platformOffset("/../../../"),
   #endif
-      testingBasePath(QCoreApplication::applicationDirPath() + platformOffset),
-      installedBasePath("/usr/share/qtmediahub/"),
-      basePath(Config::value("base-path", Config::value("testing", false) ? testingBasePath : installedBasePath)),
       // Use "large" instead of appName to fit freedesktop spec
       thumbnailPath(Config::value("thumbnail-path", QDir::homePath() + "/.thumbnails/" + qApp->applicationName() + "/")),
       inputIdleTimer(this),
@@ -167,6 +168,13 @@ BackendPrivate::BackendPrivate(Backend *p)
       scannerThread(0),
       q(p)
 {
+    QString defaultBasePath("/usr/share/qtmediahub/");
+    if (Config::value("testing", false) || !QDir(defaultBasePath).exists()) {
+        qDebug() << "Either testing or uninstalled: running in build dir";
+        defaultBasePath = QCoreApplication::applicationDirPath() + platformOffset;
+    }
+    basePath = Config::value("base-path",  defaultBasePath);
+
     QNetworkProxy proxy;
     if (Config::isEnabled("proxy", false)) {
         QString proxyHost(Config::value("proxy-host", "localhost").toString());
@@ -423,9 +431,12 @@ void Backend::initialize()
     }
 
 #ifdef QMH_AVAHI
-    if (Config::isEnabled("avahi", true) && Config::isEnabled("avahi-advertize", true)) {
+    if (d->primarySession && Config::isEnabled("avahi", true) && Config::isEnabled("avahi-advertize", true)) {
         QAvahiServicePublisher *publisher = new QAvahiServicePublisher(this);
         publisher->publish(QHostInfo::localHostName(), "_qtmediahub._tcp", 1234, "Qt Media Hub JSON-RPCv2 interface");
+        qDebug() << "Advertizing session via zeroconf";
+    } else {
+        qDebug() << "Failing to advertize session via zeroconf";
     }
 #endif
 
@@ -611,5 +622,11 @@ QStringList Backend::findApplications() const
     }
     return apps;
 }
+
+void Backend::setPrimarySession(bool primarySession)
+{
+    d->primarySession = primarySession;
+}
+
 
 #include "backend.moc"

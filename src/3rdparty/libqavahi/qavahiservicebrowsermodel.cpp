@@ -14,7 +14,7 @@
 
 static void QABDEBUG(const char *fmt, ...)
 {
-    static const bool debug = qgetenv("DEBUG").toInt();
+    static const bool debug = qgetenv("LIBQAVAHI_DEBUG").toInt();
     if (debug) {
         char buf[1024];
         va_list ap;

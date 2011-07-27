@@ -56,15 +56,17 @@ int main(int argc, char** argv)
     app.setOrganizationName("Nokia");
     app.setOrganizationDomain("nokia.com");
 
+    bool primarySession = true;
 #ifdef QT_SINGLE_APPLICATION
-    if (!Config::isEnabled("multi-instance", false) && app.isRunning()) {
+    primarySession = !app.isRunning();
+    if (!(Config::isEnabled("multi-instance", false) || primarySession)) {
         qWarning() << app.applicationName() << "is already running, aborting";
         return false;
     }
 #endif //QT_SINGLE_APPLICATION
     Config::init(argc, argv);
 
-    Backend::instance();
+    Backend::instance()->setPrimarySession(primarySession);
 
     int ret = app.exec();
 
