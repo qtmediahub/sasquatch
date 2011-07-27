@@ -77,6 +77,8 @@ public:
     Q_INVOKABLE void loadEngines();
     Q_INVOKABLE QStringList findApplications() const;
 
+    void setPrimarySession(bool);
+
 protected:
     bool eventFilter(QObject *obj, QEvent *event);
 

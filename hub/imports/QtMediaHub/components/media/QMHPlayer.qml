@@ -23,7 +23,8 @@ import Playlist 1.0
 Item {
     id: root
 
-    property variant mediaItem;
+    property variant playlist
+    property variant mediaItem
 
     function stop() {
         mediaItem.stop()
@@ -111,7 +112,7 @@ Item {
                 if (thumbnail != "")
                     return thumbnail;
         }
-        return hasVideo ? defaultVideo : defaultAudio;
+        return mediaItem.hasVideo ? defaultVideo : defaultAudio;
     }
 
     // RPC requests
@@ -126,10 +127,5 @@ Item {
         onVolumeUpRequested: root.increaseVolume()
         onVolumeDownRequested: root.decreaseVolume()
         onPlayRemoteSourceRequested: root.playUri(uri)
-    }
-
-    Playlist {
-        id: playlist
-        playMode: Playlist.Normal
     }
 }
