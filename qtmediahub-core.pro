@@ -21,7 +21,7 @@ exists($$QMAKE_CACHE) {
     error(Cache created; please rerun qmake)
 }
 
-folder_01.source = hub/devices hub/imports
+folder_01.source = hub/devices hub/imports hub/resources
 DEPLOYMENTFOLDERS = folder_01
 
 for(deploymentfolder, DEPLOYMENTFOLDERS) {

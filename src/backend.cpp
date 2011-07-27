@@ -152,7 +152,7 @@ BackendPrivate::BackendPrivate(Backend *p)
       primarySession(true),
       frontend(0),
   #ifdef Q_OS_MAC
-      platformOffset("/../../.."),
+      platformOffset("/../../../"),
   #endif
       // Use "large" instead of appName to fit freedesktop spec
       thumbnailPath(Config::value("thumbnail-path", QDir::homePath() + "/.thumbnails/" + qApp->applicationName() + "/")),
