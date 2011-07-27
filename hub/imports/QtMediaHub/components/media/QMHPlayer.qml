@@ -21,6 +21,8 @@ import QtQuick 1.0
 import Playlist 1.0
 
 Item {
+    id: root
+
     property variant mediaItem;
 
     function stop() {
@@ -111,6 +113,21 @@ Item {
         }
         return hasVideo ? defaultVideo : defaultAudio;
     }
+
+    // RPC requests
+    Connections {
+        target: runtime.mediaPlayerRpc
+        onStopRequested: root.stop()
+        onPauseRequested: root.pause()
+        onResumeRequested: root.resume()
+        onTogglePlayPauseRequested: root.togglePlayPause()
+        onNextRequested: root.playNext()
+        onPreviousRequested: root.playPrevious()
+        onVolumeUpRequested: root.increaseVolume()
+        onVolumeDownRequested: root.decreaseVolume()
+        onPlayRemoteSourceRequested: root.playUri(uri)
+    }
+
     Playlist {
         id: playlist
         playMode: Playlist.Normal
