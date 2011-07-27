@@ -576,5 +576,10 @@ bool Frontend::setSkin(const QString &name)
     return d->setSkin(name);
 }
 
+void Frontend::addImportPath(const QString &path)
+{
+    if (QFile::exists(path))
+        d->rootContext->engine()->addImportPath(path);
+}
 
 #include "frontend.moc"

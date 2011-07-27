@@ -40,6 +40,8 @@ public:
     void show();
     bool setSkin(const QString &name);
 
+    Q_INVOKABLE void addImportPath(const QString &path);
+
 signals:
     void frontendChanged();
     void framerateCapChanged();
