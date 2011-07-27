@@ -20,13 +20,17 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "httpserver.h"
 
 #include "httpclient.h"
+#include "qmh-config.h"
 
 HttpServer::HttpServer(quint16 port, QObject *parent) :
     QTcpServer(parent)
 {
     listen(QHostAddress::Any, port);
 
-    m_address = getAddress();
+    // FIXME whole address thing should be improved
+    m_address = Config::value("stream-address", "").toString();
+    if (m_address == "")
+        m_address = getAddress();
 
     qDebug() << "Streaming server listening" << m_address << "on" << serverPort();
 }
@@ -54,5 +58,5 @@ QString HttpServer::getAddress()
         }
     }
 
-    return QString();
+    return QString::fromLatin1("127.0.0.1");
 }
