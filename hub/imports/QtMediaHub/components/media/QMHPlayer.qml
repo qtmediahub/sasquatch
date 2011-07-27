@@ -52,10 +52,9 @@ Item {
 
     function playIndex(idx) {
         playlist.currentIndex = idx
-            mediaItem.stop();
-        mediaItem.playbackRate = 1
-            mediaItem.source = getMetaData("uri", "file://")
-            mediaItem.play();
+        mediaItem.stop();
+        mediaItem.source = getMetaData("uri", "file://")
+        mediaItem.play();
     }
 
     function increaseVolume() {
@@ -68,12 +67,10 @@ Item {
 
     function pause() {
         mediaItem.pause()
-            mediaItem.playbackRate = 1
     }
 
     function resume() {
         mediaItem.play()
-            mediaItem.playbackRate = 1
     }
 
     function togglePlayPause() {
@@ -103,14 +100,14 @@ Item {
     function getMetaData(role, defaultValue) {
         if (playlist)
             return playlist.data(playlist.currentIndex, role) || defaultValue
-                return "";
+        return "";
     }
 
     function getThumbnail(defaultAudio, defaultVideo) {
         if (playlist && playlist.currentIndex != -1) {
             var thumbnail = playlist.data(playlist.currentIndex, "previewUrl")
-                if (thumbnail != "")
-                    return thumbnail;
+            if (thumbnail != "")
+                return thumbnail;
         }
         return mediaItem.hasVideo ? defaultVideo : defaultAudio;
     }
