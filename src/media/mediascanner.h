@@ -65,6 +65,8 @@ signals:
     void currentScanPathChanged();
     void scanStarted(const QString &type);
     void scanFinished(const QString &type);
+    void searchPathAdded(const QString &type, const QString &path, const QString &name);
+    void searchPathRemoved(const QString &type, const QString &path);
 
 private:
     void scan(MediaParser *parser, const QString &path);

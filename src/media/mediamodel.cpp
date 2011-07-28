@@ -33,6 +33,7 @@ MediaModel::MediaModel(QObject *parent)
     MediaScanner *scanner = Backend::instance()->mediaScanner();
     connect(scanner, SIGNAL(scanStarted(QString)), this, SLOT(handleScanStarted(QString)));
     connect(scanner, SIGNAL(scanFinished(QString)), this, SLOT(handleScanFinished(QString)));
+    connect(scanner, SIGNAL(searchPathRemoved(QString, QString)), this, SLOT(handleScanFinished(QString)));
 }
 
 MediaModel::~MediaModel()

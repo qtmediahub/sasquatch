@@ -75,6 +75,8 @@ void MediaScanner::addSearchPath(const QString &type, const QString &_path, cons
         return;
     }
 
+    emit searchPathAdded(type, path, name);
+
     if (m_parsers.contains(type)) {
         emit scanStarted(type);
         scan(m_parsers.value(type), path);
@@ -104,6 +106,8 @@ void MediaScanner::removeSearchPath(const QString &type, const QString &_path)
         WARNING << "Removing data " << query.lastError().text();
         return;
     }
+
+    emit searchPathRemoved(type, path);
 }
 
 void MediaScanner::scan(MediaParser *parser, const QString &path)
