@@ -80,23 +80,6 @@ void MediaModel::setMediaType(const QString &type)
     initialize();
 }
 
-void MediaModel::addSearchPath(const QString &path, const QString &name)
-{
-    if (m_mediaType.isEmpty()) {
-        qWarning() << m_mediaType << " is not set yet";
-        return;
-    }
-
-    MediaScanner *scanner = Backend::instance()->mediaScanner();
-    QMetaObject::invokeMethod(scanner, "addSearchPath", Qt::QueuedConnection, 
-                              Q_ARG(QString, m_mediaType), Q_ARG(QString, path), Q_ARG(QString, name));
-}
-
-void MediaModel::removeSearchPath(const QString &name)
-{
-    Q_UNUSED(name);
-}
-
 QString MediaModel::structure() const
 {
     return m_structure;

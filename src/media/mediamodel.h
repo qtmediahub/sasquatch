@@ -48,9 +48,6 @@ public:
     MediaModel(QObject *parent = 0);
     ~MediaModel();
 
-    Q_INVOKABLE void addSearchPath(const QString &mediaPath, const QString &name);
-    Q_INVOKABLE void removeSearchPath(const QString &name);
-
     QString structure() const;
     void setStructure(const QString &str);
 

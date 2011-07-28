@@ -57,6 +57,7 @@ public:
 public slots:
     void initialize();
     void addSearchPath(const QString &type, const QString &path, const QString &name);
+    void removeSearchPath(const QString &type, const QString &path);
     void refresh(const QString &type = QString());
     void addParser(MediaParser *);
     

@@ -583,20 +583,17 @@ QObject *Backend::targetsModel() const
     return d->targetsModel;
 }
 
+// ## Move this to the scanner
 void Backend::addMediaSearchPath(const QString &type, const QString &name, const QString &path)
 {
-    MediaModel *model = new MediaModel(this);
-    model->setMediaType(type);
-    connect(model, SIGNAL(scanFinished()), model, SLOT(deleteLater()));
-    model->addSearchPath(path, name);
+    QMetaObject::invokeMethod(d->mediaScanner, "addSearchPath", Qt::QueuedConnection, 
+                              Q_ARG(QString, type), Q_ARG(QString, name), Q_ARG(QString, path));
 }
 
-void Backend::removeMediaSearchPath(const QString &type, const QString &name)
+void Backend::removeMediaSearchPath(const QString &type, const QString &path)
 {
-    MediaModel *model = new MediaModel(this);
-    model->setMediaType(type);
-    model->removeSearchPath(name);
-    model->deleteLater();
+    QMetaObject::invokeMethod(d->mediaScanner, "removeSearchPath", Qt::QueuedConnection, 
+                              Q_ARG(QString, type), Q_ARG(QString, path));
 }
 
 QStringList Backend::findApplications() const

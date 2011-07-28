@@ -79,6 +79,26 @@ void MediaScanner::addSearchPath(const QString &type, const QString &_path, cons
         scan(m_parsers.value(type), path);
 }
 
+void MediaScanner::removeSearchPath(const QString &type, const QString &_path)
+{
+    QString path = QFileInfo(_path).absoluteFilePath();
+    if (path.endsWith('/'))
+        path.chop(1);
+
+    QSqlQuery query(m_db);
+    query.prepare("DELETE FROM directories WHERE type=:type AND path=:path");
+    query.bindValue(":path", path);
+    query.bindValue(":type", type);
+    if (!query.exec()) {
+        m_errorString = query.lastError().text();
+        DEBUG << m_errorString;
+        return;
+    }
+
+    if (m_parsers.contains(type))
+        scan(m_parsers.value(type), path);
+}
+
 void MediaScanner::scan(MediaParser *parser, const QString &path)
 {
     QQueue<QString> dirQ;
