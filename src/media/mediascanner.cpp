@@ -76,9 +76,9 @@ void MediaScanner::addSearchPath(const QString &type, const QString &_path, cons
     }
 
     if (m_parsers.contains(type)) {
-        emit scanStarted();
+        emit scanStarted(type);
         scan(m_parsers.value(type), path);
-        emit scanFinished();
+        emit scanFinished(type);
     }
 }
 
@@ -169,30 +169,35 @@ void MediaScanner::refresh(const QString &type)
     QSqlQuery query(m_db);
     query.setForwardOnly(true);
     if (type.isEmpty()) {
-        query.exec("SELECT type, path FROM directories");
+        query.exec("SELECT type, path FROM directories ORDER BY type");
     } else {
         query.prepare("SELECT type, path FROM directories WHERE type = :1");
         query.addBindValue(type);
         query.exec();
     }
 
-    QList<QPair<QString, QString> > dirs;
+    QString lastType;
+    MediaParser *parser;
     while (query.next()) {
-        dirs << qMakePair(query.value(0).toString(), query.value(1).toString());
-    }
+        QString type = query.value(0).toString();
+        QString path = query.value(1).toString();
 
-    emit scanStarted();
+        const bool typeChanged = lastType != type;
 
-    for (int i = 0; i < dirs.count(); i++) {
-        if (m_stop)
-            break;
-        if (!m_parsers.contains(dirs[i].first)) {
-            DEBUG << "No registered parser for '" << dirs[i].first << "'";
-            continue;
+        if (typeChanged) {
+            if (!lastType.isEmpty())
+                emit scanFinished(lastType);
+
+            parser = m_parsers.value(type);
+            if (!parser) {
+                WARNING << "No parser found for type '" << type << "'";
+                continue;
+            }
+            emit scanStarted(type);
+            lastType = type;
         }
-        scan(m_parsers.value(dirs[i].first), dirs[i].second);
-    }
 
-    emit scanFinished();
+        scan(parser, path);
+    }
 }
 

@@ -63,8 +63,8 @@ public slots:
     
 signals:
     void currentScanPathChanged();
-    void scanStarted();
-    void scanFinished();
+    void scanStarted(const QString &type);
+    void scanFinished(const QString &type);
 
 private:
     void scan(MediaParser *parser, const QString &path);

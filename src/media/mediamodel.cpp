@@ -31,9 +31,8 @@ MediaModel::MediaModel(QObject *parent)
     connect(&m_refreshTimer, SIGNAL(timeout()), this, SLOT(refresh()));
 
     MediaScanner *scanner = Backend::instance()->mediaScanner();
-    connect(scanner, SIGNAL(scanStarted()), &m_refreshTimer, SLOT(start()));
-    connect(scanner, SIGNAL(scanFinished()), &m_refreshTimer, SLOT(stop()));
-    connect(scanner, SIGNAL(scanFinished()), this, SLOT(refresh()));
+    connect(scanner, SIGNAL(scanStarted(QString)), this, SLOT(handleScanStarted(QString)));
+    connect(scanner, SIGNAL(scanFinished(QString)), this, SLOT(handleScanFinished(QString)));
 }
 
 MediaModel::~MediaModel()
@@ -344,9 +343,25 @@ QSqlQuery MediaModel::buildQuery() const
     return query;
 }
 
+void MediaModel::handleScanStarted(const QString &type)
+{
+    if (type != m_mediaType)
+        return;
+
+    m_refreshTimer.start();
+}
+
+void MediaModel::handleScanFinished(const QString &type)
+{
+    if (type != m_mediaType)
+        return;
+    m_refreshTimer.stop();
+    refresh();
+}
+
 void MediaModel::refresh()
 {
-    DEBUG << mediaType();
+    DEBUG << m_mediaType;
     initialize();
 }
 

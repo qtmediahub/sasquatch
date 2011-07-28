@@ -79,6 +79,8 @@ signals:
 
 private slots:
     void handleDataReady(DbReader *reader, const QList<QSqlRecord> &data, void *node);
+    void handleScanStarted(const QString &type);
+    void handleScanFinished(const QString &type);
     void refresh();
 
 private:
