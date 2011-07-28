@@ -133,7 +133,6 @@ void MediaScanner::scan(MediaParser *parser, const QString &path)
 
     m_currentScanPath.clear();
     emit currentScanPathChanged();
-    emit scanFinished();
 }
 
 void MediaScanner::refresh(const QString &type)
@@ -155,6 +154,8 @@ void MediaScanner::refresh(const QString &type)
         dirs << qMakePair(query.value(0).toString(), query.value(1).toString());
     }
 
+    emit scanStarted();
+
     for (int i = 0; i < dirs.count(); i++) {
         if (m_stop)
             break;
@@ -164,5 +165,7 @@ void MediaScanner::refresh(const QString &type)
         }
         scan(m_parsers.value(dirs[i].first), dirs[i].second);
     }
+
+    emit scanFinished();
 }
 

@@ -62,6 +62,7 @@ public slots:
     
 signals:
     void currentScanPathChanged();
+    void scanStarted();
     void scanFinished();
 
 private:
