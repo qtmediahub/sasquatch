@@ -153,6 +153,7 @@ private:
 
 void QMLUtils::applyWebViewFocusFix(QDeclarativeItem *item) // See https://bugs.webkit.org/show_bug.cgi?id=51094
 {
+#if QT_VERSION < 0x040800
     item->setFlag(QGraphicsItem::ItemIsFocusScope, true);
     QList<QGraphicsItem *> children = item->childItems();
     for (int i = 0; i < children.count(); i++) {
@@ -161,6 +162,9 @@ void QMLUtils::applyWebViewFocusFix(QDeclarativeItem *item) // See https://bugs.
                 maybeWebView->setFocus();
         }
     }
+#else
+    Q_UNUSED(item)
+#endif
 }
 
 
