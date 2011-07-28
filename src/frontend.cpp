@@ -352,7 +352,7 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
 #else
         DeclarativeView *declarativeWidget = new DeclarativeView;
 
-        if (Config::isEnabled("smooth-scaling", true))
+        if (Config::isEnabled("smooth-scaling", false))
             declarativeWidget->setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing);
 
         declarativeWidget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
