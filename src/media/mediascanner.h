@@ -72,7 +72,6 @@ private:
     static MediaScanner *s_instance;
     volatile bool m_stop;
     QSqlDatabase m_db;
-    QString m_errorString;
 
     QString m_currentScanPath;
 

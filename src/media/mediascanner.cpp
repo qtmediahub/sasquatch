@@ -25,6 +25,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "qmh-config.h"
 
 #define DEBUG if (0) qDebug() << __PRETTY_FUNCTION__
+#define WARNING qWarning() << __PRETTY_FUNCTION__
 
 const QString CONNECTION_NAME("MediaScanner");
 const int BULK_LIMIT = 100;
@@ -70,8 +71,7 @@ void MediaScanner::addSearchPath(const QString &type, const QString &_path, cons
     query.bindValue(":name", name);
     query.bindValue(":type", type);
     if (!query.exec()) {
-        m_errorString = query.lastError().text();
-        DEBUG << m_errorString;
+        WARNING << query.lastError().text();
         return;
     }
 
@@ -90,13 +90,17 @@ void MediaScanner::removeSearchPath(const QString &type, const QString &_path)
     query.bindValue(":path", path);
     query.bindValue(":type", type);
     if (!query.exec()) {
-        m_errorString = query.lastError().text();
-        DEBUG << m_errorString;
+        WARNING << "Removing directory " << query.lastError().text();
         return;
     }
 
-    if (m_parsers.contains(type))
-        scan(m_parsers.value(type), path);
+    query = QSqlQuery(m_db);
+    query.prepare(QString("DELETE FROM %1 WHERE directory LIKE :path").arg(type));
+    query.bindValue(":path", path + '%');
+    if (!query.exec()) {
+        WARNING << "Removing data " << query.lastError().text();
+        return;
+    }
 }
 
 void MediaScanner::scan(MediaParser *parser, const QString &path)
