@@ -24,7 +24,8 @@ SOURCES += qmh-config.cpp \
     devicemanager.cpp \
     powermanager.cpp \
     widgetwrapper.cpp \
-    customcursor.cpp
+    customcursor.cpp \
+    qmh-util.cpp
 
 HEADERS += qmh-config.h \
     global.h \
