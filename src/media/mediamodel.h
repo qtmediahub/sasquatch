@@ -79,7 +79,6 @@ signals:
     void structureChanged();
     void mediaTypeChanged();
     void partChanged();
-    void scanFinished();
 
 private slots:
     void handleDataReady(DbReader *reader, const QList<QSqlRecord> &data, void *node);

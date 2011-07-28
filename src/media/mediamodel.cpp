@@ -88,7 +88,6 @@ void MediaModel::addSearchPath(const QString &path, const QString &name)
     }
 
     MediaScanner *scanner = Backend::instance()->mediaScanner();
-    connect(scanner, SIGNAL(scanFinished()), this, SIGNAL(scanFinished()));
     QMetaObject::invokeMethod(scanner, "addSearchPath", Qt::QueuedConnection, 
                               Q_ARG(QString, m_mediaType), Q_ARG(QString, path), Q_ARG(QString, name));
 }
