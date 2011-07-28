@@ -79,7 +79,7 @@ signals:
 
 private slots:
     void handleDataReady(DbReader *reader, const QList<QSqlRecord> &data, void *node);
-    void handleDatabaseUpdated(const QList<QSqlRecord> &record);
+    void refresh();
 
 private:
     void initialize();
@@ -91,6 +91,8 @@ private:
     bool m_loading, m_loaded;
 
     QList<QHash<int, QVariant> > m_cursor;
+
+    QTimer m_refreshTimer;
 
     DbReader *m_reader;
     QThread *m_readerThread;

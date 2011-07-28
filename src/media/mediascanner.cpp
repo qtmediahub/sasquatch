@@ -75,8 +75,11 @@ void MediaScanner::addSearchPath(const QString &type, const QString &_path, cons
         return;
     }
 
-    if (m_parsers.contains(type))
+    if (m_parsers.contains(type)) {
+        emit scanStarted();
         scan(m_parsers.value(type), path);
+        emit scanFinished();
+    }
 }
 
 void MediaScanner::removeSearchPath(const QString &type, const QString &_path)
@@ -161,7 +164,7 @@ void MediaScanner::scan(MediaParser *parser, const QString &path)
 
 void MediaScanner::refresh(const QString &type)
 {
-    DEBUG << "Refreshing " << type;
+    DEBUG << "Refreshing type" << type;
 
     QSqlQuery query(m_db);
     query.setForwardOnly(true);
