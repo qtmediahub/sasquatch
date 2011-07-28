@@ -34,6 +34,9 @@ MediaModel::MediaModel(QObject *parent)
     connect(scanner, SIGNAL(scanStarted(QString)), this, SLOT(handleScanStarted(QString)));
     connect(scanner, SIGNAL(scanFinished(QString)), this, SLOT(handleScanFinished(QString)));
     connect(scanner, SIGNAL(searchPathRemoved(QString, QString)), this, SLOT(handleScanFinished(QString)));
+
+    m_readerThread = new QThread(this);
+    m_readerThread->start();
 }
 
 MediaModel::~MediaModel()
@@ -210,11 +213,6 @@ void MediaModel::fetchMore(const QModelIndex &parent)
 void MediaModel::initialize()
 {    
     DEBUG << "";
-
-    if (!m_readerThread) {
-        m_readerThread = new QThread(this);
-        m_readerThread->start();
-    }
 
     if (m_reader) {
         disconnect(m_reader, 0, this, 0);
