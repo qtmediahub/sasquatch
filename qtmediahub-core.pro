@@ -8,16 +8,16 @@ TEMPLATE = subdirs
 folder_01.source = hub/devices hub/imports hub/resources
 DEPLOYMENTFOLDERS = folder_01
 
-for(deploymentfolder, DEPLOYMENTFOLDERS) {
-    item = item$${deploymentfolder}
-    itemsources = $${item}.sources
-    $$itemsources = $$eval($${deploymentfolder}.source)
-    itempath = $${item}.path
-    $$itempath= $$eval($${deploymentfolder}.target)
-    export($$itemsources)
-    export($$itempath)
-    DEPLOYMENT += $$item
-}
+#for(deploymentfolder, DEPLOYMENTFOLDERS) {
+#    item = item$${deploymentfolder}
+#    itemsources = $${item}.sources
+#    $$itemsources = $$eval($${deploymentfolder}.source)
+#    itempath = $${item}.path
+#    $$itempath= $$eval($${deploymentfolder}.target)
+#    export($$itemsources)
+#    export($$itempath)
+#    DEPLOYMENT += $$item
+#}
 
 CONFIG(android) : installPrefix = /assets$${INSTALL_PREFIX}
            else : installPrefix = $${INSTALL_PREFIX}
