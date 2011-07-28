@@ -61,8 +61,8 @@ void MediaScanner::addParser(MediaParser *parser)
 void MediaScanner::addSearchPath(const QString &type, const QString &_path, const QString &name)
 {
     QString path = QFileInfo(_path).absoluteFilePath();
-    if (path.endsWith('/'))
-        path.chop(1);
+    if (!path.endsWith('/'))
+        path.append('/');
 
     QSqlQuery query(m_db);
     query.prepare("INSERT INTO directories (path, name, type) VALUES (:path, :name, :type)");
@@ -82,8 +82,8 @@ void MediaScanner::addSearchPath(const QString &type, const QString &_path, cons
 void MediaScanner::removeSearchPath(const QString &type, const QString &_path)
 {
     QString path = QFileInfo(_path).absoluteFilePath();
-    if (path.endsWith('/'))
-        path.chop(1);
+    if (!path.endsWith('/'))
+        path.append('/');
 
     QSqlQuery query(m_db);
     query.prepare("DELETE FROM directories WHERE type=:type AND path=:path");
