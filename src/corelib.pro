@@ -69,6 +69,6 @@ contains(QT_CONFIG, dbus) {
 }
 
 unix:!symbian {
-    target.path = $${INSTALL_PREFIX}/lib
+    target.path = $${PREFIX}/lib/
     INSTALLS += target
 }
