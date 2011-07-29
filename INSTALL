@@ -43,7 +43,7 @@ hub/skins/ stores the skins
 5. git clone git@gitorious.org:qtmediahub/confluence.git (or any other skin)
 
 Building:
-1. qmake (in the top level)
+1. qmake (for install prefix use 'qmake PREFIX=/usr/')
 2. make
 3. ./hub/qtmediahub
 
@@ -55,3 +55,5 @@ Options:
  -resources <folder>
  -skins <folder>
  -system-tray
+ -multi-instance <bool>
+ -fullscreen <bool>
