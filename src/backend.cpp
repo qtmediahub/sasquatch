@@ -170,7 +170,7 @@ BackendPrivate::BackendPrivate(Backend *p)
                         .append(qApp->applicationName())
                         .append(".log"));
 
-    QString defaultBasePath("/usr/share/qtmediahub/");
+    QString defaultBasePath(QMH_INSTALL_PREFIX);
     if (Config::value("testing", false) || !QDir(defaultBasePath).exists()) {
         qDebug() << "Either testing or uninstalled: running in build dir";
         defaultBasePath = QCoreApplication::applicationDirPath() + platformOffset;
@@ -197,8 +197,6 @@ BackendPrivate::BackendPrivate(Backend *p)
     connect(quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
     actions.append(selectSkinAction);
     actions.append(quitAction);
-
-    // TODO: check install prefix
 
     skinPaths << Utils::standardResourcePaths(basePath, "skins");
 

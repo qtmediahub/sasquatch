@@ -7,20 +7,18 @@ TEMP_DIR = .tmp
 OBJECTS_DIR = $$TEMP_DIR/.obj
 MOC_DIR = $$TEMP_DIR/.moc
 
-#/usr/share/apps/qtmediahub/
-#/usr/share/qtmediahub/
-
 isEmpty(PREFIX) {
     unix:!symbian {
         maemo5 {
-            PREFIX=/opt/usr/
+            PREFIX=/opt/usr
         } else {
-            PREFIX=/usr/local/
+            PREFIX=/usr/local
         }
     }
 }
 
-INSTALL_PREFIX=$$PREFIX/share/qtmediahub
+INSTALL_PREFIX=$$PREFIX/share/qtmediahub/
+DEFINES += "QMH_INSTALL_PREFIX=\\\"$$INSTALL_PREFIX\\\""
 
 # default options
 linux* {
