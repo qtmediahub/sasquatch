@@ -10,13 +10,17 @@ MOC_DIR = $$TEMP_DIR/.moc
 #/usr/share/apps/qtmediahub/
 #/usr/share/qtmediahub/
 
-unix:!symbian {
-    maemo5 {
-        INSTALL_PREFIX=/opt/usr/share/qtmediahub/
-    } else {
-        INSTALL_PREFIX=/usr/share/qtmediahub/
+isEmpty(PREFIX) {
+    unix:!symbian {
+        maemo5 {
+            PREFIX=/opt/usr/
+        } else {
+            PREFIX=/usr/local/
+        }
     }
-} 
+}
+
+INSTALL_PREFIX=$$PREFIX/share/qtmediahub
 
 # default options
 linux* {
