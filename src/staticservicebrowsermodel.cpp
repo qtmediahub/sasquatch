@@ -21,6 +21,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QtGui>
 
 #include "backend.h"
+#include "qmh-util.h"
 
 StaticServiceBrowserModel::StaticServiceBrowserModel(QObject *parent)
     : QAbstractListModel(parent), m_initing(true)
