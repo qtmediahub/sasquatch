@@ -3,9 +3,9 @@
 
 namespace Utils
 {
-    static void optimizeWidgetAttributes(QWidget *widget, bool transparent = false);
-    static const QStringList standardResourcePaths(const QString &basePath, const QString &suffix);
-    static QString storageLocation(QDesktopServices::StandardLocation type);
+    void optimizeWidgetAttributes(QWidget *widget, bool transparent = false);
+    const QStringList standardResourcePaths(const QString &basePath, const QString &suffix);
+    QString storageLocation(QDesktopServices::StandardLocation type);
 };
 
 #endif // QMHUTIL_H
