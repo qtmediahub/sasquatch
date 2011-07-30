@@ -135,7 +135,7 @@ QList<QSqlRecord> PictureParser::updateMediaInfos(const QList<QFileInfo> &fis, Q
         query.bindValue(":exposure_time", reader.exposureTime());
         query.bindValue(":color_space", reader.colorSpace());
 
-        query.bindValue(":directory", fi.absolutePath());
+        query.bindValue(":directory", fi.absolutePath() + '/');
         query.bindValue(":mtime", fi.lastModified().toTime_t());
         query.bindValue(":ctime", fi.created().toTime_t());
         query.bindValue(":filesize", fi.size());

@@ -25,6 +25,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "qmh-config.h"
 
 #define DEBUG if (0) qDebug() << __PRETTY_FUNCTION__
+#define WARNING qWarning() << __PRETTY_FUNCTION__
 
 const QString CONNECTION_NAME("MediaScanner");
 const int BULK_LIMIT = 100;
@@ -61,8 +62,8 @@ void MediaScanner::addParser(MediaParser *parser)
 void MediaScanner::addSearchPath(const QString &type, const QString &_path, const QString &name)
 {
     QString path = QFileInfo(_path).absoluteFilePath();
-    if (path.endsWith('/'))
-        path.chop(1);
+    if (!path.endsWith('/'))
+        path.append('/');
 
     QSqlQuery query(m_db);
     query.prepare("INSERT INTO directories (path, name, type) VALUES (:path, :name, :type)");
@@ -70,13 +71,43 @@ void MediaScanner::addSearchPath(const QString &type, const QString &_path, cons
     query.bindValue(":name", name);
     query.bindValue(":type", type);
     if (!query.exec()) {
-        m_errorString = query.lastError().text();
-        DEBUG << m_errorString;
+        WARNING << query.lastError().text();
         return;
     }
 
-    if (m_parsers.contains(type))
+    emit searchPathAdded(type, path, name);
+
+    if (m_parsers.contains(type)) {
+        emit scanStarted(type);
         scan(m_parsers.value(type), path);
+        emit scanFinished(type);
+    }
+}
+
+void MediaScanner::removeSearchPath(const QString &type, const QString &_path)
+{
+    QString path = QFileInfo(_path).absoluteFilePath();
+    if (!path.endsWith('/'))
+        path.append('/');
+
+    QSqlQuery query(m_db);
+    query.prepare("DELETE FROM directories WHERE type=:type AND path=:path");
+    query.bindValue(":path", path);
+    query.bindValue(":type", type);
+    if (!query.exec()) {
+        WARNING << "Removing directory " << query.lastError().text();
+        return;
+    }
+
+    query = QSqlQuery(m_db);
+    query.prepare(QString("DELETE FROM %1 WHERE directory LIKE :path").arg(type));
+    query.bindValue(":path", path + '%');
+    if (!query.exec()) {
+        WARNING << "Removing data " << query.lastError().text();
+        return;
+    }
+
+    emit searchPathRemoved(type, path);
 }
 
 void MediaScanner::scan(MediaParser *parser, const QString &path)
@@ -133,36 +164,44 @@ void MediaScanner::scan(MediaParser *parser, const QString &path)
 
     m_currentScanPath.clear();
     emit currentScanPathChanged();
-    emit scanFinished();
 }
 
 void MediaScanner::refresh(const QString &type)
 {
-    DEBUG << "Refreshing " << type;
+    DEBUG << "Refreshing type" << type;
 
     QSqlQuery query(m_db);
     query.setForwardOnly(true);
     if (type.isEmpty()) {
-        query.exec("SELECT type, path FROM directories");
+        query.exec("SELECT type, path FROM directories ORDER BY type");
     } else {
         query.prepare("SELECT type, path FROM directories WHERE type = :1");
         query.addBindValue(type);
         query.exec();
     }
 
-    QList<QPair<QString, QString> > dirs;
+    QString lastType;
+    MediaParser *parser;
     while (query.next()) {
-        dirs << qMakePair(query.value(0).toString(), query.value(1).toString());
-    }
+        QString type = query.value(0).toString();
+        QString path = query.value(1).toString();
 
-    for (int i = 0; i < dirs.count(); i++) {
-        if (m_stop)
-            break;
-        if (!m_parsers.contains(dirs[i].first)) {
-            DEBUG << "No registered parser for '" << dirs[i].first << "'";
-            continue;
+        const bool typeChanged = lastType != type;
+
+        if (typeChanged) {
+            if (!lastType.isEmpty())
+                emit scanFinished(lastType);
+
+            parser = m_parsers.value(type);
+            if (!parser) {
+                WARNING << "No parser found for type '" << type << "'";
+                continue;
+            }
+            emit scanStarted(type);
+            lastType = type;
         }
-        scan(m_parsers.value(dirs[i].first), dirs[i].second);
+
+        scan(parser, path);
     }
 }
 

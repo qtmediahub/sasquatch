@@ -57,12 +57,16 @@ public:
 public slots:
     void initialize();
     void addSearchPath(const QString &type, const QString &path, const QString &name);
+    void removeSearchPath(const QString &type, const QString &path);
     void refresh(const QString &type = QString());
     void addParser(MediaParser *);
     
 signals:
     void currentScanPathChanged();
-    void scanFinished();
+    void scanStarted(const QString &type);
+    void scanFinished(const QString &type);
+    void searchPathAdded(const QString &type, const QString &path, const QString &name);
+    void searchPathRemoved(const QString &type, const QString &path);
 
 private:
     void scan(MediaParser *parser, const QString &path);
@@ -70,7 +74,6 @@ private:
     static MediaScanner *s_instance;
     volatile bool m_stop;
     QSqlDatabase m_db;
-    QString m_errorString;
 
     QString m_currentScanPath;
 

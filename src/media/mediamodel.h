@@ -48,9 +48,6 @@ public:
     MediaModel(QObject *parent = 0);
     ~MediaModel();
 
-    Q_INVOKABLE void addSearchPath(const QString &mediaPath, const QString &name);
-    Q_INVOKABLE void removeSearchPath(const QString &name);
-
     QString structure() const;
     void setStructure(const QString &str);
 
@@ -79,11 +76,12 @@ signals:
     void structureChanged();
     void mediaTypeChanged();
     void partChanged();
-    void scanFinished();
 
 private slots:
     void handleDataReady(DbReader *reader, const QList<QSqlRecord> &data, void *node);
-    void handleDatabaseUpdated(const QList<QSqlRecord> &record);
+    void handleScanStarted(const QString &type);
+    void handleScanFinished(const QString &type);
+    void refresh();
 
 private:
     void initialize();
@@ -95,6 +93,8 @@ private:
     bool m_loading, m_loaded;
 
     QList<QHash<int, QVariant> > m_cursor;
+
+    QTimer m_refreshTimer;
 
     DbReader *m_reader;
     QThread *m_readerThread;

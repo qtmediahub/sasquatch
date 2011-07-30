@@ -1,39 +1,23 @@
 include(src/common.pri)
+include(.cache-cow.pri)
 
 CONFIG += ordered
 
 TEMPLATE = subdirs
 
-QMAKE_CACHE=$${OUT_PWD}/.qmake.cache
-
-# Detect stale .qmake.cache
-exists($$QMAKE_CACHE) {
-    include($$QMAKE_CACHE)
-    !equals(PROJECTROOT, $$PWD): system(rm $$QMAKE_CACHE)
-}
-
-!exists($$QMAKE_CACHE) {
-    system(echo "PROJECTROOT=$$PWD" > $$QMAKE_CACHE)
-    system(echo "Q_COMPONENTS_SOURCE_TREE=$$PWD/src/3rdparty/qt-components" >> $$QMAKE_CACHE)
-    system(echo "Q_COMPONENTS_BUILD_TREE=$$PWD/hub/resources" >> $$QMAKE_CACHE)
-    system(echo "CONFIG+=mx" >> $$QMAKE_CACHE)
-    system(echo "CONFIG-=qt_framework" >> $$QMAKE_CACHE)
-    error(Cache created; please rerun qmake)
-}
-
 folder_01.source = hub/devices hub/imports hub/resources
 DEPLOYMENTFOLDERS = folder_01
 
-for(deploymentfolder, DEPLOYMENTFOLDERS) {
-    item = item$${deploymentfolder}
-    itemsources = $${item}.sources
-    $$itemsources = $$eval($${deploymentfolder}.source)
-    itempath = $${item}.path
-    $$itempath= $$eval($${deploymentfolder}.target)
-    export($$itemsources)
-    export($$itempath)
-    DEPLOYMENT += $$item
-}
+#for(deploymentfolder, DEPLOYMENTFOLDERS) {
+#    item = item$${deploymentfolder}
+#    itemsources = $${item}.sources
+#    $$itemsources = $$eval($${deploymentfolder}.source)
+#    itempath = $${item}.path
+#    $$itempath= $$eval($${deploymentfolder}.target)
+#    export($$itemsources)
+#    export($$itempath)
+#    DEPLOYMENT += $$item
+#}
 
 CONFIG(android) : installPrefix = /assets$${INSTALL_PREFIX}
            else : installPrefix = $${INSTALL_PREFIX}

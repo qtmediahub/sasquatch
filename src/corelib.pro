@@ -24,7 +24,8 @@ SOURCES += qmh-config.cpp \
     devicemanager.cpp \
     powermanager.cpp \
     widgetwrapper.cpp \
-    customcursor.cpp
+    customcursor.cpp \
+    qmh-util.cpp
 
 HEADERS += qmh-config.h \
     global.h \
@@ -68,6 +69,6 @@ contains(QT_CONFIG, dbus) {
 }
 
 unix:!symbian {
-    target.path = $${INSTALL_PREFIX}/lib
+    target.path = $${PREFIX}/lib/
     INSTALLS += target
 }

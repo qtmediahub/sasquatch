@@ -166,7 +166,7 @@ QList<QSqlRecord> MusicParser::updateMediaInfos(const QList<QFileInfo> &fis, QSq
         query.bindValue(":bitrate", reader.bitrate());
         query.bindValue(":samplerate", reader.sampleRate());
 
-        query.bindValue(":directory", fi.absolutePath());
+        query.bindValue(":directory", fi.absolutePath() + '/');
         query.bindValue(":mtime", fi.lastModified().toTime_t());
         query.bindValue(":ctime", fi.created().toTime_t());
         query.bindValue(":filesize", fi.size());

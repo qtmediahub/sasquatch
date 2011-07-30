@@ -21,6 +21,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "frontend.h"
 
 #include "qmh-config.h"
+#include "qmh-util.h"
 #include "rpc/rpcconnection.h"
 #include "skin.h"
 #include "scopedtransaction.h"
@@ -158,17 +159,18 @@ BackendPrivate::BackendPrivate(Backend *p)
       thumbnailPath(Config::value("thumbnail-path", QDir::homePath() + "/.thumbnails/" + qApp->applicationName() + "/")),
       inputIdleTimer(this),
       backendTranslator(0),
-      logFile(Backend::storageLocation(QDesktopServices::TempLocation)
-          .append("/")
-          .append(qApp->applicationName())
-          .append(".log")),
       systray(0),
       targetsModel(0),
       mediaScanner(0),
       scannerThread(0),
       q(p)
 {
-    QString defaultBasePath("/usr/share/qtmediahub/");
+    logFile.setFileName(Utils::storageLocation(QDesktopServices::TempLocation)
+                        .append("/")
+                        .append(qApp->applicationName())
+                        .append(".log"));
+
+    QString defaultBasePath(QMH_INSTALL_PREFIX);
     if (Config::value("testing", false) || !QDir(defaultBasePath).exists()) {
         qDebug() << "Either testing or uninstalled: running in build dir";
         defaultBasePath = QCoreApplication::applicationDirPath() + platformOffset;
@@ -196,13 +198,7 @@ BackendPrivate::BackendPrivate(Backend *p)
     actions.append(selectSkinAction);
     actions.append(quitAction);
 
-    // TODO: check install prefix
-    skinPaths << QCoreApplication::applicationDirPath() + "/../../skins/"; // unified repo
-    skinPaths << "/usr/share/qtmediahub/skins/";
-    skinPaths << QDir::homePath() + "/.qtmediahub/skins/";
-    skinPaths << QDir(Config::value("skins-path", QString(basePath % "/skins"))).absolutePath();
-    if (!qgetenv("QMH_SKINPATH").isEmpty())
-        skinPaths << QDir(qgetenv("QMH_SKINPATH")).absolutePath();
+    skinPaths << Utils::standardResourcePaths(basePath, "skins");
 
     pluginPath = QDir(Config::value("plugins-path", QString(basePath % "/plugins"))).absolutePath();
 
@@ -409,11 +405,7 @@ Backend::~Backend()
     s_instance = 0;
 }
 
-QString Backend::storageLocation(QDesktopServices::StandardLocation type)
-{
-    QString location = QDesktopServices::storageLocation(type);
-    return location.isEmpty() ? QString("/tmp") : location;
-}
+
 
 void Backend::initialize()
 {
@@ -451,9 +443,9 @@ void BackendPrivate::initializeMedia()
         return;
     }
 
-    const QString DATABASE_NAME(Backend::storageLocation(QDesktopServices::DataLocation).append("/media.db"));
+    const QString DATABASE_NAME(Utils::storageLocation(QDesktopServices::DataLocation).append("/media.db"));
     QDir dir;
-    dir.mkpath(Backend::storageLocation(QDesktopServices::DataLocation));
+    dir.mkpath(Utils::storageLocation(QDesktopServices::DataLocation));
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE", DATABASE_CONNECTION_NAME);
     db.setDatabaseName(DATABASE_NAME);
 
@@ -583,34 +575,23 @@ QObject *Backend::targetsModel() const
     return d->targetsModel;
 }
 
+// ## Move this to the scanner
 void Backend::addMediaSearchPath(const QString &type, const QString &name, const QString &path)
 {
-    MediaModel *model = new MediaModel(this);
-    model->setMediaType(type);
-    connect(model, SIGNAL(scanFinished()), model, SLOT(deleteLater()));
-    model->addSearchPath(path, name);
+    QMetaObject::invokeMethod(d->mediaScanner, "addSearchPath", Qt::QueuedConnection, 
+                              Q_ARG(QString, type), Q_ARG(QString, name), Q_ARG(QString, path));
 }
 
-void Backend::removeMediaSearchPath(const QString &type, const QString &name)
+void Backend::removeMediaSearchPath(const QString &type, const QString &path)
 {
-    MediaModel *model = new MediaModel(this);
-    model->setMediaType(type);
-    model->removeSearchPath(name);
-    model->deleteLater();
+    QMetaObject::invokeMethod(d->mediaScanner, "removeSearchPath", Qt::QueuedConnection, 
+                              Q_ARG(QString, type), Q_ARG(QString, path));
 }
 
 QStringList Backend::findApplications() const
 {
-    static QByteArray env = qgetenv("QMH_APPPATH");
-
-    QStringList appSearchPaths;
-    if (!env.isEmpty())
-        appSearchPaths << env;
-    appSearchPaths << QCoreApplication::applicationDirPath() + "/../../apps/"; // unified repo
-
     QStringList apps;
-
-    foreach(const QString &appSearchPath, appSearchPaths) {
+    foreach(const QString &appSearchPath, Utils::standardResourcePaths(basePath(), "apps")) {
         QStringList subdirs = QDir(appSearchPath).entryList(QDir::AllDirs | QDir::NoDotAndDotDot);
         foreach(const QString &subdir, subdirs)  {
             QString appPath(appSearchPath + '/' + subdir + '/');

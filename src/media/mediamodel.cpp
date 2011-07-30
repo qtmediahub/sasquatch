@@ -27,6 +27,16 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 MediaModel::MediaModel(QObject *parent)
     : QAbstractItemModel(parent), m_loading(false), m_loaded(false), m_reader(0), m_readerThread(0)
 {
+    m_refreshTimer.setInterval(10000);
+    connect(&m_refreshTimer, SIGNAL(timeout()), this, SLOT(refresh()));
+
+    MediaScanner *scanner = Backend::instance()->mediaScanner();
+    connect(scanner, SIGNAL(scanStarted(QString)), this, SLOT(handleScanStarted(QString)));
+    connect(scanner, SIGNAL(scanFinished(QString)), this, SLOT(handleScanFinished(QString)));
+    connect(scanner, SIGNAL(searchPathRemoved(QString, QString)), this, SLOT(handleScanFinished(QString)));
+
+    m_readerThread = new QThread(this);
+    m_readerThread->start();
 }
 
 MediaModel::~MediaModel()
@@ -78,24 +88,6 @@ void MediaModel::setMediaType(const QString &type)
     setRoleNames(hash);
 
     initialize();
-}
-
-void MediaModel::addSearchPath(const QString &path, const QString &name)
-{
-    if (m_mediaType.isEmpty()) {
-        qWarning() << m_mediaType << " is not set yet";
-        return;
-    }
-
-    MediaScanner *scanner = Backend::instance()->mediaScanner();
-    connect(scanner, SIGNAL(scanFinished()), this, SIGNAL(scanFinished()));
-    QMetaObject::invokeMethod(scanner, "addSearchPath", Qt::QueuedConnection, 
-                              Q_ARG(QString, m_mediaType), Q_ARG(QString, path), Q_ARG(QString, name));
-}
-
-void MediaModel::removeSearchPath(const QString &name)
-{
-    Q_UNUSED(name);
 }
 
 QString MediaModel::structure() const
@@ -222,19 +214,14 @@ void MediaModel::initialize()
 {    
     DEBUG << "";
 
-    DbReader *newReader = new DbReader;
     if (m_reader) {
         disconnect(m_reader, 0, this, 0);
         m_reader->stop();
         m_reader->deleteLater();
     }
-    m_reader = newReader;
-
-    if (!m_readerThread) {
-        m_readerThread = new QThread(this);
-        m_readerThread->start();
-    }
+    m_reader = new DbReader;
     m_reader->moveToThread(m_readerThread);
+
     QMetaObject::invokeMethod(m_reader, "initialize", Q_ARG(QSqlDatabase, Backend::instance()->mediaDatabase()));
     connect(m_reader, SIGNAL(dataReady(DbReader *, QList<QSqlRecord>, void *)),
             this, SLOT(handleDataReady(DbReader *, QList<QSqlRecord>, void *)));
@@ -306,12 +293,6 @@ void MediaModel::handleDataReady(DbReader *reader, const QList<QSqlRecord> &reco
     endInsertRows();
 }
 
-void MediaModel::handleDatabaseUpdated(const QList<QSqlRecord> &records)
-{
-    Q_UNUSED(records);
-    // not implemented yet
-}
-
 QSqlQuery MediaModel::buildQuery() const
 {
     QSqlDriver *driver = Backend::instance()->mediaDatabase().driver();
@@ -359,5 +340,27 @@ QSqlQuery MediaModel::buildQuery() const
         query.addBindValue(placeHolder);
 
     return query;
+}
+
+void MediaModel::handleScanStarted(const QString &type)
+{
+    if (type != m_mediaType)
+        return;
+
+    m_refreshTimer.start();
+}
+
+void MediaModel::handleScanFinished(const QString &type)
+{
+    if (type != m_mediaType)
+        return;
+    m_refreshTimer.stop();
+    refresh();
+}
+
+void MediaModel::refresh()
+{
+    DEBUG << m_mediaType;
+    initialize();
 }
 

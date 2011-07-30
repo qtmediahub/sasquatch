@@ -16,7 +16,7 @@ INCLUDEPATH += $${PROJECTROOT}/src $${PROJECTROOT}/src/media
 #            english_bob.ts
 
 unix:!symbian {
-    target.path = $${INSTALL_PREFIX}/plugins
+    target.path = $${PREFIX}/lib/qtmediahub/
     INSTALLS += target
 }
 

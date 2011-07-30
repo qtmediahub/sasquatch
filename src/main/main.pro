@@ -24,9 +24,10 @@ RESOURCES = main.qrc
 
 unix:!symbian {
     maemo5 {
-        target.path = /opt/usr/bin
+        target.path = $$PREFIX/bin
     } else {
-        target.path = /usr/local/bin
+        target.path = $$PREFIX/bin
     }
+message(target.path)
     INSTALLS += target
 }
