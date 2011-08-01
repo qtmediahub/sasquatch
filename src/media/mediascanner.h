@@ -42,6 +42,7 @@ public:
     ~MediaScanner();
 
     struct FileInfo {
+        int rowid;
         QString name;
         quint32 mtime;
         quint32 ctime;

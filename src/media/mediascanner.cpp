@@ -117,10 +117,12 @@ void MediaScanner::scan(MediaParser *parser, const QString &path)
 
     QList<QFileInfo> diskFileInfos;
 
+    QSet<qint64> fileIds = parser->fileIdsInPath(path, m_db);
+
     while (!dirQ.isEmpty() && !m_stop) {
         QString curdir = dirQ.dequeue();
         QFileInfoList fileInfosInDisk = QDir(curdir).entryInfoList(QDir::Files|QDir::Dirs|QDir::NoDotAndDotDot|QDir::NoSymLinks);
-        QHash<QString, FileInfo> fileInfosInDb = parser->findFilesByPath(curdir, m_db);
+        QHash<QString, FileInfo> fileInfosInDb = parser->topLevelFilesInPath(curdir, m_db);
 
         m_currentScanPath = curdir;
         emit currentScanPathChanged();
@@ -129,6 +131,7 @@ void MediaScanner::scan(MediaParser *parser, const QString &path)
 
         foreach(const QFileInfo &diskFileInfo, fileInfosInDisk) {
             FileInfo dbFileInfo = fileInfosInDb.take(diskFileInfo.absoluteFilePath());
+            fileIds.remove(dbFileInfo.rowid);
 
             if (diskFileInfo.isFile()) {
                 if (!parser->canRead(diskFileInfo))
@@ -157,14 +160,14 @@ void MediaScanner::scan(MediaParser *parser, const QString &path)
 
         if (!m_stop) {
             usleep(Config::value("scan-delay", 0)); // option to slow things down, because otherwise the disk gets thrashed and the ui becomes laggy
-
-            DEBUG << "Removing " << fileInfosInDb.keys();
-            parser->removeFiles(fileInfosInDb.keys(), m_db);
         }
     }
 
     if (!diskFileInfos.isEmpty())
         parser->updateMediaInfos(diskFileInfos, m_db);
+
+    DEBUG << "Removing " << fileIds;
+    parser->removeFiles(fileIds, m_db);
 
     m_currentScanPath.clear();
     emit currentScanPathChanged();

@@ -22,6 +22,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <QFileInfo>
 #include <QList>
+#include <QSet>
 #include "mediascanner.h"
 #include "global.h"
 
@@ -37,8 +38,9 @@ public:
     virtual bool canRead(const QFileInfo &info) const = 0;
     virtual QList<QSqlRecord> updateMediaInfos(const QList<QFileInfo> &fi, QSqlDatabase db) = 0;
 
-    virtual QHash<QString, MediaScanner::FileInfo> findFilesByPath(const QString &path, QSqlDatabase db);
-    virtual void removeFiles(const QStringList &files, QSqlDatabase db);
+    QSet<qint64> fileIdsInPath(const QString &path, QSqlDatabase db);
+    QHash<QString, MediaScanner::FileInfo> topLevelFilesInPath(const QString &path, QSqlDatabase db);
+    void removeFiles(const QSet<qint64> &ids, QSqlDatabase db);
 
 signals:
     void databaseUpdated(const QList<QSqlRecord> &records);
