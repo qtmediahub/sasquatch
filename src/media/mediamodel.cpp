@@ -237,6 +237,31 @@ void MediaModel::reload()
     endResetModel();
 }
 
+QHash<int, QVariant> MediaModel::dataFromRecord(const QSqlRecord &tableRecord, const QSqlRecord &record) const
+{
+    QHash<int, QVariant> data;
+    for (int j = 0; j < record.count(); j++) {
+        int idx = tableRecord.indexOf(record.fieldName(j));
+        if (record.fieldName(j) == "uri")
+            data.insert(FieldRolesBegin + idx, QUrl::fromEncoded(record.value(j).toByteArray()));
+        else
+            data.insert(FieldRolesBegin + idx, record.value(j));
+    }
+
+    // Provide 'display' role as , separated values
+    QStringList cols = m_layoutInfo.value(m_cursor.count());
+    QStringList displayString;
+    for (int j = 0; j < cols.count(); j++) {
+        displayString << record.value(cols[j]).toString();
+    }
+    data.insert(Qt::DisplayRole, displayString.join(", "));
+    data.insert(DotDotRole, false);
+    data.insert(IsLeafRole, m_cursor.count() + 1 == m_layoutInfo.count());
+
+    data.insert(PreviewUrlRole, QUrl::fromEncoded(record.value("thumbnail").toByteArray()));
+    return data;
+}
+
 void MediaModel::handleDataReady(DbReader *reader, const QList<QSqlRecord> &records, void *node)
 {
     Q_ASSERT(reader == m_reader);
@@ -254,33 +279,11 @@ void MediaModel::handleDataReady(DbReader *reader, const QList<QSqlRecord> &reco
         beginInsertRows(QModelIndex(), 0, records.count() - 1);
     }
 
-    const bool isLeaf = m_cursor.count() + 1 == m_layoutInfo.count();
-
     QSqlDriver *driver = Backend::instance()->mediaDatabase().driver();
     const QSqlRecord tableRecord = driver->record(m_mediaType);
 
     for (int i = 0; i < records.count(); i++) {
-        QHash<int, QVariant> data;
-        for (int j = 0; j < records[i].count(); j++) {
-            int idx = tableRecord.indexOf(records[i].fieldName(j));
-            if (records[i].fieldName(j) == "uri")
-                data.insert(FieldRolesBegin + idx, QUrl::fromEncoded(records[i].value(j).toByteArray()));
-            else
-                data.insert(FieldRolesBegin + idx, records[i].value(j));
-        }
-
-        // Provide 'display' role as , separated values
-        QStringList cols = m_layoutInfo.value(m_cursor.count());
-        QStringList displayString;
-        for (int j = 0; j < cols.count(); j++) {
-            displayString << records[i].value(cols[j]).toString();
-        }
-        data.insert(Qt::DisplayRole, displayString.join(", "));
-        data.insert(DotDotRole, false);
-        data.insert(IsLeafRole, isLeaf);
-
-        data.insert(PreviewUrlRole, QUrl::fromEncoded(records[i].value("thumbnail").toByteArray()));
-
+        QHash<int, QVariant> data = dataFromRecord(tableRecord, records[i]);
         m_data.append(data);
     }
 

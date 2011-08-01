@@ -87,6 +87,7 @@ private:
     void createNewDbReader();
     void reload();
     QSqlQuery buildQuery() const;
+    QHash<int, QVariant> dataFromRecord(const QSqlRecord &tableRecord, const QSqlRecord &record) const;
 
     QString m_structure;
     QList<QStringList> m_layoutInfo;
