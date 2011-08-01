@@ -38,6 +38,7 @@ public:
     virtual QList<QSqlRecord> updateMediaInfos(const QList<QFileInfo> &fi, QSqlDatabase db) = 0;
 
     virtual QHash<QString, MediaScanner::FileInfo> findFilesByPath(const QString &path, QSqlDatabase db);
+    virtual void removeFiles(const QStringList &files, QSqlDatabase db);
 
 signals:
     void databaseUpdated(const QList<QSqlRecord> &records);

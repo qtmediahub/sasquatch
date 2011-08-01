@@ -22,6 +22,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QtSql>
 
 #define DEBUG if (0) qDebug() << __PRETTY_FUNCTION__
+#define WARNING qDebug() << __PRETTY_FUNCTION__
 
 MediaParser::MediaParser()
 {
@@ -35,7 +36,7 @@ QHash<QString, MediaScanner::FileInfo> MediaParser::findFilesByPath(const QStrin
     query.prepare(QString("SELECT filepath, mtime, ctime, filesize FROM %1 WHERE directory=:path").arg(type()));
     query.bindValue(":path", path);
     if (!query.exec()) {
-        DEBUG << query.lastError().text();
+        WARNING << query.lastError().text();
         return hash;
     }
 
@@ -50,5 +51,17 @@ QHash<QString, MediaScanner::FileInfo> MediaParser::findFilesByPath(const QStrin
     }
 
     return hash;
+}
+
+void MediaParser::removeFiles(const QStringList &files, QSqlDatabase db)
+{
+    foreach(const QString &file, files) {
+        QSqlQuery query(db);
+        query.prepare(QString("DELETE FROM %1 WHERE filepath=:path").arg(type()));
+        query.bindValue(":path", file);
+        if (!query.exec()) {
+            WARNING << query.lastError().text();
+        }
+    }
 }
 

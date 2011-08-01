@@ -148,15 +148,19 @@ void MediaScanner::scan(MediaParser *parser, const QString &path)
                 }
                 DEBUG << diskFileInfo.absoluteFilePath() << " : added";
             } else if (diskFileInfo.isDir()) {
-                dirQ.enqueue(diskFileInfo.absoluteFilePath());
+                dirQ.enqueue(diskFileInfo.absoluteFilePath() + '/');
             }
 
             if (m_stop)
                 break;
         }
 
-        usleep(Config::value("scanning-padding", 0)); // option to slow things down, because otherwise the disk gets thrashed and the ui becomes laggy
-        // ## remove the files from the db in the fileInfosInDb hash now?
+        if (!m_stop) {
+            usleep(Config::value("scan-delay", 0)); // option to slow things down, because otherwise the disk gets thrashed and the ui becomes laggy
+
+            DEBUG << "Removing " << fileInfosInDb.keys();
+            parser->removeFiles(fileInfosInDb.keys(), m_db);
+        }
     }
 
     if (!diskFileInfos.isEmpty())

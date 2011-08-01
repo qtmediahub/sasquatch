@@ -21,8 +21,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "mediascanner.h"
 #include "dbreader.h"
 #include "backend.h"
+#include <sqlite3.h>
 
-#define DEBUG if (0) qDebug() << __PRETTY_FUNCTION__
+#define DEBUG if (0) qDebug() << this << __PRETTY_FUNCTION__
 
 MediaModel::MediaModel(QObject *parent)
     : QAbstractItemModel(parent), m_loading(false), m_loaded(false), m_reader(0), m_readerThread(0)
@@ -87,7 +88,7 @@ void MediaModel::setMediaType(const QString &type)
 
     setRoleNames(hash);
 
-    initialize();
+    reload();
 }
 
 QString MediaModel::structure() const
@@ -105,7 +106,7 @@ void MediaModel::setStructure(const QString &str)
     foreach(const QString &part, m_structure.split("|"))
         m_layoutInfo.append(part.split(","));
 
-    initialize();
+    reload();
 
     emit structureChanged();
 }
@@ -124,7 +125,7 @@ void MediaModel::enter(int index)
 
     DEBUG << "Entering " << index;
     m_cursor.append(m_data[index]);
-    initialize();
+    reload();
     emit partChanged();
 }
 
@@ -139,7 +140,7 @@ void MediaModel::back(int count)
     } else {
         m_cursor.clear();
     }
-    initialize();
+    reload();
     emit partChanged();
 }
 
@@ -210,7 +211,7 @@ void MediaModel::fetchMore(const QModelIndex &parent)
     QMetaObject::invokeMethod(m_reader, "execute", Qt::QueuedConnection, Q_ARG(QSqlQuery, q));
 }
 
-void MediaModel::initialize()
+void MediaModel::createNewDbReader()
 {    
     DEBUG << "";
 
@@ -225,11 +226,41 @@ void MediaModel::initialize()
     QMetaObject::invokeMethod(m_reader, "initialize", Q_ARG(QSqlDatabase, Backend::instance()->mediaDatabase()));
     connect(m_reader, SIGNAL(dataReady(DbReader *, QList<QSqlRecord>, void *)),
             this, SLOT(handleDataReady(DbReader *, QList<QSqlRecord>, void *)));
+}
+
+void MediaModel::reload()
+{
+    createNewDbReader();
 
     beginResetModel();
     m_loading = m_loaded = false;
     m_data.clear();
     endResetModel();
+}
+
+QHash<int, QVariant> MediaModel::dataFromRecord(const QSqlRecord &tableRecord, const QSqlRecord &record) const
+{
+    QHash<int, QVariant> data;
+    for (int j = 0; j < record.count(); j++) {
+        int idx = tableRecord.indexOf(record.fieldName(j));
+        if (record.fieldName(j) == "uri")
+            data.insert(FieldRolesBegin + idx, QUrl::fromEncoded(record.value(j).toByteArray()));
+        else
+            data.insert(FieldRolesBegin + idx, record.value(j));
+    }
+
+    // Provide 'display' role as , separated values
+    QStringList cols = m_layoutInfo.value(m_cursor.count());
+    QStringList displayString;
+    for (int j = 0; j < cols.count(); j++) {
+        displayString << record.value(cols[j]).toString();
+    }
+    data.insert(Qt::DisplayRole, displayString.join(", "));
+    data.insert(DotDotRole, false);
+    data.insert(IsLeafRole, m_cursor.count() + 1 == m_layoutInfo.count());
+
+    data.insert(PreviewUrlRole, QUrl::fromEncoded(record.value("thumbnail").toByteArray()));
+    return data;
 }
 
 void MediaModel::handleDataReady(DbReader *reader, const QList<QSqlRecord> &records, void *node)
@@ -243,39 +274,29 @@ void MediaModel::handleDataReady(DbReader *reader, const QList<QSqlRecord> &reco
     if (records.isEmpty())
         return;
 
+    if (m_data.isEmpty()) {
+        insertAll(records);
+    } else {
+        insertNew(records);
+    }
+
+    m_loading = false;
+    m_loaded = true;
+}
+
+void MediaModel::insertAll(const QList<QSqlRecord> &records)
+{
     if (!m_cursor.isEmpty()) {
         beginInsertRows(QModelIndex(), 0, records.count());
     } else {
         beginInsertRows(QModelIndex(), 0, records.count() - 1);
     }
 
-    const bool isLeaf = m_cursor.count() + 1 == m_layoutInfo.count();
-
     QSqlDriver *driver = Backend::instance()->mediaDatabase().driver();
     const QSqlRecord tableRecord = driver->record(m_mediaType);
 
     for (int i = 0; i < records.count(); i++) {
-        QHash<int, QVariant> data;
-        for (int j = 0; j < records[i].count(); j++) {
-            int idx = tableRecord.indexOf(records[i].fieldName(j));
-            if (records[i].fieldName(j) == "uri")
-                data.insert(FieldRolesBegin + idx, QUrl::fromEncoded(records[i].value(j).toByteArray()));
-            else
-                data.insert(FieldRolesBegin + idx, records[i].value(j));
-        }
-
-        // Provide 'display' role as , separated values
-        QStringList cols = m_layoutInfo.value(m_cursor.count());
-        QStringList displayString;
-        for (int j = 0; j < cols.count(); j++) {
-            displayString << records[i].value(cols[j]).toString();
-        }
-        data.insert(Qt::DisplayRole, displayString.join(", "));
-        data.insert(DotDotRole, false);
-        data.insert(IsLeafRole, isLeaf);
-
-        data.insert(PreviewUrlRole, QUrl::fromEncoded(records[i].value("thumbnail").toByteArray()));
-
+        QHash<int, QVariant> data = dataFromRecord(tableRecord, records[i]);
         m_data.append(data);
     }
 
@@ -287,10 +308,41 @@ void MediaModel::handleDataReady(DbReader *reader, const QList<QSqlRecord> &reco
         m_data.append(data);
     }
 
-    m_loading = false;
-    m_loaded = true;
-
     endInsertRows();
+}
+
+void MediaModel::insertNew(const QList<QSqlRecord> &records)
+{
+    QSqlDriver *driver = Backend::instance()->mediaDatabase().driver();
+    const QSqlRecord tableRecord = driver->record(m_mediaType);
+
+    int curIdx = 0;
+
+    for (int i = 0; i < records.count(); i++) {
+        QHash<int, QVariant> &curData = m_data[curIdx];
+        const QSqlRecord &record = records[i];
+        int cmp = 0;
+
+        QStringList cols = m_layoutInfo.value(m_cursor.count());
+        foreach(const QString &col, cols) {
+            const int role = FieldRolesBegin + tableRecord.indexOf(col);
+            cmp = QString::compare(curData.value(role).toString(), record.value(col).toString(), Qt::CaseInsensitive); // ## must use sqlite's compare
+            if (cmp != 0)
+                break;
+        }
+
+        QHash<int, QVariant> data = dataFromRecord(tableRecord, records[i]);
+        // ## assumes that only inserts happenned in the database
+        if (cmp != 0) {
+            beginInsertRows(QModelIndex(), curIdx, curIdx);
+            m_data.insert(curIdx, data);
+            endInsertRows();
+        } else if (curData != data) { // update?
+            m_data[curIdx] = data;
+            emit dataChanged(createIndex(curIdx, 0), createIndex(curIdx, 0));
+        }
+        ++curIdx;
+    }
 }
 
 QSqlQuery MediaModel::buildQuery() const
@@ -332,7 +384,7 @@ QSqlQuery MediaModel::buildQuery() const
     if (!lastPart)
         queryString.append(" GROUP BY " + escapedCurPart);
 
-    queryString.append(" ORDER BY " + escapedCurPart);
+    queryString.append(" ORDER BY " + escapedCurPart + " COLLATE NOCASE");
 
     query.prepare(queryString);
 
@@ -360,7 +412,13 @@ void MediaModel::handleScanFinished(const QString &type)
 
 void MediaModel::refresh()
 {
-    DEBUG << m_mediaType;
-    initialize();
+    createNewDbReader();
+
+    m_loading = true;
+    m_loaded = false;
+
+    QSqlQuery q = buildQuery();
+    DEBUG << m_mediaType << q.lastQuery();
+    QMetaObject::invokeMethod(m_reader, "execute", Qt::QueuedConnection, Q_ARG(QSqlQuery, q));
 }
 
