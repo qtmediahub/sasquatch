@@ -21,6 +21,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "mediascanner.h"
 #include "dbreader.h"
 #include "backend.h"
+#include <sqlite3.h>
 
 #define DEBUG if (0) qDebug() << this << __PRETTY_FUNCTION__
 
@@ -325,7 +326,7 @@ void MediaModel::insertNew(const QList<QSqlRecord> &records)
         QStringList cols = m_layoutInfo.value(m_cursor.count());
         foreach(const QString &col, cols) {
             const int role = FieldRolesBegin + tableRecord.indexOf(col);
-            cmp = QString::compare(curData.value(role).toString(), record.value(col).toString()); // ## must use sqlite's compare
+            cmp = QString::compare(curData.value(role).toString(), record.value(col).toString(), Qt::CaseInsensitive); // ## must use sqlite's compare
             if (cmp != 0)
                 break;
         }
@@ -383,7 +384,7 @@ QSqlQuery MediaModel::buildQuery() const
     if (!lastPart)
         queryString.append(" GROUP BY " + escapedCurPart);
 
-    queryString.append(" ORDER BY " + escapedCurPart);
+    queryString.append(" ORDER BY " + escapedCurPart + " COLLATE NOCASE");
 
     query.prepare(queryString);
 
