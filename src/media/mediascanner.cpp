@@ -155,8 +155,12 @@ void MediaScanner::scan(MediaParser *parser, const QString &path)
                 break;
         }
 
-        usleep(Config::value("scan-delay", 0)); // option to slow things down, because otherwise the disk gets thrashed and the ui becomes laggy
-        // ## remove the files from the db in the fileInfosInDb hash now?
+        if (!m_stop) {
+            usleep(Config::value("scan-delay", 0)); // option to slow things down, because otherwise the disk gets thrashed and the ui becomes laggy
+
+            DEBUG << "Removing " << fileInfosInDb.keys();
+            parser->removeFiles(fileInfosInDb.keys(), m_db);
+        }
     }
 
     if (!diskFileInfos.isEmpty())
