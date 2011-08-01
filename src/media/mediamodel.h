@@ -88,6 +88,8 @@ private:
     void reload();
     QSqlQuery buildQuery() const;
     QHash<int, QVariant> dataFromRecord(const QSqlRecord &tableRecord, const QSqlRecord &record) const;
+    void insertAll(const QList<QSqlRecord> &records);
+    void insertNew(const QList<QSqlRecord> &records);
 
     QString m_structure;
     QList<QStringList> m_layoutInfo;

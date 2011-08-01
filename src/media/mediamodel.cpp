@@ -22,7 +22,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "dbreader.h"
 #include "backend.h"
 
-#define DEBUG if (0) qDebug() << __PRETTY_FUNCTION__
+#define DEBUG if (0) qDebug() << this << __PRETTY_FUNCTION__
 
 MediaModel::MediaModel(QObject *parent)
     : QAbstractItemModel(parent), m_loading(false), m_loaded(false), m_reader(0), m_readerThread(0)
@@ -273,6 +273,18 @@ void MediaModel::handleDataReady(DbReader *reader, const QList<QSqlRecord> &reco
     if (records.isEmpty())
         return;
 
+    if (m_data.isEmpty()) {
+        insertAll(records);
+    } else {
+        insertNew(records);
+    }
+
+    m_loading = false;
+    m_loaded = true;
+}
+
+void MediaModel::insertAll(const QList<QSqlRecord> &records)
+{
     if (!m_cursor.isEmpty()) {
         beginInsertRows(QModelIndex(), 0, records.count());
     } else {
@@ -295,10 +307,41 @@ void MediaModel::handleDataReady(DbReader *reader, const QList<QSqlRecord> &reco
         m_data.append(data);
     }
 
-    m_loading = false;
-    m_loaded = true;
-
     endInsertRows();
+}
+
+void MediaModel::insertNew(const QList<QSqlRecord> &records)
+{
+    QSqlDriver *driver = Backend::instance()->mediaDatabase().driver();
+    const QSqlRecord tableRecord = driver->record(m_mediaType);
+
+    int curIdx = 0;
+
+    for (int i = 0; i < records.count(); i++) {
+        QHash<int, QVariant> &curData = m_data[curIdx];
+        const QSqlRecord &record = records[i];
+        int cmp = 0;
+
+        QStringList cols = m_layoutInfo.value(m_cursor.count());
+        foreach(const QString &col, cols) {
+            const int role = FieldRolesBegin + tableRecord.indexOf(col);
+            cmp = QString::compare(curData.value(role).toString(), record.value(col).toString()); // ## must use sqlite's compare
+            if (cmp != 0)
+                break;
+        }
+
+        QHash<int, QVariant> data = dataFromRecord(tableRecord, records[i]);
+        // ## assumes that only inserts happenned in the database
+        if (cmp != 0) {
+            beginInsertRows(QModelIndex(), curIdx, curIdx);
+            m_data.insert(curIdx, data);
+            endInsertRows();
+        } else if (curData != data) { // update?
+            m_data[curIdx] = data;
+            emit dataChanged(createIndex(curIdx, 0), createIndex(curIdx, 0));
+        }
+        ++curIdx;
+    }
 }
 
 QSqlQuery MediaModel::buildQuery() const
@@ -368,7 +411,13 @@ void MediaModel::handleScanFinished(const QString &type)
 
 void MediaModel::refresh()
 {
-    DEBUG << m_mediaType;
-    reload();
+    createNewDbReader();
+
+    m_loading = true;
+    m_loaded = false;
+
+    QSqlQuery q = buildQuery();
+    DEBUG << m_mediaType << q.lastQuery();
+    QMetaObject::invokeMethod(m_reader, "execute", Qt::QueuedConnection, Q_ARG(QSqlQuery, q));
 }
 
