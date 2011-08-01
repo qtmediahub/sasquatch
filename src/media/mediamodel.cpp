@@ -87,7 +87,7 @@ void MediaModel::setMediaType(const QString &type)
 
     setRoleNames(hash);
 
-    initialize();
+    reload();
 }
 
 QString MediaModel::structure() const
@@ -105,7 +105,7 @@ void MediaModel::setStructure(const QString &str)
     foreach(const QString &part, m_structure.split("|"))
         m_layoutInfo.append(part.split(","));
 
-    initialize();
+    reload();
 
     emit structureChanged();
 }
@@ -124,7 +124,7 @@ void MediaModel::enter(int index)
 
     DEBUG << "Entering " << index;
     m_cursor.append(m_data[index]);
-    initialize();
+    reload();
     emit partChanged();
 }
 
@@ -139,7 +139,7 @@ void MediaModel::back(int count)
     } else {
         m_cursor.clear();
     }
-    initialize();
+    reload();
     emit partChanged();
 }
 
@@ -210,7 +210,7 @@ void MediaModel::fetchMore(const QModelIndex &parent)
     QMetaObject::invokeMethod(m_reader, "execute", Qt::QueuedConnection, Q_ARG(QSqlQuery, q));
 }
 
-void MediaModel::initialize()
+void MediaModel::createNewDbReader()
 {    
     DEBUG << "";
 
@@ -225,6 +225,11 @@ void MediaModel::initialize()
     QMetaObject::invokeMethod(m_reader, "initialize", Q_ARG(QSqlDatabase, Backend::instance()->mediaDatabase()));
     connect(m_reader, SIGNAL(dataReady(DbReader *, QList<QSqlRecord>, void *)),
             this, SLOT(handleDataReady(DbReader *, QList<QSqlRecord>, void *)));
+}
+
+void MediaModel::reload()
+{
+    createNewDbReader();
 
     beginResetModel();
     m_loading = m_loaded = false;
@@ -361,6 +366,6 @@ void MediaModel::handleScanFinished(const QString &type)
 void MediaModel::refresh()
 {
     DEBUG << m_mediaType;
-    initialize();
+    reload();
 }
 

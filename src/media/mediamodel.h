@@ -84,7 +84,8 @@ private slots:
     void refresh();
 
 private:
-    void initialize();
+    void createNewDbReader();
+    void reload();
     QSqlQuery buildQuery() const;
 
     QString m_structure;
