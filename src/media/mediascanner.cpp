@@ -148,7 +148,7 @@ void MediaScanner::scan(MediaParser *parser, const QString &path)
                 }
                 DEBUG << diskFileInfo.absoluteFilePath() << " : added";
             } else if (diskFileInfo.isDir()) {
-                dirQ.enqueue(diskFileInfo.absoluteFilePath());
+                dirQ.enqueue(diskFileInfo.absoluteFilePath() + '/');
             }
 
             if (m_stop)
