@@ -23,7 +23,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "backend.h"
 #include <sqlite3.h>
 
-#define DEBUG if (0) qDebug() << this << __PRETTY_FUNCTION__
+#define DEBUG if (1) qDebug() << this << __PRETTY_FUNCTION__
 
 MediaModel::MediaModel(QObject *parent)
     : QAbstractItemModel(parent), m_loading(false), m_loaded(false), m_reader(0), m_readerThread(0)
@@ -324,24 +324,26 @@ int MediaModel::compareData(int idx, const QSqlRecord &record) const
 
 void MediaModel::insertNew(const QList<QSqlRecord> &records)
 {
-    int curIdx = 0;
-
-    for (int i = 0; i < records.count(); i++) {
-        const QHash<int, QVariant> &curData = m_data[curIdx];
-        const QSqlRecord &record = records[i];
-        int cmp = compareData(curIdx, record);
-
-        QHash<int, QVariant> data = dataFromRecord(records[i]);
-        // ## assumes that only inserts happenned in the database
-        if (cmp != 0) {
-            beginInsertRows(QModelIndex(), curIdx, curIdx);
-            m_data.insert(curIdx, data);
+    int old = 0, shiny = 0;
+    
+    while (shiny < records.length()) {
+        const QSqlRecord &record = records[shiny];
+        int cmp = old == m_data.count() ? 1 : compareData(old, record);
+        
+        if (cmp == 0) {
+            ++old;
+            ++shiny;
+        } else if (cmp < 0) {
+            beginRemoveRows(QModelIndex(), old, old);
+            m_data.removeAt(old);
+            endRemoveRows();
+        } else {
+            beginInsertRows(QModelIndex(), old, old);
+            m_data.insert(old, dataFromRecord(record));
             endInsertRows();
-        } else if (curData != data) { // update?
-            m_data[curIdx] = data;
-            emit dataChanged(createIndex(curIdx, 0), createIndex(curIdx, 0));
+            ++old;
+            ++shiny;
         }
-        ++curIdx;
     }
 }
 
