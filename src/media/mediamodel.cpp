@@ -345,6 +345,12 @@ void MediaModel::insertNew(const QList<QSqlRecord> &records)
             ++shiny;
         }
     }
+
+    if (old != m_data.count()) {
+        beginRemoveRows(QModelIndex(), old, m_data.count()-1);
+        m_data = m_data.mid(0, old);
+        endRemoveRows();
+    }
 }
 
 QSqlQuery MediaModel::buildQuery() const
