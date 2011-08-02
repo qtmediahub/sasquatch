@@ -65,10 +65,6 @@ public:
     Q_INVOKABLE void openUrlExternally(const QUrl &url) const;
     Q_INVOKABLE void log(const QString &logMsg);
 
-    // ## Move this to the scanner
-    Q_INVOKABLE void addMediaSearchPath(const QString &type, const QString &name, const QString &path);
-    Q_INVOKABLE void removeMediaSearchPath(const QString &type, const QString &path);
-
     QObject *targetsModel() const;
 
     Frontend *frontend() const;

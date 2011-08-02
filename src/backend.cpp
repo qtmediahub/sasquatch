@@ -142,7 +142,6 @@ public:
 
     QSqlDatabase mediaDb;
     MediaScanner *mediaScanner;
-    QThread *scannerThread;
 
     QAction *selectSkinAction;
     Backend *q;
@@ -162,7 +161,6 @@ BackendPrivate::BackendPrivate(Backend *p)
       systray(0),
       targetsModel(0),
       mediaScanner(0),
-      scannerThread(0),
       q(p)
 {
     logFile.setFileName(Utils::storageLocation(QDesktopServices::TempLocation)
@@ -256,11 +254,6 @@ BackendPrivate::~BackendPrivate()
 #if defined(Q_WS_S60) || defined(Q_WS_MAEMO)
     delete session;
 #endif
-
-    mediaScanner->stop();
-    mediaScanner->deleteLater();
-    scannerThread->quit();
-    scannerThread->wait();
 
     mediaDb = QSqlDatabase();
     QSqlDatabase::removeDatabase(DATABASE_CONNECTION_NAME);
@@ -429,9 +422,6 @@ void Backend::initialize()
         qDebug() << "Failing to advertize session via zeroconf";
     }
 #endif
-
-    // This is here because MediaScanner::initialize() uses Backend::instance()
-    QMetaObject::invokeMethod(d->mediaScanner, "initialize", Qt::QueuedConnection);
 }
 
 void BackendPrivate::initializeMedia()
@@ -459,10 +449,7 @@ void BackendPrivate::initializeMedia()
         transaction.execFile(":/media/schema.sql");
     }
 
-    scannerThread = new QThread(q);
-    mediaScanner = new MediaScanner;
-    mediaScanner->moveToThread(scannerThread);
-    scannerThread->start();
+    mediaScanner = new MediaScanner(mediaDb, this);
 }
 
 MediaScanner *Backend::mediaScanner() const
@@ -570,19 +557,6 @@ QObject *Backend::targetsModel() const
 #endif
     }
     return d->targetsModel;
-}
-
-// ## Move this to the scanner
-void Backend::addMediaSearchPath(const QString &type, const QString &name, const QString &path)
-{
-    QMetaObject::invokeMethod(d->mediaScanner, "addSearchPath", Qt::QueuedConnection, 
-                              Q_ARG(QString, type), Q_ARG(QString, name), Q_ARG(QString, path));
-}
-
-void Backend::removeMediaSearchPath(const QString &type, const QString &path)
-{
-    QMetaObject::invokeMethod(d->mediaScanner, "removeSearchPath", Qt::QueuedConnection, 
-                              Q_ARG(QString, type), Q_ARG(QString, path));
 }
 
 QStringList Backend::findApplications() const

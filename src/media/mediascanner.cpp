@@ -21,7 +21,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QtSql>
 #include "scopedtransaction.h"
 #include "mediaparser.h"
-#include "backend.h"
 #include "qmh-config.h"
 
 #define DEBUG if (0) qDebug() << __PRETTY_FUNCTION__
@@ -30,21 +29,103 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 const QString CONNECTION_NAME("MediaScanner");
 const int BULK_LIMIT = 100;
 
-MediaScanner::MediaScanner(QObject *parent)
-    : QObject(parent), m_stop(false)
+class MediaScannerWorker : public QObject
+{
+    Q_OBJECT
+public:
+    MediaScannerWorker(MediaScanner *scanner);
+    ~MediaScannerWorker();
+
+public slots:
+    void initializeDatabase(const QSqlDatabase &db);
+    void addParser(MediaParser *parser);
+    void addSearchPath(const QString &type, const QString &_path, const QString &name);
+    void removeSearchPath(const QString &type, const QString &path);
+    void refresh(const QString &type);
+    void stop() { m_stop = true; }
+
+signals:
+    void scanPathChanged(const QString &path);
+
+private:
+    void scan(MediaParser *parser, const QString &path);
+
+    MediaScanner *m_scanner;
+    QSqlDatabase m_db;
+    QHash<QString, MediaParser *> m_parsers;
+    volatile bool m_stop;
+};
+
+Q_DECLARE_METATYPE(QSqlDatabase) // ## may not be the best place...
+
+MediaScanner::MediaScanner(const QSqlDatabase &db, QObject *parent)
+    : QObject(parent)
 {
     qRegisterMetaType<MediaParser *>();
+    qRegisterMetaType<QSqlDatabase>();
+
+    m_workerThread = new QThread(this);
+    m_workerThread->start();
+    m_worker = new MediaScannerWorker(this);
+    connect(m_worker, SIGNAL(scanPathChanged(QString)), this, SLOT(handleScanPathChanged(QString)));
+    m_worker->moveToThread(m_workerThread);
+    QMetaObject::invokeMethod(m_worker, "initializeDatabase", Qt::QueuedConnection, Q_ARG(QSqlDatabase, db));
 }
 
 MediaScanner::~MediaScanner()
+{
+    m_worker->deleteLater();
+    m_workerThread->quit();
+    m_workerThread->wait();
+}
+
+void MediaScanner::addParser(MediaParser *parser)
+{
+    QMetaObject::invokeMethod(m_worker, "addParser", Qt::QueuedConnection, Q_ARG(MediaParser *, parser));
+}
+
+void MediaScanner::addSearchPath(const QString &type, const QString &path, const QString &name)
+{
+    QMetaObject::invokeMethod(m_worker, "addSearchPath", Qt::QueuedConnection, Q_ARG(QString, type), 
+                             Q_ARG(QString, path), Q_ARG(QString, name));
+}
+
+void MediaScanner::refresh(const QString &type)
+{
+    QMetaObject::invokeMethod(m_worker, "refresh", Q_ARG(QString, type));
+}
+
+
+void MediaScanner::removeSearchPath(const QString &type, const QString &path)
+{
+    QMetaObject::invokeMethod(m_worker, "removeSearchPath", Q_ARG(QString, type), Q_ARG(QString, path));
+}
+
+void MediaScanner::stop()
+{
+    QMetaObject::invokeMethod(m_worker, "stop");
+}
+
+void MediaScanner::handleScanPathChanged(const QString &scanPath)
+{
+    m_currentScanPath = scanPath;
+    emit currentScanPathChanged();
+}
+
+MediaScannerWorker::MediaScannerWorker(MediaScanner *scanner)
+    : m_scanner(scanner), m_stop(false)
+{
+}
+
+MediaScannerWorker::~MediaScannerWorker()
 {
     m_db = QSqlDatabase();
     QSqlDatabase::removeDatabase(CONNECTION_NAME);
 }
 
-void MediaScanner::initialize()
+void MediaScannerWorker::initializeDatabase(const QSqlDatabase &db)
 {
-    m_db = QSqlDatabase::cloneDatabase(Backend::instance()->mediaDatabase(), CONNECTION_NAME);
+    m_db = QSqlDatabase::cloneDatabase(db, CONNECTION_NAME);
     if (!m_db.open())
         WARNING << "Erorr opening database" << m_db.lastError().text();
     QSqlQuery query(m_db);
@@ -53,13 +134,13 @@ void MediaScanner::initialize()
     query.exec("PRAGMA count_changes=OFF");
 }
 
-void MediaScanner::addParser(MediaParser *parser)
+void MediaScannerWorker::addParser(MediaParser *parser)
 {
     m_parsers.insert(parser->type(), parser);
-    QMetaObject::invokeMethod(this, "refresh", Qt::QueuedConnection, Q_ARG(QString, parser->type()));
+    refresh(parser->type());
 }
 
-void MediaScanner::addSearchPath(const QString &type, const QString &_path, const QString &name)
+void MediaScannerWorker::addSearchPath(const QString &type, const QString &_path, const QString &name)
 {
     QString path = QFileInfo(_path).absoluteFilePath();
     if (!path.endsWith('/'))
@@ -75,16 +156,16 @@ void MediaScanner::addSearchPath(const QString &type, const QString &_path, cons
         return;
     }
 
-    emit searchPathAdded(type, path, name);
+    emit m_scanner->searchPathAdded(type, path, name);
 
     if (m_parsers.contains(type)) {
-        emit scanStarted(type);
+        emit m_scanner->scanStarted(type);
         scan(m_parsers.value(type), path);
-        emit scanFinished(type);
+        emit m_scanner->scanFinished(type);
     }
 }
 
-void MediaScanner::removeSearchPath(const QString &type, const QString &_path)
+void MediaScannerWorker::removeSearchPath(const QString &type, const QString &_path)
 {
     QString path = QFileInfo(_path).absoluteFilePath();
     if (!path.endsWith('/'))
@@ -107,10 +188,10 @@ void MediaScanner::removeSearchPath(const QString &type, const QString &_path)
         return;
     }
 
-    emit searchPathRemoved(type, path);
+    emit m_scanner->searchPathRemoved(type, path);
 }
 
-void MediaScanner::scan(MediaParser *parser, const QString &path)
+void MediaScannerWorker::scan(MediaParser *parser, const QString &path)
 {
     QQueue<QString> dirQ;
     dirQ.enqueue(path);
@@ -122,15 +203,14 @@ void MediaScanner::scan(MediaParser *parser, const QString &path)
     while (!dirQ.isEmpty() && !m_stop) {
         QString curdir = dirQ.dequeue();
         QFileInfoList fileInfosInDisk = QDir(curdir).entryInfoList(QDir::Files|QDir::Dirs|QDir::NoDotAndDotDot|QDir::NoSymLinks);
-        QHash<QString, FileInfo> fileInfosInDb = parser->topLevelFilesInPath(curdir, m_db);
+        QHash<QString, MediaScanner::FileInfo> fileInfosInDb = parser->topLevelFilesInPath(curdir, m_db);
 
-        m_currentScanPath = curdir;
-        emit currentScanPathChanged();
+        emit scanPathChanged(curdir);
 
         DEBUG << "Scanning " << curdir << fileInfosInDisk.count() << " files in disk and " << fileInfosInDb.count() << "in database";
 
         foreach(const QFileInfo &diskFileInfo, fileInfosInDisk) {
-            FileInfo dbFileInfo = fileInfosInDb.take(diskFileInfo.absoluteFilePath());
+            MediaScanner::FileInfo dbFileInfo = fileInfosInDb.take(diskFileInfo.absoluteFilePath());
             fileIds.remove(dbFileInfo.rowid);
 
             if (diskFileInfo.isFile()) {
@@ -169,11 +249,10 @@ void MediaScanner::scan(MediaParser *parser, const QString &path)
     DEBUG << "Removing " << fileIds;
     parser->removeFiles(fileIds, m_db);
 
-    m_currentScanPath.clear();
-    emit currentScanPathChanged();
+    emit scanPathChanged(QString());
 }
 
-void MediaScanner::refresh(const QString &type)
+void MediaScannerWorker::refresh(const QString &type)
 {
     DEBUG << "Refreshing type" << type;
 
@@ -188,7 +267,7 @@ void MediaScanner::refresh(const QString &type)
     }
 
     QString lastType;
-    MediaParser *parser;
+    MediaParser *parser = 0;
     while (query.next()) {
         QString type = query.value(0).toString();
         QString path = query.value(1).toString();
@@ -197,14 +276,14 @@ void MediaScanner::refresh(const QString &type)
 
         if (typeChanged) {
             if (!lastType.isEmpty())
-                emit scanFinished(lastType);
+                emit m_scanner->scanFinished(lastType);
 
             parser = m_parsers.value(type);
             if (!parser) {
                 WARNING << "No parser found for type '" << type << "'";
                 continue;
             }
-            emit scanStarted(type);
+            emit m_scanner->scanStarted(type);
             lastType = type;
         }
 
@@ -212,6 +291,8 @@ void MediaScanner::refresh(const QString &type)
     }
 
     if (!lastType.isEmpty())
-        emit scanFinished(lastType);
+        emit m_scanner->scanFinished(lastType);
 }
+
+#include "mediascanner.moc"
 
