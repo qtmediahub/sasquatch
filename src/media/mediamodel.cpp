@@ -23,7 +23,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "backend.h"
 #include <sqlite3.h>
 
-#define DEBUG if (1) qDebug() << this << __PRETTY_FUNCTION__
+#define DEBUG if (0) qDebug() << this << __PRETTY_FUNCTION__
 
 MediaModel::MediaModel(QObject *parent)
     : QAbstractItemModel(parent), m_loading(false), m_loaded(false), m_reader(0), m_readerThread(0)
