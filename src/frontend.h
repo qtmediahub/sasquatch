@@ -17,8 +17,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 ****************************************************************************/
 
-#ifndef FRONT_END
-#define FRONT_END
+#ifndef FRONTEND_H
+#define FRONTEND_H
 
 #include <QObject>
 
@@ -50,4 +50,4 @@ private:
     FrontendPrivate *d;
 };
 
-#endif
+#endif // FRONTEND_H

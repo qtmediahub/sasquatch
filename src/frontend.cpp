@@ -109,19 +109,22 @@ DeclarativeView::DeclarativeView()
     connect(this, SIGNAL(statusChanged(QDeclarativeView::Status)), this, SLOT(handleStatusChanged(QDeclarativeView::Status)));
 }
 
-void DeclarativeView::setSource(const QUrl &url) {
+void DeclarativeView::setSource(const QUrl &url)
+{
     this->url = url;
     QMetaObject::invokeMethod(this, "handleSourceChanged", Qt::QueuedConnection);
 }
 
-void DeclarativeView::paintEvent(QPaintEvent *event) {
+void DeclarativeView::paintEvent(QPaintEvent *event)
+{
     frameTimer.restart();
     QGraphicsView::paintEvent(event);
     timeSigma += frameTimer.elapsed();
     ++frameCount;
 }
 
-void DeclarativeView::timerEvent(QTimerEvent *event) {
+void DeclarativeView::timerEvent(QTimerEvent *event)
+{
     if (timeSigma) {
         int cap = 1000*frameCount/timeSigma;
         timeSigma = frameCount = 0;
@@ -130,11 +133,13 @@ void DeclarativeView::timerEvent(QTimerEvent *event) {
     QDeclarativeView::timerEvent(event);
 }
 
-void DeclarativeView::handleSourceChanged() {
+void DeclarativeView::handleSourceChanged()
+{
     QDeclarativeView::setSource(url);
 }
 
-void DeclarativeView::handleStatusChanged(QDeclarativeView::Status status) {
+void DeclarativeView::handleStatusChanged(QDeclarativeView::Status status)
+{
     if (status == QDeclarativeView::Ready) {
         activateWindow();
     }
@@ -168,7 +173,8 @@ void QMLUtils::applyWebViewFocusFix(QDeclarativeItem *item) // See https://bugs.
 }
 
 
-QObject* QMLUtils::focusItem() const {
+QObject* QMLUtils::focusItem() const
+{
 #ifdef SCENEGRAPH
     return qobject_cast<QSGView*>(qmlContainer)->activeFocusItem();
 #else
@@ -296,12 +302,10 @@ bool FrontendPrivate::setSkin(const QString &name)
     }
 
     QFile skinConfig(newSkin->config());
-    if (skinConfig.open(QIODevice::ReadOnly))
-    {
+    if (skinConfig.open(QIODevice::ReadOnly)) {
         QHash<QString, QString> fileForResolution;
         QTextStream skinStream(&skinConfig);
-        while(!skinStream.atEnd())
-        {
+        while (!skinStream.atEnd()) {
             QStringList resolutionToFile = skinStream.readLine().split(":");
             if (resolutionToFile.count() == 2) {
                 QString resolution =
@@ -322,8 +326,7 @@ bool FrontendPrivate::setSkin(const QString &name)
         skin = newSkin;
 
         initializeSkin(QUrl::fromLocalFile(skin->path() % "/" % urlPath));
-    }
-    else {
+    } else {
         qWarning() << "Can't read" << newSkin->name();
         return false;
     }
@@ -335,8 +338,7 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
     if (targetUrl.isEmpty() || !targetUrl.isValid())
         qFatal("You are explicitly forcing a broken url on the skin system");
 
-    if (skinWidget)
-    {
+    if (skinWidget) {
         Config::setValue("desktop-id", qApp->desktop()->screenNumber(skinWidget));
         if (!attemptingFullScreen)
             Config::setValue("window-geometry", skinWidget->geometry());
@@ -348,8 +350,7 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
 
     QPixmapCache::clear();
 
-    if (targetUrl.path().right(3) == "qml")
-    {
+    if (targetUrl.path().right(3) == "qml") {
 #ifdef SCENEGRAPH
         QSGView *declarativeWidget = new QSGView;
         declarativeWidget->setResizeMode(QSGView::SizeRootObjectToView);
@@ -366,8 +367,7 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
         declarativeWidget->scene()->setItemIndexMethod(QGraphicsScene::NoIndex);
         declarativeWidget->setResizeMode(QDeclarativeView::SizeRootObjectToView);
 
-        if (Config::isEnabled("use-gl", true))
-        {
+        if (Config::isEnabled("use-gl", true)) {
 #ifdef GLVIEWPORT
             QGLWidget *viewport = new QGLWidget(declarativeWidget);
             //Why do I have to set this here?
@@ -507,8 +507,7 @@ void FrontendPrivate::grow()
             || (newGeometry.height() > desktopSize.height())) {
         Config::setEnabled("overscan", false);
         showFullScreen();
-    }
-    else {
+    } else {
         skinWidget->setGeometry(newGeometry);
     }
 }
@@ -536,8 +535,7 @@ void FrontendPrivate::toggleFullScreen()
     if (attemptingFullScreen) {
         Config::setValue("overscan-geometry", skinWidget->geometry());
         showNormal();
-    }
-    else {
+    } else {
         Config::setValue("window-geometry", skinWidget->geometry());
         showFullScreen();
     }
@@ -545,7 +543,9 @@ void FrontendPrivate::toggleFullScreen()
 
 Frontend::Frontend(QObject *p)
     : QObject(p),
-      d(new FrontendPrivate(this)) { /*no impl*/ }
+      d(new FrontendPrivate(this)) 
+{
+}
 
 Frontend::~Frontend()
 {
@@ -562,7 +562,8 @@ bool Frontend::transforms() const
 #endif
 }
 
-int Frontend::framerateCap() const {
+int Frontend::framerateCap() const
+{
     return d->fpsCap;
 }
 

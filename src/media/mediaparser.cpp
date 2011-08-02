@@ -28,12 +28,12 @@ MediaParser::MediaParser()
 {
 }
 
-QHash<QString, MediaScanner::FileInfo> MediaParser::findFilesByPath(const QString &path, QSqlDatabase db)
+QHash<QString, MediaScanner::FileInfo> MediaParser::topLevelFilesInPath(const QString &path, QSqlDatabase db)
 {
     QHash<QString, MediaScanner::FileInfo> hash;
     QSqlQuery query(db);
     query.setForwardOnly(true);
-    query.prepare(QString("SELECT filepath, mtime, ctime, filesize FROM %1 WHERE directory=:path").arg(type()));
+    query.prepare(QString("SELECT id, filepath, mtime, ctime, filesize FROM %1 WHERE directory=:path").arg(type()));
     query.bindValue(":path", path);
     if (!query.exec()) {
         WARNING << query.lastError().text();
@@ -42,10 +42,11 @@ QHash<QString, MediaScanner::FileInfo> MediaParser::findFilesByPath(const QStrin
 
     while (query.next()) {
         MediaScanner::FileInfo fi;
-        fi.name = query.value(0).toString();
-        fi.mtime = query.value(1).toLongLong();
-        fi.ctime = query.value(2).toLongLong();
-        fi.size = query.value(3).toLongLong();
+        fi.rowid = query.value(0).toLongLong();
+        fi.name = query.value(1).toString();
+        fi.mtime = query.value(2).toLongLong();
+        fi.ctime = query.value(3).toLongLong();
+        fi.size = query.value(4).toLongLong();
 
         hash.insert(fi.name, fi);
     }
@@ -53,15 +54,38 @@ QHash<QString, MediaScanner::FileInfo> MediaParser::findFilesByPath(const QStrin
     return hash;
 }
 
-void MediaParser::removeFiles(const QStringList &files, QSqlDatabase db)
+QSet<qint64> MediaParser::fileIdsInPath(const QString &path, QSqlDatabase db)
 {
-    foreach(const QString &file, files) {
-        QSqlQuery query(db);
-        query.prepare(QString("DELETE FROM %1 WHERE filepath=:path").arg(type()));
-        query.bindValue(":path", file);
+    QSet<qint64> rowids;
+    QSqlQuery query(db);
+    query.setForwardOnly(true);
+    query.prepare(QString("SELECT id FROM %1 WHERE filepath LIKE :path").arg(type()));
+    query.bindValue(":path", path + "%");
+    if (!query.exec()) {
+        WARNING << "ops" << query.lastError().text();
+        return rowids;
+    }
+
+    while (query.next()) {
+        rowids.insert(query.value(0).toInt());
+    }
+    return rowids;
+}
+
+void MediaParser::removeFiles(const QSet<qint64> &ids, QSqlDatabase db)
+{
+    bool startedTransaction = db.transaction();
+    QSqlQuery query(db);
+    query.prepare(QString("DELETE FROM %1 WHERE id=:id").arg(type()));
+
+    for (QSet<qint64>::const_iterator it = ids.constBegin(); it != ids.constEnd(); ++it) {
+        query.bindValue(":id", *it);
         if (!query.exec()) {
             WARNING << query.lastError().text();
         }
+    }
+    if (startedTransaction) {
+        db.commit();
     }
 }
 

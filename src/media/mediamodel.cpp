@@ -84,6 +84,7 @@ void MediaModel::setMediaType(const QString &type)
 
     for (int i = 0; i < record.count(); i++) {
         hash.insert(FieldRolesBegin + i, record.fieldName(i).toUtf8());
+        m_fieldToRole.insert(record.fieldName(i), FieldRolesBegin + i);
     }
 
     setRoleNames(hash);
@@ -238,15 +239,15 @@ void MediaModel::reload()
     endResetModel();
 }
 
-QHash<int, QVariant> MediaModel::dataFromRecord(const QSqlRecord &tableRecord, const QSqlRecord &record) const
+QHash<int, QVariant> MediaModel::dataFromRecord(const QSqlRecord &record) const
 {
     QHash<int, QVariant> data;
     for (int j = 0; j < record.count(); j++) {
-        int idx = tableRecord.indexOf(record.fieldName(j));
+        int role = m_fieldToRole.value(record.fieldName(j));
         if (record.fieldName(j) == "uri")
-            data.insert(FieldRolesBegin + idx, QUrl::fromEncoded(record.value(j).toByteArray()));
+            data.insert(role, QUrl::fromEncoded(record.value(j).toByteArray()));
         else
-            data.insert(FieldRolesBegin + idx, record.value(j));
+            data.insert(role, record.value(j));
     }
 
     // Provide 'display' role as , separated values
@@ -292,11 +293,8 @@ void MediaModel::insertAll(const QList<QSqlRecord> &records)
         beginInsertRows(QModelIndex(), 0, records.count() - 1);
     }
 
-    QSqlDriver *driver = Backend::instance()->mediaDatabase().driver();
-    const QSqlRecord tableRecord = driver->record(m_mediaType);
-
     for (int i = 0; i < records.count(); i++) {
-        QHash<int, QVariant> data = dataFromRecord(tableRecord, records[i]);
+        QHash<int, QVariant> data = dataFromRecord(records[i]);
         m_data.append(data);
     }
 
@@ -311,37 +309,47 @@ void MediaModel::insertAll(const QList<QSqlRecord> &records)
     endInsertRows();
 }
 
+int MediaModel::compareData(int idx, const QSqlRecord &record) const
+{
+    const QHash<int, QVariant> &curData = m_data[idx];
+    QStringList cols = m_layoutInfo.value(m_cursor.count());
+    foreach(const QString &col, cols) {
+        const int role = m_fieldToRole.value(col);
+        int cmp = QString::compare(curData.value(role).toString(), record.value(col).toString(), Qt::CaseInsensitive); // ## must use sqlite's compare
+        if (cmp != 0)
+            return cmp;
+    }
+    return 0;
+}
+
 void MediaModel::insertNew(const QList<QSqlRecord> &records)
 {
-    QSqlDriver *driver = Backend::instance()->mediaDatabase().driver();
-    const QSqlRecord tableRecord = driver->record(m_mediaType);
-
-    int curIdx = 0;
-
-    for (int i = 0; i < records.count(); i++) {
-        QHash<int, QVariant> &curData = m_data[curIdx];
-        const QSqlRecord &record = records[i];
-        int cmp = 0;
-
-        QStringList cols = m_layoutInfo.value(m_cursor.count());
-        foreach(const QString &col, cols) {
-            const int role = FieldRolesBegin + tableRecord.indexOf(col);
-            cmp = QString::compare(curData.value(role).toString(), record.value(col).toString(), Qt::CaseInsensitive); // ## must use sqlite's compare
-            if (cmp != 0)
-                break;
-        }
-
-        QHash<int, QVariant> data = dataFromRecord(tableRecord, records[i]);
-        // ## assumes that only inserts happenned in the database
-        if (cmp != 0) {
-            beginInsertRows(QModelIndex(), curIdx, curIdx);
-            m_data.insert(curIdx, data);
+    int old = 0, shiny = 0;
+    
+    while (shiny < records.length()) {
+        const QSqlRecord &record = records[shiny];
+        int cmp = old == m_data.count() ? 1 : compareData(old, record);
+        
+        if (cmp == 0) {
+            ++old;
+            ++shiny;
+        } else if (cmp < 0) {
+            beginRemoveRows(QModelIndex(), old, old);
+            m_data.removeAt(old);
+            endRemoveRows();
+        } else {
+            beginInsertRows(QModelIndex(), old, old);
+            m_data.insert(old, dataFromRecord(record));
             endInsertRows();
-        } else if (curData != data) { // update?
-            m_data[curIdx] = data;
-            emit dataChanged(createIndex(curIdx, 0), createIndex(curIdx, 0));
+            ++old;
+            ++shiny;
         }
-        ++curIdx;
+    }
+
+    if (old != m_data.count()) {
+        beginRemoveRows(QModelIndex(), old, m_data.count()-1);
+        m_data = m_data.mid(0, old);
+        endRemoveRows();
     }
 }
 
@@ -368,12 +376,11 @@ QSqlQuery MediaModel::buildQuery() const
 
     if (!m_cursor.isEmpty()) {
         QStringList where;
-        const QSqlRecord tableRecord = driver->record(m_mediaType);
         for (int i = 0; i < m_cursor.count(); i++) {
             QStringList subParts = m_layoutInfo[i];
             for (int j = 0; j < subParts.count(); j++) {
                 where.append(subParts[j] + " = ?");
-                const int role = FieldRolesBegin + tableRecord.indexOf(subParts[j]);
+                const int role = m_fieldToRole.value(subParts[j]);
                 placeHolders << m_cursor[i].value(role).toString();
             }
         }

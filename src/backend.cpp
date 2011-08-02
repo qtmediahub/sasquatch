@@ -244,10 +244,10 @@ BackendPrivate::~BackendPrivate()
 
     //This clean up is arguably a waste of effort since
     //the death of the backend marks the death of the appliction
-    qDeleteAll(pluginTranslators.begin(), pluginTranslators.end());
-    qDeleteAll(engines.begin(), engines.end());
-    qDeleteAll(skins.begin(), skins.end());
-    qDeleteAll(actions.begin(), actions.end());
+    qDeleteAll(pluginTranslators);
+    qDeleteAll(engines);
+    qDeleteAll(skins);
+    qDeleteAll(actions);
 
     delete backendTranslator;
     delete systray;
@@ -405,8 +405,6 @@ Backend::~Backend()
     s_instance = 0;
 }
 
-
-
 void Backend::initialize()
 {
     if (!Config::isEnabled("headless", false)) {
@@ -535,12 +533,12 @@ void Backend::log(const QString &logMsg)
     d->log << logMsg << endl;
 }
 
-bool Backend::eventFilter(QObject *obj, QEvent *event) {
+bool Backend::eventFilter(QObject *obj, QEvent *event)
+{
     if (event->type() == QEvent::KeyPress
-            || event->type() == QEvent::KeyRelease
-            || event->type() == QEvent::MouseMove
-            || event->type() == QEvent::MouseButtonPress)
-    {
+        || event->type() == QEvent::KeyRelease
+        || event->type() == QEvent::MouseMove
+        || event->type() == QEvent::MouseButtonPress) {
         d->inputIdleTimer.start();
     }
 
@@ -551,7 +549,6 @@ Frontend* Backend::frontend() const
 {
     return d->frontend;
 }
-
 
 QObject *Backend::targetsModel() const
 {
@@ -608,6 +605,5 @@ void Backend::setPrimarySession(bool primarySession)
 {
     d->primarySession = primarySession;
 }
-
 
 #include "backend.moc"
