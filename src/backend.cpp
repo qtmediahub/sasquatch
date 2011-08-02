@@ -405,8 +405,6 @@ Backend::~Backend()
     s_instance = 0;
 }
 
-
-
 void Backend::initialize()
 {
     if (!Config::isEnabled("headless", false)) {
@@ -535,12 +533,12 @@ void Backend::log(const QString &logMsg)
     d->log << logMsg << endl;
 }
 
-bool Backend::eventFilter(QObject *obj, QEvent *event) {
+bool Backend::eventFilter(QObject *obj, QEvent *event)
+{
     if (event->type() == QEvent::KeyPress
-            || event->type() == QEvent::KeyRelease
-            || event->type() == QEvent::MouseMove
-            || event->type() == QEvent::MouseButtonPress)
-    {
+        || event->type() == QEvent::KeyRelease
+        || event->type() == QEvent::MouseMove
+        || event->type() == QEvent::MouseButtonPress) {
         d->inputIdleTimer.start();
     }
 
@@ -608,6 +606,5 @@ void Backend::setPrimarySession(bool primarySession)
 {
     d->primarySession = primarySession;
 }
-
 
 #include "backend.moc"
