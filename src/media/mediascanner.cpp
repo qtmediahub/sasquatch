@@ -67,6 +67,7 @@ MediaScanner::MediaScanner(const QSqlDatabase &db, QObject *parent)
     m_workerThread = new QThread(this);
     m_workerThread->start();
     m_worker = new MediaScannerWorker(this);
+    connect(m_workerThread, SIGNAL(finished()), m_worker, SLOT(deleteLater()));
     connect(m_worker, SIGNAL(scanPathChanged(QString)), this, SLOT(handleScanPathChanged(QString)));
     m_worker->moveToThread(m_workerThread);
     QMetaObject::invokeMethod(m_worker, "initializeDatabase", Qt::QueuedConnection, Q_ARG(QSqlDatabase, db));
@@ -75,7 +76,6 @@ MediaScanner::MediaScanner(const QSqlDatabase &db, QObject *parent)
 MediaScanner::~MediaScanner()
 {
     m_worker->stop();
-    m_worker->deleteLater();
     m_workerThread->quit();
     m_workerThread->wait();
 }
