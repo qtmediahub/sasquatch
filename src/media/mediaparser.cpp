@@ -74,7 +74,7 @@ QSet<qint64> MediaParser::fileIdsInPath(const QString &path, QSqlDatabase db)
 
 void MediaParser::removeFiles(const QSet<qint64> &ids, QSqlDatabase db)
 {
-    bool alreadyInTrans = db.transaction();
+    bool startedTransaction = db.transaction();
     QSqlQuery query(db);
     query.prepare(QString("DELETE FROM %1 WHERE id=:id").arg(type()));
 
@@ -84,7 +84,8 @@ void MediaParser::removeFiles(const QSet<qint64> &ids, QSqlDatabase db)
             WARNING << query.lastError().text();
         }
     }
-    if (!alreadyInTrans)
+    if (startedTransaction) {
         db.commit();
+    }
 }
 
