@@ -246,6 +246,15 @@ FrontendPrivate::FrontendPrivate(Frontend *p)
     QMetaObject::invokeMethod(this, "initialize", Qt::QueuedConnection);
 
     qRegisterMetaType<QModelIndex>();
+
+    //Declarative is a hard dependency at present in any case
+    // register dataproviders to QML
+    qmlRegisterUncreatableType<ActionMapper>("ActionMapper", 1, 0, "ActionMapper", "For enums. For methods use actionmap global variable");
+    qmlRegisterType<DirModel>("DirModel", 1, 0, "DirModel");
+    qmlRegisterType<File>("File", 1, 0, "File");
+    qmlRegisterType<Playlist>("Playlist", 1, 0, "Playlist");
+    qmlRegisterType<MediaModel>("MediaModel", 1, 0, "MediaModel");
+    qmlRegisterType<RpcConnection>("RpcConnection", 1, 0, "RpcConnection");
 }
 
 FrontendPrivate::~FrontendPrivate()
@@ -389,13 +398,7 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
         actionMapper = new ActionMapper(declarativeWidget);
         declarativeWidget->installEventFilter(actionMapper);
 
-        // register dataproviders to QML
-        qmlRegisterUncreatableType<ActionMapper>("ActionMapper", 1, 0, "ActionMapper", "For enums. For methods use actionmap global variable");
-        qmlRegisterType<DirModel>("DirModel", 1, 0, "DirModel");
-        qmlRegisterType<File>("File", 1, 0, "File");
-        qmlRegisterType<Playlist>("Playlist", 1, 0, "Playlist");
-        qmlRegisterType<MediaModel>("MediaModel", 1, 0, "MediaModel");
-        qmlRegisterType<RpcConnection>("RpcConnection", 1, 0, "RpcConnection");
+
 
         mediaPlayerRpc = new MediaPlayerRpc(declarativeWidget);
         trackpad = new Trackpad(declarativeWidget);
