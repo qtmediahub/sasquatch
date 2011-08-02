@@ -21,14 +21,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "mediascanner.h"
 #include "dbreader.h"
 #include "backend.h"
-#include <sqlite3.h>
+#include "qmh-config.h"
 
 #define DEBUG if (0) qDebug() << this << __PRETTY_FUNCTION__
 
 MediaModel::MediaModel(QObject *parent)
     : QAbstractItemModel(parent), m_loading(false), m_loaded(false), m_reader(0), m_readerThread(0)
 {
-    m_refreshTimer.setInterval(10000);
+    m_refreshTimer.setInterval(Config::value("mediamodel-refresh-interval", 10000));
     connect(&m_refreshTimer, SIGNAL(timeout()), this, SLOT(refresh()));
 
     MediaScanner *scanner = Backend::instance()->mediaScanner();
