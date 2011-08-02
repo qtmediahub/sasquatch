@@ -72,7 +72,6 @@ signals:
 private:
     void scan(MediaParser *parser, const QString &path);
 
-    static MediaScanner *s_instance;
     volatile bool m_stop;
     QSqlDatabase m_db;
 
