@@ -210,5 +210,8 @@ void MediaScanner::refresh(const QString &type)
 
         scan(parser, path);
     }
+
+    if (!lastType.isEmpty())
+        emit scanFinished(lastType);
 }
 
