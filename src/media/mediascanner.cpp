@@ -46,7 +46,7 @@ void MediaScanner::initialize()
 {
     m_db = QSqlDatabase::cloneDatabase(Backend::instance()->mediaDatabase(), CONNECTION_NAME);
     if (!m_db.open())
-        DEBUG << "Erorr opening database" << m_db.lastError().text();
+        WARNING << "Erorr opening database" << m_db.lastError().text();
     QSqlQuery query(m_db);
     //query.exec("PRAGMA synchronous=OFF"); // dangerous, can corrupt db
     //query.exec("PRAGMA journal_mode=WAL");
