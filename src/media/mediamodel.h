@@ -88,6 +88,8 @@ private:
     void reload();
     QSqlQuery buildQuery() const;
     QHash<int, QVariant> dataFromRecord(const QSqlRecord &record) const;
+    int compareData(int idx, const QSqlRecord &record) const;
+
     void insertAll(const QList<QSqlRecord> &records);
     void insertNew(const QList<QSqlRecord> &records);
 

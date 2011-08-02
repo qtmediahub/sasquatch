@@ -309,22 +309,27 @@ void MediaModel::insertAll(const QList<QSqlRecord> &records)
     endInsertRows();
 }
 
+int MediaModel::compareData(int idx, const QSqlRecord &record) const
+{
+    const QHash<int, QVariant> &curData = m_data[idx];
+    QStringList cols = m_layoutInfo.value(m_cursor.count());
+    foreach(const QString &col, cols) {
+        const int role = m_fieldToRole.value(col);
+        int cmp = QString::compare(curData.value(role).toString(), record.value(col).toString(), Qt::CaseInsensitive); // ## must use sqlite's compare
+        if (cmp != 0)
+            return cmp;
+    }
+    return 0;
+}
+
 void MediaModel::insertNew(const QList<QSqlRecord> &records)
 {
     int curIdx = 0;
 
     for (int i = 0; i < records.count(); i++) {
-        QHash<int, QVariant> &curData = m_data[curIdx];
+        const QHash<int, QVariant> &curData = m_data[curIdx];
         const QSqlRecord &record = records[i];
-        int cmp = 0;
-
-        QStringList cols = m_layoutInfo.value(m_cursor.count());
-        foreach(const QString &col, cols) {
-            const int role = m_fieldToRole.value(col);
-            cmp = QString::compare(curData.value(role).toString(), record.value(col).toString(), Qt::CaseInsensitive); // ## must use sqlite's compare
-            if (cmp != 0)
-                break;
-        }
+        int cmp = compareData(curIdx, record);
 
         QHash<int, QVariant> data = dataFromRecord(records[i]);
         // ## assumes that only inserts happenned in the database
