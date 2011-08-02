@@ -549,7 +549,7 @@ QObject *Backend::targetsModel() const
             QAvahiServiceBrowserModel::Options options = QAvahiServiceBrowserModel::NoOptions;
             if (Config::isEnabled("avahi-hide-ipv6"), true)
                 options |= QAvahiServiceBrowserModel::HideIPv6;
-            if (Config::isEnabled("avahi-hide-local", true))
+            if (Config::isEnabled("avahi-hide-local", true) && !Config::isEnabled("testing", false))
                 options |= QAvahiServiceBrowserModel::HideLocal;
             model->browse("_qtmediahub._tcp", options);
             d->targetsModel = model;
