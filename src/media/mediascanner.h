@@ -28,17 +28,16 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "global.h"
 
 class MediaParser;
+class MediaScannerWorker;
+class QThread;
 
-// MediaScanner is designed to be run in a separate thread. Do not call the methods
-// below directly from the ui thread. None of the methods below are thread-safe!
-// except stop()
 class QMH_EXPORT MediaScanner : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString currentScanPath READ currentScanPath NOTIFY currentScanPathChanged)
 
 public:
-    MediaScanner(QObject *parent = 0);
+    MediaScanner(const QSqlDatabase &db, QObject *parent = 0);
     ~MediaScanner();
 
     struct FileInfo {
@@ -51,16 +50,14 @@ public:
         bool valid() const { return !name.isEmpty(); }
     };
 
-    void stop() { m_stop = true; }
+    Q_INVOKABLE void stop();
 
     QString currentScanPath() const { return m_currentScanPath; }
 
-public slots:
-    void initialize();
-    void addSearchPath(const QString &type, const QString &path, const QString &name);
-    void removeSearchPath(const QString &type, const QString &path);
-    void refresh(const QString &type = QString());
-    void addParser(MediaParser *);
+    Q_INVOKABLE void addSearchPath(const QString &type, const QString &path, const QString &name);
+    Q_INVOKABLE void removeSearchPath(const QString &type, const QString &path);
+    Q_INVOKABLE void refresh(const QString &type = QString());
+    Q_INVOKABLE void addParser(MediaParser *);
     
 signals:
     void currentScanPathChanged();
@@ -69,15 +66,15 @@ signals:
     void searchPathAdded(const QString &type, const QString &path, const QString &name);
     void searchPathRemoved(const QString &type, const QString &path);
 
+private slots:
+    void handleScanPathChanged(const QString &scanPath);
+
 private:
-    void scan(MediaParser *parser, const QString &path);
-
-    volatile bool m_stop;
-    QSqlDatabase m_db;
-
+    QThread *m_workerThread;
+    MediaScannerWorker *m_worker;
     QString m_currentScanPath;
 
-    QHash<QString, MediaParser *> m_parsers;
+    friend class MediaScannerWorker;
 };
 
 #endif // MEDIASCANNER_H
