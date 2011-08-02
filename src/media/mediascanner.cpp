@@ -74,6 +74,7 @@ MediaScanner::MediaScanner(const QSqlDatabase &db, QObject *parent)
 
 MediaScanner::~MediaScanner()
 {
+    m_worker->stop();
     m_worker->deleteLater();
     m_workerThread->quit();
     m_workerThread->wait();
