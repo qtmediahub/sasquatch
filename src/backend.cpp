@@ -244,10 +244,10 @@ BackendPrivate::~BackendPrivate()
 
     //This clean up is arguably a waste of effort since
     //the death of the backend marks the death of the appliction
-    qDeleteAll(pluginTranslators.begin(), pluginTranslators.end());
-    qDeleteAll(engines.begin(), engines.end());
-    qDeleteAll(skins.begin(), skins.end());
-    qDeleteAll(actions.begin(), actions.end());
+    qDeleteAll(pluginTranslators);
+    qDeleteAll(engines);
+    qDeleteAll(skins);
+    qDeleteAll(actions);
 
     delete backendTranslator;
     delete systray;
