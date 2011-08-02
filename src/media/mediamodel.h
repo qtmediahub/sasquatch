@@ -87,11 +87,12 @@ private:
     void createNewDbReader();
     void reload();
     QSqlQuery buildQuery() const;
-    QHash<int, QVariant> dataFromRecord(const QSqlRecord &tableRecord, const QSqlRecord &record) const;
+    QHash<int, QVariant> dataFromRecord(const QSqlRecord &record) const;
     void insertAll(const QList<QSqlRecord> &records);
     void insertNew(const QList<QSqlRecord> &records);
 
     QString m_structure;
+    QHash<QString, int> m_fieldToRole;
     QList<QStringList> m_layoutInfo;
     QList<QHash<int, QVariant> > m_data;
     bool m_loading, m_loaded;
