@@ -550,7 +550,6 @@ Frontend* Backend::frontend() const
     return d->frontend;
 }
 
-
 QObject *Backend::targetsModel() const
 {
     if (!d->targetsModel) {
