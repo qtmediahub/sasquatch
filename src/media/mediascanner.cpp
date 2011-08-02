@@ -59,7 +59,7 @@ private:
 Q_DECLARE_METATYPE(QSqlDatabase) // ## may not be the best place...
 
 MediaScanner::MediaScanner(const QSqlDatabase &db, QObject *parent)
-    : QObject(parent)
+    : QObject(parent), m_db(db)
 {
     qRegisterMetaType<MediaParser *>();
     qRegisterMetaType<QSqlDatabase>();
@@ -90,15 +90,29 @@ void MediaScanner::addSearchPath(const QString &type, const QString &path, const
                              Q_ARG(QString, path), Q_ARG(QString, name));
 }
 
-void MediaScanner::refresh(const QString &type)
-{
-    QMetaObject::invokeMethod(m_worker, "refresh", Q_ARG(QString, type));
-}
-
-
 void MediaScanner::removeSearchPath(const QString &type, const QString &path)
 {
     QMetaObject::invokeMethod(m_worker, "removeSearchPath", Q_ARG(QString, type), Q_ARG(QString, path));
+}
+
+QStringList MediaScanner::searchPaths(const QString &type) const
+{
+    QSqlQuery query(m_db);
+    query.setForwardOnly(true);
+    query.prepare("SELECT path FROM directories WHERE type = :1");
+    query.addBindValue(type);
+    query.exec();
+
+    QStringList paths;
+    while (query.next()) {
+        paths.append(query.value(0).toString());
+    }
+    return paths;
+}
+
+void MediaScanner::refresh(const QString &type)
+{
+    QMetaObject::invokeMethod(m_worker, "refresh", Q_ARG(QString, type));
 }
 
 void MediaScanner::stop()

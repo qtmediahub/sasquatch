@@ -24,6 +24,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QFileInfo>
 #include <QSqlDatabase>
 #include <QSqlRecord>
+#include <QStringList>
 #include <QHash>
 #include "global.h"
 
@@ -56,6 +57,8 @@ public:
 
     Q_INVOKABLE void addSearchPath(const QString &type, const QString &path, const QString &name);
     Q_INVOKABLE void removeSearchPath(const QString &type, const QString &path);
+    Q_INVOKABLE QStringList searchPaths(const QString &type) const;
+
     Q_INVOKABLE void refresh(const QString &type = QString());
     Q_INVOKABLE void addParser(MediaParser *);
     
@@ -73,6 +76,7 @@ private:
     QThread *m_workerThread;
     MediaScannerWorker *m_worker;
     QString m_currentScanPath;
+    QSqlDatabase m_db;
 
     friend class MediaScannerWorker;
 };

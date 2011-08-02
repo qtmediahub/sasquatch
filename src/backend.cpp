@@ -255,6 +255,8 @@ BackendPrivate::~BackendPrivate()
     delete session;
 #endif
 
+    delete mediaScanner;
+
     mediaDb = QSqlDatabase();
     QSqlDatabase::removeDatabase(DATABASE_CONNECTION_NAME);
 }
