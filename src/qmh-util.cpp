@@ -12,6 +12,18 @@ namespace Utils
             widget->setAttribute(Qt::WA_NoSystemBackground);
     }
 
+    void optimizeGraphicsViewAttributes(QGraphicsView *view)
+    {
+        if (Config::isEnabled("smooth-scaling", false))
+            view->setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing);
+
+        view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        view->setFrameStyle(0);
+        view->setOptimizationFlags(QGraphicsView::DontSavePainterState);
+        view->scene()->setItemIndexMethod(QGraphicsScene::NoIndex);
+    }
+
     QStringList standardResourcePaths(const QString &basePath, const QString &suffix) {
         QStringList paths;
 

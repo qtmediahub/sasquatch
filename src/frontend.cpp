@@ -366,14 +366,7 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
 #else
         DeclarativeView *declarativeWidget = new DeclarativeView;
 
-        if (Config::isEnabled("smooth-scaling", false))
-            declarativeWidget->setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing);
-
-        declarativeWidget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-        declarativeWidget->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-        declarativeWidget->setFrameStyle(0);
-        declarativeWidget->setOptimizationFlags(QGraphicsView::DontSavePainterState);
-        declarativeWidget->scene()->setItemIndexMethod(QGraphicsScene::NoIndex);
+        Utils::optimizeGraphicsViewAttributes(declarativeWidget);
         declarativeWidget->setResizeMode(QDeclarativeView::SizeRootObjectToView);
 
         if (Config::isEnabled("use-gl", true)) {
