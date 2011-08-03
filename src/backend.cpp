@@ -30,6 +30,15 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "media/mediamodel.h"
 #include "media/mediaparser.h"
 
+#include "devicemanager.h"
+#include "powermanager.h"
+#include "actionmapper.h"
+#include "rpc/mediaplayerrpc.h"
+#include "trackpad.h"
+#include "httpserver/httpserver.h"
+#include "customcursor.h"
+#include "qml-utils.h"
+
 #ifdef QMH_AVAHI
 #include "qavahiservicebrowsermodel.h"
 #else
@@ -49,7 +58,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QDesktopServices>
 #include <QFileSystemWatcher>
 #include <QNetworkProxy>
-
+#include <QDeclarativeView>
 #include <QHostInfo>
 
 #ifdef QMH_AVAHI
@@ -140,6 +149,15 @@ public:
     QNetworkSession *session;
 #endif
 
+    DeviceManager *deviceManager;
+    PowerManager *powerManager;
+
+    ActionMapper *actionMapper;
+    MediaPlayerRpc *mediaPlayerRpc;
+    Trackpad *trackpad;
+    RpcConnection *connection;
+    HttpServer *httpServer;
+
     QSqlDatabase mediaDb;
     MediaScanner *mediaScanner;
 
@@ -160,6 +178,12 @@ BackendPrivate::BackendPrivate(Backend *p)
       backendTranslator(0),
       systray(0),
       targetsModel(0),
+      deviceManager(new DeviceManager(this)),
+      powerManager(new PowerManager(this)),
+      mediaPlayerRpc(new MediaPlayerRpc(this)),
+      trackpad(new Trackpad(this)),
+      connection(new RpcConnection(RpcConnection::Server, QHostAddress::Any, 1234, this)),
+      httpServer(new HttpServer(Config::value("stream-port", "1337").toInt(), this)),
       mediaScanner(0),
       q(p)
 {
@@ -174,6 +198,8 @@ BackendPrivate::BackendPrivate(Backend *p)
         defaultBasePath = QCoreApplication::applicationDirPath() + platformOffset;
     }
     basePath = Config::value("base-path",  defaultBasePath);
+
+    actionMapper = new ActionMapper(this, basePath);
 
     QNetworkProxy proxy;
     if (Config::isEnabled("proxy", false)) {
@@ -230,6 +256,10 @@ BackendPrivate::BackendPrivate(Backend *p)
     discoverSkins();
 
     initializeMedia();
+
+    connection->registerObject(actionMapper);
+    connection->registerObject(mediaPlayerRpc);
+    connection->registerObject(trackpad);
 }
 
 BackendPrivate::~BackendPrivate()
@@ -580,6 +610,30 @@ QStringList Backend::findApplications() const
 void Backend::setPrimarySession(bool primarySession)
 {
     d->primarySession = primarySession;
+}
+
+void Backend::registerDeclarativeFrontend(QDeclarativeView *view, Skin *skin)
+{
+    d->actionMapper->setRecipient(view);
+    d->trackpad->setRecipient(view);
+
+    // attach global context properties
+    QDeclarativePropertyMap *runtime = new QDeclarativePropertyMap(view);
+    runtime->insert("actionMapper", qVariantFromValue(static_cast<QObject *>(d->actionMapper)));
+    runtime->insert("mediaPlayerRpc", qVariantFromValue(static_cast<QObject *>(d->mediaPlayerRpc)));
+    runtime->insert("trackpad", qVariantFromValue(static_cast<QObject *>(d->trackpad)));
+    runtime->insert("frontend", qVariantFromValue(static_cast<QObject *>(d->frontend)));
+    runtime->insert("deviceManager", qVariantFromValue(static_cast<QObject *>(d->deviceManager)));
+    runtime->insert("powerManager", qVariantFromValue(static_cast<QObject *>(d->powerManager)));
+    runtime->insert("skin", qVariantFromValue(static_cast<QObject *>(skin)));
+    runtime->insert("backend", qVariantFromValue(static_cast<QObject *>(this)));
+    runtime->insert("mediaScanner", qVariantFromValue(static_cast<QObject *>(d->mediaScanner)));
+    runtime->insert("httpServer", qVariantFromValue(static_cast<QObject *>(d->httpServer)));
+    runtime->insert("config", qVariantFromValue(static_cast<QObject *>(Config::instance())));
+    runtime->insert("cursor", qVariantFromValue(static_cast<QObject *>(new CustomCursor(view))));
+    runtime->insert("utils", qVariantFromValue(static_cast<QObject *>(new QMLUtils(view))));
+
+    view->rootContext()->setContextProperty("runtime", runtime);
 }
 
 #include "backend.moc"

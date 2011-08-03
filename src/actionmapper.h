@@ -50,7 +50,7 @@ public:
         VolumeDown
     };
 
-    ActionMapper(QObject *p);
+    ActionMapper(QObject *p, QString mapPath);
 
     Q_INVOKABLE QStringList availableMaps() const {
         return m_maps;

@@ -47,9 +47,10 @@ void Trackpad::setRecipient(QWidget *recipient)
 
 void Trackpad::setEnabled(bool e)
 {
-    if(m_recipientContext.isNull())
-        qFatal("Trying to use Declarative specific functiview->viewport()onality");
-
+    if(m_recipientContext.isNull()) {
+        qWarning("Trying to use Declarative specific functionality outside of Declarative");
+        return;
+    }
     QDeclarativeExpression expression(m_recipientContext.data(), 0, QString("cursor.enableCursor(%1)").arg(e));
     expression.evaluate();
     if (expression.hasError())
@@ -58,8 +59,10 @@ void Trackpad::setEnabled(bool e)
 
 void Trackpad::moveBy(int x, int y)
 {
-    if(m_recipientContext.isNull())
-        qFatal("Trying to use Declarative specific functionality");
+    if(m_recipientContext.isNull()) {
+        qWarning("Trying to use Declarative specific functionality outside of Declarative");
+        return;
+    }
 
     QDeclarativeExpression expression(m_recipientContext.data(), 0, QString("cursor.moveBy(%1,%2)").arg(x).arg(y));
     expression.evaluate();
@@ -69,8 +72,10 @@ void Trackpad::moveBy(int x, int y)
 
 void Trackpad::click()
 {
-    if(m_recipient.isNull())
+    if(m_recipient.isNull()) {
         qFatal("No recipient has been specified for mouse events");
+        return;
+    }
     QPoint globalPos = QCursor::pos();
     QPoint localPos = m_recipient.data()->mapFromGlobal(globalPos);
     QMouseEvent mousePress(QEvent::MouseButtonPress, localPos, globalPos, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);

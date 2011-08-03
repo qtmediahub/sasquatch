@@ -21,15 +21,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <QKeyEvent>
 
-#include "backend.h"
 #include "frontend.h"
 
 #include "qmh-config.h"
 
-ActionMapper::ActionMapper(QObject *p)
+ActionMapper::ActionMapper(QObject *p, QString mapPath)
     : QObject(p),
       m_parent(p),
-      m_mapPath(Backend::instance()->basePath() + "/devices/keymaps/")
+      m_mapPath(mapPath + "/devices/keymaps/")
 {
     setObjectName("qmhrpc");
 
@@ -46,7 +45,8 @@ ActionMapper::ActionMapper(QObject *p)
 void ActionMapper::takeAction(Action action)
 {
     if(m_recipient.isNull()) {
-        qFatal("Trying to send an action when no recipient is set");
+        qWarning("Trying to send an action when no recipient is set");
+        return;
     }
     QHash<int, Action>::const_iterator it;
     for (it = m_actionMap.constBegin(); it != m_actionMap.constEnd(); ++it) {
@@ -56,9 +56,9 @@ void ActionMapper::takeAction(Action action)
     if (it == m_actionMap.constEnd())
         return;
     QKeyEvent keyPress(QEvent::KeyPress, it.key(), Qt::NoModifier);
-    qApp->sendEvent(m_parent, &keyPress);
+    qApp->sendEvent(m_recipient.data(), &keyPress);
     QKeyEvent keyRelease(QEvent::KeyRelease, it.key(), Qt::NoModifier);
-    qApp->sendEvent(m_parent, &keyRelease);
+    qApp->sendEvent(m_recipient.data(), &keyRelease);
 }
 
 void ActionMapper::populateMap()
@@ -114,6 +114,7 @@ void ActionMapper::setMap(const QString &map)
 }
 
 void ActionMapper::setRecipient(QObject *recipient) {
+    recipient->installEventFilter(this);
     QGraphicsView *potentialView = qobject_cast<QGraphicsView*>(recipient);
     if (potentialView) {
         // directly send to the scene, to avoid loops

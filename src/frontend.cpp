@@ -35,22 +35,17 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #endif
 
 #include "widgetwrapper.h"
-#include "actionmapper.h"
-#include "rpc/mediaplayerrpc.h"
-#include "trackpad.h"
-#include "rpc/rpcconnection.h"
+
 #include "qmh-config.h"
 #include "skin.h"
 #include "qmh-util.h"
 #include "dirmodel.h"
 #include "media/playlist.h"
 #include "file.h"
-#include "devicemanager.h"
-#include "powermanager.h"
 #include "media/mediamodel.h"
 #include "media/mediascanner.h"
-#include "httpserver/httpserver.h"
-#include "customcursor.h"
+#include "actionmapper.h"
+#include "rpc/rpcconnection.h"
 
 #if defined(QMLJSDEBUGGER) && QT_VERSION < 0x040800
 
@@ -145,44 +140,6 @@ void DeclarativeView::handleStatusChanged(QDeclarativeView::Status status)
     }
 }
 
-class QMLUtils : public QObject
-{
-    Q_OBJECT
-public:
-    QMLUtils(QObject *pQmlContainer) : QObject(pQmlContainer), qmlContainer(pQmlContainer) { /**/ }
-    Q_INVOKABLE void applyWebViewFocusFix(QDeclarativeItem *item); // See https://bugs.webkit.org/show_bug.cgi?id=51094
-    Q_INVOKABLE QObject* focusItem() const;
-private:
-    QObject *qmlContainer;
-};
-
-void QMLUtils::applyWebViewFocusFix(QDeclarativeItem *item) // See https://bugs.webkit.org/show_bug.cgi?id=51094
-{
-#if QT_VERSION < 0x040800
-    item->setFlag(QGraphicsItem::ItemIsFocusScope, true);
-    QList<QGraphicsItem *> children = item->childItems();
-    for (int i = 0; i < children.count(); i++) {
-        if (QGraphicsWidget *maybeWebView = qgraphicsitem_cast<QGraphicsWidget *>(children[i])) {
-            if (maybeWebView->inherits("QGraphicsWebView"))
-                maybeWebView->setFocus();
-        }
-    }
-#else
-    Q_UNUSED(item)
-#endif
-}
-
-
-QObject* QMLUtils::focusItem() const
-{
-#ifdef SCENEGRAPH
-    return qobject_cast<QSGView*>(qmlContainer)->activeFocusItem();
-#else
-    return qgraphicsitem_cast<QGraphicsObject *>(qobject_cast<QDeclarativeView*>(qmlContainer)->scene()->focusItem());
-#endif
-}
-
-
 class FrontendPrivate : public QObject
 {
     Q_OBJECT
@@ -215,12 +172,7 @@ public:
     int fpsCap;
     QTranslator frontEndTranslator;
     Skin *skin;
-    ActionMapper *actionMapper;
-    MediaPlayerRpc *mediaPlayerRpc;
-    Trackpad *trackpad;
-    HttpServer *httpServer;
     QWidget *skinWidget;
-    QDeclarativePropertyMap *runtime;
     QDeclarativeContext *rootContext;
     Frontend *q;
 };
@@ -232,9 +184,6 @@ FrontendPrivate::FrontendPrivate(Frontend *p)
       overscanWorkAround(Config::isEnabled("overscan", false)),
       attemptingFullScreen(Config::isEnabled("fullscreen", true)),
       fpsCap(0),
-      actionMapper(0),
-      mediaPlayerRpc(0),
-      trackpad(0),
       skinWidget(0),
       rootContext(0),
       q(p)
@@ -387,45 +336,12 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
         QDeclarativeEngine *engine = declarativeWidget->engine();
         QObject::connect(engine, SIGNAL(quit()), qApp, SLOT(quit()));
 
-        // event proxy
-        actionMapper = new ActionMapper(declarativeWidget);
-        declarativeWidget->installEventFilter(actionMapper);
-        actionMapper->setRecipient(declarativeWidget);
-
-        mediaPlayerRpc = new MediaPlayerRpc(declarativeWidget);
-        trackpad = new Trackpad(declarativeWidget);
-        trackpad->setRecipient(declarativeWidget);
-
-        RpcConnection *connection = new RpcConnection(RpcConnection::Server, QHostAddress::Any, 1234, declarativeWidget);
-        connection->registerObject(actionMapper);
-        connection->registerObject(mediaPlayerRpc);
-        connection->registerObject(trackpad);
-
-        // attach global context properties
-        runtime = new QDeclarativePropertyMap(declarativeWidget);
-        runtime->insert("actionMapper", qVariantFromValue(static_cast<QObject *>(actionMapper)));
-        runtime->insert("mediaPlayerRpc", qVariantFromValue(static_cast<QObject *>(mediaPlayerRpc)));
-        runtime->insert("trackpad", qVariantFromValue(static_cast<QObject *>(trackpad)));
-        runtime->insert("frontend", qVariantFromValue(static_cast<QObject *>(q)));
-        runtime->insert("utils", qVariantFromValue(static_cast<QObject *>(new QMLUtils(declarativeWidget))));
-        runtime->insert("deviceManager", qVariantFromValue(static_cast<QObject *>(new DeviceManager(declarativeWidget))));
-        runtime->insert("powerManager", qVariantFromValue(static_cast<QObject *>(new PowerManager(declarativeWidget))));
-        runtime->insert("skin", qVariantFromValue(static_cast<QObject *>(skin)));
-        runtime->insert("backend", qVariantFromValue(static_cast<QObject *>(Backend::instance())));
-        runtime->insert("mediaScanner", qVariantFromValue(static_cast<QObject *>(Backend::instance()->mediaScanner())));
-        runtime->insert("cursor", qVariantFromValue(static_cast<QObject *>(new CustomCursor(declarativeWidget))));
+        Backend::instance()->registerDeclarativeFrontend(declarativeWidget, skin);
 
         engine->addPluginPath(Backend::instance()->resourcePath() % "/lib");
         engine->addImportPath(Backend::instance()->resourcePath() % "/imports");
         engine->addImportPath(Backend::instance()->basePath() % "/imports");
         engine->addImportPath(skin->path());
-
-        httpServer = new HttpServer(Config::value("stream-port", "1337").toInt(), this);
-
-        runtime->insert("httpServer", qVariantFromValue(static_cast<QObject *>(httpServer)));
-        runtime->insert("config", qVariantFromValue(static_cast<QObject *>(Config::instance())));
-
-        engine->rootContext()->setContextProperty("runtime", runtime);
 
         resetLanguage();
         skinWidget = new WidgetWrapper(declarativeWidget);

@@ -36,6 +36,8 @@ class Skin;
 class Frontend;
 class QAction;
 class MediaScanner;
+class QDeclarativeView;
+class Skin;
 
 class QMH_EXPORT Backend : public QObject
 {
@@ -76,6 +78,7 @@ public:
     Q_INVOKABLE QStringList findApplications() const;
 
     void setPrimarySession(bool);
+    void registerDeclarativeFrontend(QDeclarativeView *view, Skin* skin);
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event);
