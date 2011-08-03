@@ -100,14 +100,6 @@ void WidgetWrapper::setOrientation(ScreenOrientation orientation)
 void WidgetWrapper::handleResize()
 {
     m_prey->setFixedSize(size());
-
-    //We are deliberately avoiding this functionality for QML
-    //since it handles it indepedently
-    QGraphicsView *gv = (QString(m_prey->metaObject()->className()).compare("QGraphicsView") == 0) ? qobject_cast<QGraphicsView*>(m_prey) : 0;
-    if (gv && Config::isEnabled("scale-ui", false)) {
-        gv->resetMatrix();
-        gv->scale(qreal(width())/1280, qreal(height())/720);
-    }
 }
 
 void WidgetWrapper::resetUI()
