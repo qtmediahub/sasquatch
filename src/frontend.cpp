@@ -84,6 +84,7 @@ public:
     Skin *skin;
     MainWindow *mainWindow;
     QDeclarativeContext *rootContext;
+    QTimer inputIdleTimer;
     Frontend *q;
 };
 
@@ -99,6 +100,11 @@ FrontendPrivate::FrontendPrivate(Frontend *p)
       q(p)
 {
     QPixmapCache::setCacheLimit(Config::value("cacheSize", 0)*1024);
+
+    inputIdleTimer.setInterval(Config::value("idle-timeout", 120)*1000);
+    inputIdleTimer.setSingleShot(true);
+    inputIdleTimer.start();
+    connect(&inputIdleTimer, SIGNAL(timeout()), q, SIGNAL(inputIdle()));
 
     qApp->setOverrideCursor(Qt::BlankCursor);
     qApp->installTranslator(&frontEndTranslator);
@@ -256,6 +262,7 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
         resetLanguage();
         mainWindow = new MainWindow;
         mainWindow->setCentralWidget(declarativeWidget);
+        mainWindow->installEventFilter(q); // track idleness
         connect(mainWindow, SIGNAL(grow()), this, SLOT(grow()));
         connect(mainWindow, SIGNAL(shrink()), this, SLOT(shrink()));
         connect(mainWindow, SIGNAL(toggleFullScreen()), this, SLOT(toggleFullScreen()));
@@ -408,6 +415,18 @@ void Frontend::addImportPath(const QString &path)
 {
     if (QFile::exists(path))
         d->rootContext->engine()->addImportPath(path);
+}
+
+bool Frontend::eventFilter(QObject *obj, QEvent *event)
+{
+    if (event->type() == QEvent::KeyPress
+        || event->type() == QEvent::KeyRelease
+        || event->type() == QEvent::MouseMove
+        || event->type() == QEvent::MouseButtonPress) {
+        d->inputIdleTimer.start();
+    }
+
+    return QObject::eventFilter(obj, event);
 }
 
 #include "frontend.moc"

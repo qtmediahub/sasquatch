@@ -42,6 +42,9 @@ public:
 
     Q_INVOKABLE void addImportPath(const QString &path);
 
+protected:
+    bool eventFilter(QObject *obj, QEvent *event);
+
 signals:
     void frontendChanged();
     void framerateCapChanged();

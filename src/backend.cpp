@@ -134,7 +134,6 @@ public:
     QStringList skinPaths;
     QList<Skin *> skins;
 
-    QTimer inputIdleTimer;
     QTranslator *backendTranslator;
     QList<QTranslator*> pluginTranslators;
     QFile logFile;
@@ -176,7 +175,6 @@ BackendPrivate::BackendPrivate(Backend *p)
   #endif
       // Use "large" instead of appName to fit freedesktop spec
       thumbnailPath(Config::value("thumbnail-path", QDir::homePath() + "/.thumbnails/" + qApp->applicationName() + "/")),
-      inputIdleTimer(this),
       backendTranslator(0),
       systray(0),
       targetsModel(0),
@@ -266,10 +264,6 @@ BackendPrivate::BackendPrivate(Backend *p)
         actions.append(selectSkinAction);
         actions.append(quitAction);
 
-        inputIdleTimer.setInterval(Config::value("idle-timeout", 120)*1000);
-        inputIdleTimer.setSingleShot(true);
-        inputIdleTimer.start();
-        connect(&inputIdleTimer, SIGNAL(timeout()), q, SIGNAL(inputIdle()));
         initializeMedia();
     }
 }
@@ -566,18 +560,6 @@ void Backend::log(const QString &logMsg)
 {
     qDebug() << logMsg;
     d->log << logMsg << endl;
-}
-
-bool Backend::eventFilter(QObject *obj, QEvent *event)
-{
-    if (event->type() == QEvent::KeyPress
-        || event->type() == QEvent::KeyRelease
-        || event->type() == QEvent::MouseMove
-        || event->type() == QEvent::MouseButtonPress) {
-        d->inputIdleTimer.start();
-    }
-
-    return QObject::eventFilter(obj, event);
 }
 
 Frontend* Backend::frontend() const
