@@ -50,7 +50,7 @@ WidgetWrapper::~WidgetWrapper()
 void WidgetWrapper::resizeEvent(QResizeEvent *e)
 {
     Q_UNUSED(e);
-    static int staggerResizingDelay = Config::value("resizeDelay", 0);
+    static int staggerResizingDelay = Config::value("resize-delay", 25);
     resizeSettleTimer.start(staggerResizingDelay);
 }
 
