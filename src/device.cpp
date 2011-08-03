@@ -24,7 +24,7 @@ Device::Device(const QString &p, QObject *parent) :
   , m_path(p)
   , m_type(Device::Undefined)
 {
-#ifndef QT_NO_DBUS
+#ifndef NO_DBUS
     m_deviceInterface = new UDisksDeviceInterface("org.freedesktop.UDisks", m_path, QDBusConnection::systemBus(), this);
     if (!m_deviceInterface->isValid()) {
         m_valid = false;
@@ -49,28 +49,28 @@ Device::Device(const QString &p, QObject *parent) :
 
 void Device::mount()
 {
-#ifndef QT_NO_DBUS
+#ifndef NO_DBUS
     m_deviceInterface->FilesystemMount();
 #endif
 }
 
 void Device::unmount()
 {
-#ifndef QT_NO_DBUS
+#ifndef NO_DBUS
     m_deviceInterface->FilesystemUnmount();
 #endif
 }
 
 void Device::eject()
 {
-#ifndef QT_NO_DBUS
+#ifndef NO_DBUS
     m_deviceInterface->DriveEject();
 #endif
 }
 
 void Device::deviceChanged()
 {
-#ifndef QT_NO_DBUS
+#ifndef NO_DBUS
     m_isPartition = m_deviceInterface->DeviceIsPartition();
     m_mountPoint = m_deviceInterface->DeviceMountPath();
     m_label = m_deviceInterface->IdLabel();

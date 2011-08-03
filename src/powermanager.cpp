@@ -19,7 +19,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "powermanager.h"
 
-#ifndef QT_NO_DBUS
+#ifndef NO_DBUS
 
 #include <QDBusAbstractInterface>
 #include <QDBusPendingReply>
@@ -77,7 +77,7 @@ PowerManager::PowerManager(QObject *parent) :
 
 void PowerManager::shutdown()
 {
-#ifndef QT_NO_DBUS
+#ifndef NO_DBUS
     ConsoleKitInterface i("org.freedesktop.ConsoleKit.Manager", "/org/freedesktop/ConsoleKit/Manager", QDBusConnection::systemBus(), this);
     i.stop();
 #else
@@ -87,7 +87,7 @@ void PowerManager::shutdown()
 
 void PowerManager::restart()
 {
-#ifndef QT_NO_DBUS
+#ifndef NO_DBUS
     ConsoleKitInterface i("org.freedesktop.ConsoleKit.Manager", "/org/freedesktop/ConsoleKit/Manager", QDBusConnection::systemBus(), this);
     i.restart();
 #else
@@ -97,7 +97,7 @@ void PowerManager::restart()
 
 void PowerManager::suspend()
 {
-#ifndef QT_NO_DBUS
+#ifndef NO_DBUS
     UPowerInterface i("org.freedesktop.UPower", "/org/freedesktop/UPower", QDBusConnection::systemBus(), this);
     i.suspend();
 #else
@@ -107,7 +107,7 @@ void PowerManager::suspend()
 
 void PowerManager::hibernate()
 {
-#ifndef QT_NO_DBUS
+#ifndef NO_DBUS
     UPowerInterface i("org.freedesktop.UPower", "/org/freedesktop/UPower", QDBusConnection::systemBus(), this);
     i.hibernate();
 #else
