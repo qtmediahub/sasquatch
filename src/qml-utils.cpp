@@ -1,5 +1,6 @@
 #include "qml-utils.h"
 
+#include <QGraphicsWidget>
 #include <QDeclarativeView>
 
 void QMLUtils::applyWebViewFocusFix(QDeclarativeItem *item) // See https://bugs.webkit.org/show_bug.cgi?id=51094
