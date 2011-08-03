@@ -10,7 +10,6 @@ class QMLUtils : public QObject
 public:
     QMLUtils(QObject *pQmlContainer) : QObject(pQmlContainer), qmlContainer(pQmlContainer) { /**/ }
     Q_INVOKABLE void applyWebViewFocusFix(QDeclarativeItem *item); // See https://bugs.webkit.org/show_bug.cgi?id=51094
-    Q_INVOKABLE QObject* focusItem() const;
 private:
     QObject *qmlContainer;
 };

@@ -40,6 +40,7 @@ public:
     bool setSkin(const QString &name);
 
     Q_INVOKABLE void addImportPath(const QString &path);
+    Q_INVOKABLE QObject *focusItem() const;
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event);

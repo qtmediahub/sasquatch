@@ -431,4 +431,14 @@ bool Frontend::eventFilter(QObject *obj, QEvent *event)
     return QObject::eventFilter(obj, event);
 }
 
+QObject *Frontend::focusItem() const
+{
+    QWidget *centralWidget = d->mainWindow->centralWidget();
+#ifdef SCENEGRAPH
+    return qobject_cast<QSGView*>(centralWidget)->activeFocusItem();
+#else
+    return qgraphicsitem_cast<QGraphicsObject *>(qobject_cast<QDeclarativeView*>(centralWidget)->scene()->focusItem());
+#endif
+}
+
 #include "frontend.moc"
