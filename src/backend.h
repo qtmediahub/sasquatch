@@ -43,7 +43,6 @@ class QMH_EXPORT Backend : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QList<Skin*> skins READ skins NOTIFY skinsChanged)
-    Q_PROPERTY(QString pluginPath READ pluginPath NOTIFY pluginPathChanged)
     Q_PROPERTY(QString resourcePath READ resourcePath NOTIFY resourcePathChanged)
     Q_PROPERTY(QObject *targetsModel READ targetsModel NOTIFY targetsModelChanged)
 
@@ -57,10 +56,7 @@ public:
 
     QList<Skin*> skins() const;
 
-    QString basePath() const;
-    QString pluginPath() const;
-    QString resourcePath() const;
-    QString thumbnailPath() const;
+    QString resourcePath() const; // ## remove me
 
     Q_INVOKABLE void openUrlExternally(const QUrl &url) const;
     Q_INVOKABLE void log(const QString &logMsg);
@@ -83,7 +79,6 @@ public slots:
 
 signals:
     void skinsChanged();
-    void pluginPathChanged();
     void resourcePathChanged();
     void targetsModelChanged();
 

@@ -26,7 +26,8 @@ SOURCES += qmh-config.cpp \
     mainwindow.cpp \
     customcursor.cpp \
     qmh-util.cpp \
-    declarativeview.cpp
+    declarativeview.cpp \
+    libraryinfo.cpp
 
 HEADERS += qmh-config.h \
     global.h \
@@ -45,7 +46,8 @@ HEADERS += qmh-config.h \
     mainwindow.h \
     qmh-util.h \
     customcursor.h \
-    declarativeview.h
+    declarativeview.h \
+    libraryinfo.h
 
 include(rpc/rpc.pri)
 include(media/media.pri)

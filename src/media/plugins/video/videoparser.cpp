@@ -19,7 +19,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "videoparser.h"
 #include "qmh-config.h"
-#include "backend.h"
+#include "libraryinfo.h"
 #include <QtGui>
 #include <QtSql>
 #include "scopedtransaction.h"
@@ -143,7 +143,7 @@ static QByteArray generateThumbnail(const QFileInfo &fileInfo)
         return QByteArray();
 
     QByteArray md5 = QCryptographicHash::hash("file://" + QFile::encodeName(fileInfo.absoluteFilePath()), QCryptographicHash::Md5).toHex();
-    QFileInfo thumbnailInfo(Backend::instance()->thumbnailPath() + md5 + ".png");
+    QFileInfo thumbnailInfo(LibraryInfo::thumbnailPath() + md5 + ".png");
     if (thumbnailInfo.exists())
         return QUrl::fromLocalFile(thumbnailInfo.absoluteFilePath()).toEncoded();
 

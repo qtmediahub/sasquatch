@@ -64,6 +64,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "qavahiservicepublisher.h"
 #endif
 
+#include "libraryinfo.h"
+
 #include <QDebug>
 
 #define DATABASE_CONNECTION_NAME "Backend"
@@ -113,20 +115,13 @@ public:
     void resetLanguage();
     void discoverSkins();
     void initializeMedia();
+    void ensureStandardPaths();
 
     bool primarySession;
     Frontend *frontend;
 
     QList<QAction*> actions;
 
-    const QString platformOffset;
-
-    QString basePath;
-    QString pluginPath;
-    QString resourcePath;
-    const QString thumbnailPath;
-
-    QStringList skinPaths;
     QList<Skin *> skins;
 
     QTranslator *backendTranslator;
@@ -164,11 +159,6 @@ BackendPrivate::BackendPrivate(Backend *p)
     : QObject(p),
       primarySession(true),
       frontend(0),
-  #ifdef Q_OS_MAC
-      platformOffset("/../../../"),
-  #endif
-      // Use "large" instead of appName to fit freedesktop spec
-      thumbnailPath(Config::value("thumbnail-path", QDir::homePath() + "/.thumbnails/" + qApp->applicationName() + "/")),
       backendTranslator(0),
       systray(0),
       targetsModel(0),
@@ -183,48 +173,24 @@ BackendPrivate::BackendPrivate(Backend *p)
       mediaScanner(0),
       q(p)
 {
-    logFile.setFileName(Utils::storageLocation(QDesktopServices::TempLocation)
-                        .append("/")
-                        .append(qApp->applicationName())
-                        .append(".log"));
+    ensureStandardPaths();
 
-    QString defaultBasePath(QMH_INSTALL_PREFIX);
-    if (Config::value("testing", false) || !QDir(defaultBasePath).exists()) {
-        qDebug() << "Either testing or uninstalled: running in build dir";
-        defaultBasePath = QCoreApplication::applicationDirPath() + platformOffset;
-    }
-    basePath = Config::value("base-path",  defaultBasePath);
-
-    skinPaths << Utils::standardResourcePaths(basePath, "skins");
-
-    pluginPath = QDir(Config::value("plugins-path", QString(basePath % "/plugins"))).absolutePath();
-
-    if (!qgetenv("QMH_RESOURCEPATH").isEmpty())
-        resourcePath = QDir(qgetenv("QMH_RESOURCEPATH")).absolutePath();
-    else
-        resourcePath = QDir(Config::value("resources-path", QString(basePath % "/resources"))).absolutePath();
-
+    logFile.setFileName(LibraryInfo::logPath() + '/' + qApp->applicationName() + ".log");
     logFile.open(QIODevice::Text|QIODevice::ReadWrite);
     log.setDevice(&logFile);
 
     connect(&pathMonitor, SIGNAL(directoryChanged(QString)), this, SLOT(handleDirChanged(QString)));
 
-    foreach (QString skinPath, skinPaths) {
+    foreach (const QString &skinPath, LibraryInfo::skinPaths()) {
         if (QDir(skinPath).exists())
             pathMonitor.addPath(skinPath);
     }
-    pathMonitor.addPath(pluginPath);
-
-    QFileInfo thumbnailFolderInfo(thumbnailPath);
-    if (!thumbnailFolderInfo.exists()) {
-        QDir dir;
-        dir.mkpath(thumbnailFolderInfo.absoluteFilePath());
-    }
+    pathMonitor.addPath(LibraryInfo::pluginPath());
 
     discoverSkins();
 
     if (!remoteControl) {
-        actionMapper = new ActionMapper(this, basePath);
+        actionMapper = new ActionMapper(this, LibraryInfo::basePath());
         deviceManager = new DeviceManager(this);
         powerManager = new PowerManager(this);
         mediaPlayerRpc = new MediaPlayerRpc(this);
@@ -291,9 +257,9 @@ BackendPrivate::~BackendPrivate()
 
 void BackendPrivate::handleDirChanged(const QString &dir)
 {
-    if (dir == pluginPath) {
+    if (dir == LibraryInfo::pluginPath()) {
         qWarning() << "Changes in plugin path, probably about to eat your poodle";
-    } else if (skinPaths.contains(dir)) {
+    } else if (LibraryInfo::skinPaths().contains(dir)) {
         qWarning() << "Changes in skin path, repopulating skins";
         discoverSkins();
     }
@@ -307,7 +273,7 @@ void BackendPrivate::selectSkin()
 
 void BackendPrivate::resetLanguage()
 {
-    static QString baseTranslationPath(basePath % "/translations/");
+    const QString baseTranslationPath = LibraryInfo::translationPath();
     const QString language = q->language();
     delete backendTranslator;
     backendTranslator = new QTranslator(this);
@@ -322,7 +288,7 @@ void BackendPrivate::discoverSkins()
     qDeleteAll(skins);
     skins.clear();
 
-    foreach (QString skinPath, skinPaths) {
+    foreach (const QString &skinPath, LibraryInfo::skinPaths()) {
         QStringList potentialSkins = QDir(skinPath).entryList(QDir::Dirs | QDir::NoDotAndDotDot);
 
         foreach(const QString &currentPath, potentialSkins) {
@@ -351,8 +317,8 @@ void BackendPrivate::discoverSkins()
 void Backend::loadEngines()
 {
     QStringList loaded;
-    foreach(const QString &fileName, QDir(d->pluginPath).entryList(QDir::Files)) {
-        QString absoluteFilePath(d->pluginPath % "/" % fileName);
+    foreach(const QString &fileName, QDir(LibraryInfo::pluginPath()).entryList(QDir::Files)) {
+        QString absoluteFilePath(LibraryInfo::pluginPath() % "/" % fileName);
         QPluginLoader pluginLoader(absoluteFilePath);
 
         if (!pluginLoader.load()) {
@@ -399,7 +365,7 @@ Backend::Backend(QObject *parent)
         return;
 #endif
 
-    QString dejavuPath(d->resourcePath % "/3rdparty/dejavu-fonts-ttf-2.32/ttf/");
+    QString dejavuPath(LibraryInfo::resourcePath() % "/3rdparty/dejavu-fonts-ttf-2.32/ttf/");
     if (QDir(dejavuPath).exists()) {
         QFontDatabase::addApplicationFont(dejavuPath % "DejaVuSans.ttf");
         QFontDatabase::addApplicationFont(dejavuPath % "DejaVuSans-Bold.ttf");
@@ -452,6 +418,13 @@ void Backend::initialize()
 #endif
 }
 
+void BackendPrivate::ensureStandardPaths()
+{
+    QDir dir;
+    dir.mkpath(LibraryInfo::thumbnailPath());
+    dir.mkpath(LibraryInfo::dataPath());
+}
+
 void BackendPrivate::initializeMedia()
 {
     if (!QSqlDatabase::isDriverAvailable("QSQLITE")) {
@@ -459,9 +432,7 @@ void BackendPrivate::initializeMedia()
         return;
     }
 
-    const QString DATABASE_NAME(Utils::storageLocation(QDesktopServices::DataLocation).append("/media.db"));
-    QDir dir;
-    dir.mkpath(Utils::storageLocation(QDesktopServices::DataLocation));
+    const QString DATABASE_NAME(LibraryInfo::dataPath().append("/media.db"));
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE", DATABASE_CONNECTION_NAME);
     db.setDatabaseName(DATABASE_NAME);
 
@@ -512,24 +483,9 @@ Backend* Backend::instance()
     return s_instance;
 }
 
-QString Backend::basePath() const
-{
-    return d->basePath;
-}
-
-QString Backend::pluginPath() const
-{
-    return d->pluginPath;
-}
-
 QString Backend::resourcePath() const
 {
-    return d->resourcePath;
-}
-
-QString Backend::thumbnailPath() const
-{
-    return d->thumbnailPath;
+    return LibraryInfo::resourcePath();
 }
 
 void Backend::openUrlExternally(const QUrl & url) const
@@ -573,7 +529,7 @@ QObject *Backend::targetsModel() const
 QStringList Backend::findApplications() const
 {
     QStringList apps;
-    foreach(const QString &appSearchPath, Utils::standardResourcePaths(basePath(), "apps")) {
+    foreach(const QString &appSearchPath, LibraryInfo::applicationPaths()) {
         QStringList subdirs = QDir(appSearchPath).entryList(QDir::AllDirs | QDir::NoDotAndDotDot);
         foreach(const QString &subdir, subdirs)  {
             QString appPath(appSearchPath + '/' + subdir + '/');

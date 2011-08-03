@@ -47,7 +47,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "actionmapper.h"
 #include "rpc/rpcconnection.h"
 #include "declarativeview.h"
-
+#include "libraryinfo.h"
 #include "qmldebugging.h"
 
 class FrontendPrivate : public QObject
@@ -254,7 +254,7 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
 
         Backend::instance()->registerDeclarativeFrontend(declarativeWidget, skin);
 
-        engine->addImportPath(Backend::instance()->basePath() % "/imports");
+        engine->addImportPath(LibraryInfo::basePath() % "/imports");
         engine->addImportPath(skin->path());
 
         resetLanguage();

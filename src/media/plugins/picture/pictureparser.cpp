@@ -21,7 +21,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "exifreader.h"
 #include "scopedtransaction.h"
 #include "qmh-config.h"
-#include "backend.h"
+#include "libraryinfo.h"
 
 #include <QtSql>
 #include <QImageReader>
@@ -50,7 +50,7 @@ static QString determineTitle(const ExifReader &reader, const QFileInfo &fi)
 static QByteArray determineThumbnail(const ExifReader &reader, const QFileInfo &info)
 {
     QByteArray md5 = QCryptographicHash::hash("file://" + QFile::encodeName(info.absoluteFilePath()), QCryptographicHash::Md5).toHex();
-    QFileInfo thumbnailInfo(Backend::instance()->thumbnailPath() + md5 + ".png");
+    QFileInfo thumbnailInfo(LibraryInfo::thumbnailPath() + md5 + ".png");
     if (thumbnailInfo.exists())
         return QUrl::fromLocalFile(thumbnailInfo.absoluteFilePath()).toEncoded();
 
