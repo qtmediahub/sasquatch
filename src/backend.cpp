@@ -191,10 +191,13 @@ BackendPrivate::BackendPrivate(Backend *p)
     discoverSkins();
 
     if (!remoteControl) {
+#ifndef NO_DBUS
+//Segmentation fault on mac!
         if (QDBusConnection::systemBus().isConnected()) {
             deviceManager = new DeviceManager(this);
             powerManager = new PowerManager(this);
         }
+#endif
         actionMapper = new ActionMapper(this, LibraryInfo::basePath());
         mediaPlayerRpc = new MediaPlayerRpc(this);
         trackpad = new Trackpad(this);
