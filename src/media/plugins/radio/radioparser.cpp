@@ -88,26 +88,26 @@ static RadioInfo *readASX(QFileInfo fileInfo)
     QXmlStreamReader reader(&file);
     while(!reader.atEnd() && !reader.hasError()) {
         QXmlStreamReader::TokenType token = reader.readNext();
-        if(token == QXmlStreamReader::StartDocument)
+        if (token == QXmlStreamReader::StartDocument)
             continue;
 
-        if(token == QXmlStreamReader::StartElement) {
-            if(reader.name() == "entry") {
+        if (token == QXmlStreamReader::StartElement) {
+            if (reader.name() == "entry") {
                 continue;
             }
 
-            if(reader.name() == "Banner" && reader.attributes().hasAttribute("href")) {
+            if (reader.name() == "Banner" && reader.attributes().hasAttribute("href")) {
                 banner = reader.attributes().value("href").toString();
                 continue;
             }
 
-            if(reader.name() == "title") {
+            if (reader.name() == "title") {
                 reader.readNext();
-                if(reader.tokenType() == QXmlStreamReader::Characters)
+                if (reader.tokenType() == QXmlStreamReader::Characters)
                     title = reader.text().toString();
                 continue;
             }
-            if(reader.name() == "ref" && reader.attributes().hasAttribute("href")) {
+            if (reader.name() == "ref" && reader.attributes().hasAttribute("href")) {
                 uri = reader.attributes().value("href").toString();
                 continue;
             }
@@ -117,7 +117,7 @@ static RadioInfo *readASX(QFileInfo fileInfo)
             break;
     }
 
-    if(reader.hasError() || title == "" || uri.isEmpty()) {
+    if (reader.hasError() || title == "" || uri.isEmpty()) {
         reader.clear();
         return 0;
     }
