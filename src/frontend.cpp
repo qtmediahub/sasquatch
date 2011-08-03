@@ -48,30 +48,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "rpc/rpcconnection.h"
 #include "declarativeview.h"
 
-#if defined(QMLJSDEBUGGER) && QT_VERSION < 0x040800
-
-#include <qt_private/qdeclarativedebughelper_p.h>
-
-#if !defined(NO_JSDEBUGGER)
-#include <jsdebuggeragent.h>
-#endif
-#if !defined(NO_QMLOBSERVER)
-#include <qdeclarativeviewobserver.h>
-#endif
-
-// Enable debugging before any QDeclarativeEngine is created
-struct QmlJsDebuggingEnabler
-{
-    QmlJsDebuggingEnabler()
-    {
-        QDeclarativeDebugHelper::enableDebugging();
-    }
-};
-
-// Execute code in constructor before first QDeclarativeEngine is instantiated
-static QmlJsDebuggingEnabler enableDebuggingHelper;
-
-#endif // QMLJSDEBUGGER
+#include "qmldebugging.h"
 
 class FrontendPrivate : public QObject
 {
