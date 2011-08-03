@@ -26,7 +26,8 @@ SOURCES += qmh-config.cpp \
     widgetwrapper.cpp \
     customcursor.cpp \
     qmh-util.cpp \
-    qml-utils.cpp
+    qml-utils.cpp \
+    declarativeview.cpp
 
 HEADERS += qmh-config.h \
     global.h \
@@ -45,7 +46,8 @@ HEADERS += qmh-config.h \
     widgetwrapper.h \
     qmh-util.h \
     customcursor.h \
-    qml-utils.h
+    qml-utils.h \
+    declarativeview.h
 
 include(rpc/rpc.pri)
 include(media/media.pri)

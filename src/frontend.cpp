@@ -46,6 +46,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "media/mediascanner.h"
 #include "actionmapper.h"
 #include "rpc/rpcconnection.h"
+#include "declarativeview.h"
 
 #if defined(QMLJSDEBUGGER) && QT_VERSION < 0x040800
 
@@ -71,74 +72,6 @@ struct QmlJsDebuggingEnabler
 static QmlJsDebuggingEnabler enableDebuggingHelper;
 
 #endif // QMLJSDEBUGGER
-
-class DeclarativeView : public QDeclarativeView {
-    Q_OBJECT
-public:
-    DeclarativeView();
-    void setSource(const QUrl &url);
-
-protected:
-    void paintEvent(QPaintEvent *event);
-    void timerEvent(QTimerEvent *event);
-
-public slots:
-    void handleSourceChanged();
-    void handleStatusChanged(QDeclarativeView::Status status);
-
-signals:
-    void fpsCap(int);
-
-private:
-    int frameCount;
-    int timeSigma;
-    QElapsedTimer frameTimer;
-    QUrl url;
-};
-
-DeclarativeView::DeclarativeView()
-    : QDeclarativeView(0),
-      frameCount(0)
-{
-    startTimer(1000);
-    connect(this, SIGNAL(statusChanged(QDeclarativeView::Status)), this, SLOT(handleStatusChanged(QDeclarativeView::Status)));
-}
-
-void DeclarativeView::setSource(const QUrl &url)
-{
-    this->url = url;
-    QMetaObject::invokeMethod(this, "handleSourceChanged", Qt::QueuedConnection);
-}
-
-void DeclarativeView::paintEvent(QPaintEvent *event)
-{
-    frameTimer.restart();
-    QGraphicsView::paintEvent(event);
-    timeSigma += frameTimer.elapsed();
-    ++frameCount;
-}
-
-void DeclarativeView::timerEvent(QTimerEvent *event)
-{
-    if (timeSigma) {
-        int cap = 1000*frameCount/timeSigma;
-        timeSigma = frameCount = 0;
-        emit fpsCap(cap);
-    }
-    QDeclarativeView::timerEvent(event);
-}
-
-void DeclarativeView::handleSourceChanged()
-{
-    QDeclarativeView::setSource(url);
-}
-
-void DeclarativeView::handleStatusChanged(QDeclarativeView::Status status)
-{
-    if (status == QDeclarativeView::Ready) {
-        activateWindow();
-    }
-}
 
 class FrontendPrivate : public QObject
 {
