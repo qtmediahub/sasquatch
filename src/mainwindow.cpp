@@ -1,7 +1,6 @@
 #include "mainwindow.h"
 #include "qmh-config.h"
 #include "qmh-util.h"
-#include "backend.h"
 
 #include <QGraphicsView>
 #include <QDeclarativeView>
@@ -23,8 +22,6 @@ MainWindow::MainWindow(QWidget *prey)
         //Not sure why
         Utils::optimizeWidgetAttributes(scrollArea->viewport(), true);
     }
-
-    installEventFilter(Backend::instance());
 
     new QShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::META + Qt::ALT + Qt::Key_Backspace), this, SLOT(resetUI()));
     new QShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::META + Qt::ALT + Qt::Key_Down), this, SIGNAL(shrink()));
