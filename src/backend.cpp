@@ -37,7 +37,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "trackpad.h"
 #include "httpserver/httpserver.h"
 #include "customcursor.h"
-#include "qml-utils.h"
 
 #ifdef QMH_AVAHI
 #include "qavahiservicebrowsermodel.h"
@@ -626,7 +625,6 @@ void Backend::registerDeclarativeFrontend(QDeclarativeView *view, Skin *skin)
         runtime->insert("mediaScanner", qVariantFromValue(static_cast<QObject *>(d->mediaScanner)));
         runtime->insert("httpServer", qVariantFromValue(static_cast<QObject *>(d->httpServer)));
         runtime->insert("cursor", qVariantFromValue(static_cast<QObject *>(new CustomCursor(view))));
-        runtime->insert("utils", qVariantFromValue(static_cast<QObject *>(new QMLUtils(view))));
     }
     runtime->insert("config", qVariantFromValue(static_cast<QObject *>(Config::instance())));
     runtime->insert("frontend", qVariantFromValue(static_cast<QObject *>(d->frontend)));
