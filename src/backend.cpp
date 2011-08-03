@@ -114,7 +114,6 @@ public slots:
 public:
     void resetLanguage();
     void discoverSkins();
-    void discoverActions();
     void initializeMedia();
 
     bool primarySession;
@@ -161,7 +160,6 @@ public:
     QSqlDatabase mediaDb;
     MediaScanner *mediaScanner;
 
-    QAction *selectSkinAction;
     Backend *q;
 };
 
@@ -228,8 +226,7 @@ BackendPrivate::BackendPrivate(Backend *p)
 
     discoverSkins();
 
-    if (!remoteControl)
-    {
+    if (!remoteControl) {
         actionMapper = new ActionMapper(this, basePath);
         deviceManager = new DeviceManager(this);
         powerManager = new PowerManager(this);
@@ -256,7 +253,7 @@ BackendPrivate::BackendPrivate(Backend *p)
                        << proxyPort;
         }
 
-        selectSkinAction = new QAction(tr("Select skin"), this);
+        QAction *selectSkinAction = new QAction(tr("Select skin"), this);
         QAction *quitAction = new QAction(tr("Quit"), this);
         connect(selectSkinAction, SIGNAL(triggered()), this, SLOT(selectSkin()));
         connect(quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
@@ -380,11 +377,6 @@ void Backend::loadEngines()
                                       Q_ARG(MediaParser *, parser));
         }
     }
-}
-
-void BackendPrivate::discoverActions()
-{
-    selectSkinAction->setEnabled(!skins.isEmpty() && frontend);
 }
 
 Backend::Backend(QObject *parent)
@@ -514,11 +506,6 @@ QString Backend::language() const
 QList<Skin*> Backend::skins() const
 {
     return d->skins;
-}
-
-QList<QAction*> Backend::actions() const
-{
-    return d->actions;
 }
 
 Backend* Backend::instance()

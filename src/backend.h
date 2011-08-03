@@ -57,8 +57,6 @@ public:
 
     QList<Skin*> skins() const;
 
-    QList<QAction*> actions() const;
-
     QString basePath() const;
     QString pluginPath() const;
     QString resourcePath() const;
