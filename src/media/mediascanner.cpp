@@ -22,6 +22,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "scopedtransaction.h"
 #include "mediaparser.h"
 #include "qmh-config.h"
+#include "libraryinfo.h"
+#include "mediaplugin.h"
 
 #define DEBUG if (0) qDebug() << __PRETTY_FUNCTION__
 #define WARNING qWarning() << __PRETTY_FUNCTION__
@@ -64,6 +66,8 @@ MediaScanner::MediaScanner(const QSqlDatabase &db, QObject *parent)
     qRegisterMetaType<MediaParser *>();
     qRegisterMetaType<QSqlDatabase>();
 
+    loadParserPlugins();
+
     m_workerThread = new QThread(this);
     m_workerThread->start();
     m_worker = new MediaScannerWorker(this);
@@ -82,6 +86,7 @@ MediaScanner::~MediaScanner()
 
 void MediaScanner::addParser(MediaParser *parser)
 {
+    parser->setParent(this);
     QMetaObject::invokeMethod(m_worker, "addParser", Qt::QueuedConnection, Q_ARG(MediaParser *, parser));
 }
 
@@ -125,6 +130,30 @@ void MediaScanner::handleScanPathChanged(const QString &scanPath)
 {
     m_currentScanPath = scanPath;
     emit currentScanPathChanged();
+}
+
+void MediaScanner::loadParserPlugins()
+{
+    QStringList loaded;
+    foreach(const QString &fileName, QDir(LibraryInfo::pluginPath()).entryList(QDir::Files)) {
+        QString absoluteFilePath(LibraryInfo::pluginPath() % "/" % fileName);
+        QPluginLoader pluginLoader(absoluteFilePath);
+
+        if (!pluginLoader.load()) {
+            qWarning() << tr("Cant load plugin: %1 returns %2").arg(absoluteFilePath).arg(pluginLoader.errorString());
+            continue;
+        }
+
+        MediaPlugin *plugin = qobject_cast<MediaPlugin*>(pluginLoader.instance());
+        if (!plugin) {
+            qWarning() << tr("Invalid media plugin present: %1").arg(absoluteFilePath);
+            pluginLoader.unload();
+            continue;
+        }
+        foreach(const QString &key, plugin->parserKeys()) {
+            addParser(plugin->createParser(key));
+        }
+    }
 }
 
 MediaScannerWorker::MediaScannerWorker(MediaScanner *scanner)

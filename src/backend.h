@@ -67,7 +67,6 @@ public:
     MediaScanner *mediaScanner() const;
     QSqlDatabase mediaDatabase() const;
 
-    Q_INVOKABLE void loadEngines();
     Q_INVOKABLE QStringList findApplications() const;
 
     void setPrimarySession(bool);

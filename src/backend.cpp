@@ -314,33 +314,6 @@ void BackendPrivate::discoverSkins()
     }
 }
 
-void Backend::loadEngines()
-{
-    QStringList loaded;
-    foreach(const QString &fileName, QDir(LibraryInfo::pluginPath()).entryList(QDir::Files)) {
-        QString absoluteFilePath(LibraryInfo::pluginPath() % "/" % fileName);
-        QPluginLoader pluginLoader(absoluteFilePath);
-
-        if (!pluginLoader.load()) {
-            qWarning() << tr("Cant load plugin: %1 returns %2").arg(absoluteFilePath).arg(pluginLoader.errorString());
-            continue;
-        }
-
-        MediaPlugin *plugin = qobject_cast<MediaPlugin*>(pluginLoader.instance());
-        if (!plugin) {
-            qWarning() << tr("Invalid media plugin present: %1").arg(absoluteFilePath);
-            pluginLoader.unload();
-            continue;
-        }
-        foreach(const QString &key, plugin->parserKeys()) {
-            MediaParser *parser = plugin->createParser(key);
-            plugin->setParent(this);
-            QMetaObject::invokeMethod(d->mediaScanner, "addParser", Qt::QueuedConnection, 
-                                      Q_ARG(MediaParser *, parser));
-        }
-    }
-}
-
 Backend::Backend(QObject *parent)
     : QObject(parent),
       d(new BackendPrivate(this))

@@ -73,6 +73,8 @@ private slots:
     void handleScanPathChanged(const QString &scanPath);
 
 private:
+    void loadParserPlugins();
+
     QThread *m_workerThread;
     MediaScannerWorker *m_worker;
     QString m_currentScanPath;
