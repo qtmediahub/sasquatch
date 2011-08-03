@@ -127,8 +127,6 @@ public:
 
     QTranslator *backendTranslator;
     QList<QTranslator*> pluginTranslators;
-    QFile logFile;
-    QTextStream log;
     QFileSystemWatcher pathMonitor;
 
     QSystemTrayIcon *systray;
@@ -175,10 +173,6 @@ BackendPrivate::BackendPrivate(Backend *p)
       q(p)
 {
     ensureStandardPaths();
-
-    logFile.setFileName(LibraryInfo::logPath() + '/' + qApp->applicationName() + ".log");
-    logFile.open(QIODevice::Text|QIODevice::ReadWrite);
-    log.setDevice(&logFile);
 
     connect(&pathMonitor, SIGNAL(directoryChanged(QString)), this, SLOT(handleDirChanged(QString)));
 
@@ -497,12 +491,6 @@ QString Backend::resourcePath() const
 void Backend::openUrlExternally(const QUrl & url) const
 {
     QDesktopServices::openUrl(url);
-}
-
-void Backend::log(const QString &logMsg) 
-{
-    qDebug() << logMsg;
-    d->log << logMsg << endl;
 }
 
 Frontend* Backend::frontend() const

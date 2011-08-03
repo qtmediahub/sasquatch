@@ -59,7 +59,6 @@ public:
     QString resourcePath() const; // ## remove me
 
     Q_INVOKABLE void openUrlExternally(const QUrl &url) const;
-    Q_INVOKABLE void log(const QString &logMsg);
 
     QObject *targetsModel() const;
 
