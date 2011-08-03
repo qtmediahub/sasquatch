@@ -298,9 +298,9 @@ BackendPrivate::~BackendPrivate()
 
 void BackendPrivate::handleDirChanged(const QString &dir)
 {
-    if(dir == pluginPath) {
+    if (dir == pluginPath) {
         qWarning() << "Changes in plugin path, probably about to eat your poodle";
-    } else if(skinPaths.contains(dir)) {
+    } else if (skinPaths.contains(dir)) {
         qWarning() << "Changes in skin path, repopulating skins";
         discoverSkins();
     }
@@ -454,8 +454,7 @@ void Backend::initialize()
     if (d->primarySession
             && !d->remoteControl
             && Config::isEnabled("avahi", true)
-            && Config::isEnabled("avahi-advertize", true))
-    {
+            && Config::isEnabled("avahi-advertize", true)) {
         QAvahiServicePublisher *publisher = new QAvahiServicePublisher(this);
         publisher->publish(QHostInfo::localHostName(), "_qtmediahub._tcp", 1234, "Qt Media Hub JSON-RPCv2 interface");
         qDebug() << "Advertizing session via zeroconf";
@@ -612,8 +611,7 @@ void Backend::setPrimarySession(bool primarySession)
 void Backend::registerDeclarativeFrontend(QDeclarativeView *view, Skin *skin)
 {
     QDeclarativePropertyMap *runtime = new QDeclarativePropertyMap(view);
-    if (!d->remoteControl)
-    {
+    if (!d->remoteControl) {
         d->actionMapper->setRecipient(view);
         d->trackpad->setRecipient(view);
         // attach global context properties
