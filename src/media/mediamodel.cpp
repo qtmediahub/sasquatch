@@ -272,13 +272,10 @@ void MediaModel::handleDataReady(DbReader *reader, const QList<QSqlRecord> &reco
 
     DEBUG << "Received response from db of size " << records.size();
 
-    if (records.isEmpty())
-        return;
-
     if (m_data.isEmpty()) {
         insertAll(records);
     } else {
-        insertNew(records);
+        update(records);
     }
 
     m_loading = false;
@@ -287,6 +284,9 @@ void MediaModel::handleDataReady(DbReader *reader, const QList<QSqlRecord> &reco
 
 void MediaModel::insertAll(const QList<QSqlRecord> &records)
 {
+    if (records.isEmpty())
+        return;
+
     if (!m_cursor.isEmpty()) {
         beginInsertRows(QModelIndex(), 0, records.count());
     } else {
@@ -322,7 +322,7 @@ int MediaModel::compareData(int idx, const QSqlRecord &record) const
     return 0;
 }
 
-void MediaModel::insertNew(const QList<QSqlRecord> &records)
+void MediaModel::update(const QList<QSqlRecord> &records)
 {
     int old = 0, shiny = 0;
     
