@@ -85,7 +85,6 @@ signals:
     void skinsChanged();
     void pluginPathChanged();
     void resourcePathChanged();
-    void backendChanged();
     void targetsModelChanged();
 
 private:
