@@ -30,7 +30,7 @@ public slots:
     void resetUI();
 
 private:
-    QTimer resizeSettleTimer;
+    QTimer m_resizeSettleTimer;
     QWidget *m_prey;
 };
 

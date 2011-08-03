@@ -31,9 +31,9 @@ MainWindow::MainWindow(QWidget *prey)
     new QShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::META + Qt::ALT + Qt::Key_Up), this, SIGNAL(grow()));
     new QShortcut(QKeySequence(Qt::ALT + Qt::Key_Return), this, SIGNAL(toggleFullScreen()));
 
-    resizeSettleTimer.setSingleShot(true);
+    m_resizeSettleTimer.setSingleShot(true);
 
-    connect(&resizeSettleTimer, SIGNAL(timeout()), this, SLOT(handleResize()));
+    connect(&m_resizeSettleTimer, SIGNAL(timeout()), this, SLOT(handleResize()));
 }
 
 MainWindow::~MainWindow()
@@ -45,7 +45,7 @@ void MainWindow::resizeEvent(QResizeEvent *e)
 {
     Q_UNUSED(e);
     static int staggerResizingDelay = Config::value("resize-delay", 25);
-    resizeSettleTimer.start(staggerResizingDelay);
+    m_resizeSettleTimer.start(staggerResizingDelay);
 }
 
 void MainWindow::setOrientation(ScreenOrientation orientation)
