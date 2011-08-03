@@ -34,7 +34,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QGLWidget>
 #endif
 
-#include "widgetwrapper.h"
+#include "mainwindow.h"
 
 #include "qmh-config.h"
 #include "skin.h"
@@ -105,7 +105,7 @@ public:
     int fpsCap;
     QTranslator frontEndTranslator;
     Skin *skin;
-    QWidget *skinWidget;
+    QWidget *mainWindow;
     QDeclarativeContext *rootContext;
     Frontend *q;
 };
@@ -117,7 +117,7 @@ FrontendPrivate::FrontendPrivate(Frontend *p)
       overscanWorkAround(Config::isEnabled("overscan", false)),
       attemptingFullScreen(Config::isEnabled("fullscreen", true)),
       fpsCap(0),
-      skinWidget(0),
+      mainWindow(0),
       rootContext(0),
       q(p)
 {
@@ -145,14 +145,14 @@ FrontendPrivate::~FrontendPrivate()
     Config::setValue("skin", skin->name());
     Config::setEnabled("overscan", overscanWorkAround);
 
-    Config::setValue("desktop-id", qApp->desktop()->screenNumber(skinWidget));
+    Config::setValue("desktop-id", qApp->desktop()->screenNumber(mainWindow));
 
     if (!attemptingFullScreen)
-        Config::setValue("window-geometry", skinWidget->geometry());
+        Config::setValue("window-geometry", mainWindow->geometry());
     else if (overscanWorkAround)
-        Config::setValue("overscan-geometry", skinWidget->geometry());
+        Config::setValue("overscan-geometry", mainWindow->geometry());
 
-    delete skinWidget;
+    delete mainWindow;
 }
 
 void FrontendPrivate::initialize()
@@ -229,14 +229,14 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
     if (targetUrl.isEmpty() || !targetUrl.isValid())
         qFatal("You are explicitly forcing a broken url on the skin system");
 
-    if (skinWidget) {
-        Config::setValue("desktop-id", qApp->desktop()->screenNumber(skinWidget));
+    if (mainWindow) {
+        Config::setValue("desktop-id", qApp->desktop()->screenNumber(mainWindow));
         if (!attemptingFullScreen)
-            Config::setValue("window-geometry", skinWidget->geometry());
+            Config::setValue("window-geometry", mainWindow->geometry());
         else if (overscanWorkAround)
-            Config::setValue("overscan-geometry", skinWidget->geometry());
-        delete skinWidget;
-        skinWidget = 0;
+            Config::setValue("overscan-geometry", mainWindow->geometry());
+        delete mainWindow;
+        mainWindow = 0;
     }
 
     QPixmapCache::clear();
@@ -255,7 +255,7 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
 #ifdef GLVIEWPORT
             QGLWidget *viewport = new QGLWidget(declarativeWidget);
             //Why do I have to set this here?
-            //Why can't I set it in the WidgetWrapper?
+            //Why can't I set it in the MainWindow?
             Utils::optimizeWidgetAttributes(viewport, false);
 
             declarativeWidget->setViewport(viewport);
@@ -277,10 +277,10 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
         engine->addImportPath(skin->path());
 
         resetLanguage();
-        skinWidget = new WidgetWrapper(declarativeWidget);
-        connect(skinWidget, SIGNAL(grow()), this, SLOT(grow()));
-        connect(skinWidget, SIGNAL(shrink()), this, SLOT(shrink()));
-        connect(skinWidget, SIGNAL(toggleFullScreen()), this, SLOT(toggleFullScreen()));
+        mainWindow = new MainWindow(declarativeWidget);
+        connect(mainWindow, SIGNAL(grow()), this, SLOT(grow()));
+        connect(mainWindow, SIGNAL(shrink()), this, SLOT(shrink()));
+        connect(mainWindow, SIGNAL(toggleFullScreen()), this, SLOT(toggleFullScreen()));
         //FIXME?: item should have correct geometry
         //on QML parsing: work around several issues
         //Ovi maps inability to resize
@@ -312,12 +312,12 @@ void FrontendPrivate::showFullScreen()
         QRect geometry = Config::value("overscan-geometry", defaultGeometry);
         geometry.moveCenter(qApp->desktop()->availableGeometry().center());
 
-        skinWidget->setGeometry(geometry);
-        skinWidget->setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
-        skinWidget->setWindowState(Qt::WindowNoState);
-        skinWidget->show();
+        mainWindow->setGeometry(geometry);
+        mainWindow->setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
+        mainWindow->setWindowState(Qt::WindowNoState);
+        mainWindow->show();
     } else {
-        skinWidget->showFullScreen();
+        mainWindow->showFullScreen();
     }
 
     QTimer::singleShot( 1, this, SLOT(activateWindow()));
@@ -327,9 +327,9 @@ void FrontendPrivate::showNormal()
 {
     attemptingFullScreen = overscanWorkAround = false;
 
-    skinWidget->setWindowFlags(Qt::Window);
-    skinWidget->setGeometry(Config::value("window-geometry", defaultGeometry));
-    skinWidget->showNormal();
+    mainWindow->setWindowFlags(Qt::Window);
+    mainWindow->setGeometry(Config::value("window-geometry", defaultGeometry));
+    mainWindow->showNormal();
 
     QTimer::singleShot( 1, this, SLOT(activateWindow()));
 }
@@ -337,7 +337,7 @@ void FrontendPrivate::showNormal()
 void FrontendPrivate::activateWindow()
 {
     //Invoking this by adding it to the even queue doesn't work?
-    skinWidget->activateWindow();
+    mainWindow->activateWindow();
 }
 
 void FrontendPrivate::grow()
@@ -345,15 +345,15 @@ void FrontendPrivate::grow()
     if (!attemptingFullScreen)
         return;
 
-    const QRect newGeometry = skinWidget->geometry().adjusted(-1,-1,1,1);
+    const QRect newGeometry = mainWindow->geometry().adjusted(-1,-1,1,1);
 
-    const QSize desktopSize = qApp->desktop()->screenGeometry(skinWidget).size();
+    const QSize desktopSize = qApp->desktop()->screenGeometry(mainWindow).size();
     if ((newGeometry.width() > desktopSize.width())
             || (newGeometry.height() > desktopSize.height())) {
         Config::setEnabled("overscan", false);
         showFullScreen();
     } else {
-        skinWidget->setGeometry(newGeometry);
+        mainWindow->setGeometry(newGeometry);
     }
 }
 
@@ -366,7 +366,7 @@ void FrontendPrivate::shrink()
         Config::setEnabled("overscan");
         showFullScreen();
     }
-    skinWidget->setGeometry(skinWidget->geometry().adjusted(1,1,-1,-1));
+    mainWindow->setGeometry(mainWindow->geometry().adjusted(1,1,-1,-1));
 }
 
 void FrontendPrivate::handleFPSCapChanged(int fpsCap)
@@ -378,10 +378,10 @@ void FrontendPrivate::handleFPSCapChanged(int fpsCap)
 void FrontendPrivate::toggleFullScreen()
 {
     if (attemptingFullScreen) {
-        Config::setValue("overscan-geometry", skinWidget->geometry());
+        Config::setValue("overscan-geometry", mainWindow->geometry());
         showNormal();
     } else {
-        Config::setValue("window-geometry", skinWidget->geometry());
+        Config::setValue("window-geometry", mainWindow->geometry());
         showFullScreen();
     }
 }

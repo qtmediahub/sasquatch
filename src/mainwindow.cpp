@@ -1,4 +1,4 @@
-#include "widgetwrapper.h"
+#include "mainwindow.h"
 #include "qmh-config.h"
 #include "qmh-util.h"
 #include "backend.h"
@@ -7,7 +7,7 @@
 #include <QDeclarativeView>
 #include <QShortcut>
 
-WidgetWrapper::WidgetWrapper(QWidget *prey)
+MainWindow::MainWindow(QWidget *prey)
     : QWidget(0),
       m_prey(prey),
       viewport(0)
@@ -42,19 +42,19 @@ WidgetWrapper::WidgetWrapper(QWidget *prey)
     connect(&resizeSettleTimer, SIGNAL(timeout()), this, SLOT(handleResize()));
 }
 
-WidgetWrapper::~WidgetWrapper()
+MainWindow::~MainWindow()
 {
     delete m_prey;
 }
 
-void WidgetWrapper::resizeEvent(QResizeEvent *e)
+void MainWindow::resizeEvent(QResizeEvent *e)
 {
     Q_UNUSED(e);
     static int staggerResizingDelay = Config::value("resize-delay", 25);
     resizeSettleTimer.start(staggerResizingDelay);
 }
 
-void WidgetWrapper::setOrientation(ScreenOrientation orientation)
+void MainWindow::setOrientation(ScreenOrientation orientation)
 {
 #if defined(Q_OS_SYMBIAN)
     // If the version of Qt on the device is < 4.7.2, that attribute won't work
@@ -97,12 +97,12 @@ void WidgetWrapper::setOrientation(ScreenOrientation orientation)
     setAttribute(attribute, true);
 }
 
-void WidgetWrapper::handleResize()
+void MainWindow::handleResize()
 {
     m_prey->setFixedSize(size());
 }
 
-void WidgetWrapper::resetUI()
+void MainWindow::resetUI()
 {
     QDeclarativeView *declarativeWidget = qobject_cast<QDeclarativeView*>(m_prey);
     if (declarativeWidget) {

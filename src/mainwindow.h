@@ -1,10 +1,10 @@
-#ifndef WIDGETWRAPPER_H
-#define WIDGETWRAPPER_H
+#ifndef MAINWINDOW_H
+#define MAINWINDOW_H
 
 #include <QWidget>
 #include <QTimer>
 
-class WidgetWrapper : public QWidget
+class MainWindow : public QWidget
 {
     Q_OBJECT
 public:
@@ -13,8 +13,8 @@ public:
         ScreenOrientationLockLandscape,
         ScreenOrientationAuto
     };
-    WidgetWrapper(QWidget *prey);
-    ~WidgetWrapper();
+    MainWindow(QWidget *prey);
+    ~MainWindow();
 
 protected:
     void resizeEvent(QResizeEvent *e);
@@ -35,4 +35,4 @@ private:
     QWidget *viewport;
 };
 
-#endif // WIDGETWRAPPER_H
+#endif // MAINWINDOW_H

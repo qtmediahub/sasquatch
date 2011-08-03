@@ -23,7 +23,7 @@ SOURCES += qmh-config.cpp \
     dbreader.cpp \
     devicemanager.cpp \
     powermanager.cpp \
-    widgetwrapper.cpp \
+    mainwindow.cpp \
     customcursor.cpp \
     qmh-util.cpp \
     qml-utils.cpp \
@@ -43,7 +43,7 @@ HEADERS += qmh-config.h \
     dbreader.h \
     devicemanager.h \
     powermanager.h \
-    widgetwrapper.h \
+    mainwindow.h \
     qmh-util.h \
     customcursor.h \
     qml-utils.h \
