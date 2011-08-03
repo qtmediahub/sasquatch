@@ -22,6 +22,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <QObject>
 #include <QCoreApplication>
+#include <QDeclarativeContext>
 
 class Trackpad : public QObject
 {
@@ -32,11 +33,14 @@ public:
     ~Trackpad();
 
 public slots:
+    void setRecipient(QWidget *recipient);
     void setEnabled(bool enable);
     void moveBy(int x, int y);
     void click();
 
 private:
+    QSharedPointer<QWidget> m_recipient;
+    QSharedPointer<QDeclarativeContext> m_recipientContext;
     QObject *parent;
 };
 

@@ -32,10 +32,25 @@ Trackpad::~Trackpad()
 {
 }
 
+void Trackpad::setRecipient(QWidget *recipient)
+{
+    QGraphicsView *potentialView = qobject_cast<QGraphicsView*>(recipient);
+    QDeclarativeView *potentialDeclarativeView = qobject_cast<QDeclarativeView*>(recipient);
+    if (potentialDeclarativeView)
+        m_recipientContext = QSharedPointer<QDeclarativeContext>(potentialDeclarativeView->rootContext());
+    if (potentialView) {
+        m_recipient = QSharedPointer<QWidget>(potentialView->viewport());
+    } else {
+        m_recipient = QSharedPointer<QWidget>(recipient);
+    }
+}
+
 void Trackpad::setEnabled(bool e)
 {
-    QDeclarativeView *view = qobject_cast<QDeclarativeView *>(parent);
-    QDeclarativeExpression expression(view->rootContext(), 0, QString("cursor.enableCursor(%1)").arg(e));
+    if(m_recipientContext.isNull())
+        qFatal("Trying to use Declarative specific functiview->viewport()onality");
+
+    QDeclarativeExpression expression(m_recipientContext.data(), 0, QString("cursor.enableCursor(%1)").arg(e));
     expression.evaluate();
     if (expression.hasError())
         qWarning() << "Failed to enable/disable cursor";
@@ -43,8 +58,10 @@ void Trackpad::setEnabled(bool e)
 
 void Trackpad::moveBy(int x, int y)
 {
-    QDeclarativeView *view = qobject_cast<QDeclarativeView *>(parent);
-    QDeclarativeExpression expression(view->rootContext(), 0, QString("cursor.moveBy(%1,%2)").arg(x).arg(y));
+    if(m_recipientContext.isNull())
+        qFatal("Trying to use Declarative specific functionality");
+
+    QDeclarativeExpression expression(m_recipientContext.data(), 0, QString("cursor.moveBy(%1,%2)").arg(x).arg(y));
     expression.evaluate();
     if (expression.hasError())
         qWarning() << "Failed to enable/disable cursor";
@@ -52,11 +69,12 @@ void Trackpad::moveBy(int x, int y)
 
 void Trackpad::click()
 {
+    if(m_recipient.isNull())
+        qFatal("No recipient has been specified for mouse events");
     QPoint globalPos = QCursor::pos();
-    QDeclarativeView *view = qobject_cast<QDeclarativeView *>(parent);
-    QPoint localPos = view->viewport()->mapFromGlobal(globalPos);
+    QPoint localPos = m_recipient.data()->mapFromGlobal(globalPos);
     QMouseEvent mousePress(QEvent::MouseButtonPress, localPos, globalPos, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
-    qApp->sendEvent(view->viewport(), &mousePress);
+    qApp->sendEvent(m_recipient.data(), &mousePress);
     QMouseEvent mouseRelease(QEvent::MouseButtonRelease, localPos, globalPos, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
-    qApp->sendEvent(view->viewport(), &mouseRelease);
+    qApp->sendEvent(m_recipient.data(), &mouseRelease);
 }

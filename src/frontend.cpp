@@ -394,6 +394,7 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
 
         mediaPlayerRpc = new MediaPlayerRpc(declarativeWidget);
         trackpad = new Trackpad(declarativeWidget);
+        trackpad->setRecipient(declarativeWidget);
 
         RpcConnection *connection = new RpcConnection(RpcConnection::Server, QHostAddress::Any, 1234, declarativeWidget);
         connection->registerObject(actionMapper);
