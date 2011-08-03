@@ -23,10 +23,10 @@ signals:
     void fpsCap(int);
 
 private:
-    int frameCount;
-    int timeSigma;
-    QElapsedTimer frameTimer;
-    QUrl url;
+    int m_frameCount;
+    int m_timeSigma;
+    QElapsedTimer m_frameTimer;
+    QUrl m_url;
 };
 
 #endif // DECLARATIVEVIEW_H
