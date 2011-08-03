@@ -149,6 +149,8 @@ public:
     QNetworkSession *session;
 #endif
 
+    bool remoteControl;
+
     DeviceManager *deviceManager;
     PowerManager *powerManager;
 
@@ -178,12 +180,14 @@ BackendPrivate::BackendPrivate(Backend *p)
       backendTranslator(0),
       systray(0),
       targetsModel(0),
-      deviceManager(new DeviceManager(this)),
-      powerManager(new PowerManager(this)),
-      mediaPlayerRpc(new MediaPlayerRpc(this)),
-      trackpad(new Trackpad(this)),
-      connection(new RpcConnection(RpcConnection::Server, QHostAddress::Any, 1234, this)),
-      httpServer(new HttpServer(Config::value("stream-port", "1337").toInt(), this)),
+      remoteControl(Config::isEnabled("remote", false)),
+      deviceManager(0),
+      powerManager(0),
+      actionMapper(0),
+      mediaPlayerRpc(0),
+      trackpad(0),
+      connection(0),
+      httpServer(0),
       mediaScanner(0),
       q(p)
 {
@@ -199,29 +203,6 @@ BackendPrivate::BackendPrivate(Backend *p)
     }
     basePath = Config::value("base-path",  defaultBasePath);
 
-    actionMapper = new ActionMapper(this, basePath);
-
-    QNetworkProxy proxy;
-    if (Config::isEnabled("proxy", false)) {
-        QString proxyHost(Config::value("proxy-host", "localhost").toString());
-        int proxyPort = Config::value("proxy-port", 8080);
-        proxy.setType(QNetworkProxy::HttpProxy);
-        proxy.setHostName(proxyHost);
-        proxy.setPort(proxyPort);
-        QNetworkProxy::setApplicationProxy(proxy);
-        qWarning() << "Using proxy host"
-            << proxyHost
-            << "on port"
-            << proxyPort;
-    }
-
-    selectSkinAction = new QAction(tr("Select skin"), this);
-    QAction *quitAction = new QAction(tr("Quit"), this);
-    connect(selectSkinAction, SIGNAL(triggered()), this, SLOT(selectSkin()));
-    connect(quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
-    actions.append(selectSkinAction);
-    actions.append(quitAction);
-
     skinPaths << Utils::standardResourcePaths(basePath, "skins");
 
     pluginPath = QDir(Config::value("plugins-path", QString(basePath % "/plugins"))).absolutePath();
@@ -230,12 +211,6 @@ BackendPrivate::BackendPrivate(Backend *p)
         resourcePath = QDir(qgetenv("QMH_RESOURCEPATH")).absolutePath();
     else
         resourcePath = QDir(Config::value("resources-path", QString(basePath % "/resources"))).absolutePath();
-
-    inputIdleTimer.setInterval(Config::value("idle-timeout", 120)*1000);
-    inputIdleTimer.setSingleShot(true);
-    inputIdleTimer.start();
-
-    connect(&inputIdleTimer, SIGNAL(timeout()), q, SIGNAL(inputIdle()));
 
     logFile.open(QIODevice::Text|QIODevice::ReadWrite);
     log.setDevice(&logFile);
@@ -253,13 +228,50 @@ BackendPrivate::BackendPrivate(Backend *p)
         QDir dir;
         dir.mkpath(thumbnailFolderInfo.absoluteFilePath());
     }
+
     discoverSkins();
 
-    initializeMedia();
+    if (!remoteControl)
+    {
+        actionMapper = new ActionMapper(this, basePath);
+        deviceManager = new DeviceManager(this);
+        powerManager = new PowerManager(this);
+        mediaPlayerRpc = new MediaPlayerRpc(this);
+        trackpad = new Trackpad(this);
+        connection = new RpcConnection(RpcConnection::Server, QHostAddress::Any, 1234, this);
+        httpServer = new HttpServer(Config::value("stream-port", "1337").toInt(), this);
 
-    connection->registerObject(actionMapper);
-    connection->registerObject(mediaPlayerRpc);
-    connection->registerObject(trackpad);
+        connection->registerObject(actionMapper);
+        connection->registerObject(mediaPlayerRpc);
+        connection->registerObject(trackpad);
+
+        QNetworkProxy proxy;
+        if (Config::isEnabled("proxy", false)) {
+            QString proxyHost(Config::value("proxy-host", "localhost").toString());
+            int proxyPort = Config::value("proxy-port", 8080);
+            proxy.setType(QNetworkProxy::HttpProxy);
+            proxy.setHostName(proxyHost);
+            proxy.setPort(proxyPort);
+            QNetworkProxy::setApplicationProxy(proxy);
+            qWarning() << "Using proxy host"
+                       << proxyHost
+                       << "on port"
+                       << proxyPort;
+        }
+
+        selectSkinAction = new QAction(tr("Select skin"), this);
+        QAction *quitAction = new QAction(tr("Quit"), this);
+        connect(selectSkinAction, SIGNAL(triggered()), this, SLOT(selectSkin()));
+        connect(quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
+        actions.append(selectSkinAction);
+        actions.append(quitAction);
+
+        inputIdleTimer.setInterval(Config::value("idle-timeout", 120)*1000);
+        inputIdleTimer.setSingleShot(true);
+        inputIdleTimer.start();
+        connect(&inputIdleTimer, SIGNAL(timeout()), q, SIGNAL(inputIdle()));
+        initializeMedia();
+    }
 }
 
 BackendPrivate::~BackendPrivate()
@@ -435,7 +447,7 @@ void Backend::initialize()
     if (!Config::isEnabled("headless", false)) {
         d->frontend = new Frontend();
     }
-    if (Config::isEnabled("systray", true)) {
+    if (Config::isEnabled("systray", true) && !d->remoteControl) {
         d->systray = new QSystemTrayIcon(QIcon(":/images/petite-ganesh-22x22.jpg"), this);
         d->systray->setVisible(true);
         QMenu *contextMenu = new QMenu;
@@ -446,7 +458,11 @@ void Backend::initialize()
     }
 
 #ifdef QMH_AVAHI
-    if (d->primarySession && Config::isEnabled("avahi", true) && Config::isEnabled("avahi-advertize", true)) {
+    if (d->primarySession
+            && !d->remoteControl
+            && Config::isEnabled("avahi", true)
+            && Config::isEnabled("avahi-advertize", true))
+    {
         QAvahiServicePublisher *publisher = new QAvahiServicePublisher(this);
         publisher->publish(QHostInfo::localHostName(), "_qtmediahub._tcp", 1234, "Qt Media Hub JSON-RPCv2 interface");
         qDebug() << "Advertizing session via zeroconf";
@@ -614,24 +630,26 @@ void Backend::setPrimarySession(bool primarySession)
 
 void Backend::registerDeclarativeFrontend(QDeclarativeView *view, Skin *skin)
 {
-    d->actionMapper->setRecipient(view);
-    d->trackpad->setRecipient(view);
-
-    // attach global context properties
     QDeclarativePropertyMap *runtime = new QDeclarativePropertyMap(view);
-    runtime->insert("actionMapper", qVariantFromValue(static_cast<QObject *>(d->actionMapper)));
-    runtime->insert("mediaPlayerRpc", qVariantFromValue(static_cast<QObject *>(d->mediaPlayerRpc)));
-    runtime->insert("trackpad", qVariantFromValue(static_cast<QObject *>(d->trackpad)));
-    runtime->insert("frontend", qVariantFromValue(static_cast<QObject *>(d->frontend)));
-    runtime->insert("deviceManager", qVariantFromValue(static_cast<QObject *>(d->deviceManager)));
-    runtime->insert("powerManager", qVariantFromValue(static_cast<QObject *>(d->powerManager)));
-    runtime->insert("skin", qVariantFromValue(static_cast<QObject *>(skin)));
-    runtime->insert("backend", qVariantFromValue(static_cast<QObject *>(this)));
-    runtime->insert("mediaScanner", qVariantFromValue(static_cast<QObject *>(d->mediaScanner)));
-    runtime->insert("httpServer", qVariantFromValue(static_cast<QObject *>(d->httpServer)));
+    if (!d->remoteControl)
+    {
+        d->actionMapper->setRecipient(view);
+        d->trackpad->setRecipient(view);
+        // attach global context properties
+        runtime->insert("actionMapper", qVariantFromValue(static_cast<QObject *>(d->actionMapper)));
+        runtime->insert("mediaPlayerRpc", qVariantFromValue(static_cast<QObject *>(d->mediaPlayerRpc)));
+        runtime->insert("trackpad", qVariantFromValue(static_cast<QObject *>(d->trackpad)));
+        runtime->insert("deviceManager", qVariantFromValue(static_cast<QObject *>(d->deviceManager)));
+        runtime->insert("powerManager", qVariantFromValue(static_cast<QObject *>(d->powerManager)));
+        runtime->insert("mediaScanner", qVariantFromValue(static_cast<QObject *>(d->mediaScanner)));
+        runtime->insert("httpServer", qVariantFromValue(static_cast<QObject *>(d->httpServer)));
+        runtime->insert("cursor", qVariantFromValue(static_cast<QObject *>(new CustomCursor(view))));
+        runtime->insert("utils", qVariantFromValue(static_cast<QObject *>(new QMLUtils(view))));
+    }
     runtime->insert("config", qVariantFromValue(static_cast<QObject *>(Config::instance())));
-    runtime->insert("cursor", qVariantFromValue(static_cast<QObject *>(new CustomCursor(view))));
-    runtime->insert("utils", qVariantFromValue(static_cast<QObject *>(new QMLUtils(view))));
+    runtime->insert("frontend", qVariantFromValue(static_cast<QObject *>(d->frontend)));
+    runtime->insert("backend", qVariantFromValue(static_cast<QObject *>(this)));
+    runtime->insert("skin", qVariantFromValue(static_cast<QObject *>(skin)));
 
     view->rootContext()->setContextProperty("runtime", runtime);
 }
