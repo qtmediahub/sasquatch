@@ -88,8 +88,6 @@ signals:
     void pluginPathChanged();
     void resourcePathChanged();
     void backendChanged();
-    void inputIdle();
-    void inputActive();
     void targetsModelChanged();
 
 private:

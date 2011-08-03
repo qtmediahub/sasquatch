@@ -47,6 +47,8 @@ protected:
 signals:
     void frontendChanged();
     void framerateCapChanged();
+    void inputIdle();
+    void inputActive();
 
 private:
     FrontendPrivate *d;

@@ -423,6 +423,8 @@ bool Frontend::eventFilter(QObject *obj, QEvent *event)
         || event->type() == QEvent::KeyRelease
         || event->type() == QEvent::MouseMove
         || event->type() == QEvent::MouseButtonPress) {
+        if (!d->inputIdleTimer.isActive())
+            emit inputActive();
         d->inputIdleTimer.start();
     }
 
