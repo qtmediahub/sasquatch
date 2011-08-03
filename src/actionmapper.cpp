@@ -118,9 +118,9 @@ void ActionMapper::setRecipient(QObject *recipient) {
     QGraphicsView *potentialView = qobject_cast<QGraphicsView*>(recipient);
     if (potentialView) {
         // directly send to the scene, to avoid loops
-        m_recipient = QSharedPointer<QObject>(potentialView->scene());
+        m_recipient = QWeakPointer<QObject>(potentialView->scene());
     } else {
-        m_recipient = QSharedPointer<QObject>(recipient);
+        m_recipient = QWeakPointer<QObject>(recipient);
     }
 }
 

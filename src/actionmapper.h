@@ -23,6 +23,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QObject>
 #include <QtDeclarative>
 #include <QDebug>
+#include <QWeakPointer>
 
 class ActionMapper : public QObject
 {
@@ -72,7 +73,7 @@ private:
     void populateMap();
     void setupInternalMap();
 
-    QSharedPointer<QObject> m_recipient;
+    QWeakPointer<QObject> m_recipient;
     QObject *m_parent;
     QString m_mapName;
     QString m_mapPath;

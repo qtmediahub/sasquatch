@@ -37,11 +37,11 @@ void Trackpad::setRecipient(QWidget *recipient)
     QGraphicsView *potentialView = qobject_cast<QGraphicsView*>(recipient);
     QDeclarativeView *potentialDeclarativeView = qobject_cast<QDeclarativeView*>(recipient);
     if (potentialDeclarativeView)
-        m_recipientContext = QSharedPointer<QDeclarativeContext>(potentialDeclarativeView->rootContext());
+        m_recipientContext = QWeakPointer<QDeclarativeContext>(potentialDeclarativeView->rootContext());
     if (potentialView) {
-        m_recipient = QSharedPointer<QWidget>(potentialView->viewport());
+        m_recipient = QWeakPointer<QWidget>(potentialView->viewport());
     } else {
-        m_recipient = QSharedPointer<QWidget>(recipient);
+        m_recipient = QWeakPointer<QWidget>(recipient);
     }
 }
 
