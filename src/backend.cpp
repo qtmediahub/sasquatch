@@ -59,6 +59,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QNetworkProxy>
 #include <QDeclarativeView>
 #include <QHostInfo>
+#include <QDBusConnection>
 
 #ifdef QMH_AVAHI
 #include "qavahiservicepublisher.h"
@@ -190,9 +191,11 @@ BackendPrivate::BackendPrivate(Backend *p)
     discoverSkins();
 
     if (!remoteControl) {
+        if (QDBusConnection::systemBus().isConnected()) {
+            deviceManager = new DeviceManager(this);
+            powerManager = new PowerManager(this);
+        }
         actionMapper = new ActionMapper(this, LibraryInfo::basePath());
-        deviceManager = new DeviceManager(this);
-        powerManager = new PowerManager(this);
         mediaPlayerRpc = new MediaPlayerRpc(this);
         trackpad = new Trackpad(this);
         connection = new RpcConnection(RpcConnection::Server, QHostAddress::Any, 1234, this);

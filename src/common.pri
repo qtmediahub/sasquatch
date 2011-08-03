@@ -52,8 +52,13 @@ scenegraph {
 
 mac {
     QT += webkit multimedia
-    CONFIG += mobility
+    CONFIG += mobility no-dbus
     MOBILITY += multimedia systeminfo
+}
+
+!contains(QT_CONFIG, dbus) | no-dbus {
+    message(Disabling dbus support due to absence/explicit configuration)
+    DEFINES += NO_DBUS
 }
 
 # This is needed for Maemo5 to recognize minimization of the application window
