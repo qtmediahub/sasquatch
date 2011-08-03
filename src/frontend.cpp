@@ -82,7 +82,7 @@ public:
     int fpsCap;
     QTranslator frontEndTranslator;
     Skin *skin;
-    QWidget *mainWindow;
+    MainWindow *mainWindow;
     QDeclarativeContext *rootContext;
     Frontend *q;
 };
@@ -254,7 +254,8 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
         engine->addImportPath(skin->path());
 
         resetLanguage();
-        mainWindow = new MainWindow(declarativeWidget);
+        mainWindow = new MainWindow;
+        mainWindow->setCentralWidget(declarativeWidget);
         connect(mainWindow, SIGNAL(grow()), this, SLOT(grow()));
         connect(mainWindow, SIGNAL(shrink()), this, SLOT(shrink()));
         connect(mainWindow, SIGNAL(toggleFullScreen()), this, SLOT(toggleFullScreen()));

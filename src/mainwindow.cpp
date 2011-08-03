@@ -6,22 +6,13 @@
 #include <QDeclarativeView>
 #include <QShortcut>
 
-MainWindow::MainWindow(QWidget *prey)
-    : QWidget(0),
-      m_prey(prey)
+MainWindow::MainWindow(QWidget *parent)
+    : QWidget(parent),
+      m_centralWidget(0)
 {
-    prey->setParent(this);
-
     setOrientation(Config::value("orientation", ScreenOrientationAuto));
 
     Utils::optimizeWidgetAttributes(this, true);
-    Utils::optimizeWidgetAttributes(prey, true);
-
-    if (QAbstractScrollArea *scrollArea = qobject_cast<QAbstractScrollArea*>(prey)) {
-        //Does not appear to work here
-        //Not sure why
-        Utils::optimizeWidgetAttributes(scrollArea->viewport(), true);
-    }
 
     new QShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::META + Qt::ALT + Qt::Key_Backspace), this, SLOT(resetUI()));
     new QShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::META + Qt::ALT + Qt::Key_Down), this, SIGNAL(shrink()));
@@ -35,7 +26,24 @@ MainWindow::MainWindow(QWidget *prey)
 
 MainWindow::~MainWindow()
 {
-    delete m_prey;
+}
+
+QWidget *MainWindow::centralWidget() const
+{
+    return m_centralWidget;
+}
+
+void MainWindow::setCentralWidget(QWidget *centralWidget)
+{
+    m_centralWidget = centralWidget;
+    m_centralWidget->setParent(this);
+    Utils::optimizeWidgetAttributes(m_centralWidget, true);
+
+    if (QAbstractScrollArea *scrollArea = qobject_cast<QAbstractScrollArea*>(m_centralWidget)) {
+        //Does not appear to work here
+        //Not sure why
+        Utils::optimizeWidgetAttributes(scrollArea->viewport(), true);
+    }
 }
 
 void MainWindow::resizeEvent(QResizeEvent *e)
@@ -90,14 +98,14 @@ void MainWindow::setOrientation(ScreenOrientation orientation)
 
 void MainWindow::handleResize()
 {
-    m_prey->setFixedSize(size());
+    if (m_centralWidget)
+        m_centralWidget->setFixedSize(size());
 }
 
 void MainWindow::resetUI()
 {
-    QDeclarativeView *declarativeWidget = qobject_cast<QDeclarativeView*>(m_prey);
-    if (declarativeWidget) {
-        QObject* coreObject = declarativeWidget->rootObject();
+    if (QDeclarativeView *declarativeWidget = qobject_cast<QDeclarativeView*>(m_centralWidget)) {
+        QObject *coreObject = declarativeWidget->rootObject();
         QMetaObject::invokeMethod(coreObject, "reset");
     }
 }

@@ -13,8 +13,11 @@ public:
         ScreenOrientationLockLandscape,
         ScreenOrientationAuto
     };
-    MainWindow(QWidget *prey);
+    MainWindow(QWidget *parent = 0);
     ~MainWindow();
+
+    void setCentralWidget(QWidget *cw);
+    QWidget *centralWidget() const;
 
 protected:
     void resizeEvent(QResizeEvent *e);
@@ -31,7 +34,7 @@ public slots:
 
 private:
     QTimer m_resizeSettleTimer;
-    QWidget *m_prey;
+    QWidget *m_centralWidget;
 };
 
 #endif // MAINWINDOW_H
