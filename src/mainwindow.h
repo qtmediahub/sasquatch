@@ -32,7 +32,6 @@ public slots:
 private:
     QTimer resizeSettleTimer;
     QWidget *m_prey;
-    QWidget *viewport;
 };
 
 #endif // MAINWINDOW_H

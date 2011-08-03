@@ -9,14 +9,8 @@
 
 MainWindow::MainWindow(QWidget *prey)
     : QWidget(0),
-      m_prey(prey),
-      viewport(0)
+      m_prey(prey)
 {
-    QAbstractScrollArea *scrollArea = qobject_cast<QAbstractScrollArea*>(prey);
-
-    if (scrollArea)
-        viewport = scrollArea->viewport();
-
     prey->setParent(this);
 
     setOrientation(Config::value("orientation", ScreenOrientationAuto));
@@ -24,10 +18,10 @@ MainWindow::MainWindow(QWidget *prey)
     Utils::optimizeWidgetAttributes(this, true);
     Utils::optimizeWidgetAttributes(prey, true);
 
-    if (viewport) {
+    if (QAbstractScrollArea *scrollArea = qobject_cast<QAbstractScrollArea*>(prey)) {
         //Does not appear to work here
         //Not sure why
-        Utils::optimizeWidgetAttributes(viewport, true);
+        Utils::optimizeWidgetAttributes(scrollArea->viewport(), true);
     }
 
     installEventFilter(Backend::instance());
