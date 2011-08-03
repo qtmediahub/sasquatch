@@ -284,26 +284,24 @@ void MediaModel::handleDataReady(DbReader *reader, const QList<QSqlRecord> &reco
 
 void MediaModel::insertAll(const QList<QSqlRecord> &records)
 {
-    if (records.isEmpty())
+    const bool addDotDot = !m_cursor.isEmpty();
+
+    if (records.isEmpty() && !addDotDot)
         return;
 
-    if (!m_cursor.isEmpty()) {
-        beginInsertRows(QModelIndex(), 0, records.count());
-    } else {
-        beginInsertRows(QModelIndex(), 0, records.count() - 1);
-    }
+    beginInsertRows(QModelIndex(), 0, records.count() + (addDotDot ? 0 : -1));
 
     for (int i = 0; i < records.count(); i++) {
         QHash<int, QVariant> data = dataFromRecord(records[i]);
         m_data.append(data);
     }
 
-    if (!m_cursor.isEmpty()) {
+    if (addDotDot) {
         QHash<int, QVariant> data;
         data.insert(Qt::DisplayRole, tr(".."));
         data.insert(DotDotRole, true);
         data.insert(IsLeafRole, false);
-        m_data.append(data);
+        m_data.prepend(data);
     }
 
     endInsertRows();
@@ -324,7 +322,8 @@ int MediaModel::compareData(int idx, const QSqlRecord &record) const
 
 void MediaModel::update(const QList<QSqlRecord> &records)
 {
-    int old = 0, shiny = 0;
+    const bool hasDotDot = !m_cursor.isEmpty();
+    int old = (int)hasDotDot, shiny = 0;
     
     while (shiny < records.length()) {
         const QSqlRecord &record = records[shiny];
