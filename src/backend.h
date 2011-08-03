@@ -50,8 +50,6 @@ public:
     static Backend *instance();
     ~Backend();
 
-    static QString storageLocation(QDesktopServices::StandardLocation type);
-
     QString language() const;
 
     QList<Skin*> skins() const;

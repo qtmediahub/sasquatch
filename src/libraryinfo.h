@@ -18,6 +18,7 @@ public:
     static QString dataPath();
     static QString tempPath();
     static QString logPath();
+    static QString storageLocation(QDesktopServices::StandardLocation type);
 
 private:
     LibraryInfo();

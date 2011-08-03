@@ -24,12 +24,6 @@ static QStringList standardResourcePaths(const QString &suffix)
     return paths;
 }
 
-static QString storageLocation(QDesktopServices::StandardLocation type)
-{
-    QString location = QDesktopServices::storageLocation(type);
-    return location.isEmpty() ? QString("/tmp") : location;
-}
-
 QString LibraryInfo::dataPath()
 {
     return storageLocation(QDesktopServices::DataLocation);
@@ -45,6 +39,12 @@ QString LibraryInfo::logPath()
     return storageLocation(QDesktopServices::TempLocation);
 }
 
+QString LibraryInfo::storageLocation(QDesktopServices::StandardLocation type)
+{
+    QString location = QDesktopServices::storageLocation(type);
+    return location.isEmpty() ? QString("/tmp") : location;
+}
+
 QString LibraryInfo::basePath()
 {
     static QString cachedBasePath;
@@ -52,7 +52,7 @@ QString LibraryInfo::basePath()
         return cachedBasePath;
 
 #ifdef Q_OS_MAC
-    QString platformOffset("/../../../"),
+    QString platformOffset("/../../../");
 #else
     QString platformOffset;
 #endif
