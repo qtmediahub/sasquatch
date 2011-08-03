@@ -254,8 +254,6 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
 
         Backend::instance()->registerDeclarativeFrontend(declarativeWidget, skin);
 
-        engine->addPluginPath(Backend::instance()->resourcePath() % "/lib");
-        engine->addImportPath(Backend::instance()->resourcePath() % "/imports");
         engine->addImportPath(Backend::instance()->basePath() % "/imports");
         engine->addImportPath(skin->path());
 
