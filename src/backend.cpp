@@ -117,7 +117,6 @@ public:
     bool primarySession;
     Frontend *frontend;
 
-    QHash<QString, MediaPlugin *> engines;
     QList<QAction*> actions;
 
     const QString platformOffset;
@@ -273,7 +272,6 @@ BackendPrivate::~BackendPrivate()
     //This clean up is arguably a waste of effort since
     //the death of the backend marks the death of the appliction
     qDeleteAll(pluginTranslators);
-    qDeleteAll(engines);
     qDeleteAll(skins);
     qDeleteAll(actions);
 
