@@ -80,10 +80,8 @@ public:
         QVBoxLayout *vbox = new QVBoxLayout(this);
         QListWidget *skinsView = new QListWidget(this);
 
-        connect(skinsView,
-                SIGNAL(itemDoubleClicked(QListWidgetItem*)),
-                this,
-                SLOT(handleSkinSelection(QListWidgetItem*)));
+        connect(skinsView, SIGNAL(itemActivated(QListWidgetItem*)),
+                this, SLOT(handleSkinSelection(QListWidgetItem*)));
 
         foreach(Skin *skin, Backend::instance()->skins())
             skinsView->addItem(skin->name());
