@@ -45,6 +45,9 @@ ActionMapper::ActionMapper(QObject *p)
 
 void ActionMapper::takeAction(Action action)
 {
+    if(m_recipient.isNull()) {
+        qFatal("Trying to send an action when no recipient is set");
+    }
     QHash<int, Action>::const_iterator it;
     for (it = m_actionMap.constBegin(); it != m_actionMap.constEnd(); ++it) {
         if (it.value() == action)
@@ -110,9 +113,14 @@ void ActionMapper::setMap(const QString &map)
     populateMap();
 }
 
-QStringList ActionMapper::availableMaps() const
-{
-    return m_maps;
+void ActionMapper::setRecipient(QObject *recipient) {
+    QGraphicsView *potentialView = qobject_cast<QGraphicsView*>(recipient);
+    if (potentialView) {
+        // directly send to the scene, to avoid loops
+        m_recipient = QSharedPointer<QObject>(potentialView->scene());
+    } else {
+        m_recipient = QSharedPointer<QObject>(recipient);
+    }
 }
 
 bool ActionMapper::eventFilter(QObject *obj, QEvent *event)
@@ -148,12 +156,11 @@ bool ActionMapper::eventFilter(QObject *obj, QEvent *event)
                         , keyEvent->text()
                         , keyEvent->isAutoRepeat()
                         , keyEvent->count());
-
-            // directly send to the scene, to avoid loops
-            QDeclarativeView *v = qobject_cast<QDeclarativeView*>(obj);
-            if (v) {
-                QApplication::postEvent(v->scene(), e);
+            if (!m_recipient.isNull()) {
+                QApplication::postEvent(m_recipient.data(), e);
                 return true;
+            } else {
+                qDebug() << "The intended recipient has been forcibly shuffled off this mortal coil";
             }
         }
     }

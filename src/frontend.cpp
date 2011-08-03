@@ -390,8 +390,7 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
         // event proxy
         actionMapper = new ActionMapper(declarativeWidget);
         declarativeWidget->installEventFilter(actionMapper);
-
-
+        actionMapper->setRecipient(declarativeWidget);
 
         mediaPlayerRpc = new MediaPlayerRpc(declarativeWidget);
         trackpad = new Trackpad(declarativeWidget);
