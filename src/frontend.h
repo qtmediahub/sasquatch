@@ -24,8 +24,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 class FrontendPrivate;
 
-/*Logic abstracting what is handling the rendering and resolution selection*/
-
+// Frontend is the common code used by all types of skins (QML, HTML).
 class Frontend : public QObject
 {
     Q_OBJECT
