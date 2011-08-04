@@ -23,6 +23,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QtGui>
 #include <QDebug>
 
+#ifdef QMH_AVAHI
+#include "qavahiservicebrowsermodel.h"
+#else
+#include "staticservicebrowsermodel.h"
+#endif
+
 #ifdef SCENEGRAPH
 #include <QSGItem>
 #include <QSGView>
@@ -137,6 +143,7 @@ public:
     QTimer inputIdleTimer;
     QSystemTrayIcon *systray;
     QFileSystemWatcher pathMonitor;
+    QAbstractItemModel *targetsModel;
     Frontend *q;
 };
 
@@ -154,6 +161,7 @@ FrontendPrivate::FrontendPrivate(Backend *backend, Frontend *p)
       fpsCap(0),
       mainWindow(0),
       rootContext(0),
+      targetsModel(0),
       q(p)
 {
     QPixmapCache::setCacheLimit(Config::value("cacheSize", 0)*1024);
@@ -585,6 +593,28 @@ QList<Skin *> Frontend::skins() const
 MainWindow *Frontend::mainWindow() const
 {
     return d->mainWindow;
+}
+
+QObject *Frontend::targetsModel() const
+{
+    if (!d->targetsModel) {
+#ifdef QMH_AVAHI
+        if (Config::isEnabled("avahi", true)) {
+            QAvahiServiceBrowserModel *model = new QAvahiServiceBrowserModel(const_cast<Frontend *>(this));
+            model->setAutoResolve(true);
+            QAvahiServiceBrowserModel::Options options = QAvahiServiceBrowserModel::NoOptions;
+            if (Config::isEnabled("avahi-hide-ipv6"), true)
+                options |= QAvahiServiceBrowserModel::HideIPv6;
+            if (Config::isEnabled("avahi-hide-local", true) && !Config::isEnabled("testing", false))
+                options |= QAvahiServiceBrowserModel::HideLocal;
+            model->browse("_qtmediahub._tcp", options);
+            d->targetsModel = model;
+        }
+#else
+        d->targetsModel = new StaticServiceBrowserModel(const_cast<Frontend *>(this));
+#endif
+    }
+    return d->targetsModel;
 }
 
 #include "frontend.moc"

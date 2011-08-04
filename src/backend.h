@@ -39,7 +39,6 @@ class QMH_EXPORT Backend : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString resourcePath READ resourcePath NOTIFY resourcePathChanged)
-    Q_PROPERTY(QObject *targetsModel READ targetsModel NOTIFY targetsModelChanged)
 
 public:
     explicit Backend(QObject *parent = 0);
@@ -51,8 +50,6 @@ public:
 
     Q_INVOKABLE void openUrlExternally(const QUrl &url) const;
 
-    QObject *targetsModel() const;
-
     Q_INVOKABLE QStringList findApplications() const;
 
     void setPrimarySession(bool);
@@ -60,7 +57,6 @@ public:
 
 signals:
     void resourcePathChanged();
-    void targetsModelChanged();
 
 private:
     BackendPrivate *d;

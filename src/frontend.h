@@ -34,6 +34,7 @@ class QMH_EXPORT Frontend : public QObject
     Q_OBJECT
     Q_PROPERTY(bool transforms READ transforms NOTIFY frontendChanged)
     Q_PROPERTY(int framerateCap READ framerateCap NOTIFY framerateCapChanged)
+    Q_PROPERTY(QObject *targetsModel READ targetsModel NOTIFY targetsModelChanged)
 public:
     Frontend(Backend *backend, QObject *p = 0);
     ~Frontend();
@@ -42,6 +43,8 @@ public:
     int framerateCap() const;
     void show();
     bool setSkin(const QString &name);
+
+    QObject *targetsModel() const;
 
     Q_INVOKABLE void addImportPath(const QString &path);
     Q_INVOKABLE QObject *focusItem() const;
@@ -57,6 +60,7 @@ signals:
     void framerateCapChanged();
     void inputIdle();
     void inputActive();
+    void targetsModelChanged();
 
 private:
     FrontendPrivate *d;

@@ -31,12 +31,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "httpserver/httpserver.h"
 
-#ifdef QMH_AVAHI
-#include "qavahiservicebrowsermodel.h"
-#else
-#include "staticservicebrowsermodel.h"
-#endif
-
 #ifdef QT_SINGLE_APPLICATION
 #include "qtsingleapplication.h"
 #endif
@@ -81,8 +75,6 @@ public:
     QList<QTranslator*> pluginTranslators;
     QFileSystemWatcher pathMonitor;
 
-    QAbstractItemModel *targetsModel;
-
 #if defined(Q_WS_S60) || defined(Q_WS_MAEMO)
     QNetworkConfigurationManager mgr;
     QNetworkSession *session;
@@ -99,7 +91,6 @@ BackendPrivate::BackendPrivate(Backend *p)
     : QObject(p),
       primarySession(true),
       backendTranslator(0),
-      targetsModel(0),
       remoteControl(Config::isEnabled("remote", false)),
       httpServer(0),
       q(p)
@@ -138,7 +129,6 @@ BackendPrivate::~BackendPrivate()
     qDeleteAll(pluginTranslators);
 
     delete backendTranslator;
-    delete targetsModel;
 
 #if defined(Q_WS_S60) || defined(Q_WS_MAEMO)
     delete session;
@@ -238,28 +228,6 @@ QString Backend::resourcePath() const
 void Backend::openUrlExternally(const QUrl & url) const
 {
     QDesktopServices::openUrl(url);
-}
-
-QObject *Backend::targetsModel() const
-{
-    if (!d->targetsModel) {
-#ifdef QMH_AVAHI
-        if (Config::isEnabled("avahi", true)) {
-            QAvahiServiceBrowserModel *model = new QAvahiServiceBrowserModel(const_cast<Backend *>(this));
-            model->setAutoResolve(true);
-            QAvahiServiceBrowserModel::Options options = QAvahiServiceBrowserModel::NoOptions;
-            if (Config::isEnabled("avahi-hide-ipv6"), true)
-                options |= QAvahiServiceBrowserModel::HideIPv6;
-            if (Config::isEnabled("avahi-hide-local", true) && !Config::isEnabled("testing", false))
-                options |= QAvahiServiceBrowserModel::HideLocal;
-            model->browse("_qtmediahub._tcp", options);
-            d->targetsModel = model;
-        }
-#else
-        d->targetsModel = new StaticServiceBrowserModel(const_cast<Backend *>(this));
-#endif
-    }
-    return d->targetsModel;
 }
 
 QStringList Backend::findApplications() const
