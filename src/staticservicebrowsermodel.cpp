@@ -33,7 +33,7 @@ StaticServiceBrowserModel::StaticServiceBrowserModel(QObject *parent)
     roleNames[PortRole] = "port";
     setRoleNames(roleNames);
 
-    QString storageLocation = LibraryInfo::storageLocation(QDesktopServices::DataLocation);
+    QString storageLocation = LibraryInfo::dataPath();
     QString servicesFile = storageLocation + "/services.conf";
     QDir(storageLocation).mkpath(".");
     if (QFile::exists(servicesFile)) {
@@ -98,7 +98,7 @@ void StaticServiceBrowserModel::removeService(int i)
 
 void StaticServiceBrowserModel::save()
 {
-    QString servicesFileName = LibraryInfo::storageLocation(QDesktopServices::DataLocation) + "/services.conf";
+    QString servicesFileName = LibraryInfo::dataPath() + "/services.conf";
     QFile file(servicesFileName);
     file.open(QFile::WriteOnly);
     QTextStream stream(&file);

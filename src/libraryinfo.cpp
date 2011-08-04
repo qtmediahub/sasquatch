@@ -1,6 +1,8 @@
 #include "libraryinfo.h"
 #include "qmh-config.h"
 
+#include <QDesktopServices>
+
 static QStringList standardResourcePaths(const QString &suffix)
 {
     QString basePath = LibraryInfo::basePath();
@@ -8,7 +10,11 @@ static QStringList standardResourcePaths(const QString &suffix)
 
     // TODO check below two paths if still valid maybe basePath is wrong as the default value
     paths <<  basePath % QString::fromLatin1("/") % suffix; // unified repo
+#ifdef Q_OS_MAC
+    paths <<  basePath % QString::fromLatin1("/../../../") % suffix; // submodule repo
+#else
     paths <<  basePath % QString::fromLatin1("/../../") % suffix; // submodule repo
+#endif
 
     paths << "" QMH_INSTALL_PREFIX % QString::fromLatin1("/") % suffix % QString::fromLatin1("/");
     paths << QDir::homePath() % "/.qtmediahub/" % suffix % QString::fromLatin1("/");

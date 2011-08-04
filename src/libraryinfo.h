@@ -2,7 +2,6 @@
 #define LIBRARYINFO_H
 
 #include <QString>
-#include <QDesktopServices>
 #include "global.h"
 
 class QMH_EXPORT LibraryInfo
