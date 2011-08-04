@@ -38,6 +38,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <QDBusConnection>
 
+#ifdef GL
+#include <QGLFormat>
+#endif
+
 #ifdef GLVIEWPORT
 #include <QGLWidget>
 #endif
@@ -165,6 +169,13 @@ FrontendPrivate::FrontendPrivate(Backend *backend, Frontend *p)
       q(p)
 {
     QPixmapCache::setCacheLimit(Config::value("cacheSize", 0)*1024);
+
+#ifdef GL
+    QGLFormat format;
+    format.setSampleBuffers(true);
+    format.setSwapInterval(1);
+    QGLFormat::setDefaultFormat(format);
+#endif //GL
 
     QString dejavuPath(LibraryInfo::resourcePath() % "/3rdparty/dejavu-fonts-ttf-2.32/ttf/");
     if (QDir(dejavuPath).exists()) {

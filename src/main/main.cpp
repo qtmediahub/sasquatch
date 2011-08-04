@@ -18,9 +18,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 ****************************************************************************/
 
 #include <QApplication>
-#ifdef GL
-#include <QGLFormat>
-#endif
 #ifdef QT_SINGLE_APPLICATION
 #include "qtsingleapplication.h"
 #endif
@@ -32,20 +29,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 int main(int argc, char** argv)
 {
     QApplication::setGraphicsSystem("raster");
-
-#ifdef GL
-    QGLFormat format;
-    format.setSampleBuffers(true);
-    format.setSwapInterval(1);
-    QGLFormat::setDefaultFormat(format);
-#ifdef GLGS
-#error I am gonna assume you are clueless and break until you remove me
-    //Only legitimate use is in fullscreen QGraphicsView derived classes!
-    //If you use this in conjunction with our traditional QWidget style functionality
-    //You are in for a rough ride
-    QApplication::setGraphicsSystem("opengl");
-#endif //GLGS
-#endif //GL
 
 #ifdef QT_SINGLE_APPLICATION
     QtSingleApplication app(argc, argv);
