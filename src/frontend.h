@@ -25,7 +25,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "skin.h"
 #include "global.h"
 
-class Backend;
 class FrontendPrivate;
 class MainWindow;
 
@@ -37,7 +36,7 @@ class QMH_EXPORT Frontend : public QObject
     Q_PROPERTY(int framerateCap READ framerateCap NOTIFY framerateCapChanged)
     Q_PROPERTY(QObject *targetsModel READ targetsModel NOTIFY targetsModelChanged)
 public:
-    Frontend(Backend *backend, QObject *p = 0);
+    Frontend(QObject *p = 0);
     ~Frontend();
 
     bool transforms() const;

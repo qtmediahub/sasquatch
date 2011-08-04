@@ -104,7 +104,7 @@ class FrontendPrivate : public QObject
 {
     Q_OBJECT
 public:
-    FrontendPrivate(Backend *backend, Frontend *p);
+    FrontendPrivate(Frontend *p);
     ~FrontendPrivate();
 
 public slots:
@@ -128,10 +128,13 @@ public slots:
     void handleDirChanged(const QString &dir);
 
 public:
+    void enableRemoteControlMode(bool enable);
+
     const QRect defaultGeometry;
     bool overscanWorkAround;
     bool attemptingFullScreen;
 
+    bool remoteControlMode;
     Backend *backend;
     DeviceManager *deviceManager;
     PowerManager *powerManager;
@@ -152,12 +155,13 @@ public:
     Frontend *q;
 };
 
-FrontendPrivate::FrontendPrivate(Backend *backend, Frontend *p)
+FrontendPrivate::FrontendPrivate(Frontend *p)
     : QObject(p),
       defaultGeometry(0, 0, 1080, 720),
       overscanWorkAround(Config::isEnabled("overscan", false)),
       attemptingFullScreen(Config::isEnabled("fullscreen", true)),
-      backend(backend),
+      remoteControlMode(true),
+      backend(0),
       deviceManager(0),
       powerManager(0),
       mediaPlayerRpc(0),
@@ -204,22 +208,6 @@ FrontendPrivate::FrontendPrivate(Backend *backend, Frontend *p)
     qmlRegisterType<Playlist>("Playlist", 1, 0, "Playlist");
     qmlRegisterType<MediaModel>("MediaModel", 1, 0, "MediaModel");
     qmlRegisterType<RpcConnection>("RpcConnection", 1, 0, "RpcConnection");
-
-#ifndef NO_DBUS
-//Segmentation fault on mac!
-    if (QDBusConnection::systemBus().isConnected()) {
-        deviceManager = new DeviceManager(this);
-        powerManager = new PowerManager(this);
-    }
-#endif
-    mediaPlayerRpc = new MediaPlayerRpc(this);
-    connection = new RpcConnection(RpcConnection::Server, QHostAddress::Any, 1234, this);
-    trackpad = new Trackpad(this);
-    actionMapper = new ActionMapper(this, LibraryInfo::basePath());
-
-    connection->registerObject(actionMapper);
-    connection->registerObject(mediaPlayerRpc);
-    connection->registerObject(trackpad);
 
     connect(&pathMonitor, SIGNAL(directoryChanged(QString)), this, SLOT(handleDirChanged(QString)));
     foreach (const QString &skinPath, LibraryInfo::skinPaths()) {
@@ -318,17 +306,18 @@ void FrontendPrivate::loadUrl(const QUrl &targetUrl)
         QObject::connect(engine, SIGNAL(quit()), qApp, SLOT(quit()));
 
         QDeclarativePropertyMap *runtime = new QDeclarativePropertyMap(declarativeWidget);
-        if (!currentSkin->isRemoteControl())
+        if (!remoteControlMode) {
             backend->registerQmlProperties(runtime);
-        actionMapper->setRecipient(declarativeWidget);
-        trackpad->setRecipient(declarativeWidget);
-        runtime->insert("actionMapper", qVariantFromValue(static_cast<QObject *>(actionMapper)));
+            actionMapper->setRecipient(declarativeWidget);
+            trackpad->setRecipient(declarativeWidget);
+            runtime->insert("actionMapper", qVariantFromValue(static_cast<QObject *>(actionMapper)));
+            runtime->insert("trackpad", qVariantFromValue(static_cast<QObject *>(trackpad)));
+            runtime->insert("mediaPlayerRpc", qVariantFromValue(static_cast<QObject *>(mediaPlayerRpc)));
+            runtime->insert("deviceManager", qVariantFromValue(static_cast<QObject *>(deviceManager)));
+            runtime->insert("powerManager", qVariantFromValue(static_cast<QObject *>(powerManager)));
+        }
         runtime->insert("config", qVariantFromValue(static_cast<QObject *>(Config::instance())));
-        runtime->insert("trackpad", qVariantFromValue(static_cast<QObject *>(trackpad)));
         runtime->insert("frontend", qVariantFromValue(static_cast<QObject *>(q)));
-        runtime->insert("mediaPlayerRpc", qVariantFromValue(static_cast<QObject *>(mediaPlayerRpc)));
-        runtime->insert("deviceManager", qVariantFromValue(static_cast<QObject *>(deviceManager)));
-        runtime->insert("powerManager", qVariantFromValue(static_cast<QObject *>(powerManager)));
         runtime->insert("cursor", qVariantFromValue(static_cast<QObject *>(new CustomCursor(declarativeWidget))));
         runtime->insert("skin", qVariantFromValue(static_cast<QObject *>(currentSkin)));
         declarativeWidget->rootContext()->setContextProperty("runtime", runtime);
@@ -489,9 +478,9 @@ void FrontendPrivate::handleDirChanged(const QString &dir)
 }
 
 
-Frontend::Frontend(Backend *backend, QObject *p)
+Frontend::Frontend(QObject *p)
     : QObject(p),
-      d(new FrontendPrivate(backend, this)) 
+      d(new FrontendPrivate(this)) 
 {
 }
 
@@ -551,6 +540,7 @@ bool Frontend::setSkin(Skin *skin)
     }
 
     d->currentSkin = skin;
+    d->enableRemoteControlMode(skin->isRemoteControl());
     d->loadUrl(url);
     return true;
 }
@@ -631,6 +621,58 @@ QStringList Frontend::findApplications() const
         }
     }
     return apps;
+}
+
+void FrontendPrivate::enableRemoteControlMode(bool enable)
+{
+    if (remoteControlMode == enable)
+        return;
+
+    remoteControlMode = enable;
+
+    if (enable) {
+        delete deviceManager;
+        deviceManager = 0;
+        delete powerManager;
+        powerManager = 0;
+
+        connection->unregisterObject(mediaPlayerRpc);
+        delete mediaPlayerRpc;
+        mediaPlayerRpc = 0;
+
+        connection->unregisterObject(trackpad);
+        delete trackpad;
+        trackpad = 0;
+
+        connection->unregisterObject(actionMapper);
+        delete actionMapper;
+        actionMapper = 0;
+
+        delete connection;
+
+        delete backend;
+        backend = 0;
+
+        return;
+    }
+
+    backend = new Backend(this);
+
+#ifndef NO_DBUS
+//Segmentation fault on mac!
+    if (QDBusConnection::systemBus().isConnected()) {
+        deviceManager = new DeviceManager(this);
+        powerManager = new PowerManager(this);
+    }
+#endif
+    mediaPlayerRpc = new MediaPlayerRpc(this);
+    connection = new RpcConnection(RpcConnection::Server, QHostAddress::Any, 1234, this);
+    trackpad = new Trackpad(this);
+    actionMapper = new ActionMapper(this, LibraryInfo::basePath());
+
+    connection->registerObject(actionMapper);
+    connection->registerObject(mediaPlayerRpc);
+    connection->registerObject(trackpad);
 }
 
 #include "frontend.moc"

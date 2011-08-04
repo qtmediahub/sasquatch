@@ -82,14 +82,16 @@ int main(int argc, char** argv)
 
     Config::init(argc, argv);
 
-    Backend backend;
-    backend.setPrimarySession(primarySession);
+    Backend *backend = 0;
     Frontend *frontend = 0;
 
     if (!Config::isEnabled("headless", qgetenv("DISPLAY").isEmpty())) {
-        frontend = new Frontend(&backend);
+        frontend = new Frontend;
         frontend->setSkin(Config::value("skin", "").toString());
         frontend->show();
+    } else {
+        backend = new Backend;
+        backend->setPrimarySession(primarySession);
     }
 
     int ret = app.exec();
@@ -98,6 +100,7 @@ int main(int argc, char** argv)
     g_networkSession->close();
 #endif
 
+    delete backend;
     delete frontend;
 
     return ret;

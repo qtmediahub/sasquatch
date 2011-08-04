@@ -71,6 +71,11 @@ void RpcConnection::registerObject(QObject *object)
     m_objects[object->objectName()] = object;
 }
 
+void RpcConnection::unregisterObject(QObject *object)
+{
+    m_objects.remove(object->objectName());
+}
+
 void RpcConnection::connectToHost(const QHostAddress &address, quint16 port)
 {
     Q_ASSERT(m_mode == Client);
