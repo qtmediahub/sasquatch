@@ -24,5 +24,8 @@
 
 Q_DECLARE_METATYPE(QModelIndex)
 
+// ## maybe move to separate file?
+#define DEFAULT_DATABASE_CONNECTION_NAME "defaultConnection"
+
 #endif // GLOBAL_H
 

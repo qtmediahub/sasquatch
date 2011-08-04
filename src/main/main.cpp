@@ -18,33 +18,56 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 ****************************************************************************/
 
 #include <QApplication>
-#ifdef GL
-#include <QGLFormat>
-#endif
+#include <QNetworkProxy>
 #ifdef QT_SINGLE_APPLICATION
 #include "qtsingleapplication.h"
 #endif
 
 #include "backend.h"
+#include "frontend.h"
 #include "qmh-config.h"
+
+#if defined(Q_WS_S60) || defined(Q_WS_MAEMO)
+static QNetworkSession *session = 0;
+#endif
+
+static void setupNetwork()
+{
+    QNetworkProxy proxy;
+    if (Config::isEnabled("proxy", false)) {
+        QString proxyHost(Config::value("proxy-host", "localhost").toString());
+        int proxyPort = Config::value("proxy-port", 8080);
+        proxy.setType(QNetworkProxy::HttpProxy);
+        proxy.setHostName(proxyHost);
+        proxy.setPort(proxyPort);
+        QNetworkProxy::setApplicationProxy(proxy);
+        qWarning() << "Using proxy host" << proxyHost << "on port" << proxyPort;
+    }
+
+#if defined(Q_WS_S60) || defined(Q_WS_MAEMO)
+    // Set Internet Access Point
+    QNetworkConfigurationManager mgr;
+    QList<QNetworkConfiguration> activeConfigs = mgr.allConfigurations();
+    if (activeConfigs.count() <= 0)
+        return;
+
+    QNetworkConfiguration cfg = activeConfigs.at(0);
+    foreach(QNetworkConfiguration config, activeConfigs) {
+        if (config.type() == QNetworkConfiguration::UserChoice) {
+            cfg = config;
+            break;
+        }
+    }
+
+    g_session = new QNetworkSession(cfg);
+    g_session->open();
+    g_session->waitForOpened(-1);
+#endif
+}
 
 int main(int argc, char** argv)
 {
     QApplication::setGraphicsSystem("raster");
-
-#ifdef GL
-    QGLFormat format;
-    format.setSampleBuffers(true);
-    format.setSwapInterval(1);
-    QGLFormat::setDefaultFormat(format);
-#ifdef GLGS
-#error I am gonna assume you are clueless and break until you remove me
-    //Only legitimate use is in fullscreen QGraphicsView derived classes!
-    //If you use this in conjunction with our traditional QWidget style functionality
-    //You are in for a rough ride
-    QApplication::setGraphicsSystem("opengl");
-#endif //GLGS
-#endif //GL
 
 #ifdef QT_SINGLE_APPLICATION
     QtSingleApplication app(argc, argv);
@@ -56,6 +79,8 @@ int main(int argc, char** argv)
     app.setOrganizationName("Nokia");
     app.setOrganizationDomain("nokia.com");
 
+    setupNetwork();
+
     bool primarySession = true;
 #ifdef QT_SINGLE_APPLICATION
     primarySession = !app.isRunning();
@@ -66,11 +91,23 @@ int main(int argc, char** argv)
 #endif //QT_SINGLE_APPLICATION
     Config::init(argc, argv);
 
-    Backend::instance()->setPrimarySession(primarySession);
+    Backend backend;
+    backend.setPrimarySession(primarySession);
+    Frontend *frontend = 0;
+
+    if (!Config::isEnabled("headless", qgetenv("DISPLAY").isEmpty())) {
+        frontend = new Frontend(&backend);
+        frontend->setSkin(Config::value("skin", "").toString());
+        frontend->show();
+    }
 
     int ret = app.exec();
+    
+#if defined(Q_WS_S60) || defined(Q_WS_MAEMO)
+    g_session->close();
+#endif
 
-    delete Backend::instance();
+    delete frontend;
 
     return ret;
 }

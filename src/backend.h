@@ -33,54 +33,32 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 class QUrl;
 class BackendPrivate;
 class Skin;
-class Frontend;
-class QAction;
-class MediaScanner;
-class QDeclarativeView;
-class Skin;
+class QDeclarativePropertyMap;
 
 class QMH_EXPORT Backend : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QList<Skin*> skins READ skins NOTIFY skinsChanged)
     Q_PROPERTY(QString resourcePath READ resourcePath NOTIFY resourcePathChanged)
-    Q_PROPERTY(QObject *targetsModel READ targetsModel NOTIFY targetsModelChanged)
 
 public:
-    static Backend *instance();
+    explicit Backend(QObject *parent = 0);
     ~Backend();
 
     QString language() const;
-
-    QList<Skin*> skins() const;
 
     QString resourcePath() const; // ## remove me
 
     Q_INVOKABLE void openUrlExternally(const QUrl &url) const;
 
-    QObject *targetsModel() const;
-
-    Frontend *frontend() const;
-
-    MediaScanner *mediaScanner() const;
-    QSqlDatabase mediaDatabase() const;
-
     Q_INVOKABLE QStringList findApplications() const;
 
     void setPrimarySession(bool);
-    void registerDeclarativeFrontend(QDeclarativeView *view, Skin* skin);
-
-public slots:
-    void initialize();
+    void registerQmlProperties(QDeclarativePropertyMap *map);
 
 signals:
-    void skinsChanged();
     void resourcePathChanged();
-    void targetsModelChanged();
 
 private:
-    explicit Backend(QObject *parent = 0);
-    static Backend *s_instance;
     BackendPrivate *d;
 };
 

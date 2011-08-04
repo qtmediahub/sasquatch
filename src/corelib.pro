@@ -25,7 +25,6 @@ SOURCES += qmh-config.cpp \
     powermanager.cpp \
     mainwindow.cpp \
     customcursor.cpp \
-    qmh-util.cpp \
     declarativeview.cpp \
     libraryinfo.cpp
 
@@ -44,7 +43,6 @@ HEADERS += qmh-config.h \
     devicemanager.h \
     powermanager.h \
     mainwindow.h \
-    qmh-util.h \
     customcursor.h \
     declarativeview.h \
     libraryinfo.h

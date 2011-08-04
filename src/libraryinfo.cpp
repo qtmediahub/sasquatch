@@ -99,3 +99,8 @@ QStringList LibraryInfo::applicationPaths()
     return standardResourcePaths("apps");
 }
 
+QString LibraryInfo::databaseFilePath()
+{
+    return LibraryInfo::dataPath() + "/media.db";
+}
+

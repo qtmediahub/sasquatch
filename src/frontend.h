@@ -21,17 +21,22 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #define FRONTEND_H
 
 #include <QObject>
+#include "skin.h"
+#include "global.h"
 
+class Backend;
 class FrontendPrivate;
+class MainWindow;
 
 // Frontend is the common code used by all types of skins (QML, HTML).
-class Frontend : public QObject
+class QMH_EXPORT Frontend : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(bool transforms READ transforms NOTIFY frontendChanged)
     Q_PROPERTY(int framerateCap READ framerateCap NOTIFY framerateCapChanged)
+    Q_PROPERTY(QObject *targetsModel READ targetsModel NOTIFY targetsModelChanged)
 public:
-    Frontend(QObject *p = 0);
+    Frontend(Backend *backend, QObject *p = 0);
     ~Frontend();
 
     bool transforms() const;
@@ -39,8 +44,13 @@ public:
     void show();
     bool setSkin(const QString &name);
 
+    QObject *targetsModel() const;
+
     Q_INVOKABLE void addImportPath(const QString &path);
     Q_INVOKABLE QObject *focusItem() const;
+
+    QList<Skin *> skins() const;
+    MainWindow *mainWindow() const;
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event);
@@ -50,6 +60,7 @@ signals:
     void framerateCapChanged();
     void inputIdle();
     void inputActive();
+    void targetsModelChanged();
 
 private:
     FrontendPrivate *d;

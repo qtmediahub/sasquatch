@@ -28,8 +28,22 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #define DEBUG if (0) qDebug() << __PRETTY_FUNCTION__
 #define WARNING qWarning() << __PRETTY_FUNCTION__
 
-const QString CONNECTION_NAME("MediaScanner");
 const int BULK_LIMIT = 100;
+
+MediaScanner *MediaScanner::s_instance = 0;
+
+MediaScanner *MediaScanner::instance()
+{
+    if (!s_instance)
+        s_instance = new MediaScanner();
+    return s_instance;
+}
+
+void MediaScanner::destroy()
+{
+    delete s_instance;
+    s_instance = 0;
+}
 
 class MediaScannerWorker : public QObject
 {
@@ -39,7 +53,7 @@ public:
     ~MediaScannerWorker();
 
 public slots:
-    void initializeDatabase(const QSqlDatabase &db);
+    void initializeDatabase();
     void addParser(MediaParser *parser);
     void addSearchPath(const QString &type, const QString &_path, const QString &name);
     void removeSearchPath(const QString &type, const QString &path);
@@ -60,11 +74,12 @@ private:
 
 Q_DECLARE_METATYPE(QSqlDatabase) // ## may not be the best place...
 
-MediaScanner::MediaScanner(const QSqlDatabase &db, QObject *parent)
-    : QObject(parent), m_db(db)
+MediaScanner::MediaScanner(QObject *parent)
+    : QObject(parent)
 {
     qRegisterMetaType<MediaParser *>();
-    qRegisterMetaType<QSqlDatabase>();
+
+    ensureDatabase();
 
     m_workerThread = new QThread(this);
     m_workerThread->start();
@@ -72,7 +87,7 @@ MediaScanner::MediaScanner(const QSqlDatabase &db, QObject *parent)
     connect(m_workerThread, SIGNAL(finished()), m_worker, SLOT(deleteLater()));
     connect(m_worker, SIGNAL(scanPathChanged(QString)), this, SLOT(handleScanPathChanged(QString)));
     m_worker->moveToThread(m_workerThread);
-    QMetaObject::invokeMethod(m_worker, "initializeDatabase", Qt::QueuedConnection, Q_ARG(QSqlDatabase, db));
+    QMetaObject::invokeMethod(m_worker, "initializeDatabase", Qt::QueuedConnection);
 
     loadParserPlugins();
 }
@@ -82,6 +97,29 @@ MediaScanner::~MediaScanner()
     m_worker->stop();
     m_workerThread->quit();
     m_workerThread->wait();
+
+    QSqlDatabase::removeDatabase(DEFAULT_DATABASE_CONNECTION_NAME);
+}
+
+void MediaScanner::ensureDatabase()
+{
+    if (!QSqlDatabase::isDriverAvailable("QSQLITE")) {
+        qFatal("The SQLITE driver is unavailable");
+        return;
+    }
+
+    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE", DEFAULT_DATABASE_CONNECTION_NAME);
+    db.setDatabaseName(LibraryInfo::databaseFilePath());
+
+    if (!db.open()) {
+        qFatal("Failed to open SQLITE database %s", qPrintable(db.lastError().text()));
+        return;
+    }
+
+    if (db.tables().isEmpty()) {
+        ScopedTransaction transaction(db);
+        transaction.execFile(":/media/schema.sql");
+    }
 }
 
 void MediaScanner::addParser(MediaParser *parser)
@@ -103,7 +141,7 @@ void MediaScanner::removeSearchPath(const QString &type, const QString &path)
 
 QStringList MediaScanner::searchPaths(const QString &type) const
 {
-    QSqlQuery query(m_db);
+    QSqlQuery query(QSqlDatabase::database(DEFAULT_DATABASE_CONNECTION_NAME));
     query.setForwardOnly(true);
     query.prepare("SELECT path FROM directories WHERE type = :1");
     query.addBindValue(type);
@@ -164,12 +202,12 @@ MediaScannerWorker::MediaScannerWorker(MediaScanner *scanner)
 MediaScannerWorker::~MediaScannerWorker()
 {
     m_db = QSqlDatabase();
-    QSqlDatabase::removeDatabase(CONNECTION_NAME);
+    QSqlDatabase::removeDatabase("MediaScannerWorker");
 }
 
-void MediaScannerWorker::initializeDatabase(const QSqlDatabase &db)
+void MediaScannerWorker::initializeDatabase()
 {
-    m_db = QSqlDatabase::cloneDatabase(db, CONNECTION_NAME);
+    m_db = QSqlDatabase::cloneDatabase(QSqlDatabase::database(DEFAULT_DATABASE_CONNECTION_NAME), "MediaScannerWorker");
     if (!m_db.open())
         WARNING << "Erorr opening database" << m_db.lastError().text();
     QSqlQuery query(m_db);

@@ -21,8 +21,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <QtSql>
 
-#include "backend.h"
 #include "httpserver.h"
+#include "global.h"
 
 HttpClient::HttpClient(int sockfd, HttpServer *server, QObject *parent) :
     QObject(parent)
@@ -145,7 +145,7 @@ void HttpClient::answerNotFound()
 
 QUrl HttpClient::getMediaUrl(QString mediaType, int id, QString field)
 {
-    QSqlQuery query(Backend::instance()->mediaDatabase());
+    QSqlQuery query(QSqlDatabase::database(DEFAULT_DATABASE_CONNECTION_NAME));
     query.setForwardOnly(true);
 
     QString queryString;

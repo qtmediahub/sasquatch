@@ -23,11 +23,23 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QtGui>
 #include <QDebug>
 
+#ifdef QMH_AVAHI
+#include "qavahiservicebrowsermodel.h"
+#else
+#include "staticservicebrowsermodel.h"
+#endif
+
 #ifdef SCENEGRAPH
 #include <QSGItem>
 #include <QSGView>
 #else
 #include <QtDeclarative>
+#endif
+
+#include <QDBusConnection>
+
+#ifdef GL
+#include <QGLFormat>
 #endif
 
 #ifdef GLVIEWPORT
@@ -37,8 +49,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "mainwindow.h"
 
 #include "qmh-config.h"
-#include "skin.h"
-#include "qmh-util.h"
 #include "dirmodel.h"
 #include "media/playlist.h"
 #include "file.h"
@@ -49,20 +59,56 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "declarativeview.h"
 #include "libraryinfo.h"
 #include "qmldebugging.h"
+#include "actionmapper.h"
+#include "trackpad.h"
+#include "devicemanager.h"
+#include "powermanager.h"
+#include "rpc/mediaplayerrpc.h"
+#include "customcursor.h"
+
+class SkinSelector : public QDialog
+{
+    Q_OBJECT
+public:
+    SkinSelector(Frontend *frontend)
+        : QDialog(frontend->mainWindow()), m_frontend(frontend)
+    {
+        setAttribute(Qt::WA_DeleteOnClose);
+        setModal(true);
+        QVBoxLayout *vbox = new QVBoxLayout(this);
+        QListWidget *skinsView = new QListWidget(this);
+
+        connect(skinsView, SIGNAL(itemActivated(QListWidgetItem*)),
+                this, SLOT(handleSkinSelection(QListWidgetItem*)));
+
+        foreach(Skin *skin, frontend->skins())
+            skinsView->addItem(skin->name());
+
+        vbox->addWidget(skinsView);
+    }
+
+public slots:
+    void handleSkinSelection(QListWidgetItem* item) {
+        m_frontend->setSkin(item->text());
+        close();
+    }
+
+private:
+    Frontend *m_frontend;
+};
 
 class FrontendPrivate : public QObject
 {
     Q_OBJECT
 public:
-    FrontendPrivate(Frontend *p);
+    FrontendPrivate(Backend *backend, Frontend *p);
     ~FrontendPrivate();
 
 public slots:
-    bool setSkin(const QString &name);
-    void initializeSkin(const QUrl &url);
+    void loadUrl(const QUrl &url);
     void resetLanguage();
 
-    void initialize();
+    void discoverSkins();
 
     void toggleFullScreen();
     void showFullScreen();
@@ -73,33 +119,72 @@ public slots:
     void shrink();
 
     void handleFPSCapChanged(int);
+    void resetUI();
+
+    void selectSkin();
+
+    void handleDirChanged(const QString &dir);
 
 public:
     const QRect defaultGeometry;
     bool overscanWorkAround;
     bool attemptingFullScreen;
 
+    Backend *backend;
+    DeviceManager *deviceManager;
+    PowerManager *powerManager;
+    MediaPlayerRpc *mediaPlayerRpc;
+    RpcConnection *connection;
+
+    ActionMapper *actionMapper;
+    Trackpad *trackpad;
+    QMap<QString, Skin *> skins;
     int fpsCap;
     QTranslator frontEndTranslator;
-    Skin *skin;
+    Skin *currentSkin;
     MainWindow *mainWindow;
     QDeclarativeContext *rootContext;
     QTimer inputIdleTimer;
+    QSystemTrayIcon *systray;
+    QFileSystemWatcher pathMonitor;
+    QAbstractItemModel *targetsModel;
     Frontend *q;
 };
 
-FrontendPrivate::FrontendPrivate(Frontend *p)
+FrontendPrivate::FrontendPrivate(Backend *backend, Frontend *p)
     : QObject(p),
-      //Leave space for Window decoration!
       defaultGeometry(0, 0, 1080, 720),
       overscanWorkAround(Config::isEnabled("overscan", false)),
       attemptingFullScreen(Config::isEnabled("fullscreen", true)),
+      backend(backend),
+      deviceManager(0),
+      powerManager(0),
+      mediaPlayerRpc(0),
+      connection(0),
+      trackpad(0),
       fpsCap(0),
       mainWindow(0),
       rootContext(0),
+      targetsModel(0),
       q(p)
 {
     QPixmapCache::setCacheLimit(Config::value("cacheSize", 0)*1024);
+
+#ifdef GL
+    QGLFormat format;
+    format.setSampleBuffers(true);
+    format.setSwapInterval(1);
+    QGLFormat::setDefaultFormat(format);
+#endif //GL
+
+    QString dejavuPath(LibraryInfo::resourcePath() % "/3rdparty/dejavu-fonts-ttf-2.32/ttf/");
+    if (QDir(dejavuPath).exists()) {
+        QFontDatabase::addApplicationFont(dejavuPath % "DejaVuSans.ttf");
+        QFontDatabase::addApplicationFont(dejavuPath % "DejaVuSans-Bold.ttf");
+        QFontDatabase::addApplicationFont(dejavuPath % "DejaVuSans-Oblique.ttf");
+        QFontDatabase::addApplicationFont(dejavuPath % "DejaVuSans-BoldOblique.ttf");
+        QApplication::setFont(QFont("DejaVu Sans"));
+    }
 
     inputIdleTimer.setInterval(Config::value("idle-timeout", 120)*1000);
     inputIdleTimer.setSingleShot(true);
@@ -108,7 +193,6 @@ FrontendPrivate::FrontendPrivate(Frontend *p)
 
     qApp->setOverrideCursor(Qt::BlankCursor);
     qApp->installTranslator(&frontEndTranslator);
-    QMetaObject::invokeMethod(this, "initialize", Qt::QueuedConnection);
 
     qRegisterMetaType<QModelIndex>();
 
@@ -120,12 +204,52 @@ FrontendPrivate::FrontendPrivate(Frontend *p)
     qmlRegisterType<Playlist>("Playlist", 1, 0, "Playlist");
     qmlRegisterType<MediaModel>("MediaModel", 1, 0, "MediaModel");
     qmlRegisterType<RpcConnection>("RpcConnection", 1, 0, "RpcConnection");
+
+#ifndef NO_DBUS
+//Segmentation fault on mac!
+    if (QDBusConnection::systemBus().isConnected()) {
+        deviceManager = new DeviceManager(this);
+        powerManager = new PowerManager(this);
+    }
+#endif
+    mediaPlayerRpc = new MediaPlayerRpc(this);
+    connection = new RpcConnection(RpcConnection::Server, QHostAddress::Any, 1234, this);
+    trackpad = new Trackpad(this);
+    actionMapper = new ActionMapper(this, LibraryInfo::basePath());
+
+    connection->registerObject(actionMapper);
+    connection->registerObject(mediaPlayerRpc);
+    connection->registerObject(trackpad);
+
+    connect(&pathMonitor, SIGNAL(directoryChanged(QString)), this, SLOT(handleDirChanged(QString)));
+    foreach (const QString &skinPath, LibraryInfo::skinPaths()) {
+        if (QDir(skinPath).exists())
+            pathMonitor.addPath(skinPath);
+    }
+
+    QList<QAction*> actions;
+    QAction *selectSkinAction = new QAction(tr("Select skin"), this);
+    QAction *quitAction = new QAction(tr("Quit"), this);
+    connect(selectSkinAction, SIGNAL(triggered()), this, SLOT(selectSkin()));
+    connect(quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
+    actions.append(selectSkinAction);
+    actions.append(quitAction);
+
+    if (Config::isEnabled("systray", true)) {
+        systray = new QSystemTrayIcon(QIcon(":/images/petite-ganesh-22x22.jpg"), this);
+        systray->setVisible(true);
+        QMenu *contextMenu = new QMenu;
+        contextMenu->addActions(actions);
+        systray->setContextMenu(contextMenu);
+    }
+
+    discoverSkins();
 }
 
 FrontendPrivate::~FrontendPrivate()
 {
     Config::setEnabled("fullscreen", attemptingFullScreen);
-    Config::setValue("skin", skin->name());
+    Config::setValue("skin", currentSkin->name());
     Config::setEnabled("overscan", overscanWorkAround);
 
     Config::setValue("desktop-id", qApp->desktop()->screenNumber(mainWindow));
@@ -138,90 +262,30 @@ FrontendPrivate::~FrontendPrivate()
     delete mainWindow;
 }
 
-void FrontendPrivate::initialize()
+static void optimizeWidgetAttributes(QWidget *widget, bool transparent = false)
 {
-    setSkin(Config::value("skin", "").toString());
+    widget->setAttribute(Qt::WA_OpaquePaintEvent);
+    widget->setAutoFillBackground(false);
+    if (transparent && Config::isEnabled("shine-through", false))
+        widget->setAttribute(Qt::WA_TranslucentBackground);
+    else
+        widget->setAttribute(Qt::WA_NoSystemBackground);
 }
 
-bool FrontendPrivate::setSkin(const QString &name)
+static void optimizeGraphicsViewAttributes(QGraphicsView *view)
 {
-    static QSize nativeResolution = qApp->desktop()->screenGeometry().size();
-    static QString nativeResolutionString = Config::value("native-res-override", QString("%1x%2").arg(nativeResolution.width()).arg(nativeResolution.height()));
-    //http://en.wikipedia.org/wiki/720p
-    //1440, 1080, 720, 576, 480, 360, 240
-    static QHash<QString, QString> resolutionHash;
-    resolutionHash["1440"] = "2560x1440";
-    resolutionHash["1080"] = "1920x1080";
-    resolutionHash["720"] = "1280x720";
+    if (Config::isEnabled("smooth-scaling", false))
+        view->setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing);
 
-    Backend *backend = Backend::instance();
-    Skin *newSkin = 0;
-    Skin *defaultSkin = 0;
-    QString defaultSkinName = Config::value("default-skin", "confluence").toString();
-
-    foreach (QObject *o, backend->skins()) {
-        Skin *s = qobject_cast<Skin*>(o);
-        if (s->name() == name)
-            newSkin = s;
-        if (s->name() == defaultSkinName)
-            defaultSkin = s;
-    }
-
-    if (!newSkin)
-        newSkin = defaultSkin;
-
-    if (!newSkin) {
-        qDebug() << "Failed to set skin:" << name;
-        return false;
-    }
-
-    QFile skinConfig(newSkin->config());
-    if (skinConfig.open(QIODevice::ReadOnly)) {
-        QHash<QString, QString> fileForResolution;
-        QTextStream skinStream(&skinConfig);
-        while (!skinStream.atEnd()) {
-            QStringList resolutionToFile = skinStream.readLine().split(":");
-            if (resolutionToFile.count() == 2) {
-                QString resolution =
-                        resolutionHash.contains(resolutionToFile.at(0))
-                        ? resolutionHash[resolutionToFile.at(0)]
-                        : resolutionToFile.at(0);
-                fileForResolution[resolution] = resolutionToFile.at(1);
-            } else {
-                qWarning() << "bad line in skin configuration";
-            }
-        }
-
-        QString urlPath =
-                fileForResolution.contains(nativeResolutionString)
-                ? fileForResolution[nativeResolutionString]
-                : fileForResolution[Config::value("fallback-resolution", "default").toString()];
-
-        skin = newSkin;
-
-        initializeSkin(QUrl::fromLocalFile(skin->path() % "/" % urlPath));
-    } else {
-        qWarning() << "Can't read" << newSkin->name();
-        return false;
-    }
-    return true;
+    view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    view->setFrameStyle(0);
+    view->setOptimizationFlags(QGraphicsView::DontSavePainterState);
+    view->scene()->setItemIndexMethod(QGraphicsScene::NoIndex);
 }
 
-void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
+void FrontendPrivate::loadUrl(const QUrl &targetUrl)
 {
-    if (targetUrl.isEmpty() || !targetUrl.isValid())
-        qFatal("You are explicitly forcing a broken url on the skin system");
-
-    if (mainWindow) {
-        Config::setValue("desktop-id", qApp->desktop()->screenNumber(mainWindow));
-        if (!attemptingFullScreen)
-            Config::setValue("window-geometry", mainWindow->geometry());
-        else if (overscanWorkAround)
-            Config::setValue("overscan-geometry", mainWindow->geometry());
-        delete mainWindow;
-        mainWindow = 0;
-    }
-
     QPixmapCache::clear();
 
     if (targetUrl.path().right(3) == "qml") {
@@ -231,7 +295,8 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
 #else
         DeclarativeView *declarativeWidget = new DeclarativeView;
 
-        Utils::optimizeGraphicsViewAttributes(declarativeWidget);
+        optimizeWidgetAttributes(declarativeWidget);
+        optimizeGraphicsViewAttributes(declarativeWidget);
         declarativeWidget->setResizeMode(QDeclarativeView::SizeRootObjectToView);
 
         if (Config::isEnabled("use-gl", true)) {
@@ -239,7 +304,7 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
             QGLWidget *viewport = new QGLWidget(declarativeWidget);
             //Why do I have to set this here?
             //Why can't I set it in the MainWindow?
-            Utils::optimizeWidgetAttributes(viewport, false);
+            optimizeWidgetAttributes(viewport, false);
 
             declarativeWidget->setViewport(viewport);
 #endif //GLVIEWPORT
@@ -252,23 +317,35 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
         QDeclarativeEngine *engine = declarativeWidget->engine();
         QObject::connect(engine, SIGNAL(quit()), qApp, SLOT(quit()));
 
-        Backend::instance()->registerDeclarativeFrontend(declarativeWidget, skin);
+        QDeclarativePropertyMap *runtime = new QDeclarativePropertyMap(declarativeWidget);
+        backend->registerQmlProperties(runtime);
+        actionMapper->setRecipient(declarativeWidget);
+        trackpad->setRecipient(declarativeWidget);
+        runtime->insert("actionMapper", qVariantFromValue(static_cast<QObject *>(actionMapper)));
+        runtime->insert("config", qVariantFromValue(static_cast<QObject *>(Config::instance())));
+        runtime->insert("trackpad", qVariantFromValue(static_cast<QObject *>(trackpad)));
+        runtime->insert("frontend", qVariantFromValue(static_cast<QObject *>(q)));
+        runtime->insert("mediaPlayerRpc", qVariantFromValue(static_cast<QObject *>(mediaPlayerRpc)));
+        runtime->insert("deviceManager", qVariantFromValue(static_cast<QObject *>(deviceManager)));
+        runtime->insert("powerManager", qVariantFromValue(static_cast<QObject *>(powerManager)));
+        runtime->insert("cursor", qVariantFromValue(static_cast<QObject *>(new CustomCursor(declarativeWidget))));
+        runtime->insert("skin", qVariantFromValue(static_cast<QObject *>(currentSkin)));
+        declarativeWidget->rootContext()->setContextProperty("runtime", runtime);
 
         engine->addImportPath(LibraryInfo::basePath() % "/imports");
-        engine->addImportPath(skin->path());
+        engine->addImportPath(currentSkin->path());
 
         resetLanguage();
-        mainWindow = new MainWindow;
+        if (!mainWindow) {
+            mainWindow = new MainWindow;
+            optimizeWidgetAttributes(mainWindow, true);
+        }
         mainWindow->setCentralWidget(declarativeWidget);
         mainWindow->installEventFilter(q); // track idleness
         connect(mainWindow, SIGNAL(grow()), this, SLOT(grow()));
         connect(mainWindow, SIGNAL(shrink()), this, SLOT(shrink()));
+        connect(mainWindow, SIGNAL(resetUI()), this, SLOT(resetUI()));
         connect(mainWindow, SIGNAL(toggleFullScreen()), this, SLOT(toggleFullScreen()));
-        //FIXME?: item should have correct geometry
-        //on QML parsing: work around several issues
-        //Ovi maps inability to resize
-        q->show();
-        QApplication::processEvents();
 
         rootContext = declarativeWidget->rootContext();
         declarativeWidget->setSource(targetUrl);
@@ -279,11 +356,10 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
 
 void FrontendPrivate::resetLanguage()
 {
-    Backend *backend = Backend::instance();
     QString language = backend->language();
 
     //FIXME: this clearly needs some heuristics
-    frontEndTranslator.load(skin->path() % "/confluence/translations/" % "confluence_" % language % ".qm");
+    frontEndTranslator.load(currentSkin->path() % "/confluence/translations/" % "confluence_" % language % ".qm");
 }
 
 void FrontendPrivate::showFullScreen()
@@ -358,6 +434,14 @@ void FrontendPrivate::handleFPSCapChanged(int fpsCap)
     QMetaObject::invokeMethod(q, "framerateCapChanged");
 }
 
+void FrontendPrivate::resetUI()
+{
+    if (QDeclarativeView *declarativeWidget = qobject_cast<QDeclarativeView*>(mainWindow->centralWidget())) {
+        QObject *coreObject = declarativeWidget->rootObject();
+        QMetaObject::invokeMethod(coreObject, "reset");
+    }
+}
+
 void FrontendPrivate::toggleFullScreen()
 {
     if (attemptingFullScreen) {
@@ -369,9 +453,53 @@ void FrontendPrivate::toggleFullScreen()
     }
 }
 
-Frontend::Frontend(QObject *p)
+void FrontendPrivate::discoverSkins()
+{
+    qDeleteAll(skins.values());
+    skins.clear();
+
+    foreach (const QString &skinPath, LibraryInfo::skinPaths()) {
+        QStringList potentialSkins = QDir(skinPath).entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+
+        foreach(const QString &currentPath, potentialSkins) {
+            const QString prospectivePath = skinPath % "/" % currentPath;
+            if (Skin *skin = Skin::createSkin(prospectivePath, this))
+                skins.insert(skin->name(), skin);
+        }
+    }
+
+    if (skins.isEmpty()) {
+        qWarning() << "No skins are found in your skin paths"<< endl \
+                   << "If you don't intend to run this without skins"<< endl \
+                   << "Please read the INSTALL doc available here:" \
+                   << "http://gitorious.org/qtmediahub/qtmediahub-core/blobs/master/INSTALL" \
+                   << "for further details";
+    } else {
+        QStringList sl;
+        foreach(Skin *skin, skins)
+            sl.append(skin->name());
+        qDebug() << "Available skins:" << sl.join(",");
+    }
+}
+
+void FrontendPrivate::selectSkin()
+{
+    SkinSelector *skinSelector = new SkinSelector(q);
+    skinSelector->show();
+}
+
+void FrontendPrivate::handleDirChanged(const QString &dir)
+{
+    if (LibraryInfo::skinPaths().contains(dir)) {
+        qWarning() << "Changes in skin path, repopulating skins";
+        discoverSkins();
+    }
+}
+
+
+Frontend::Frontend(Backend *backend, QObject *p)
     : QObject(p),
-      d(new FrontendPrivate(this)) 
+      d(new FrontendPrivate(backend, this)) 
 {
 }
 
@@ -406,7 +534,28 @@ void Frontend::show()
 
 bool Frontend::setSkin(const QString &name)
 {
-    return d->setSkin(name);
+    Skin *newSkin = d->skins.value(name);
+    if (!newSkin) {
+        newSkin = d->skins.value(Config::value("default-skin", "confluence").toString());
+    }
+
+    if (!newSkin) {
+        qDebug() << "Failed to set skin:" << name;
+        return false;
+    }
+
+    QSize nativeResolution = qApp->desktop()->screenGeometry().size();
+    QString nativeResolutionString = Config::value("native-res-override", QString("%1x%2").arg(nativeResolution.width()).arg(nativeResolution.height()));
+
+    QUrl url = newSkin->urlForResolution(nativeResolutionString, Config::value("fallback-resolution", "default").toString());
+    if (!url.isValid()) {
+        qWarning() << "Error loading skin " << newSkin->name();
+        return false;
+    }
+
+    d->currentSkin = newSkin;
+    d->loadUrl(url);
+    return true;
 }
 
 void Frontend::addImportPath(const QString &path)
@@ -437,6 +586,38 @@ QObject *Frontend::focusItem() const
 #else
     return qgraphicsitem_cast<QGraphicsObject *>(qobject_cast<QDeclarativeView*>(centralWidget)->scene()->focusItem());
 #endif
+}
+
+QList<Skin *> Frontend::skins() const
+{
+    return d->skins.values();
+}
+
+MainWindow *Frontend::mainWindow() const
+{
+    return d->mainWindow;
+}
+
+QObject *Frontend::targetsModel() const
+{
+    if (!d->targetsModel) {
+#ifdef QMH_AVAHI
+        if (Config::isEnabled("avahi", true)) {
+            QAvahiServiceBrowserModel *model = new QAvahiServiceBrowserModel(const_cast<Frontend *>(this));
+            model->setAutoResolve(true);
+            QAvahiServiceBrowserModel::Options options = QAvahiServiceBrowserModel::NoOptions;
+            if (Config::isEnabled("avahi-hide-ipv6"), true)
+                options |= QAvahiServiceBrowserModel::HideIPv6;
+            if (Config::isEnabled("avahi-hide-local", true) && !Config::isEnabled("testing", false))
+                options |= QAvahiServiceBrowserModel::HideLocal;
+            model->browse("_qtmediahub._tcp", options);
+            d->targetsModel = model;
+        }
+#else
+        d->targetsModel = new StaticServiceBrowserModel(const_cast<Frontend *>(this));
+#endif
+    }
+    return d->targetsModel;
 }
 
 #include "frontend.moc"

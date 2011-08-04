@@ -21,7 +21,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "frontend.h"
 
 #include "qmh-config.h"
-#include "qmh-util.h"
 #include "rpc/rpcconnection.h"
 #include "skin.h"
 #include "scopedtransaction.h"
@@ -30,19 +29,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "media/mediamodel.h"
 #include "media/mediaparser.h"
 
-#include "devicemanager.h"
-#include "powermanager.h"
-#include "actionmapper.h"
-#include "rpc/mediaplayerrpc.h"
-#include "trackpad.h"
 #include "httpserver/httpserver.h"
-#include "customcursor.h"
-
-#ifdef QMH_AVAHI
-#include "qavahiservicebrowsermodel.h"
-#else
-#include "staticservicebrowsermodel.h"
-#endif
 
 #ifdef QT_SINGLE_APPLICATION
 #include "qtsingleapplication.h"
@@ -59,7 +46,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QNetworkProxy>
 #include <QDeclarativeView>
 #include <QHostInfo>
-#include <QDBusConnection>
 
 #ifdef QMH_AVAHI
 #include "qavahiservicepublisher.h"
@@ -69,38 +55,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <QDebug>
 
-#define DATABASE_CONNECTION_NAME "Backend"
-
-class SkinSelector : public QDialog
-{
-    Q_OBJECT
-public:
-    SkinSelector(QWidget *p = 0)
-        : QDialog(p)
-    {
-        setAttribute(Qt::WA_DeleteOnClose);
-        setModal(true);
-        QVBoxLayout *vbox = new QVBoxLayout(this);
-        QListWidget *skinsView = new QListWidget(this);
-
-        connect(skinsView, SIGNAL(itemActivated(QListWidgetItem*)),
-                this, SLOT(handleSkinSelection(QListWidgetItem*)));
-
-        foreach(Skin *skin, Backend::instance()->skins())
-            skinsView->addItem(skin->name());
-
-        vbox->addWidget(skinsView);
-    }
-
-public slots:
-    void handleSkinSelection(QListWidgetItem* item) {
-        Backend::instance()->frontend()->setSkin(item->text());
-        close();
-    }
-};
-
-Backend* Backend::s_instance = 0;
-
 class BackendPrivate : public QObject
 {
     Q_OBJECT
@@ -108,48 +62,16 @@ public:
     BackendPrivate(Backend *p);
     ~BackendPrivate();
 
-public slots:
-    void handleDirChanged(const QString &dir);
-    void selectSkin();
-
 public:
     void resetLanguage();
-    void discoverSkins();
-    void initializeMedia();
     void ensureStandardPaths();
 
     bool primarySession;
-    Frontend *frontend;
-
-    QList<QAction*> actions;
-
-    QList<Skin *> skins;
 
     QTranslator *backendTranslator;
-    QList<QTranslator*> pluginTranslators;
-    QFileSystemWatcher pathMonitor;
-
-    QSystemTrayIcon *systray;
-    QAbstractItemModel *targetsModel;
-
-#if defined(Q_WS_S60) || defined(Q_WS_MAEMO)
-    QNetworkConfigurationManager mgr;
-    QNetworkSession *session;
-#endif
-
     bool remoteControl;
 
-    DeviceManager *deviceManager;
-    PowerManager *powerManager;
-
-    ActionMapper *actionMapper;
-    MediaPlayerRpc *mediaPlayerRpc;
-    Trackpad *trackpad;
-    RpcConnection *connection;
     HttpServer *httpServer;
-
-    QSqlDatabase mediaDb;
-    MediaScanner *mediaScanner;
 
     Backend *q;
 };
@@ -157,118 +79,24 @@ public:
 BackendPrivate::BackendPrivate(Backend *p)
     : QObject(p),
       primarySession(true),
-      frontend(0),
       backendTranslator(0),
-      systray(0),
-      targetsModel(0),
       remoteControl(Config::isEnabled("remote", false)),
-      deviceManager(0),
-      powerManager(0),
-      actionMapper(0),
-      mediaPlayerRpc(0),
-      trackpad(0),
-      connection(0),
       httpServer(0),
-      mediaScanner(0),
       q(p)
 {
     ensureStandardPaths();
 
-    connect(&pathMonitor, SIGNAL(directoryChanged(QString)), this, SLOT(handleDirChanged(QString)));
+    httpServer = new HttpServer(Config::value("stream-port", "1337").toInt(), this);
 
-    foreach (const QString &skinPath, LibraryInfo::skinPaths()) {
-        if (QDir(skinPath).exists())
-            pathMonitor.addPath(skinPath);
-    }
-    pathMonitor.addPath(LibraryInfo::pluginPath());
-
-    discoverSkins();
-
-    if (!remoteControl) {
-#ifndef NO_DBUS
-//Segmentation fault on mac!
-        if (QDBusConnection::systemBus().isConnected()) {
-            deviceManager = new DeviceManager(this);
-            powerManager = new PowerManager(this);
-        }
-#endif
-        actionMapper = new ActionMapper(this, LibraryInfo::basePath());
-        mediaPlayerRpc = new MediaPlayerRpc(this);
-        trackpad = new Trackpad(this);
-        connection = new RpcConnection(RpcConnection::Server, QHostAddress::Any, 1234, this);
-        httpServer = new HttpServer(Config::value("stream-port", "1337").toInt(), this);
-
-        connection->registerObject(actionMapper);
-        connection->registerObject(mediaPlayerRpc);
-        connection->registerObject(trackpad);
-
-        QNetworkProxy proxy;
-        if (Config::isEnabled("proxy", false)) {
-            QString proxyHost(Config::value("proxy-host", "localhost").toString());
-            int proxyPort = Config::value("proxy-port", 8080);
-            proxy.setType(QNetworkProxy::HttpProxy);
-            proxy.setHostName(proxyHost);
-            proxy.setPort(proxyPort);
-            QNetworkProxy::setApplicationProxy(proxy);
-            qWarning() << "Using proxy host"
-                       << proxyHost
-                       << "on port"
-                       << proxyPort;
-        }
-
-        QAction *selectSkinAction = new QAction(tr("Select skin"), this);
-        QAction *quitAction = new QAction(tr("Quit"), this);
-        connect(selectSkinAction, SIGNAL(triggered()), this, SLOT(selectSkin()));
-        connect(quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
-        actions.append(selectSkinAction);
-        actions.append(quitAction);
-
-        initializeMedia();
-    }
+    MediaScanner::instance();
 }
 
 BackendPrivate::~BackendPrivate()
 {
-    delete frontend;
-    frontend = 0;
-
     delete backendTranslator;
     backendTranslator = 0;
 
-    //This clean up is arguably a waste of effort since
-    //the death of the backend marks the death of the appliction
-    qDeleteAll(pluginTranslators);
-    qDeleteAll(skins);
-    qDeleteAll(actions);
-
     delete backendTranslator;
-    delete systray;
-    delete targetsModel;
-
-#if defined(Q_WS_S60) || defined(Q_WS_MAEMO)
-    delete session;
-#endif
-
-    delete mediaScanner;
-
-    mediaDb = QSqlDatabase();
-    QSqlDatabase::removeDatabase(DATABASE_CONNECTION_NAME);
-}
-
-void BackendPrivate::handleDirChanged(const QString &dir)
-{
-    if (dir == LibraryInfo::pluginPath()) {
-        qWarning() << "Changes in plugin path, probably about to eat your poodle";
-    } else if (LibraryInfo::skinPaths().contains(dir)) {
-        qWarning() << "Changes in skin path, repopulating skins";
-        discoverSkins();
-    }
-}
-
-void BackendPrivate::selectSkin()
-{
-    SkinSelector *skinSelector = new SkinSelector;
-    skinSelector->show();
 }
 
 void BackendPrivate::resetLanguage()
@@ -279,102 +107,12 @@ void BackendPrivate::resetLanguage()
     backendTranslator = new QTranslator(this);
     backendTranslator->load(baseTranslationPath % language % ".qm");
     qApp->installTranslator(backendTranslator);
-
-    qDeleteAll(pluginTranslators.begin(), pluginTranslators.end());
-}
-
-void BackendPrivate::discoverSkins()
-{
-    qDeleteAll(skins);
-    skins.clear();
-
-    foreach (const QString &skinPath, LibraryInfo::skinPaths()) {
-        QStringList potentialSkins = QDir(skinPath).entryList(QDir::Dirs | QDir::NoDotAndDotDot);
-
-        foreach(const QString &currentPath, potentialSkins) {
-            const QString prospectivePath = skinPath % "/" % currentPath;
-            if (Skin *skin = Skin::createSkin(prospectivePath, this))
-                skins << skin;
-        }
-    }
-
-    if (skins.isEmpty()) {
-        qWarning() << "No skins are found in your skin paths"<< endl \
-                   << "If you don't intend to run this without skins"<< endl \
-                   << "Please read the INSTALL doc available here:" \
-                   << "http://gitorious.org/qtmediahub/qtmediahub-core/blobs/master/INSTALL" \
-                   << "for further details";
-    } else {
-        QStringList sl;
-        foreach(Skin *skin, skins)
-            sl.append(skin->name());
-        qDebug() << "Available skins:" << sl.join(",");
-    }
 }
 
 Backend::Backend(QObject *parent)
     : QObject(parent),
       d(new BackendPrivate(this))
 {
-#if defined(Q_WS_S60) || defined(Q_WS_MAEMO)
-    // Set Internet Access Point
-    QList<QNetworkConfiguration> activeConfigs = d->mgr.allConfigurations();
-    if (activeConfigs.count() <= 0)
-        return;
-
-    QNetworkConfiguration cfg = activeConfigs.at(0);
-    foreach(QNetworkConfiguration config, activeConfigs) {
-        if (config.type() == QNetworkConfiguration::UserChoice) {
-            cfg = config;
-            break;
-        }
-    }
-
-    session = new QNetworkSession(cfg);
-    session->open();
-    if (!session->waitForOpened(-1))
-        return;
-#endif
-
-    QString dejavuPath(LibraryInfo::resourcePath() % "/3rdparty/dejavu-fonts-ttf-2.32/ttf/");
-    if (QDir(dejavuPath).exists()) {
-        QFontDatabase::addApplicationFont(dejavuPath % "DejaVuSans.ttf");
-        QFontDatabase::addApplicationFont(dejavuPath % "DejaVuSans-Bold.ttf");
-        QFontDatabase::addApplicationFont(dejavuPath % "DejaVuSans-Oblique.ttf");
-        QFontDatabase::addApplicationFont(dejavuPath % "DejaVuSans-BoldOblique.ttf");
-        QApplication::setFont(QFont("DejaVu Sans"));
-    }
-
-    QMetaObject::invokeMethod(this, "initialize", Qt::QueuedConnection);
-}
-
-Backend::~Backend()
-{
-#if defined(Q_WS_S60) || defined(Q_WS_MAEMO)
-    session->close();
-#endif
-
-    delete d;
-    d = 0;
-
-    s_instance = 0;
-}
-
-void Backend::initialize()
-{
-    if (!Config::isEnabled("headless", false)) {
-        d->frontend = new Frontend();
-    }
-    if (Config::isEnabled("systray", true) && !d->remoteControl) {
-        d->systray = new QSystemTrayIcon(QIcon(":/images/petite-ganesh-22x22.jpg"), this);
-        d->systray->setVisible(true);
-        QMenu *contextMenu = new QMenu;
-        foreach(QAction *action, d->actions)
-            contextMenu->addAction(action);
-
-        d->systray->setContextMenu(contextMenu);
-    }
-
 #ifdef QMH_AVAHI
     if (d->primarySession
             && !d->remoteControl
@@ -389,47 +127,19 @@ void Backend::initialize()
 #endif
 }
 
+Backend::~Backend()
+{
+    MediaScanner::destroy();
+
+    delete d;
+    d = 0;
+}
+
 void BackendPrivate::ensureStandardPaths()
 {
     QDir dir;
     dir.mkpath(LibraryInfo::thumbnailPath());
     dir.mkpath(LibraryInfo::dataPath());
-}
-
-void BackendPrivate::initializeMedia()
-{
-    if (!QSqlDatabase::isDriverAvailable("QSQLITE")) {
-        qFatal("The SQLITE driver is unavailable");
-        return;
-    }
-
-    const QString DATABASE_NAME(LibraryInfo::dataPath().append("/media.db"));
-    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE", DATABASE_CONNECTION_NAME);
-    db.setDatabaseName(DATABASE_NAME);
-
-    if (!db.open()) {
-        qFatal("Failed to open SQLITE database %s", qPrintable(db.lastError().text()));
-        return;
-    }
-
-    mediaDb = db;
-
-    if (db.tables().isEmpty()) {
-        ScopedTransaction transaction(db);
-        transaction.execFile(":/media/schema.sql");
-    }
-
-    mediaScanner = new MediaScanner(mediaDb, this);
-}
-
-MediaScanner *Backend::mediaScanner() const
-{
-    return d->mediaScanner;
-}
-
-QSqlDatabase Backend::mediaDatabase() const
-{
-    return d->mediaDb;
 }
 
 QString Backend::language() const
@@ -441,19 +151,6 @@ QString Backend::language() const
     //return QString("bob");
 }
 
-QList<Skin*> Backend::skins() const
-{
-    return d->skins;
-}
-
-Backend* Backend::instance()
-{
-    if (!s_instance) {
-        s_instance = new Backend();
-    }
-    return s_instance;
-}
-
 QString Backend::resourcePath() const
 {
     return LibraryInfo::resourcePath();
@@ -462,33 +159,6 @@ QString Backend::resourcePath() const
 void Backend::openUrlExternally(const QUrl & url) const
 {
     QDesktopServices::openUrl(url);
-}
-
-Frontend* Backend::frontend() const
-{
-    return d->frontend;
-}
-
-QObject *Backend::targetsModel() const
-{
-    if (!d->targetsModel) {
-#ifdef QMH_AVAHI
-        if (Config::isEnabled("avahi", true)) {
-            QAvahiServiceBrowserModel *model = new QAvahiServiceBrowserModel(const_cast<Backend *>(this));
-            model->setAutoResolve(true);
-            QAvahiServiceBrowserModel::Options options = QAvahiServiceBrowserModel::NoOptions;
-            if (Config::isEnabled("avahi-hide-ipv6"), true)
-                options |= QAvahiServiceBrowserModel::HideIPv6;
-            if (Config::isEnabled("avahi-hide-local", true) && !Config::isEnabled("testing", false))
-                options |= QAvahiServiceBrowserModel::HideLocal;
-            model->browse("_qtmediahub._tcp", options);
-            d->targetsModel = model;
-        }
-#else
-        d->targetsModel = new StaticServiceBrowserModel(const_cast<Backend *>(this));
-#endif
-    }
-    return d->targetsModel;
 }
 
 QStringList Backend::findApplications() const
@@ -512,28 +182,13 @@ void Backend::setPrimarySession(bool primarySession)
     d->primarySession = primarySession;
 }
 
-void Backend::registerDeclarativeFrontend(QDeclarativeView *view, Skin *skin)
+void Backend::registerQmlProperties(QDeclarativePropertyMap *runtime)
 {
-    QDeclarativePropertyMap *runtime = new QDeclarativePropertyMap(view);
     if (!d->remoteControl) {
-        d->actionMapper->setRecipient(view);
-        d->trackpad->setRecipient(view);
-        // attach global context properties
-        runtime->insert("actionMapper", qVariantFromValue(static_cast<QObject *>(d->actionMapper)));
-        runtime->insert("mediaPlayerRpc", qVariantFromValue(static_cast<QObject *>(d->mediaPlayerRpc)));
-        runtime->insert("trackpad", qVariantFromValue(static_cast<QObject *>(d->trackpad)));
-        runtime->insert("deviceManager", qVariantFromValue(static_cast<QObject *>(d->deviceManager)));
-        runtime->insert("powerManager", qVariantFromValue(static_cast<QObject *>(d->powerManager)));
-        runtime->insert("mediaScanner", qVariantFromValue(static_cast<QObject *>(d->mediaScanner)));
+        runtime->insert("mediaScanner", qVariantFromValue(static_cast<QObject *>(MediaScanner::instance())));
         runtime->insert("httpServer", qVariantFromValue(static_cast<QObject *>(d->httpServer)));
-        runtime->insert("cursor", qVariantFromValue(static_cast<QObject *>(new CustomCursor(view))));
     }
-    runtime->insert("config", qVariantFromValue(static_cast<QObject *>(Config::instance())));
-    runtime->insert("frontend", qVariantFromValue(static_cast<QObject *>(d->frontend)));
     runtime->insert("backend", qVariantFromValue(static_cast<QObject *>(this)));
-    runtime->insert("skin", qVariantFromValue(static_cast<QObject *>(skin)));
-
-    view->rootContext()->setContextProperty("runtime", runtime);
 }
 
 #include "backend.moc"

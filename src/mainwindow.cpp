@@ -19,7 +19,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "mainwindow.h"
 #include "qmh-config.h"
-#include "qmh-util.h"
 
 #include <QGraphicsView>
 #include <QDeclarativeView>
@@ -31,9 +30,7 @@ MainWindow::MainWindow(QWidget *parent)
 {
     setOrientation(Config::value("orientation", ScreenOrientationAuto));
 
-    Utils::optimizeWidgetAttributes(this, true);
-
-    new QShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::META + Qt::ALT + Qt::Key_Backspace), this, SLOT(resetUI()));
+    new QShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::META + Qt::ALT + Qt::Key_Backspace), this, SIGNAL(resetUI()));
     new QShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::META + Qt::ALT + Qt::Key_Down), this, SIGNAL(shrink()));
     new QShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::META + Qt::ALT + Qt::Key_Up), this, SIGNAL(grow()));
     new QShortcut(QKeySequence(Qt::ALT + Qt::Key_Return), this, SIGNAL(toggleFullScreen()));
@@ -54,15 +51,15 @@ QWidget *MainWindow::centralWidget() const
 
 void MainWindow::setCentralWidget(QWidget *centralWidget)
 {
+    if (m_centralWidget) {
+        m_centralWidget->hide();
+        delete m_centralWidget;
+    }
     m_centralWidget = centralWidget;
     m_centralWidget->setParent(this);
-    Utils::optimizeWidgetAttributes(m_centralWidget, true);
-
-    if (QAbstractScrollArea *scrollArea = qobject_cast<QAbstractScrollArea*>(m_centralWidget)) {
-        //Does not appear to work here
-        //Not sure why
-        Utils::optimizeWidgetAttributes(scrollArea->viewport(), true);
-    }
+    m_centralWidget->setFixedSize(size());
+    if (isVisible())
+        m_centralWidget->show();
 }
 
 void MainWindow::resizeEvent(QResizeEvent *e)
@@ -107,10 +104,3 @@ void MainWindow::handleResize()
         m_centralWidget->setFixedSize(size());
 }
 
-void MainWindow::resetUI()
-{
-    if (QDeclarativeView *declarativeWidget = qobject_cast<QDeclarativeView*>(m_centralWidget)) {
-        QObject *coreObject = declarativeWidget->rootObject();
-        QMetaObject::invokeMethod(coreObject, "reset");
-    }
-}
