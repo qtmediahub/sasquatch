@@ -21,6 +21,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #define FRONTEND_H
 
 #include <QObject>
+#include <QStringList>
 #include "skin.h"
 #include "global.h"
 
@@ -48,6 +49,8 @@ public:
 
     Q_INVOKABLE void addImportPath(const QString &path);
     Q_INVOKABLE QObject *focusItem() const;
+
+    Q_INVOKABLE QStringList findApplications() const;
 
     QList<Skin *> skins() const;
     MainWindow *mainWindow() const;

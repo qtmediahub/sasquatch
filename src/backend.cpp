@@ -135,22 +135,6 @@ void Backend::openUrlExternally(const QUrl & url) const
     QDesktopServices::openUrl(url);
 }
 
-QStringList Backend::findApplications() const
-{
-    QStringList apps;
-    foreach(const QString &appSearchPath, LibraryInfo::applicationPaths()) {
-        QStringList subdirs = QDir(appSearchPath).entryList(QDir::AllDirs | QDir::NoDotAndDotDot);
-        foreach(const QString &subdir, subdirs)  {
-            QString appPath(appSearchPath + '/' + subdir + '/');
-            QString fileName(appPath + "qmhmanifest.qml"); // look for apps/x/qmhmanifest.qml
-            QFile prospectiveFile(fileName);
-            if (prospectiveFile.exists())
-                apps << (QDir(appPath).absolutePath() + '/');
-        }
-    }
-    return apps;
-}
-
 void Backend::setPrimarySession(bool primarySession)
 {
     d->primarySession = primarySession;

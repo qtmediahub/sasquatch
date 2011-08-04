@@ -48,8 +48,6 @@ public:
 
     Q_INVOKABLE void openUrlExternally(const QUrl &url) const;
 
-    Q_INVOKABLE QStringList findApplications() const;
-
     void setPrimarySession(bool);
     void registerQmlProperties(QDeclarativePropertyMap *map);
 
