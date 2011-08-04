@@ -72,4 +72,13 @@ QString Skin::config() const
     return d->config;
 }
 
+Skin *Skin::createSkin(const QString &skinPath, QObject *parent)
+{
+    QString mapFile = skinPath + "/skin.map";
+    if (QFile(mapFile).exists())
+        return new Skin(mapFile, parent);
+
+    return 0;
+}
+
 #include "skin.moc"

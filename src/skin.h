@@ -32,6 +32,8 @@ class Skin : public QObject
     Q_PROPERTY(QString config READ config NOTIFY skinChanged)
 
 public:
+    static Skin *createSkin(const QString &skinPath, QObject *parent);
+
     Skin(QString config, QObject *parent);
     ~Skin();
 
