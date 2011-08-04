@@ -43,8 +43,6 @@ public:
 
     QString resourcePath() const; // ## remove me
 
-    Q_INVOKABLE void openUrlExternally(const QUrl &url) const;
-
     void registerQmlProperties(QDeclarativePropertyMap *map);
 
 signals:

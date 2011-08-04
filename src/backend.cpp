@@ -96,11 +96,6 @@ QString Backend::resourcePath() const
     return LibraryInfo::resourcePath();
 }
 
-void Backend::openUrlExternally(const QUrl & url) const
-{
-    QDesktopServices::openUrl(url);
-}
-
 void Backend::registerQmlProperties(QDeclarativePropertyMap *runtime)
 {
     runtime->insert("mediaScanner", qVariantFromValue(static_cast<QObject *>(MediaScanner::instance())));

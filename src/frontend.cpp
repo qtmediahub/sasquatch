@@ -675,4 +675,10 @@ void FrontendPrivate::enableRemoteControlMode(bool enable)
     connection->registerObject(trackpad);
 }
 
+void Frontend::openUrlExternally(const QUrl & url) const
+{
+    QDesktopServices::openUrl(url);
+}
+
+
 #include "frontend.moc"
