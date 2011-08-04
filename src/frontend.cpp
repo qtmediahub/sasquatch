@@ -81,15 +81,18 @@ public:
         connect(skinsView, SIGNAL(itemActivated(QListWidgetItem*)),
                 this, SLOT(handleSkinSelection(QListWidgetItem*)));
 
-        foreach(Skin *skin, frontend->skins())
-            skinsView->addItem(skin->name());
+        foreach(Skin *skin, frontend->skins()) {
+            QListWidgetItem *item = new QListWidgetItem(skin->name());
+            item->setData(Qt::UserRole, qVariantFromValue<Skin *>(skin));
+            skinsView->addItem(item);
+        }
 
         vbox->addWidget(skinsView);
     }
 
 public slots:
     void handleSkinSelection(QListWidgetItem* item) {
-        m_frontend->setSkin(item->text());
+        m_frontend->setSkin(qvariant_cast<Skin *>(item->data(Qt::UserRole)));
         close();
     }
 
@@ -533,16 +536,21 @@ bool Frontend::setSkin(const QString &name)
         return false;
     }
 
+    return setSkin(newSkin);
+}
+
+bool Frontend::setSkin(Skin *skin)
+{
     QSize nativeResolution = qApp->desktop()->screenGeometry().size();
     QString nativeResolutionString = Config::value("native-res-override", QString("%1x%2").arg(nativeResolution.width()).arg(nativeResolution.height()));
 
-    QUrl url = newSkin->urlForResolution(nativeResolutionString, Config::value("fallback-resolution", "default").toString());
+    QUrl url = skin->urlForResolution(nativeResolutionString, Config::value("fallback-resolution", "default").toString());
     if (!url.isValid()) {
-        qWarning() << "Error loading skin " << newSkin->name();
+        qWarning() << "Error loading skin " << skin->name();
         return false;
     }
 
-    d->currentSkin = newSkin;
+    d->currentSkin = skin;
     d->loadUrl(url);
     return true;
 }

@@ -21,6 +21,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #define SKIN_H
 
 #include <QObject>
+#include <QMetaType>
 #include <QUrl>
 
 class Skin : public QObject
@@ -50,5 +51,7 @@ private:
     QString m_name;
     QString m_config;
 };
+
+Q_DECLARE_METATYPE(Skin *)
 
 #endif // SKIN_H

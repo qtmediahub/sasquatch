@@ -44,6 +44,7 @@ public:
     int framerateCap() const;
     void show();
     bool setSkin(const QString &name);
+    bool setSkin(Skin *skin);
 
     QObject *targetsModel() const;
 
