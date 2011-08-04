@@ -31,7 +31,7 @@ MediaModel::MediaModel(QObject *parent)
     m_refreshTimer.setInterval(Config::value("mediamodel-refresh-interval", 10000));
     connect(&m_refreshTimer, SIGNAL(timeout()), this, SLOT(refresh()));
 
-    MediaScanner *scanner = Backend::instance()->mediaScanner();
+    MediaScanner *scanner = MediaScanner::instance();
     connect(scanner, SIGNAL(scanStarted(QString)), this, SLOT(handleScanStarted(QString)));
     connect(scanner, SIGNAL(scanFinished(QString)), this, SLOT(handleScanFinished(QString)));
     connect(scanner, SIGNAL(searchPathRemoved(QString, QString)), this, SLOT(handleScanFinished(QString)));

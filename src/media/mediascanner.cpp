@@ -30,6 +30,21 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 const int BULK_LIMIT = 100;
 
+MediaScanner *MediaScanner::s_instance = 0;
+
+MediaScanner *MediaScanner::instance()
+{
+    if (!s_instance)
+        s_instance = new MediaScanner();
+    return s_instance;
+}
+
+void MediaScanner::destroy()
+{
+    delete s_instance;
+    s_instance = 0;
+}
+
 class MediaScannerWorker : public QObject
 {
     Q_OBJECT

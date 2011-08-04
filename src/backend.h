@@ -33,7 +33,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 class QUrl;
 class BackendPrivate;
 class Skin;
-class MediaScanner;
 class QDeclarativePropertyMap;
 
 class QMH_EXPORT Backend : public QObject
@@ -43,7 +42,7 @@ class QMH_EXPORT Backend : public QObject
     Q_PROPERTY(QObject *targetsModel READ targetsModel NOTIFY targetsModelChanged)
 
 public:
-    static Backend *instance();
+    explicit Backend(QObject *parent = 0);
     ~Backend();
 
     QString language() const;
@@ -54,7 +53,6 @@ public:
 
     QObject *targetsModel() const;
 
-    MediaScanner *mediaScanner() const;
     Q_INVOKABLE QStringList findApplications() const;
 
     void setPrimarySession(bool);
@@ -65,8 +63,6 @@ signals:
     void targetsModelChanged();
 
 private:
-    explicit Backend(QObject *parent = 0);
-    static Backend *s_instance;
     BackendPrivate *d;
 };
 

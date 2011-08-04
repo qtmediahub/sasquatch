@@ -62,8 +62,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <QDebug>
 
-Backend* Backend::s_instance = 0;
-
 class BackendPrivate : public QObject
 {
     Q_OBJECT
@@ -95,8 +93,6 @@ public:
 
     HttpServer *httpServer;
 
-    MediaScanner *mediaScanner;
-
     Backend *q;
 };
 
@@ -107,7 +103,6 @@ BackendPrivate::BackendPrivate(Backend *p)
       targetsModel(0),
       remoteControl(Config::isEnabled("remote", false)),
       httpServer(0),
-      mediaScanner(0),
       q(p)
 {
     ensureStandardPaths();
@@ -131,7 +126,7 @@ BackendPrivate::BackendPrivate(Backend *p)
 
     httpServer = new HttpServer(Config::value("stream-port", "1337").toInt(), this);
 
-    mediaScanner = new MediaScanner(this);
+    MediaScanner::instance();
 }
 
 BackendPrivate::~BackendPrivate()
@@ -149,8 +144,6 @@ BackendPrivate::~BackendPrivate()
 #if defined(Q_WS_S60) || defined(Q_WS_MAEMO)
     delete session;
 #endif
-
-    delete mediaScanner;
 }
 
 void BackendPrivate::handleDirChanged(const QString &dir)
@@ -216,10 +209,10 @@ Backend::~Backend()
     session->close();
 #endif
 
+    MediaScanner::destroy();
+
     delete d;
     d = 0;
-
-    s_instance = 0;
 }
 
 void BackendPrivate::ensureStandardPaths()
@@ -236,14 +229,6 @@ QString Backend::language() const
     return QString();
     //Bob is a testing translation placeholder
     //return QString("bob");
-}
-
-Backend* Backend::instance()
-{
-    if (!s_instance) {
-        s_instance = new Backend();
-    }
-    return s_instance;
 }
 
 QString Backend::resourcePath() const
@@ -302,16 +287,11 @@ void Backend::setPrimarySession(bool primarySession)
 void Backend::registerQmlProperties(QDeclarativePropertyMap *runtime)
 {
     if (!d->remoteControl) {
-        runtime->insert("mediaScanner", qVariantFromValue(static_cast<QObject *>(d->mediaScanner)));
+        runtime->insert("mediaScanner", qVariantFromValue(static_cast<QObject *>(MediaScanner::instance())));
         runtime->insert("httpServer", qVariantFromValue(static_cast<QObject *>(d->httpServer)));
     }
     runtime->insert("config", qVariantFromValue(static_cast<QObject *>(Config::instance())));
     runtime->insert("backend", qVariantFromValue(static_cast<QObject *>(this)));
-}
-
-MediaScanner *Backend::mediaScanner() const
-{
-    return d->mediaScanner;
 }
 
 #include "backend.moc"

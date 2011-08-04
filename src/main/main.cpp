@@ -67,17 +67,17 @@ int main(int argc, char** argv)
 #endif //QT_SINGLE_APPLICATION
     Config::init(argc, argv);
 
-    Backend::instance()->setPrimarySession(primarySession);
+    Backend backend;
+    backend.setPrimarySession(primarySession);
     Frontend *frontend = 0;
 
     if (!Config::isEnabled("headless", false)) {
-        frontend = new Frontend;
+        frontend = new Frontend(&backend);
     }
 
     int ret = app.exec();
 
     delete frontend;
-    delete Backend::instance();
 
     return ret;
 }

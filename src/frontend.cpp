@@ -92,7 +92,7 @@ class FrontendPrivate : public QObject
 {
     Q_OBJECT
 public:
-    FrontendPrivate(Frontend *p);
+    FrontendPrivate(Backend *backend, Frontend *p);
     ~FrontendPrivate();
 
 public slots:
@@ -122,6 +122,7 @@ public:
     bool overscanWorkAround;
     bool attemptingFullScreen;
 
+    Backend *backend;
     DeviceManager *deviceManager;
     PowerManager *powerManager;
     MediaPlayerRpc *mediaPlayerRpc;
@@ -141,12 +142,13 @@ public:
     Frontend *q;
 };
 
-FrontendPrivate::FrontendPrivate(Frontend *p)
+FrontendPrivate::FrontendPrivate(Backend *backend, Frontend *p)
     : QObject(p),
       //Leave space for Window decoration!
       defaultGeometry(0, 0, 1080, 720),
       overscanWorkAround(Config::isEnabled("overscan", false)),
       attemptingFullScreen(Config::isEnabled("fullscreen", true)),
+      backend(backend),
       deviceManager(0),
       powerManager(0),
       mediaPlayerRpc(0),
@@ -357,7 +359,7 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
         QObject::connect(engine, SIGNAL(quit()), qApp, SLOT(quit()));
 
         QDeclarativePropertyMap *runtime = new QDeclarativePropertyMap(declarativeWidget);
-        Backend::instance()->registerQmlProperties(runtime);
+        backend->registerQmlProperties(runtime);
         actionMapper->setRecipient(declarativeWidget);
         trackpad->setRecipient(declarativeWidget);
         runtime->insert("actionMapper", qVariantFromValue(static_cast<QObject *>(actionMapper)));
@@ -395,7 +397,6 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
 
 void FrontendPrivate::resetLanguage()
 {
-    Backend *backend = Backend::instance();
     QString language = backend->language();
 
     //FIXME: this clearly needs some heuristics
@@ -485,9 +486,9 @@ void FrontendPrivate::toggleFullScreen()
     }
 }
 
-Frontend::Frontend(QObject *p)
+Frontend::Frontend(Backend *backend, QObject *p)
     : QObject(p),
-      d(new FrontendPrivate(this)) 
+      d(new FrontendPrivate(backend, this)) 
 {
 }
 
