@@ -39,7 +39,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "mainwindow.h"
 
 #include "qmh-config.h"
-#include "qmh-util.h"
 #include "dirmodel.h"
 #include "media/playlist.h"
 #include "file.h"
@@ -243,6 +242,28 @@ FrontendPrivate::~FrontendPrivate()
     delete mainWindow;
 }
 
+static void optimizeWidgetAttributes(QWidget *widget, bool transparent = false)
+{
+    widget->setAttribute(Qt::WA_OpaquePaintEvent);
+    widget->setAutoFillBackground(false);
+    if (transparent && Config::isEnabled("shine-through", false))
+        widget->setAttribute(Qt::WA_TranslucentBackground);
+    else
+        widget->setAttribute(Qt::WA_NoSystemBackground);
+}
+
+static void optimizeGraphicsViewAttributes(QGraphicsView *view)
+{
+    if (Config::isEnabled("smooth-scaling", false))
+        view->setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing);
+
+    view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    view->setFrameStyle(0);
+    view->setOptimizationFlags(QGraphicsView::DontSavePainterState);
+    view->scene()->setItemIndexMethod(QGraphicsScene::NoIndex);
+}
+
 void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
 {
     if (mainWindow) {
@@ -264,7 +285,8 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
 #else
         DeclarativeView *declarativeWidget = new DeclarativeView;
 
-        Utils::optimizeGraphicsViewAttributes(declarativeWidget);
+        optimizeWidgetAttributes(declarativeWidget);
+        optimizeGraphicsViewAttributes(declarativeWidget);
         declarativeWidget->setResizeMode(QDeclarativeView::SizeRootObjectToView);
 
         if (Config::isEnabled("use-gl", true)) {
@@ -272,7 +294,7 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
             QGLWidget *viewport = new QGLWidget(declarativeWidget);
             //Why do I have to set this here?
             //Why can't I set it in the MainWindow?
-            Utils::optimizeWidgetAttributes(viewport, false);
+            optimizeWidgetAttributes(viewport, false);
 
             declarativeWidget->setViewport(viewport);
 #endif //GLVIEWPORT
@@ -305,6 +327,7 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
 
         resetLanguage();
         mainWindow = new MainWindow;
+        optimizeWidgetAttributes(mainWindow, true);
         mainWindow->setCentralWidget(declarativeWidget);
         mainWindow->installEventFilter(q); // track idleness
         connect(mainWindow, SIGNAL(grow()), this, SLOT(grow()));

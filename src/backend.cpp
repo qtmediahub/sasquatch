@@ -21,7 +21,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "frontend.h"
 
 #include "qmh-config.h"
-#include "qmh-util.h"
 #include "rpc/rpcconnection.h"
 #include "skin.h"
 #include "scopedtransaction.h"

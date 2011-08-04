@@ -19,7 +19,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "mainwindow.h"
 #include "qmh-config.h"
-#include "qmh-util.h"
 
 #include <QGraphicsView>
 #include <QDeclarativeView>
@@ -30,8 +29,6 @@ MainWindow::MainWindow(QWidget *parent)
       m_centralWidget(0)
 {
     setOrientation(Config::value("orientation", ScreenOrientationAuto));
-
-    Utils::optimizeWidgetAttributes(this, true);
 
     new QShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::META + Qt::ALT + Qt::Key_Backspace), this, SLOT(resetUI()));
     new QShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::META + Qt::ALT + Qt::Key_Down), this, SIGNAL(shrink()));
@@ -56,13 +53,6 @@ void MainWindow::setCentralWidget(QWidget *centralWidget)
 {
     m_centralWidget = centralWidget;
     m_centralWidget->setParent(this);
-    Utils::optimizeWidgetAttributes(m_centralWidget, true);
-
-    if (QAbstractScrollArea *scrollArea = qobject_cast<QAbstractScrollArea*>(m_centralWidget)) {
-        //Does not appear to work here
-        //Not sure why
-        Utils::optimizeWidgetAttributes(scrollArea->viewport(), true);
-    }
 }
 
 void MainWindow::resizeEvent(QResizeEvent *e)
