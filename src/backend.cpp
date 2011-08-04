@@ -205,15 +205,6 @@ Backend::Backend(QObject *parent)
         return;
 #endif
 
-    QString dejavuPath(LibraryInfo::resourcePath() % "/3rdparty/dejavu-fonts-ttf-2.32/ttf/");
-    if (QDir(dejavuPath).exists()) {
-        QFontDatabase::addApplicationFont(dejavuPath % "DejaVuSans.ttf");
-        QFontDatabase::addApplicationFont(dejavuPath % "DejaVuSans-Bold.ttf");
-        QFontDatabase::addApplicationFont(dejavuPath % "DejaVuSans-Oblique.ttf");
-        QFontDatabase::addApplicationFont(dejavuPath % "DejaVuSans-BoldOblique.ttf");
-        QApplication::setFont(QFont("DejaVu Sans"));
-    }
-
 #ifdef QMH_AVAHI
     if (d->primarySession
             && !d->remoteControl

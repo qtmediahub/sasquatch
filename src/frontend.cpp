@@ -159,6 +159,15 @@ FrontendPrivate::FrontendPrivate(Frontend *p)
 {
     QPixmapCache::setCacheLimit(Config::value("cacheSize", 0)*1024);
 
+    QString dejavuPath(LibraryInfo::resourcePath() % "/3rdparty/dejavu-fonts-ttf-2.32/ttf/");
+    if (QDir(dejavuPath).exists()) {
+        QFontDatabase::addApplicationFont(dejavuPath % "DejaVuSans.ttf");
+        QFontDatabase::addApplicationFont(dejavuPath % "DejaVuSans-Bold.ttf");
+        QFontDatabase::addApplicationFont(dejavuPath % "DejaVuSans-Oblique.ttf");
+        QFontDatabase::addApplicationFont(dejavuPath % "DejaVuSans-BoldOblique.ttf");
+        QApplication::setFont(QFont("DejaVu Sans"));
+    }
+
     inputIdleTimer.setInterval(Config::value("idle-timeout", 120)*1000);
     inputIdleTimer.setSingleShot(true);
     inputIdleTimer.start();
