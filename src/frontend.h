@@ -21,11 +21,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #define FRONTEND_H
 
 #include <QObject>
+#include "skin.h"
+#include "global.h"
 
 class FrontendPrivate;
+class MainWindow;
 
 // Frontend is the common code used by all types of skins (QML, HTML).
-class Frontend : public QObject
+class QMH_EXPORT Frontend : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(bool transforms READ transforms NOTIFY frontendChanged)
@@ -41,6 +44,9 @@ public:
 
     Q_INVOKABLE void addImportPath(const QString &path);
     Q_INVOKABLE QObject *focusItem() const;
+
+    QList<Skin *> skins() const;
+    MainWindow *mainWindow() const;
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event);

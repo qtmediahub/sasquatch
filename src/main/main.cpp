@@ -26,6 +26,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #endif
 
 #include "backend.h"
+#include "frontend.h"
 #include "qmh-config.h"
 
 int main(int argc, char** argv)
@@ -67,9 +68,15 @@ int main(int argc, char** argv)
     Config::init(argc, argv);
 
     Backend::instance()->setPrimarySession(primarySession);
+    Frontend *frontend = 0;
+
+    if (!Config::isEnabled("headless", false)) {
+        frontend = new Frontend;
+    }
 
     int ret = app.exec();
 
+    delete frontend;
     delete Backend::instance();
 
     return ret;
