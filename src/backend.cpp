@@ -62,9 +62,6 @@ public:
     BackendPrivate(Backend *p);
     ~BackendPrivate();
 
-public slots:
-    void handleDirChanged(const QString &dir);
-
 public:
     void resetLanguage();
     void ensureStandardPaths();
@@ -73,7 +70,6 @@ public:
 
     QTranslator *backendTranslator;
     QList<QTranslator*> pluginTranslators;
-    QFileSystemWatcher pathMonitor;
 
 #if defined(Q_WS_S60) || defined(Q_WS_MAEMO)
     QNetworkConfigurationManager mgr;
@@ -96,9 +92,6 @@ BackendPrivate::BackendPrivate(Backend *p)
       q(p)
 {
     ensureStandardPaths();
-
-    connect(&pathMonitor, SIGNAL(directoryChanged(QString)), this, SLOT(handleDirChanged(QString)));
-    pathMonitor.addPath(LibraryInfo::pluginPath());
 
     QNetworkProxy proxy;
     if (Config::isEnabled("proxy", false)) {
@@ -133,13 +126,6 @@ BackendPrivate::~BackendPrivate()
 #if defined(Q_WS_S60) || defined(Q_WS_MAEMO)
     delete session;
 #endif
-}
-
-void BackendPrivate::handleDirChanged(const QString &dir)
-{
-    if (dir == LibraryInfo::pluginPath()) {
-        qWarning() << "Changes in plugin path, probably about to eat your poodle";
-    }
 }
 
 void BackendPrivate::resetLanguage()
