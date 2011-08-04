@@ -51,6 +51,8 @@ QWidget *MainWindow::centralWidget() const
 
 void MainWindow::setCentralWidget(QWidget *centralWidget)
 {
+    if (m_centralWidget)
+        delete m_centralWidget;
     m_centralWidget = centralWidget;
     m_centralWidget->setParent(this);
 }
