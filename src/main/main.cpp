@@ -73,6 +73,8 @@ int main(int argc, char** argv)
 
     if (!Config::isEnabled("headless", qgetenv("DISPLAY").isEmpty())) {
         frontend = new Frontend(&backend);
+        frontend->setSkin(Config::value("skin", "").toString());
+        frontend->show();
     }
 
     int ret = app.exec();

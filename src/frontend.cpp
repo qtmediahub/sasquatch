@@ -100,7 +100,6 @@ public slots:
     void initializeSkin(const QUrl &url);
     void resetLanguage();
 
-    void initialize();
     void discoverSkins();
 
     void toggleFullScreen();
@@ -144,7 +143,6 @@ public:
 
 FrontendPrivate::FrontendPrivate(Backend *backend, Frontend *p)
     : QObject(p),
-      //Leave space for Window decoration!
       defaultGeometry(0, 0, 1080, 720),
       overscanWorkAround(Config::isEnabled("overscan", false)),
       attemptingFullScreen(Config::isEnabled("fullscreen", true)),
@@ -177,7 +175,6 @@ FrontendPrivate::FrontendPrivate(Backend *backend, Frontend *p)
 
     qApp->setOverrideCursor(Qt::BlankCursor);
     qApp->installTranslator(&frontEndTranslator);
-    QMetaObject::invokeMethod(this, "initialize", Qt::QueuedConnection);
 
     qRegisterMetaType<QModelIndex>();
 
@@ -189,26 +186,7 @@ FrontendPrivate::FrontendPrivate(Backend *backend, Frontend *p)
     qmlRegisterType<Playlist>("Playlist", 1, 0, "Playlist");
     qmlRegisterType<MediaModel>("MediaModel", 1, 0, "MediaModel");
     qmlRegisterType<RpcConnection>("RpcConnection", 1, 0, "RpcConnection");
-}
 
-FrontendPrivate::~FrontendPrivate()
-{
-    Config::setEnabled("fullscreen", attemptingFullScreen);
-    Config::setValue("skin", skin->name());
-    Config::setEnabled("overscan", overscanWorkAround);
-
-    Config::setValue("desktop-id", qApp->desktop()->screenNumber(mainWindow));
-
-    if (!attemptingFullScreen)
-        Config::setValue("window-geometry", mainWindow->geometry());
-    else if (overscanWorkAround)
-        Config::setValue("overscan-geometry", mainWindow->geometry());
-
-    delete mainWindow;
-}
-
-void FrontendPrivate::initialize()
-{
 #ifndef NO_DBUS
 //Segmentation fault on mac!
     if (QDBusConnection::systemBus().isConnected()) {
@@ -248,7 +226,22 @@ void FrontendPrivate::initialize()
     }
 
     discoverSkins();
-    setSkin(Config::value("skin", "").toString());
+}
+
+FrontendPrivate::~FrontendPrivate()
+{
+    Config::setEnabled("fullscreen", attemptingFullScreen);
+    Config::setValue("skin", skin->name());
+    Config::setEnabled("overscan", overscanWorkAround);
+
+    Config::setValue("desktop-id", qApp->desktop()->screenNumber(mainWindow));
+
+    if (!attemptingFullScreen)
+        Config::setValue("window-geometry", mainWindow->geometry());
+    else if (overscanWorkAround)
+        Config::setValue("overscan-geometry", mainWindow->geometry());
+
+    delete mainWindow;
 }
 
 bool FrontendPrivate::setSkin(const QString &name)
@@ -383,11 +376,6 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
         connect(mainWindow, SIGNAL(grow()), this, SLOT(grow()));
         connect(mainWindow, SIGNAL(shrink()), this, SLOT(shrink()));
         connect(mainWindow, SIGNAL(toggleFullScreen()), this, SLOT(toggleFullScreen()));
-        //FIXME?: item should have correct geometry
-        //on QML parsing: work around several issues
-        //Ovi maps inability to resize
-        q->show();
-        QApplication::processEvents();
 
         rootContext = declarativeWidget->rootContext();
         declarativeWidget->setSource(targetUrl);
@@ -487,6 +475,50 @@ void FrontendPrivate::toggleFullScreen()
     }
 }
 
+void FrontendPrivate::discoverSkins()
+{
+    qDeleteAll(skins);
+    skins.clear();
+
+    foreach (const QString &skinPath, LibraryInfo::skinPaths()) {
+        QStringList potentialSkins = QDir(skinPath).entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+
+        foreach(const QString &currentPath, potentialSkins) {
+            const QString prospectivePath = skinPath % "/" % currentPath;
+            if (Skin *skin = Skin::createSkin(prospectivePath, this))
+                skins << skin;
+        }
+    }
+
+    if (skins.isEmpty()) {
+        qWarning() << "No skins are found in your skin paths"<< endl \
+                   << "If you don't intend to run this without skins"<< endl \
+                   << "Please read the INSTALL doc available here:" \
+                   << "http://gitorious.org/qtmediahub/qtmediahub-core/blobs/master/INSTALL" \
+                   << "for further details";
+    } else {
+        QStringList sl;
+        foreach(Skin *skin, skins)
+            sl.append(skin->name());
+        qDebug() << "Available skins:" << sl.join(",");
+    }
+}
+
+void FrontendPrivate::selectSkin()
+{
+    SkinSelector *skinSelector = new SkinSelector(q);
+    skinSelector->show();
+}
+
+void FrontendPrivate::handleDirChanged(const QString &dir)
+{
+    if (LibraryInfo::skinPaths().contains(dir)) {
+        qWarning() << "Changes in skin path, repopulating skins";
+        discoverSkins();
+    }
+}
+
+
 Frontend::Frontend(Backend *backend, QObject *p)
     : QObject(p),
       d(new FrontendPrivate(backend, this)) 
@@ -557,35 +589,6 @@ QObject *Frontend::focusItem() const
 #endif
 }
 
-void FrontendPrivate::discoverSkins()
-{
-    qDeleteAll(skins);
-    skins.clear();
-
-    foreach (const QString &skinPath, LibraryInfo::skinPaths()) {
-        QStringList potentialSkins = QDir(skinPath).entryList(QDir::Dirs | QDir::NoDotAndDotDot);
-
-        foreach(const QString &currentPath, potentialSkins) {
-            const QString prospectivePath = skinPath % "/" % currentPath;
-            if (Skin *skin = Skin::createSkin(prospectivePath, this))
-                skins << skin;
-        }
-    }
-
-    if (skins.isEmpty()) {
-        qWarning() << "No skins are found in your skin paths"<< endl \
-                   << "If you don't intend to run this without skins"<< endl \
-                   << "Please read the INSTALL doc available here:" \
-                   << "http://gitorious.org/qtmediahub/qtmediahub-core/blobs/master/INSTALL" \
-                   << "for further details";
-    } else {
-        QStringList sl;
-        foreach(Skin *skin, skins)
-            sl.append(skin->name());
-        qDebug() << "Available skins:" << sl.join(",");
-    }
-}
-
 QList<Skin *> Frontend::skins() const
 {
     return d->skins;
@@ -594,20 +597,6 @@ QList<Skin *> Frontend::skins() const
 MainWindow *Frontend::mainWindow() const
 {
     return d->mainWindow;
-}
-
-void FrontendPrivate::selectSkin()
-{
-    SkinSelector *skinSelector = new SkinSelector(q);
-    skinSelector->show();
-}
-
-void FrontendPrivate::handleDirChanged(const QString &dir)
-{
-    if (LibraryInfo::skinPaths().contains(dir)) {
-        qWarning() << "Changes in skin path, repopulating skins";
-        discoverSkins();
-    }
 }
 
 #include "frontend.moc"
