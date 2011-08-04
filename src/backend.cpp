@@ -69,11 +69,6 @@ public:
     bool primarySession;
 
     QTranslator *backendTranslator;
-#if defined(Q_WS_S60) || defined(Q_WS_MAEMO)
-    QNetworkConfigurationManager mgr;
-    QNetworkSession *session;
-#endif
-
     bool remoteControl;
 
     HttpServer *httpServer;
@@ -91,20 +86,6 @@ BackendPrivate::BackendPrivate(Backend *p)
 {
     ensureStandardPaths();
 
-    QNetworkProxy proxy;
-    if (Config::isEnabled("proxy", false)) {
-        QString proxyHost(Config::value("proxy-host", "localhost").toString());
-        int proxyPort = Config::value("proxy-port", 8080);
-        proxy.setType(QNetworkProxy::HttpProxy);
-        proxy.setHostName(proxyHost);
-        proxy.setPort(proxyPort);
-        QNetworkProxy::setApplicationProxy(proxy);
-        qWarning() << "Using proxy host"
-                   << proxyHost
-                   << "on port"
-                   << proxyPort;
-    }
-
     httpServer = new HttpServer(Config::value("stream-port", "1337").toInt(), this);
 
     MediaScanner::instance();
@@ -116,10 +97,6 @@ BackendPrivate::~BackendPrivate()
     backendTranslator = 0;
 
     delete backendTranslator;
-
-#if defined(Q_WS_S60) || defined(Q_WS_MAEMO)
-    delete session;
-#endif
 }
 
 void BackendPrivate::resetLanguage()
@@ -136,26 +113,6 @@ Backend::Backend(QObject *parent)
     : QObject(parent),
       d(new BackendPrivate(this))
 {
-#if defined(Q_WS_S60) || defined(Q_WS_MAEMO)
-    // Set Internet Access Point
-    QList<QNetworkConfiguration> activeConfigs = d->mgr.allConfigurations();
-    if (activeConfigs.count() <= 0)
-        return;
-
-    QNetworkConfiguration cfg = activeConfigs.at(0);
-    foreach(QNetworkConfiguration config, activeConfigs) {
-        if (config.type() == QNetworkConfiguration::UserChoice) {
-            cfg = config;
-            break;
-        }
-    }
-
-    session = new QNetworkSession(cfg);
-    session->open();
-    if (!session->waitForOpened(-1))
-        return;
-#endif
-
 #ifdef QMH_AVAHI
     if (d->primarySession
             && !d->remoteControl
@@ -172,10 +129,6 @@ Backend::Backend(QObject *parent)
 
 Backend::~Backend()
 {
-#if defined(Q_WS_S60) || defined(Q_WS_MAEMO)
-    session->close();
-#endif
-
     MediaScanner::destroy();
 
     delete d;
