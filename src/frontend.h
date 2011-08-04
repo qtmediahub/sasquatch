@@ -33,7 +33,6 @@ class QMH_EXPORT Frontend : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(bool transforms READ transforms NOTIFY frontendChanged)
-    Q_PROPERTY(int framerateCap READ framerateCap NOTIFY framerateCapChanged)
     Q_PROPERTY(QObject *targetsModel READ targetsModel NOTIFY targetsModelChanged)
     Q_PROPERTY(QString resourcePath READ resourcePath CONSTANT)
 
@@ -42,7 +41,6 @@ public:
     ~Frontend();
 
     bool transforms() const;
-    int framerateCap() const;
     void show();
     bool setSkin(const QString &name);
     bool setSkin(Skin *skin);
@@ -62,7 +60,6 @@ public:
 
 signals:
     void frontendChanged();
-    void framerateCapChanged();
     void targetsModelChanged();
 
 private:

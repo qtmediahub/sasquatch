@@ -22,7 +22,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 DeclarativeView::DeclarativeView(QWidget *parent)
     : QDeclarativeView(parent),
-      m_frameCount(0)
+      m_frameCount(0),
+      m_fps(0)
 {
     startTimer(1000);
     connect(this, SIGNAL(statusChanged(QDeclarativeView::Status)), this, SLOT(handleStatusChanged(QDeclarativeView::Status)));
@@ -45,9 +46,9 @@ void DeclarativeView::paintEvent(QPaintEvent *event)
 void DeclarativeView::timerEvent(QTimerEvent *event)
 {
     if (m_timeSigma) {
-        int cap = 1000*m_frameCount/m_timeSigma;
+        m_fps = 1000*m_frameCount/m_timeSigma;
         m_timeSigma = m_frameCount = 0;
-        emit fpsCap(cap);
+        emit fpsChanged();
     }
     QDeclarativeView::timerEvent(event);
 }
@@ -67,5 +68,10 @@ void DeclarativeView::handleStatusChanged(QDeclarativeView::Status status)
 QObject *DeclarativeView::focusItem() const
 {
     return qgraphicsitem_cast<QGraphicsObject *>(scene()->focusItem());
+}
+
+int DeclarativeView::fps() const
+{
+    return m_fps;
 }
 

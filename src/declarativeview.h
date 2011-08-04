@@ -26,11 +26,15 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 class DeclarativeView : public QDeclarativeView
 {
     Q_OBJECT
+    Q_PROPERTY(int fps READ fps NOTIFY fpsChanged)
+
 public:
     DeclarativeView(QWidget *parent = 0);
     void setSource(const QUrl &url);
 
     Q_INVOKABLE QObject *focusItem() const;
+
+    int fps() const;
 
 protected:
     void paintEvent(QPaintEvent *event);
@@ -41,11 +45,12 @@ public slots:
     void handleStatusChanged(QDeclarativeView::Status status);
 
 signals:
-    void fpsCap(int);
+    void fpsChanged();
 
 private:
     int m_frameCount;
     int m_timeSigma;
+    int m_fps;
     QElapsedTimer m_frameTimer;
     QUrl m_url;
 };

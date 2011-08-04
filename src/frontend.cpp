@@ -88,7 +88,6 @@ public slots:
     void grow();
     void shrink();
 
-    void handleFPSCapChanged(int);
     void resetUI();
 
     void selectSkin();
@@ -112,7 +111,6 @@ public:
     ActionMapper *actionMapper;
     Trackpad *trackpad;
     QMap<QString, Skin *> skins;
-    int fpsCap;
     Skin *currentSkin;
     MainWindow *mainWindow;
     QDeclarativeContext *rootContext;
@@ -134,7 +132,6 @@ FrontendPrivate::FrontendPrivate(Frontend *p)
       mediaPlayerRpc(0),
       connection(0),
       trackpad(0),
-      fpsCap(0),
       mainWindow(0),
       rootContext(0),
       targetsModel(0),
@@ -293,7 +290,6 @@ QWidget *FrontendPrivate::loadQmlSkin(const QUrl &targetUrl)
     declarativeWidget->installEventFilter(q); // track idleness
     declarativeWidget->setSource(targetUrl);
 
-    connect(declarativeWidget, SIGNAL(fpsCap(int)), SLOT(handleFPSCapChanged(int)));
     return declarativeWidget;
 }
 
@@ -361,12 +357,6 @@ void FrontendPrivate::shrink()
         showFullScreen();
     }
     mainWindow->setGeometry(mainWindow->geometry().adjusted(1,1,-1,-1));
-}
-
-void FrontendPrivate::handleFPSCapChanged(int fpsCap)
-{
-    this->fpsCap = fpsCap;
-    QMetaObject::invokeMethod(q, "framerateCapChanged");
 }
 
 void FrontendPrivate::resetUI()
@@ -458,11 +448,6 @@ bool Frontend::transforms() const
 #else
     return false;
 #endif
-}
-
-int Frontend::framerateCap() const
-{
-    return d->fpsCap;
 }
 
 void Frontend::show()
