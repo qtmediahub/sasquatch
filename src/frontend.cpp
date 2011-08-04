@@ -108,7 +108,7 @@ public:
     ~FrontendPrivate();
 
 public slots:
-    void loadQmlSkin(const QUrl &url);
+    QWidget *loadQmlSkin(const QUrl &url);
 
     void discoverSkins();
 
@@ -272,7 +272,7 @@ static void optimizeGraphicsViewAttributes(QGraphicsView *view)
     view->scene()->setItemIndexMethod(QGraphicsScene::NoIndex);
 }
 
-void FrontendPrivate::loadQmlSkin(const QUrl &targetUrl)
+QWidget *FrontendPrivate::loadQmlSkin(const QUrl &targetUrl)
 {
     QPixmapCache::clear();
 
@@ -324,21 +324,12 @@ void FrontendPrivate::loadQmlSkin(const QUrl &targetUrl)
     engine->addImportPath(LibraryInfo::basePath() % "/imports");
     engine->addImportPath(currentSkin->path());
 
-    if (!mainWindow) {
-        mainWindow = new MainWindow;
-        optimizeWidgetAttributes(mainWindow, true);
-    }
-    mainWindow->setCentralWidget(declarativeWidget);
-    mainWindow->installEventFilter(q); // track idleness
-    connect(mainWindow, SIGNAL(grow()), this, SLOT(grow()));
-    connect(mainWindow, SIGNAL(shrink()), this, SLOT(shrink()));
-    connect(mainWindow, SIGNAL(resetUI()), this, SLOT(resetUI()));
-    connect(mainWindow, SIGNAL(toggleFullScreen()), this, SLOT(toggleFullScreen()));
-
     rootContext = declarativeWidget->rootContext();
+    declarativeWidget->installEventFilter(q); // track idleness
     declarativeWidget->setSource(targetUrl);
 
     connect(declarativeWidget, SIGNAL(fpsCap(int)), SLOT(handleFPSCapChanged(int)));
+    return declarativeWidget;
 }
 
 void FrontendPrivate::showFullScreen()
@@ -475,7 +466,6 @@ void FrontendPrivate::handleDirChanged(const QString &dir)
     }
 }
 
-
 Frontend::Frontend(QObject *p)
     : QObject(p),
       d(new FrontendPrivate(this)) 
@@ -542,7 +532,7 @@ bool Frontend::setSkin(Skin *skin)
 
     d->currentSkin = skin;
     d->enableRemoteControlMode(skin->isRemoteControl());
-    d->loadQmlSkin(url);
+    mainWindow()->setCentralWidget(d->loadQmlSkin(url));
     return true;
 }
 
@@ -583,6 +573,15 @@ QList<Skin *> Frontend::skins() const
 
 MainWindow *Frontend::mainWindow() const
 {
+    if (!d->mainWindow) {
+        d->mainWindow = new MainWindow;
+        optimizeWidgetAttributes(d->mainWindow, true);
+
+        connect(d->mainWindow, SIGNAL(grow()), d, SLOT(grow()));
+        connect(d->mainWindow, SIGNAL(shrink()), d, SLOT(shrink()));
+        connect(d->mainWindow, SIGNAL(resetUI()), d, SLOT(resetUI()));
+        connect(d->mainWindow, SIGNAL(toggleFullScreen()), d, SLOT(toggleFullScreen()));
+    }
     return d->mainWindow;
 }
 
