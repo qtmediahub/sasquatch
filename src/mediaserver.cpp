@@ -17,7 +17,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 ****************************************************************************/
 
-#include "backend.h"
+#include "mediaserver.h"
 
 #include "qmh-config.h"
 #include "media/mediascanner.h"
@@ -34,21 +34,21 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "libraryinfo.h"
 
-class BackendPrivate : public QObject
+class MediaServerPrivate : public QObject
 {
     Q_OBJECT
 public:
-    BackendPrivate(Backend *p);
-    ~BackendPrivate();
+    MediaServerPrivate(MediaServer *p);
+    ~MediaServerPrivate();
 
 public:
     void ensureStandardPaths();
 
     HttpServer *httpServer;
-    Backend *q;
+    MediaServer *q;
 };
 
-BackendPrivate::BackendPrivate(Backend *p)
+MediaServerPrivate::MediaServerPrivate(MediaServer *p)
     : QObject(p),
       httpServer(0),
       q(p)
@@ -58,13 +58,13 @@ BackendPrivate::BackendPrivate(Backend *p)
     MediaScanner::instance();
 }
 
-BackendPrivate::~BackendPrivate()
+MediaServerPrivate::~MediaServerPrivate()
 {
 }
 
-Backend::Backend(QObject *parent)
+MediaServer::MediaServer(QObject *parent)
     : QObject(parent),
-      d(new BackendPrivate(this))
+      d(new MediaServerPrivate(this))
 {
 #ifdef QMH_AVAHI
     if (Config::isEnabled("avahi", true) && Config::isEnabled("avahi-advertize", true)) {
@@ -77,25 +77,24 @@ Backend::Backend(QObject *parent)
 #endif
 }
 
-Backend::~Backend()
+MediaServer::~MediaServer()
 {
     MediaScanner::destroy();
     delete d;
     d = 0;
 }
 
-void BackendPrivate::ensureStandardPaths()
+void MediaServerPrivate::ensureStandardPaths()
 {
     QDir dir;
     dir.mkpath(LibraryInfo::thumbnailPath());
     dir.mkpath(LibraryInfo::dataPath());
 }
 
-void Backend::registerQmlProperties(QDeclarativePropertyMap *runtime)
+void MediaServer::registerQmlProperties(QDeclarativePropertyMap *runtime)
 {
     runtime->insert("mediaScanner", qVariantFromValue(static_cast<QObject *>(MediaScanner::instance())));
     runtime->insert("httpServer", qVariantFromValue(static_cast<QObject *>(d->httpServer)));
-    runtime->insert("backend", qVariantFromValue(static_cast<QObject *>(this)));
 }
 
-#include "backend.moc"
+#include "mediaserver.moc"

@@ -18,7 +18,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 ****************************************************************************/
 
 #include "frontend.h"
-#include "backend.h"
+#include "mediaserver.h"
 
 #include <QtGui>
 #include <QDebug>
@@ -135,7 +135,7 @@ public:
     bool attemptingFullScreen;
 
     bool remoteControlMode;
-    Backend *backend;
+    MediaServer *mediaServer;
     DeviceManager *deviceManager;
     PowerManager *powerManager;
     MediaPlayerRpc *mediaPlayerRpc;
@@ -161,7 +161,7 @@ FrontendPrivate::FrontendPrivate(Frontend *p)
       overscanWorkAround(Config::isEnabled("overscan", false)),
       attemptingFullScreen(Config::isEnabled("fullscreen", true)),
       remoteControlMode(true),
-      backend(0),
+      mediaServer(0),
       deviceManager(0),
       powerManager(0),
       mediaPlayerRpc(0),
@@ -306,7 +306,7 @@ QWidget *FrontendPrivate::loadQmlSkin(const QUrl &targetUrl)
 
     QDeclarativePropertyMap *runtime = new QDeclarativePropertyMap(declarativeWidget);
     if (!remoteControlMode) {
-        backend->registerQmlProperties(runtime);
+        mediaServer->registerQmlProperties(runtime);
         actionMapper->setRecipient(declarativeWidget);
         trackpad->setRecipient(declarativeWidget);
         runtime->insert("actionMapper", qVariantFromValue(static_cast<QObject *>(actionMapper)));
@@ -650,13 +650,13 @@ void FrontendPrivate::enableRemoteControlMode(bool enable)
 
         delete connection;
 
-        delete backend;
-        backend = 0;
+        delete mediaServer;
+        mediaServer = 0;
 
         return;
     }
 
-    backend = new Backend(this);
+    mediaServer = new MediaServer(this);
 
 #ifndef NO_DBUS
 //Segmentation fault on mac!

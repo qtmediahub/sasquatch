@@ -17,8 +17,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 ****************************************************************************/
 
-#ifndef BACKEND_H
-#define BACKEND_H
+#ifndef MEDIASERVER_H
+#define MEDIASERVER_H
 
 #include <QObject>
 #include <QList>
@@ -28,22 +28,22 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "global.h"
 
 class QUrl;
-class BackendPrivate;
+class MediaServerPrivate;
 class Skin;
 class QDeclarativePropertyMap;
 
-class QMH_EXPORT Backend : public QObject
+class QMH_EXPORT MediaServer : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit Backend(QObject *parent = 0);
-    ~Backend();
+    explicit MediaServer(QObject *parent = 0);
+    ~MediaServer();
 
     void registerQmlProperties(QDeclarativePropertyMap *map);
 
 private:
-    BackendPrivate *d;
+    MediaServerPrivate *d;
 };
 
-#endif // BACKEND_H
+#endif // MEDIASERVER_H

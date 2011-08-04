@@ -21,7 +21,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QNetworkProxy>
 #include "qtsingleapplication.h"
 
-#include "backend.h"
+#include "mediaserver.h"
 #include "frontend.h"
 #include "qmh-config.h"
 
@@ -82,7 +82,7 @@ int main(int argc, char** argv)
 
     Config::init(argc, argv);
 
-    Backend *backend = 0;
+    MediaServer *mediaServer = 0;
     Frontend *frontend = 0;
 
     if (!Config::isEnabled("headless", qgetenv("DISPLAY").isEmpty())) {
@@ -90,7 +90,7 @@ int main(int argc, char** argv)
         frontend->setSkin(Config::value("skin", "").toString());
         frontend->show();
     } else {
-        backend = new Backend;
+        mediaServer = new MediaServer;
     }
 
     int ret = app.exec();
@@ -99,7 +99,7 @@ int main(int argc, char** argv)
     g_networkSession->close();
 #endif
 
-    delete backend;
+    delete mediaServer;
     delete frontend;
 
     return ret;

@@ -24,7 +24,7 @@ Rectangle {
     id: root
     color: "black"
 
-    property variant resourcePath: runtime.backend.resourcePath + "/particles/"
+    property variant resourcePath: runtime.frontend.resourcePath + "/particles/"
     property bool running : false
 
     QtObject {

@@ -14,7 +14,7 @@ DEFINES += BUILDING_QMH
 # Input
 SOURCES += qmh-config.cpp \
     frontend.cpp \
-    backend.cpp \
+    mediaserver.cpp \
     actionmapper.cpp \
     trackpad.cpp \
     scopedtransaction.cpp \
@@ -31,7 +31,7 @@ SOURCES += qmh-config.cpp \
 HEADERS += qmh-config.h \
     global.h \
     frontend.h \
-    backend.h \
+    mediaserver.h \
     dirmodel.h \
     file.h \
     actionmapper.h \
