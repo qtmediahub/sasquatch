@@ -69,8 +69,6 @@ public:
     bool primarySession;
 
     QTranslator *backendTranslator;
-    QList<QTranslator*> pluginTranslators;
-
 #if defined(Q_WS_S60) || defined(Q_WS_MAEMO)
     QNetworkConfigurationManager mgr;
     QNetworkSession *session;
@@ -117,10 +115,6 @@ BackendPrivate::~BackendPrivate()
     delete backendTranslator;
     backendTranslator = 0;
 
-    //This clean up is arguably a waste of effort since
-    //the death of the backend marks the death of the appliction
-    qDeleteAll(pluginTranslators);
-
     delete backendTranslator;
 
 #if defined(Q_WS_S60) || defined(Q_WS_MAEMO)
@@ -136,8 +130,6 @@ void BackendPrivate::resetLanguage()
     backendTranslator = new QTranslator(this);
     backendTranslator->load(baseTranslationPath % language % ".qm");
     qApp->installTranslator(backendTranslator);
-
-    qDeleteAll(pluginTranslators.begin(), pluginTranslators.end());
 }
 
 Backend::Backend(QObject *parent)
