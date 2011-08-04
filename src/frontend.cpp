@@ -65,6 +65,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "powermanager.h"
 #include "rpc/mediaplayerrpc.h"
 #include "customcursor.h"
+#include "httpserver/httpserver.h"
 
 class SkinSelector : public QDialog
 {
@@ -306,7 +307,8 @@ QWidget *FrontendPrivate::loadQmlSkin(const QUrl &targetUrl)
 
     QDeclarativePropertyMap *runtime = new QDeclarativePropertyMap(declarativeWidget);
     if (!remoteControlMode) {
-        mediaServer->registerQmlProperties(runtime);
+        runtime->insert("mediaScanner", qVariantFromValue(static_cast<QObject *>(mediaServer->mediaScanner())));
+        runtime->insert("httpServer", qVariantFromValue(static_cast<QObject *>(mediaServer->httpServer())));
         actionMapper->setRecipient(declarativeWidget);
         trackpad->setRecipient(declarativeWidget);
         runtime->insert("actionMapper", qVariantFromValue(static_cast<QObject *>(actionMapper)));

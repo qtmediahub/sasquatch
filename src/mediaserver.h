@@ -21,16 +21,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #define MEDIASERVER_H
 
 #include <QObject>
-#include <QList>
-#include <QDateTime>
-#include <QDesktopServices>
+
+
+class HttpServer;
+class MediaScanner;
 
 #include "global.h"
-
-class QUrl;
-class MediaServerPrivate;
-class Skin;
-class QDeclarativePropertyMap;
 
 class QMH_EXPORT MediaServer : public QObject
 {
@@ -40,10 +36,13 @@ public:
     explicit MediaServer(QObject *parent = 0);
     ~MediaServer();
 
-    void registerQmlProperties(QDeclarativePropertyMap *map);
+    HttpServer *httpServer() const;
+    MediaScanner *mediaScanner() const;
 
 private:
-    MediaServerPrivate *d;
+    void ensureStandardPaths();
+
+    HttpServer *m_httpServer;
 };
 
 #endif // MEDIASERVER_H

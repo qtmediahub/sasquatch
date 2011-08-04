@@ -18,14 +18,11 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 ****************************************************************************/
 
 #include "mediaserver.h"
-
 #include "qmh-config.h"
 #include "media/mediascanner.h"
-
 #include "httpserver/httpserver.h"
 
 #include <QtCore>
-#include <QtDeclarative>
 #include <QDebug>
 
 #ifdef QMH_AVAHI
@@ -34,37 +31,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "libraryinfo.h"
 
-class MediaServerPrivate : public QObject
-{
-    Q_OBJECT
-public:
-    MediaServerPrivate(MediaServer *p);
-    ~MediaServerPrivate();
-
-public:
-    void ensureStandardPaths();
-
-    HttpServer *httpServer;
-    MediaServer *q;
-};
-
-MediaServerPrivate::MediaServerPrivate(MediaServer *p)
-    : QObject(p),
-      httpServer(0),
-      q(p)
-{
-    ensureStandardPaths();
-    httpServer = new HttpServer(Config::value("stream-port", "1337").toInt(), this);
-    MediaScanner::instance();
-}
-
-MediaServerPrivate::~MediaServerPrivate()
-{
-}
-
 MediaServer::MediaServer(QObject *parent)
-    : QObject(parent),
-      d(new MediaServerPrivate(this))
+    : QObject(parent)
 {
 #ifdef QMH_AVAHI
     if (Config::isEnabled("avahi", true) && Config::isEnabled("avahi-advertize", true)) {
@@ -75,26 +43,32 @@ MediaServer::MediaServer(QObject *parent)
         qDebug() << "Failing to advertize session via zeroconf";
     }
 #endif
+
+    ensureStandardPaths();
+    m_httpServer = new HttpServer(Config::value("stream-port", "1337").toInt(), this);
+    MediaScanner::instance();
 }
 
 MediaServer::~MediaServer()
 {
     MediaScanner::destroy();
-    delete d;
-    d = 0;
 }
 
-void MediaServerPrivate::ensureStandardPaths()
+void MediaServer::ensureStandardPaths()
 {
     QDir dir;
     dir.mkpath(LibraryInfo::thumbnailPath());
     dir.mkpath(LibraryInfo::dataPath());
 }
 
-void MediaServer::registerQmlProperties(QDeclarativePropertyMap *runtime)
+HttpServer *MediaServer::httpServer() const
 {
-    runtime->insert("mediaScanner", qVariantFromValue(static_cast<QObject *>(MediaScanner::instance())));
-    runtime->insert("httpServer", qVariantFromValue(static_cast<QObject *>(d->httpServer)));
+    return m_httpServer;
+}
+
+MediaScanner *MediaServer::mediaScanner() const
+{
+    return MediaScanner::instance();
 }
 
 #include "mediaserver.moc"
