@@ -45,11 +45,11 @@ signals:
     void shrink();
     void grow();
     void toggleFullScreen();
+    void resetUI();
 
 public slots:
     void setOrientation(ScreenOrientation orientation);
     void handleResize();
-    void resetUI();
 
 private:
     QTimer m_resizeSettleTimer;

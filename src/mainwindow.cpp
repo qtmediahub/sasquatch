@@ -30,7 +30,7 @@ MainWindow::MainWindow(QWidget *parent)
 {
     setOrientation(Config::value("orientation", ScreenOrientationAuto));
 
-    new QShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::META + Qt::ALT + Qt::Key_Backspace), this, SLOT(resetUI()));
+    new QShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::META + Qt::ALT + Qt::Key_Backspace), this, SIGNAL(resetUI()));
     new QShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::META + Qt::ALT + Qt::Key_Down), this, SIGNAL(shrink()));
     new QShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::META + Qt::ALT + Qt::Key_Up), this, SIGNAL(grow()));
     new QShortcut(QKeySequence(Qt::ALT + Qt::Key_Return), this, SIGNAL(toggleFullScreen()));
@@ -97,10 +97,3 @@ void MainWindow::handleResize()
         m_centralWidget->setFixedSize(size());
 }
 
-void MainWindow::resetUI()
-{
-    if (QDeclarativeView *declarativeWidget = qobject_cast<QDeclarativeView*>(m_centralWidget)) {
-        QObject *coreObject = declarativeWidget->rootObject();
-        QMetaObject::invokeMethod(coreObject, "reset");
-    }
-}

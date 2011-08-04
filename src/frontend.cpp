@@ -80,7 +80,7 @@ public:
 public slots:
     void handleSkinSelection(QListWidgetItem* item) {
         m_frontend->setSkin(item->text());
-        close();
+//        close();
     }
 
 private:
@@ -109,6 +109,7 @@ public slots:
     void shrink();
 
     void handleFPSCapChanged(int);
+    void resetUI();
 
     void selectSkin();
 
@@ -332,6 +333,7 @@ void FrontendPrivate::loadUrl(const QUrl &targetUrl)
         mainWindow->installEventFilter(q); // track idleness
         connect(mainWindow, SIGNAL(grow()), this, SLOT(grow()));
         connect(mainWindow, SIGNAL(shrink()), this, SLOT(shrink()));
+        connect(mainWindow, SIGNAL(resetUI()), this, SLOT(resetUI()));
         connect(mainWindow, SIGNAL(toggleFullScreen()), this, SLOT(toggleFullScreen()));
 
         rootContext = declarativeWidget->rootContext();
@@ -419,6 +421,14 @@ void FrontendPrivate::handleFPSCapChanged(int fpsCap)
 {
     this->fpsCap = fpsCap;
     QMetaObject::invokeMethod(q, "framerateCapChanged");
+}
+
+void FrontendPrivate::resetUI()
+{
+    if (QDeclarativeView *declarativeWidget = qobject_cast<QDeclarativeView*>(mainWindow->centralWidget())) {
+        QObject *coreObject = declarativeWidget->rootObject();
+        QMetaObject::invokeMethod(coreObject, "reset");
+    }
 }
 
 void FrontendPrivate::toggleFullScreen()
