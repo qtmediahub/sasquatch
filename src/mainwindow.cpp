@@ -51,10 +51,15 @@ QWidget *MainWindow::centralWidget() const
 
 void MainWindow::setCentralWidget(QWidget *centralWidget)
 {
-    if (m_centralWidget)
+    if (m_centralWidget) {
+        m_centralWidget->hide();
         delete m_centralWidget;
+    }
     m_centralWidget = centralWidget;
     m_centralWidget->setParent(this);
+    m_centralWidget->setFixedSize(size());
+    if (isVisible())
+        m_centralWidget->show();
 }
 
 void MainWindow::resizeEvent(QResizeEvent *e)

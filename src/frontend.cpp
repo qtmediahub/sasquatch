@@ -90,7 +90,7 @@ public:
 public slots:
     void handleSkinSelection(QListWidgetItem* item) {
         m_frontend->setSkin(item->text());
-//        close();
+        close();
     }
 
 private:
@@ -286,16 +286,6 @@ static void optimizeGraphicsViewAttributes(QGraphicsView *view)
 
 void FrontendPrivate::loadUrl(const QUrl &targetUrl)
 {
-    if (mainWindow) {
-        Config::setValue("desktop-id", qApp->desktop()->screenNumber(mainWindow));
-        if (!attemptingFullScreen)
-            Config::setValue("window-geometry", mainWindow->geometry());
-        else if (overscanWorkAround)
-            Config::setValue("overscan-geometry", mainWindow->geometry());
-        delete mainWindow;
-        mainWindow = 0;
-    }
-
     QPixmapCache::clear();
 
     if (targetUrl.path().right(3) == "qml") {
@@ -346,8 +336,10 @@ void FrontendPrivate::loadUrl(const QUrl &targetUrl)
         engine->addImportPath(currentSkin->path());
 
         resetLanguage();
-        mainWindow = new MainWindow;
-        optimizeWidgetAttributes(mainWindow, true);
+        if (!mainWindow) {
+            mainWindow = new MainWindow;
+            optimizeWidgetAttributes(mainWindow, true);
+        }
         mainWindow->setCentralWidget(declarativeWidget);
         mainWindow->installEventFilter(q); // track idleness
         connect(mainWindow, SIGNAL(grow()), this, SLOT(grow()));
