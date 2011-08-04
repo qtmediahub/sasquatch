@@ -70,5 +70,3 @@ MediaScanner *MediaServer::mediaScanner() const
 {
     return MediaScanner::instance();
 }
-
-#include "mediaserver.moc"
