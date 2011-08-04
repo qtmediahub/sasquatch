@@ -66,8 +66,6 @@ MediaScanner::MediaScanner(const QSqlDatabase &db, QObject *parent)
     qRegisterMetaType<MediaParser *>();
     qRegisterMetaType<QSqlDatabase>();
 
-    loadParserPlugins();
-
     m_workerThread = new QThread(this);
     m_workerThread->start();
     m_worker = new MediaScannerWorker(this);
@@ -75,6 +73,8 @@ MediaScanner::MediaScanner(const QSqlDatabase &db, QObject *parent)
     connect(m_worker, SIGNAL(scanPathChanged(QString)), this, SLOT(handleScanPathChanged(QString)));
     m_worker->moveToThread(m_workerThread);
     QMetaObject::invokeMethod(m_worker, "initializeDatabase", Qt::QueuedConnection, Q_ARG(QSqlDatabase, db));
+
+    loadParserPlugins();
 }
 
 MediaScanner::~MediaScanner()
