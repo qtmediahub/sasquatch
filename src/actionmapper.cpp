@@ -113,7 +113,8 @@ void ActionMapper::setMap(const QString &map)
     populateMap();
 }
 
-void ActionMapper::setRecipient(QObject *recipient) {
+void ActionMapper::setRecipient(QObject *recipient)
+{
     recipient->installEventFilter(this);
     QGraphicsView *potentialView = qobject_cast<QGraphicsView*>(recipient);
     if (potentialView) {
@@ -132,14 +133,10 @@ bool ActionMapper::eventFilter(QObject *obj, QEvent *event)
     if (event->type() == QEvent::KeyPress || event->type() == QEvent::KeyRelease) {
         QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
         int key = keyEvent->key();
-        if (m_actionMap.contains(key))
-        {
+        if (m_actionMap.contains(key)) {
             //squash key events
-            if (primitiveKeyCompression
-                    && keyEvent->isAutoRepeat())
-            {
-                if (repeatingKeys.contains(key))
-                {
+            if (primitiveKeyCompression && keyEvent->isAutoRepeat()) {
+                if (repeatingKeys.contains(key)) {
                     repeatingKeys[key] += 1;
                     if (repeatingKeys[key]%keyDiscardRate > 1) {
                         return true;
