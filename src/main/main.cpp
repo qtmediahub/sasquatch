@@ -26,7 +26,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "qmh-config.h"
 
 #if defined(Q_WS_S60) || defined(Q_WS_MAEMO)
-static QNetworkSession *session = 0;
+static QNetworkSession *g_networkSession = 0;
 #endif
 
 static void setupNetwork()
@@ -57,9 +57,9 @@ static void setupNetwork()
         }
     }
 
-    g_session = new QNetworkSession(cfg);
-    g_session->open();
-    g_session->waitForOpened(-1);
+    g_networkSession = new QNetworkSession(cfg);
+    g_networkSession->open();
+    g_networkSession->waitForOpened(-1);
 #endif
 }
 
@@ -95,7 +95,7 @@ int main(int argc, char** argv)
     int ret = app.exec();
     
 #if defined(Q_WS_S60) || defined(Q_WS_MAEMO)
-    g_session->close();
+    g_networkSession->close();
 #endif
 
     delete frontend;
