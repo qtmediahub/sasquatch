@@ -96,7 +96,6 @@ public:
     ~FrontendPrivate();
 
 public slots:
-    bool setSkin(const QString &name);
     void initializeSkin(const QUrl &url);
     void resetLanguage();
 
@@ -242,32 +241,6 @@ FrontendPrivate::~FrontendPrivate()
         Config::setValue("overscan-geometry", mainWindow->geometry());
 
     delete mainWindow;
-}
-
-bool FrontendPrivate::setSkin(const QString &name)
-{
-    Skin *newSkin = skins.value(name);
-    if (!newSkin) {
-        newSkin = skins.value(Config::value("default-skin", "confluence").toString());
-    }
-
-    if (!newSkin) {
-        qDebug() << "Failed to set skin:" << name;
-        return false;
-    }
-
-    QSize nativeResolution = qApp->desktop()->screenGeometry().size();
-    QString nativeResolutionString = Config::value("native-res-override", QString("%1x%2").arg(nativeResolution.width()).arg(nativeResolution.height()));
-
-    QUrl url = newSkin->urlForResolution(nativeResolutionString, Config::value("fallback-resolution", "default").toString());
-    if (!url.isValid()) {
-        qWarning() << "Error loading skin " << newSkin->name();
-        return false;
-    }
-
-    currentSkin = newSkin;
-    initializeSkin(url);
-    return true;
 }
 
 void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
@@ -517,7 +490,28 @@ void Frontend::show()
 
 bool Frontend::setSkin(const QString &name)
 {
-    return d->setSkin(name);
+    Skin *newSkin = d->skins.value(name);
+    if (!newSkin) {
+        newSkin = d->skins.value(Config::value("default-skin", "confluence").toString());
+    }
+
+    if (!newSkin) {
+        qDebug() << "Failed to set skin:" << name;
+        return false;
+    }
+
+    QSize nativeResolution = qApp->desktop()->screenGeometry().size();
+    QString nativeResolutionString = Config::value("native-res-override", QString("%1x%2").arg(nativeResolution.width()).arg(nativeResolution.height()));
+
+    QUrl url = newSkin->urlForResolution(nativeResolutionString, Config::value("fallback-resolution", "default").toString());
+    if (!url.isValid()) {
+        qWarning() << "Error loading skin " << newSkin->name();
+        return false;
+    }
+
+    d->currentSkin = newSkin;
+    d->initializeSkin(url);
+    return true;
 }
 
 void Frontend::addImportPath(const QString &path)
