@@ -36,7 +36,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QtDeclarative>
 #endif
 
+#ifndef NO_DBUS
+#include <QDBusError>
 #include <QDBusConnection>
+#endif
 
 #ifdef GL
 #include <QGLFormat>
@@ -67,6 +70,17 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "customcursor.h"
 #include "httpserver/httpserver.h"
 #include "skinselector.h"
+
+#ifndef NO_DBUS
+static void registerObjectWithDbus(QObject *object)
+{
+    bool objectRegistration =
+            QDBusConnection::sessionBus().registerObject("/", object,
+                                                         QDBusConnection::ExportScriptableSlots|QDBusConnection::ExportScriptableSignals);
+    if (!objectRegistration)
+        qDebug() << "Can't seem to register object with dbus service:" << QDBusConnection::sessionBus().lastError().message();
+}
+#endif
 
 class FrontendPrivate : public QObject
 {
@@ -101,6 +115,7 @@ public:
     bool overscanWorkAround;
     bool attemptingFullScreen;
 
+    bool dbusRegistration;
     bool remoteControlMode;
     MediaServer *mediaServer;
     DeviceManager *deviceManager;
@@ -125,6 +140,7 @@ FrontendPrivate::FrontendPrivate(Frontend *p)
       defaultGeometry(0, 0, 1080, 720),
       overscanWorkAround(Config::isEnabled("overscan", false)),
       attemptingFullScreen(Config::isEnabled("fullscreen", true)),
+      dbusRegistration(false),
       remoteControlMode(true),
       mediaServer(0),
       deviceManager(0),
@@ -137,6 +153,13 @@ FrontendPrivate::FrontendPrivate(Frontend *p)
       targetsModel(0),
       q(p)
 {
+#ifndef NO_DBUS
+    dbusRegistration = QDBusConnection::sessionBus().registerService("com.qtmediahub");
+    if (!dbusRegistration) {
+        qDebug() << "Can't seem to register dbus service:" << QDBusConnection::sessionBus().lastError().message();
+    }
+#endif
+
     QPixmapCache::setCacheLimit(Config::value("cacheSize", 0)*1024);
 
 #ifdef GL
@@ -582,14 +605,6 @@ void FrontendPrivate::enableRemoteControlMode(bool enable)
     }
 
     mediaServer = new MediaServer(this);
-
-#ifndef NO_DBUS
-//Segmentation fault on mac!
-    if (QDBusConnection::systemBus().isConnected()) {
-        deviceManager = new DeviceManager(this);
-        powerManager = new PowerManager(this);
-    }
-#endif
     mediaPlayerRpc = new MediaPlayerRpc(this);
     connection = new RpcConnection(RpcConnection::Server, QHostAddress::Any, 1234, this);
     trackpad = new Trackpad(this);
@@ -598,6 +613,18 @@ void FrontendPrivate::enableRemoteControlMode(bool enable)
     connection->registerObject(actionMapper);
     connection->registerObject(mediaPlayerRpc);
     connection->registerObject(trackpad);
+
+#ifndef NO_DBUS
+//Segmentation fault on mac!
+    if (QDBusConnection::systemBus().isConnected()) {
+        deviceManager = new DeviceManager(this);
+        powerManager = new PowerManager(this);
+    }
+
+    if (dbusRegistration) {
+        ::registerObjectWithDbus(mediaPlayerRpc);
+    }
+#endif
 }
 
 void Frontend::openUrlExternally(const QUrl & url) const
