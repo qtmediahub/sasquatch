@@ -18,6 +18,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 ****************************************************************************/
 
 #include "declarativeview.h"
+#include <QGraphicsObject>
 
 DeclarativeView::DeclarativeView(QWidget *parent)
     : QDeclarativeView(parent),
@@ -61,5 +62,10 @@ void DeclarativeView::handleStatusChanged(QDeclarativeView::Status status)
     if (status == QDeclarativeView::Ready) {
         activateWindow();
     }
+}
+
+QObject *DeclarativeView::focusItem() const
+{
+    return qgraphicsitem_cast<QGraphicsObject *>(scene()->focusItem());
 }
 

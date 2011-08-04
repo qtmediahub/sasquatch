@@ -30,6 +30,8 @@ public:
     DeclarativeView(QWidget *parent = 0);
     void setSource(const QUrl &url);
 
+    Q_INVOKABLE QObject *focusItem() const;
+
 protected:
     void paintEvent(QPaintEvent *event);
     void timerEvent(QTimerEvent *event);

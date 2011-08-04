@@ -52,7 +52,6 @@ public:
     Q_INVOKABLE void openUrlExternally(const QUrl &url) const;
 
     Q_INVOKABLE void addImportPath(const QString &path);
-    Q_INVOKABLE QObject *focusItem() const;
 
     Q_INVOKABLE QStringList findApplications() const;
 

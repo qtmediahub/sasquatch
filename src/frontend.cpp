@@ -281,6 +281,7 @@ QWidget *FrontendPrivate::loadQmlSkin(const QUrl &targetUrl)
     runtime->insert("config", qVariantFromValue(static_cast<QObject *>(Config::instance())));
     runtime->insert("frontend", qVariantFromValue(static_cast<QObject *>(q)));
     runtime->insert("window", qVariantFromValue(static_cast<QObject *>(mainWindow)));
+    runtime->insert("view", qVariantFromValue(static_cast<QObject *>(declarativeWidget)));
     runtime->insert("cursor", qVariantFromValue(static_cast<QObject *>(new CustomCursor(declarativeWidget))));
     runtime->insert("skin", qVariantFromValue(static_cast<QObject *>(currentSkin)));
     declarativeWidget->rootContext()->setContextProperty("runtime", runtime);
@@ -512,16 +513,6 @@ void Frontend::addImportPath(const QString &path)
 {
     if (QFile::exists(path))
         d->rootContext->engine()->addImportPath(path);
-}
-
-QObject *Frontend::focusItem() const
-{
-    QWidget *centralWidget = d->mainWindow->centralWidget();
-#ifdef SCENEGRAPH
-    return qobject_cast<QSGView*>(centralWidget)->activeFocusItem();
-#else
-    return qgraphicsitem_cast<QGraphicsObject *>(qobject_cast<QDeclarativeView*>(centralWidget)->scene()->focusItem());
-#endif
 }
 
 QList<Skin *> Frontend::skins() const
