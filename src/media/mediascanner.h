@@ -38,7 +38,7 @@ class QMH_EXPORT MediaScanner : public QObject
     Q_PROPERTY(QString currentScanPath READ currentScanPath NOTIFY currentScanPathChanged)
 
 public:
-    MediaScanner(const QSqlDatabase &db, QObject *parent = 0);
+    MediaScanner(QObject *parent = 0);
     ~MediaScanner();
 
     struct FileInfo {
@@ -73,12 +73,12 @@ private slots:
     void handleScanPathChanged(const QString &scanPath);
 
 private:
+    void ensureDatabase();
     void loadParserPlugins();
 
     QThread *m_workerThread;
     MediaScannerWorker *m_worker;
     QString m_currentScanPath;
-    QSqlDatabase m_db;
 
     friend class MediaScannerWorker;
 };

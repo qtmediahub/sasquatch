@@ -62,8 +62,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <QDebug>
 
-#define DATABASE_CONNECTION_NAME "Backend"
-
 Backend* Backend::s_instance = 0;
 
 class BackendPrivate : public QObject
@@ -78,7 +76,6 @@ public slots:
 
 public:
     void resetLanguage();
-    void initializeMedia();
     void ensureStandardPaths();
 
     bool primarySession;
@@ -98,7 +95,6 @@ public:
 
     HttpServer *httpServer;
 
-    QSqlDatabase mediaDb;
     MediaScanner *mediaScanner;
 
     Backend *q;
@@ -135,9 +131,7 @@ BackendPrivate::BackendPrivate(Backend *p)
 
     httpServer = new HttpServer(Config::value("stream-port", "1337").toInt(), this);
 
-    if (!remoteControl) {
-        initializeMedia();
-    }
+    mediaScanner = new MediaScanner(this);
 }
 
 BackendPrivate::~BackendPrivate()
@@ -157,9 +151,6 @@ BackendPrivate::~BackendPrivate()
 #endif
 
     delete mediaScanner;
-
-    mediaDb = QSqlDatabase();
-    QSqlDatabase::removeDatabase(DATABASE_CONNECTION_NAME);
 }
 
 void BackendPrivate::handleDirChanged(const QString &dir)
@@ -236,42 +227,6 @@ void BackendPrivate::ensureStandardPaths()
     QDir dir;
     dir.mkpath(LibraryInfo::thumbnailPath());
     dir.mkpath(LibraryInfo::dataPath());
-}
-
-void BackendPrivate::initializeMedia()
-{
-    if (!QSqlDatabase::isDriverAvailable("QSQLITE")) {
-        qFatal("The SQLITE driver is unavailable");
-        return;
-    }
-
-    const QString DATABASE_NAME(LibraryInfo::dataPath().append("/media.db"));
-    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE", DATABASE_CONNECTION_NAME);
-    db.setDatabaseName(DATABASE_NAME);
-
-    if (!db.open()) {
-        qFatal("Failed to open SQLITE database %s", qPrintable(db.lastError().text()));
-        return;
-    }
-
-    mediaDb = db;
-
-    if (db.tables().isEmpty()) {
-        ScopedTransaction transaction(db);
-        transaction.execFile(":/media/schema.sql");
-    }
-
-    mediaScanner = new MediaScanner(mediaDb, this);
-}
-
-MediaScanner *Backend::mediaScanner() const
-{
-    return d->mediaScanner;
-}
-
-QSqlDatabase Backend::mediaDatabase() const
-{
-    return d->mediaDb;
 }
 
 QString Backend::language() const
@@ -352,6 +307,11 @@ void Backend::registerQmlProperties(QDeclarativePropertyMap *runtime)
     }
     runtime->insert("config", qVariantFromValue(static_cast<QObject *>(Config::instance())));
     runtime->insert("backend", qVariantFromValue(static_cast<QObject *>(this)));
+}
+
+MediaScanner *Backend::mediaScanner() const
+{
+    return d->mediaScanner;
 }
 
 #include "backend.moc"

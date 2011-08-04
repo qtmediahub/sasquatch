@@ -18,9 +18,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 ****************************************************************************/
 
 #include "playlist.h"
-
 #include "mediamodel.h"
-#include "backend.h"
+#include "global.h"
 
 #define DEBUG if (0) qDebug() << __PRETTY_FUNCTION__
 
@@ -217,7 +216,7 @@ void Playlist::setMediaType(const QString &type)
 
     // Add the fields of the table as role names
     if (!m_driver)
-        m_driver = Backend::instance()->mediaDatabase().driver();
+        m_driver = QSqlDatabase::database(DEFAULT_DATABASE_CONNECTION_NAME).driver();
 
     QSqlRecord record = m_driver->record(m_mediaType);
     if (record.isEmpty())
