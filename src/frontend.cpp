@@ -680,5 +680,10 @@ void Frontend::openUrlExternally(const QUrl & url) const
     QDesktopServices::openUrl(url);
 }
 
+QString Frontend::resourcePath() const
+{
+    return LibraryInfo::resourcePath();
+}
+
 
 #include "frontend.moc"

@@ -91,11 +91,6 @@ void BackendPrivate::ensureStandardPaths()
     dir.mkpath(LibraryInfo::dataPath());
 }
 
-QString Backend::resourcePath() const
-{
-    return LibraryInfo::resourcePath();
-}
-
 void Backend::registerQmlProperties(QDeclarativePropertyMap *runtime)
 {
     runtime->insert("mediaScanner", qVariantFromValue(static_cast<QObject *>(MediaScanner::instance())));

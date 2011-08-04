@@ -35,18 +35,12 @@ class QDeclarativePropertyMap;
 class QMH_EXPORT Backend : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QString resourcePath READ resourcePath NOTIFY resourcePathChanged)
 
 public:
     explicit Backend(QObject *parent = 0);
     ~Backend();
 
-    QString resourcePath() const; // ## remove me
-
     void registerQmlProperties(QDeclarativePropertyMap *map);
-
-signals:
-    void resourcePathChanged();
 
 private:
     BackendPrivate *d;

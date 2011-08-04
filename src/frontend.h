@@ -35,6 +35,8 @@ class QMH_EXPORT Frontend : public QObject
     Q_PROPERTY(bool transforms READ transforms NOTIFY frontendChanged)
     Q_PROPERTY(int framerateCap READ framerateCap NOTIFY framerateCapChanged)
     Q_PROPERTY(QObject *targetsModel READ targetsModel NOTIFY targetsModelChanged)
+    Q_PROPERTY(QString resourcePath READ resourcePath CONSTANT)
+
 public:
     Frontend(QObject *p = 0);
     ~Frontend();
@@ -57,6 +59,7 @@ public:
     QList<Skin *> skins() const;
     MainWindow *mainWindow() const;
 
+    QString resourcePath() const; // ## remove me
 protected:
     bool eventFilter(QObject *obj, QEvent *event);
 
