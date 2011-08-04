@@ -95,7 +95,7 @@ public:
     ~FrontendPrivate();
 
 public slots:
-    void initializeSkin(const QUrl &url);
+    void loadUrl(const QUrl &url);
     void resetLanguage();
 
     void discoverSkins();
@@ -264,7 +264,7 @@ static void optimizeGraphicsViewAttributes(QGraphicsView *view)
     view->scene()->setItemIndexMethod(QGraphicsScene::NoIndex);
 }
 
-void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
+void FrontendPrivate::loadUrl(const QUrl &targetUrl)
 {
     if (mainWindow) {
         Config::setValue("desktop-id", qApp->desktop()->screenNumber(mainWindow));
@@ -533,7 +533,7 @@ bool Frontend::setSkin(const QString &name)
     }
 
     d->currentSkin = newSkin;
-    d->initializeSkin(url);
+    d->loadUrl(url);
     return true;
 }
 
