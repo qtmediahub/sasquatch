@@ -363,6 +363,7 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
         actionMapper->setRecipient(declarativeWidget);
         trackpad->setRecipient(declarativeWidget);
         runtime->insert("actionMapper", qVariantFromValue(static_cast<QObject *>(actionMapper)));
+        runtime->insert("config", qVariantFromValue(static_cast<QObject *>(Config::instance())));
         runtime->insert("trackpad", qVariantFromValue(static_cast<QObject *>(trackpad)));
         runtime->insert("frontend", qVariantFromValue(static_cast<QObject *>(q)));
         runtime->insert("mediaPlayerRpc", qVariantFromValue(static_cast<QObject *>(mediaPlayerRpc)));

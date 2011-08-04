@@ -290,7 +290,6 @@ void Backend::registerQmlProperties(QDeclarativePropertyMap *runtime)
         runtime->insert("mediaScanner", qVariantFromValue(static_cast<QObject *>(MediaScanner::instance())));
         runtime->insert("httpServer", qVariantFromValue(static_cast<QObject *>(d->httpServer)));
     }
-    runtime->insert("config", qVariantFromValue(static_cast<QObject *>(Config::instance())));
     runtime->insert("backend", qVariantFromValue(static_cast<QObject *>(this)));
 }
 
