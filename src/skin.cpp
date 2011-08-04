@@ -104,3 +104,11 @@ bool Skin::isRemoteControl() const
     return m_name.contains("remote"); // ## obviously bad
 }
 
+Skin::Type Skin::type(const QUrl &url) const
+{
+    if (url.path().right(3) == "qml") {
+        return Qml;
+    }
+    return Invalid;
+}
+

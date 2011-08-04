@@ -32,6 +32,7 @@ class Skin : public QObject
     Q_PROPERTY(QString config READ config CONSTANT)
 
 public:
+    enum Type { Invalid, Qml };
     static Skin *createSkin(const QString &skinPath, QObject *parent);
 
     ~Skin();
@@ -39,6 +40,8 @@ public:
     QString name() const;
     QString path() const;
     QString config() const;
+
+    Type type(const QUrl &url) const; // ## remove the url argument
 
     bool isRemoteControl() const;
 

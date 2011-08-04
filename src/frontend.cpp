@@ -108,7 +108,7 @@ public:
     ~FrontendPrivate();
 
 public slots:
-    void loadUrl(const QUrl &url);
+    void loadQmlSkin(const QUrl &url);
 
     void discoverSkins();
 
@@ -272,75 +272,73 @@ static void optimizeGraphicsViewAttributes(QGraphicsView *view)
     view->scene()->setItemIndexMethod(QGraphicsScene::NoIndex);
 }
 
-void FrontendPrivate::loadUrl(const QUrl &targetUrl)
+void FrontendPrivate::loadQmlSkin(const QUrl &targetUrl)
 {
     QPixmapCache::clear();
 
-    if (targetUrl.path().right(3) == "qml") {
 #ifdef SCENEGRAPH
-        QSGView *declarativeWidget = new QSGView;
-        declarativeWidget->setResizeMode(QSGView::SizeRootObjectToView);
+    QSGView *declarativeWidget = new QSGView;
+    declarativeWidget->setResizeMode(QSGView::SizeRootObjectToView);
 #else
-        DeclarativeView *declarativeWidget = new DeclarativeView;
+    DeclarativeView *declarativeWidget = new DeclarativeView;
 
-        optimizeWidgetAttributes(declarativeWidget);
-        optimizeGraphicsViewAttributes(declarativeWidget);
-        declarativeWidget->setResizeMode(QDeclarativeView::SizeRootObjectToView);
+    optimizeWidgetAttributes(declarativeWidget);
+    optimizeGraphicsViewAttributes(declarativeWidget);
+    declarativeWidget->setResizeMode(QDeclarativeView::SizeRootObjectToView);
 
-        if (Config::isEnabled("use-gl", true)) {
+    if (Config::isEnabled("use-gl", true)) {
 #ifdef GLVIEWPORT
-            QGLWidget *viewport = new QGLWidget(declarativeWidget);
-            //Why do I have to set this here?
-            //Why can't I set it in the MainWindow?
-            optimizeWidgetAttributes(viewport, false);
+        QGLWidget *viewport = new QGLWidget(declarativeWidget);
+        //Why do I have to set this here?
+        //Why can't I set it in the MainWindow?
+        optimizeWidgetAttributes(viewport, false);
 
-            declarativeWidget->setViewport(viewport);
+        declarativeWidget->setViewport(viewport);
 #endif //GLVIEWPORT
-            declarativeWidget->setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
-        } else {
-            declarativeWidget->setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
-        }
-#endif //SCENEGRAPH
-        //QSGEngine is not an equivalent class, this class holds for both
-        QDeclarativeEngine *engine = declarativeWidget->engine();
-        QObject::connect(engine, SIGNAL(quit()), qApp, SLOT(quit()));
-
-        QDeclarativePropertyMap *runtime = new QDeclarativePropertyMap(declarativeWidget);
-        if (!remoteControlMode) {
-            backend->registerQmlProperties(runtime);
-            actionMapper->setRecipient(declarativeWidget);
-            trackpad->setRecipient(declarativeWidget);
-            runtime->insert("actionMapper", qVariantFromValue(static_cast<QObject *>(actionMapper)));
-            runtime->insert("trackpad", qVariantFromValue(static_cast<QObject *>(trackpad)));
-            runtime->insert("mediaPlayerRpc", qVariantFromValue(static_cast<QObject *>(mediaPlayerRpc)));
-            runtime->insert("deviceManager", qVariantFromValue(static_cast<QObject *>(deviceManager)));
-            runtime->insert("powerManager", qVariantFromValue(static_cast<QObject *>(powerManager)));
-        }
-        runtime->insert("config", qVariantFromValue(static_cast<QObject *>(Config::instance())));
-        runtime->insert("frontend", qVariantFromValue(static_cast<QObject *>(q)));
-        runtime->insert("cursor", qVariantFromValue(static_cast<QObject *>(new CustomCursor(declarativeWidget))));
-        runtime->insert("skin", qVariantFromValue(static_cast<QObject *>(currentSkin)));
-        declarativeWidget->rootContext()->setContextProperty("runtime", runtime);
-
-        engine->addImportPath(LibraryInfo::basePath() % "/imports");
-        engine->addImportPath(currentSkin->path());
-
-        if (!mainWindow) {
-            mainWindow = new MainWindow;
-            optimizeWidgetAttributes(mainWindow, true);
-        }
-        mainWindow->setCentralWidget(declarativeWidget);
-        mainWindow->installEventFilter(q); // track idleness
-        connect(mainWindow, SIGNAL(grow()), this, SLOT(grow()));
-        connect(mainWindow, SIGNAL(shrink()), this, SLOT(shrink()));
-        connect(mainWindow, SIGNAL(resetUI()), this, SLOT(resetUI()));
-        connect(mainWindow, SIGNAL(toggleFullScreen()), this, SLOT(toggleFullScreen()));
-
-        rootContext = declarativeWidget->rootContext();
-        declarativeWidget->setSource(targetUrl);
-
-        connect(declarativeWidget, SIGNAL(fpsCap(int)), SLOT(handleFPSCapChanged(int)));
+        declarativeWidget->setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
+    } else {
+        declarativeWidget->setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
     }
+#endif //SCENEGRAPH
+
+    QDeclarativeEngine *engine = declarativeWidget->engine();
+    QObject::connect(engine, SIGNAL(quit()), qApp, SLOT(quit()));
+
+    QDeclarativePropertyMap *runtime = new QDeclarativePropertyMap(declarativeWidget);
+    if (!remoteControlMode) {
+        backend->registerQmlProperties(runtime);
+        actionMapper->setRecipient(declarativeWidget);
+        trackpad->setRecipient(declarativeWidget);
+        runtime->insert("actionMapper", qVariantFromValue(static_cast<QObject *>(actionMapper)));
+        runtime->insert("trackpad", qVariantFromValue(static_cast<QObject *>(trackpad)));
+        runtime->insert("mediaPlayerRpc", qVariantFromValue(static_cast<QObject *>(mediaPlayerRpc)));
+        runtime->insert("deviceManager", qVariantFromValue(static_cast<QObject *>(deviceManager)));
+        runtime->insert("powerManager", qVariantFromValue(static_cast<QObject *>(powerManager)));
+    }
+    runtime->insert("config", qVariantFromValue(static_cast<QObject *>(Config::instance())));
+    runtime->insert("frontend", qVariantFromValue(static_cast<QObject *>(q)));
+    runtime->insert("cursor", qVariantFromValue(static_cast<QObject *>(new CustomCursor(declarativeWidget))));
+    runtime->insert("skin", qVariantFromValue(static_cast<QObject *>(currentSkin)));
+    declarativeWidget->rootContext()->setContextProperty("runtime", runtime);
+
+    engine->addImportPath(LibraryInfo::basePath() % "/imports");
+    engine->addImportPath(currentSkin->path());
+
+    if (!mainWindow) {
+        mainWindow = new MainWindow;
+        optimizeWidgetAttributes(mainWindow, true);
+    }
+    mainWindow->setCentralWidget(declarativeWidget);
+    mainWindow->installEventFilter(q); // track idleness
+    connect(mainWindow, SIGNAL(grow()), this, SLOT(grow()));
+    connect(mainWindow, SIGNAL(shrink()), this, SLOT(shrink()));
+    connect(mainWindow, SIGNAL(resetUI()), this, SLOT(resetUI()));
+    connect(mainWindow, SIGNAL(toggleFullScreen()), this, SLOT(toggleFullScreen()));
+
+    rootContext = declarativeWidget->rootContext();
+    declarativeWidget->setSource(targetUrl);
+
+    connect(declarativeWidget, SIGNAL(fpsCap(int)), SLOT(handleFPSCapChanged(int)));
 }
 
 void FrontendPrivate::showFullScreen()
@@ -539,9 +537,12 @@ bool Frontend::setSkin(Skin *skin)
         return false;
     }
 
+    if (skin->type(url) != Skin::Qml)
+        return false;
+
     d->currentSkin = skin;
     d->enableRemoteControlMode(skin->isRemoteControl());
-    d->loadUrl(url);
+    d->loadQmlSkin(url);
     return true;
 }
 
