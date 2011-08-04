@@ -129,7 +129,7 @@ public:
 
     ActionMapper *actionMapper;
     Trackpad *trackpad;
-    QList<Skin *> skins;
+    QMap<QString, Skin *> skins;
     int fpsCap;
     QTranslator frontEndTranslator;
     Skin *skin;
@@ -255,20 +255,10 @@ bool FrontendPrivate::setSkin(const QString &name)
     resolutionHash["1080"] = "1920x1080";
     resolutionHash["720"] = "1280x720";
 
-    Skin *newSkin = 0;
-    Skin *defaultSkin = 0;
-    QString defaultSkinName = Config::value("default-skin", "confluence").toString();
-
-    foreach (Skin *s, skins) {
-        if (s->name() == name)
-            newSkin = s;
-        if (s->name() == defaultSkinName)
-            defaultSkin = s;
+    Skin *newSkin = skins.value(name);
+    if (!newSkin) {
+        newSkin = skins.value(Config::value("default-skin", "confluence").toString());
     }
-
-    if (!newSkin)
-        newSkin = defaultSkin;
-
     if (!newSkin) {
         qDebug() << "Failed to set skin:" << name;
         return false;
@@ -486,7 +476,7 @@ void FrontendPrivate::discoverSkins()
         foreach(const QString &currentPath, potentialSkins) {
             const QString prospectivePath = skinPath % "/" % currentPath;
             if (Skin *skin = Skin::createSkin(prospectivePath, this))
-                skins << skin;
+                skins.insert(skin->name(), skin);
         }
     }
 
@@ -591,7 +581,7 @@ QObject *Frontend::focusItem() const
 
 QList<Skin *> Frontend::skins() const
 {
-    return d->skins;
+    return d->skins.values();
 }
 
 MainWindow *Frontend::mainWindow() const
