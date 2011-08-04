@@ -66,40 +66,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "rpc/mediaplayerrpc.h"
 #include "customcursor.h"
 #include "httpserver/httpserver.h"
-
-class SkinSelector : public QDialog
-{
-    Q_OBJECT
-public:
-    SkinSelector(Frontend *frontend)
-        : QDialog(frontend->mainWindow()), m_frontend(frontend)
-    {
-        setAttribute(Qt::WA_DeleteOnClose);
-        setModal(true);
-        QVBoxLayout *vbox = new QVBoxLayout(this);
-        QListWidget *skinsView = new QListWidget(this);
-
-        connect(skinsView, SIGNAL(itemActivated(QListWidgetItem*)),
-                this, SLOT(handleSkinSelection(QListWidgetItem*)));
-
-        foreach(Skin *skin, frontend->skins()) {
-            QListWidgetItem *item = new QListWidgetItem(skin->name());
-            item->setData(Qt::UserRole, qVariantFromValue<Skin *>(skin));
-            skinsView->addItem(item);
-        }
-
-        vbox->addWidget(skinsView);
-    }
-
-public slots:
-    void handleSkinSelection(QListWidgetItem* item) {
-        m_frontend->setSkin(qvariant_cast<Skin *>(item->data(Qt::UserRole)));
-        close();
-    }
-
-private:
-    Frontend *m_frontend;
-};
+#include "skinselector.h"
 
 class FrontendPrivate : public QObject
 {
@@ -456,8 +423,9 @@ void FrontendPrivate::discoverSkins()
 
 void FrontendPrivate::selectSkin()
 {
-    SkinSelector *skinSelector = new SkinSelector(q);
-    skinSelector->show();
+    SkinSelector *skinSelector = new SkinSelector(q, mainWindow);
+    skinSelector->setAttribute(Qt::WA_DeleteOnClose);
+    skinSelector->exec();
 }
 
 void FrontendPrivate::handleDirChanged(const QString &dir)
@@ -686,6 +654,5 @@ QString Frontend::resourcePath() const
 {
     return LibraryInfo::resourcePath();
 }
-
 
 #include "frontend.moc"
