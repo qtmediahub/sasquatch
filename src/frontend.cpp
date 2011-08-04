@@ -106,7 +106,6 @@ public:
 
 public slots:
     void loadUrl(const QUrl &url);
-    void resetLanguage();
 
     void discoverSkins();
 
@@ -140,7 +139,6 @@ public:
     Trackpad *trackpad;
     QMap<QString, Skin *> skins;
     int fpsCap;
-    QTranslator frontEndTranslator;
     Skin *currentSkin;
     MainWindow *mainWindow;
     QDeclarativeContext *rootContext;
@@ -192,7 +190,6 @@ FrontendPrivate::FrontendPrivate(Backend *backend, Frontend *p)
     connect(&inputIdleTimer, SIGNAL(timeout()), q, SIGNAL(inputIdle()));
 
     qApp->setOverrideCursor(Qt::BlankCursor);
-    qApp->installTranslator(&frontEndTranslator);
 
     qRegisterMetaType<QModelIndex>();
 
@@ -335,7 +332,6 @@ void FrontendPrivate::loadUrl(const QUrl &targetUrl)
         engine->addImportPath(LibraryInfo::basePath() % "/imports");
         engine->addImportPath(currentSkin->path());
 
-        resetLanguage();
         if (!mainWindow) {
             mainWindow = new MainWindow;
             optimizeWidgetAttributes(mainWindow, true);
@@ -352,14 +348,6 @@ void FrontendPrivate::loadUrl(const QUrl &targetUrl)
 
         connect(declarativeWidget, SIGNAL(fpsCap(int)), SLOT(handleFPSCapChanged(int)));
     }
-}
-
-void FrontendPrivate::resetLanguage()
-{
-    QString language = backend->language();
-
-    //FIXME: this clearly needs some heuristics
-    frontEndTranslator.load(currentSkin->path() % "/confluence/translations/" % "confluence_" % language % ".qm");
 }
 
 void FrontendPrivate::showFullScreen()

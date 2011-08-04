@@ -44,8 +44,6 @@ public:
     explicit Backend(QObject *parent = 0);
     ~Backend();
 
-    QString language() const;
-
     QString resourcePath() const; // ## remove me
 
     Q_INVOKABLE void openUrlExternally(const QUrl &url) const;

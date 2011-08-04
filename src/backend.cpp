@@ -63,12 +63,10 @@ public:
     ~BackendPrivate();
 
 public:
-    void resetLanguage();
     void ensureStandardPaths();
 
     bool primarySession;
 
-    QTranslator *backendTranslator;
     bool remoteControl;
 
     HttpServer *httpServer;
@@ -79,7 +77,6 @@ public:
 BackendPrivate::BackendPrivate(Backend *p)
     : QObject(p),
       primarySession(true),
-      backendTranslator(0),
       remoteControl(Config::isEnabled("remote", false)),
       httpServer(0),
       q(p)
@@ -93,20 +90,6 @@ BackendPrivate::BackendPrivate(Backend *p)
 
 BackendPrivate::~BackendPrivate()
 {
-    delete backendTranslator;
-    backendTranslator = 0;
-
-    delete backendTranslator;
-}
-
-void BackendPrivate::resetLanguage()
-{
-    const QString baseTranslationPath = LibraryInfo::translationPath();
-    const QString language = q->language();
-    delete backendTranslator;
-    backendTranslator = new QTranslator(this);
-    backendTranslator->load(baseTranslationPath % language % ".qm");
-    qApp->installTranslator(backendTranslator);
 }
 
 Backend::Backend(QObject *parent)
@@ -140,15 +123,6 @@ void BackendPrivate::ensureStandardPaths()
     QDir dir;
     dir.mkpath(LibraryInfo::thumbnailPath());
     dir.mkpath(LibraryInfo::dataPath());
-}
-
-QString Backend::language() const
-{
-    //FIXME: derive from locale
-    //Allow override
-    return QString();
-    //Bob is a testing translation placeholder
-    //return QString("bob");
 }
 
 QString Backend::resourcePath() const
