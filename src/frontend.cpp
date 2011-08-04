@@ -132,7 +132,7 @@ public:
     QMap<QString, Skin *> skins;
     int fpsCap;
     QTranslator frontEndTranslator;
-    Skin *skin;
+    Skin *currentSkin;
     MainWindow *mainWindow;
     QDeclarativeContext *rootContext;
     QTimer inputIdleTimer;
@@ -231,7 +231,7 @@ FrontendPrivate::FrontendPrivate(Backend *backend, Frontend *p)
 FrontendPrivate::~FrontendPrivate()
 {
     Config::setEnabled("fullscreen", attemptingFullScreen);
-    Config::setValue("skin", skin->name());
+    Config::setValue("skin", currentSkin->name());
     Config::setEnabled("overscan", overscanWorkAround);
 
     Config::setValue("desktop-id", qApp->desktop()->screenNumber(mainWindow));
@@ -246,53 +246,27 @@ FrontendPrivate::~FrontendPrivate()
 
 bool FrontendPrivate::setSkin(const QString &name)
 {
-    static QSize nativeResolution = qApp->desktop()->screenGeometry().size();
-    static QString nativeResolutionString = Config::value("native-res-override", QString("%1x%2").arg(nativeResolution.width()).arg(nativeResolution.height()));
-    //http://en.wikipedia.org/wiki/720p
-    //1440, 1080, 720, 576, 480, 360, 240
-    QHash<QString, QString> resolutionHash;
-    resolutionHash["1440"] = "2560x1440";
-    resolutionHash["1080"] = "1920x1080";
-    resolutionHash["720"] = "1280x720";
-
     Skin *newSkin = skins.value(name);
     if (!newSkin) {
         newSkin = skins.value(Config::value("default-skin", "confluence").toString());
     }
+
     if (!newSkin) {
         qDebug() << "Failed to set skin:" << name;
         return false;
     }
 
-    QFile skinConfig(newSkin->config());
-    if (skinConfig.open(QIODevice::ReadOnly)) {
-        QHash<QString, QString> fileForResolution;
-        QTextStream skinStream(&skinConfig);
-        while (!skinStream.atEnd()) {
-            QStringList resolutionToFile = skinStream.readLine().split(":");
-            if (resolutionToFile.count() == 2) {
-                QString resolution =
-                        resolutionHash.contains(resolutionToFile.at(0))
-                        ? resolutionHash[resolutionToFile.at(0)]
-                        : resolutionToFile.at(0);
-                fileForResolution[resolution] = resolutionToFile.at(1);
-            } else {
-                qWarning() << "bad line in skin configuration";
-            }
-        }
+    QSize nativeResolution = qApp->desktop()->screenGeometry().size();
+    QString nativeResolutionString = Config::value("native-res-override", QString("%1x%2").arg(nativeResolution.width()).arg(nativeResolution.height()));
 
-        QString urlPath =
-                fileForResolution.contains(nativeResolutionString)
-                ? fileForResolution[nativeResolutionString]
-                : fileForResolution[Config::value("fallback-resolution", "default").toString()];
-
-        skin = newSkin;
-
-        initializeSkin(QUrl::fromLocalFile(skin->path() % "/" % urlPath));
-    } else {
-        qWarning() << "Can't read" << newSkin->name();
+    QUrl url = newSkin->urlForResolution(nativeResolutionString, Config::value("fallback-resolution", "default").toString());
+    if (!url.isValid()) {
+        qWarning() << "Error loading skin " << newSkin->name();
         return false;
     }
+
+    currentSkin = newSkin;
+    initializeSkin(url);
     return true;
 }
 
@@ -353,11 +327,11 @@ void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
         runtime->insert("deviceManager", qVariantFromValue(static_cast<QObject *>(deviceManager)));
         runtime->insert("powerManager", qVariantFromValue(static_cast<QObject *>(powerManager)));
         runtime->insert("cursor", qVariantFromValue(static_cast<QObject *>(new CustomCursor(declarativeWidget))));
-        runtime->insert("skin", qVariantFromValue(static_cast<QObject *>(skin)));
+        runtime->insert("skin", qVariantFromValue(static_cast<QObject *>(currentSkin)));
         declarativeWidget->rootContext()->setContextProperty("runtime", runtime);
 
         engine->addImportPath(LibraryInfo::basePath() % "/imports");
-        engine->addImportPath(skin->path());
+        engine->addImportPath(currentSkin->path());
 
         resetLanguage();
         mainWindow = new MainWindow;
@@ -379,7 +353,7 @@ void FrontendPrivate::resetLanguage()
     QString language = backend->language();
 
     //FIXME: this clearly needs some heuristics
-    frontEndTranslator.load(skin->path() % "/confluence/translations/" % "confluence_" % language % ".qm");
+    frontEndTranslator.load(currentSkin->path() % "/confluence/translations/" % "confluence_" % language % ".qm");
 }
 
 void FrontendPrivate::showFullScreen()

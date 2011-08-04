@@ -21,6 +21,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #define SKIN_H
 
 #include <QObject>
+#include <QUrl>
 
 class Skin : public QObject
 {
@@ -37,6 +38,8 @@ public:
     QString name() const;
     QString path() const;
     QString config() const;
+
+    QUrl urlForResolution(const QString &nativeResolution, const QString &fallbackResolution);
 
 private:
     explicit Skin(QObject *parent = 0);
