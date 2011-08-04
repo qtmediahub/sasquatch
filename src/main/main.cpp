@@ -71,7 +71,7 @@ int main(int argc, char** argv)
     backend.setPrimarySession(primarySession);
     Frontend *frontend = 0;
 
-    if (!Config::isEnabled("headless", false)) {
+    if (!Config::isEnabled("headless", qgetenv("DISPLAY").isEmpty())) {
         frontend = new Frontend(&backend);
     }
 
