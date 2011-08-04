@@ -91,7 +91,6 @@ int main(int argc, char** argv)
         frontend->show();
     } else {
         backend = new Backend;
-        backend->setPrimarySession(primarySession);
     }
 
     int ret = app.exec();

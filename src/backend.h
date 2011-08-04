@@ -45,7 +45,6 @@ public:
 
     Q_INVOKABLE void openUrlExternally(const QUrl &url) const;
 
-    void setPrimarySession(bool);
     void registerQmlProperties(QDeclarativePropertyMap *map);
 
 signals:

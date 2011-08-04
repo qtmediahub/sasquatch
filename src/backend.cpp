@@ -24,10 +24,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "httpserver/httpserver.h"
 
-#ifdef QT_SINGLE_APPLICATION
-#include "qtsingleapplication.h"
-#endif
-
 #include <QtCore>
 #include <QtDeclarative>
 #include <QDebug>
@@ -48,23 +44,17 @@ public:
 public:
     void ensureStandardPaths();
 
-    bool primarySession;
-
     HttpServer *httpServer;
-
     Backend *q;
 };
 
 BackendPrivate::BackendPrivate(Backend *p)
     : QObject(p),
-      primarySession(true),
       httpServer(0),
       q(p)
 {
     ensureStandardPaths();
-
     httpServer = new HttpServer(Config::value("stream-port", "1337").toInt(), this);
-
     MediaScanner::instance();
 }
 
@@ -77,9 +67,7 @@ Backend::Backend(QObject *parent)
       d(new BackendPrivate(this))
 {
 #ifdef QMH_AVAHI
-    if (d->primarySession
-            && Config::isEnabled("avahi", true)
-            && Config::isEnabled("avahi-advertize", true)) {
+    if (Config::isEnabled("avahi", true) && Config::isEnabled("avahi-advertize", true)) {
         QAvahiServicePublisher *publisher = new QAvahiServicePublisher(this);
         publisher->publish(QHostInfo::localHostName(), "_qtmediahub._tcp", 1234, "Qt Media Hub JSON-RPCv2 interface");
         qDebug() << "Advertizing session via zeroconf";
@@ -92,7 +80,6 @@ Backend::Backend(QObject *parent)
 Backend::~Backend()
 {
     MediaScanner::destroy();
-
     delete d;
     d = 0;
 }
@@ -112,11 +99,6 @@ QString Backend::resourcePath() const
 void Backend::openUrlExternally(const QUrl & url) const
 {
     QDesktopServices::openUrl(url);
-}
-
-void Backend::setPrimarySession(bool primarySession)
-{
-    d->primarySession = primarySession;
 }
 
 void Backend::registerQmlProperties(QDeclarativePropertyMap *runtime)
