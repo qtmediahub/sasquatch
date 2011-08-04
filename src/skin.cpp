@@ -22,63 +22,42 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QFileInfo>
 #include <QDir>
 
-class SkinPrivate : public QObject
-{
-    Q_OBJECT
-public:
-    SkinPrivate(Skin *p);
-
-public:
-    QString path;
-    QString name;
-    QString config;
-    Skin *pSelf;
-};
-
-SkinPrivate::SkinPrivate(Skin *p)
-    : QObject(p)
-    , pSelf(p)
-{
-}
-
-Skin::Skin(QString config, QObject *parent)
+Skin::Skin(QObject *parent)
     : QObject(parent)
-    , d(new SkinPrivate(this))
 {
-    QFileInfo fileInfo(config);
-    d->name = fileInfo.dir().dirName();
-    d->path = fileInfo.absoluteDir().absolutePath();
-    d->config = config;
 }
 
 Skin::~Skin()
 {
-    delete d;
-    d = 0;
 }
 
 QString Skin::name() const
 {
-    return d->name;
+    return m_name;
 }
 
 QString Skin::path() const
 {
-    return d->path;
+    return m_path;
 }
 
 QString Skin::config() const
 {
-    return d->config;
+    return m_config;
 }
 
 Skin *Skin::createSkin(const QString &skinPath, QObject *parent)
 {
     QString mapFile = skinPath + "/skin.map";
-    if (QFile(mapFile).exists())
-        return new Skin(mapFile, parent);
+    if (QFile(mapFile).exists()) {
+        Skin *skin = new Skin(parent);
+        QFileInfo fileInfo(mapFile);
+        skin->m_name = fileInfo.dir().dirName();
+        skin->m_path = fileInfo.absoluteDir().absolutePath();
+        skin->m_config = mapFile;
+        return skin;
+    }
 
     return 0;
 }
 
-#include "skin.moc"

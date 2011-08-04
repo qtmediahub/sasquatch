@@ -22,34 +22,28 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <QObject>
 
-class SkinPrivate;
-
 class Skin : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QString name READ name NOTIFY skinChanged)
-    Q_PROPERTY(QString path READ path NOTIFY skinChanged)
-    Q_PROPERTY(QString config READ config NOTIFY skinChanged)
+    Q_PROPERTY(QString name READ name CONSTANT)
+    Q_PROPERTY(QString path READ path CONSTANT)
+    Q_PROPERTY(QString config READ config CONSTANT)
 
 public:
     static Skin *createSkin(const QString &skinPath, QObject *parent);
 
-    Skin(QString config, QObject *parent);
     ~Skin();
 
     QString name() const;
     QString path() const;
     QString config() const;
 
-signals:
-    void skinChanged();
-
 private:
-    QString mPath;
-    QString mName;
-    QString mConfig;
+    explicit Skin(QObject *parent = 0);
 
-    SkinPrivate *d;
+    QString m_path;
+    QString m_name;
+    QString m_config;
 };
 
 #endif // SKIN_H
