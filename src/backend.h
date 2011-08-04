@@ -23,12 +23,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QObject>
 #include <QList>
 #include <QDateTime>
-#include <QtSql>
 #include <QDesktopServices>
 
 #include "global.h"
-
-#include "media/mediaplugin.h"
 
 class QUrl;
 class BackendPrivate;

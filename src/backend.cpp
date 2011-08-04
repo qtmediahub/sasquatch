@@ -18,16 +18,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 ****************************************************************************/
 
 #include "backend.h"
-#include "frontend.h"
 
 #include "qmh-config.h"
-#include "rpc/rpcconnection.h"
-#include "skin.h"
-#include "scopedtransaction.h"
-#include "media/mediaplugin.h"
 #include "media/mediascanner.h"
-#include "media/mediamodel.h"
-#include "media/mediaparser.h"
 
 #include "httpserver/httpserver.h"
 
@@ -35,25 +28,15 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "qtsingleapplication.h"
 #endif
 
-#include <QDir>
-#include <QString>
-#include <QPluginLoader>
-#include <QCoreApplication>
-#include <QVariant>
-#include <QFileSystemModel>
-#include <QDesktopServices>
-#include <QFileSystemWatcher>
-#include <QNetworkProxy>
-#include <QDeclarativeView>
-#include <QHostInfo>
+#include <QtCore>
+#include <QtDeclarative>
+#include <QDebug>
 
 #ifdef QMH_AVAHI
 #include "qavahiservicepublisher.h"
 #endif
 
 #include "libraryinfo.h"
-
-#include <QDebug>
 
 class BackendPrivate : public QObject
 {
