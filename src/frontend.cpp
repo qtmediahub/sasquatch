@@ -444,7 +444,7 @@ void FrontendPrivate::toggleFullScreen()
 
 void FrontendPrivate::discoverSkins()
 {
-    qDeleteAll(skins);
+    qDeleteAll(skins.values());
     skins.clear();
 
     foreach (const QString &skinPath, LibraryInfo::skinPaths()) {
