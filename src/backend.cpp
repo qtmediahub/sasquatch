@@ -50,8 +50,6 @@ public:
 
     bool primarySession;
 
-    bool remoteControl;
-
     HttpServer *httpServer;
 
     Backend *q;
@@ -60,7 +58,6 @@ public:
 BackendPrivate::BackendPrivate(Backend *p)
     : QObject(p),
       primarySession(true),
-      remoteControl(Config::isEnabled("remote", false)),
       httpServer(0),
       q(p)
 {
@@ -81,7 +78,6 @@ Backend::Backend(QObject *parent)
 {
 #ifdef QMH_AVAHI
     if (d->primarySession
-            && !d->remoteControl
             && Config::isEnabled("avahi", true)
             && Config::isEnabled("avahi-advertize", true)) {
         QAvahiServicePublisher *publisher = new QAvahiServicePublisher(this);
@@ -125,10 +121,8 @@ void Backend::setPrimarySession(bool primarySession)
 
 void Backend::registerQmlProperties(QDeclarativePropertyMap *runtime)
 {
-    if (!d->remoteControl) {
-        runtime->insert("mediaScanner", qVariantFromValue(static_cast<QObject *>(MediaScanner::instance())));
-        runtime->insert("httpServer", qVariantFromValue(static_cast<QObject *>(d->httpServer)));
-    }
+    runtime->insert("mediaScanner", qVariantFromValue(static_cast<QObject *>(MediaScanner::instance())));
+    runtime->insert("httpServer", qVariantFromValue(static_cast<QObject *>(d->httpServer)));
     runtime->insert("backend", qVariantFromValue(static_cast<QObject *>(this)));
 }
 

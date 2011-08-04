@@ -99,3 +99,8 @@ QUrl Skin::urlForResolution(const QString &nativeResolutionString, const QString
     return QUrl::fromLocalFile(m_path % "/" % urlPath);
 }
 
+bool Skin::isRemoteControl() const
+{
+    return m_name.contains("remote"); // ## obviously bad
+}
+

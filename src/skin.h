@@ -39,6 +39,8 @@ public:
     QString path() const;
     QString config() const;
 
+    bool isRemoteControl() const;
+
     QUrl urlForResolution(const QString &nativeResolution, const QString &fallbackResolution);
 
 private:

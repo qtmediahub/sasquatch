@@ -315,7 +315,8 @@ void FrontendPrivate::loadUrl(const QUrl &targetUrl)
         QObject::connect(engine, SIGNAL(quit()), qApp, SLOT(quit()));
 
         QDeclarativePropertyMap *runtime = new QDeclarativePropertyMap(declarativeWidget);
-        backend->registerQmlProperties(runtime);
+        if (!currentSkin->isRemoteControl())
+            backend->registerQmlProperties(runtime);
         actionMapper->setRecipient(declarativeWidget);
         trackpad->setRecipient(declarativeWidget);
         runtime->insert("actionMapper", qVariantFromValue(static_cast<QObject *>(actionMapper)));
