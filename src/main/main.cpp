@@ -19,15 +19,15 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <QApplication>
 #include <QNetworkProxy>
+#include <QNetworkConfigurationManager>
+#include <QNetworkSession>
 #include "qtsingleapplication.h"
 
 #include "mediaserver.h"
 #include "frontend.h"
 #include "qmh-config.h"
 
-#if defined(Q_WS_S60) || defined(Q_WS_MAEMO)
 static QNetworkSession *g_networkSession = 0;
-#endif
 
 static void setupNetwork()
 {
@@ -42,7 +42,6 @@ static void setupNetwork()
         qWarning() << "Using proxy host" << proxyHost << "on port" << proxyPort;
     }
 
-#if defined(Q_WS_S60) || defined(Q_WS_MAEMO)
     // Set Internet Access Point
     QNetworkConfigurationManager mgr;
     QList<QNetworkConfiguration> activeConfigs = mgr.allConfigurations();
@@ -60,7 +59,6 @@ static void setupNetwork()
     g_networkSession = new QNetworkSession(cfg);
     g_networkSession->open();
     g_networkSession->waitForOpened(-1);
-#endif
 }
 
 int main(int argc, char** argv)
