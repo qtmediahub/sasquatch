@@ -272,9 +272,6 @@ bool FrontendPrivate::setSkin(const QString &name)
 
 void FrontendPrivate::initializeSkin(const QUrl &targetUrl)
 {
-    if (targetUrl.isEmpty() || !targetUrl.isValid())
-        qFatal("You are explicitly forcing a broken url on the skin system");
-
     if (mainWindow) {
         Config::setValue("desktop-id", qApp->desktop()->screenNumber(mainWindow));
         if (!attemptingFullScreen)
