@@ -19,9 +19,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <QApplication>
 #include <QNetworkProxy>
-#ifdef QT_SINGLE_APPLICATION
 #include "qtsingleapplication.h"
-#endif
 
 #include "backend.h"
 #include "frontend.h"
@@ -69,26 +67,19 @@ int main(int argc, char** argv)
 {
     QApplication::setGraphicsSystem("raster");
 
-#ifdef QT_SINGLE_APPLICATION
     QtSingleApplication app(argc, argv);
-#else
-    QApplication app(argc, argv);
-#endif //QT_SINGLE_APPLICATION
-
     app.setApplicationName("qtmediahub");
     app.setOrganizationName("Nokia");
     app.setOrganizationDomain("nokia.com");
 
     setupNetwork();
 
-    bool primarySession = true;
-#ifdef QT_SINGLE_APPLICATION
-    primarySession = !app.isRunning();
+    bool primarySession = !app.isRunning();
     if (!(Config::isEnabled("multi-instance", false) || primarySession)) {
         qWarning() << app.applicationName() << "is already running, aborting";
         return false;
     }
-#endif //QT_SINGLE_APPLICATION
+
     Config::init(argc, argv);
 
     Backend backend;
