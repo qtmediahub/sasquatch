@@ -40,12 +40,15 @@ public:
 
 protected:
     void resizeEvent(QResizeEvent *e);
+    bool eventFilter(QObject *obj, QEvent *event);
 
 signals:
     void shrink();
     void grow();
     void toggleFullScreen();
     void resetUI();
+    void inputIdle();
+    void inputActive();
 
 public slots:
     void setOrientation(ScreenOrientation orientation);
@@ -53,6 +56,7 @@ public slots:
 
 private:
     QTimer m_resizeSettleTimer;
+    QTimer m_inputIdleTimer;
     QWidget *m_centralWidget;
 };
 

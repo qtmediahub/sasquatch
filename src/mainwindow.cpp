@@ -38,6 +38,11 @@ MainWindow::MainWindow(QWidget *parent)
     m_resizeSettleTimer.setSingleShot(true);
 
     connect(&m_resizeSettleTimer, SIGNAL(timeout()), this, SLOT(handleResize()));
+
+    m_inputIdleTimer.setInterval(Config::value("idle-timeout", 120)*1000);
+    m_inputIdleTimer.setSingleShot(true);
+    m_inputIdleTimer.start();
+    connect(&m_inputIdleTimer, SIGNAL(timeout()), this, SIGNAL(inputIdle()));
 }
 
 MainWindow::~MainWindow()
@@ -58,6 +63,7 @@ void MainWindow::setCentralWidget(QWidget *centralWidget)
     m_centralWidget = centralWidget;
     m_centralWidget->setParent(this);
     m_centralWidget->setFixedSize(size());
+    m_centralWidget->installEventFilter(this);
     if (isVisible())
         m_centralWidget->show();
 }
@@ -102,5 +108,19 @@ void MainWindow::handleResize()
 {
     if (m_centralWidget)
         m_centralWidget->setFixedSize(size());
+}
+
+bool MainWindow::eventFilter(QObject *obj, QEvent *event)
+{
+    if (event->type() == QEvent::KeyPress
+        || event->type() == QEvent::KeyRelease
+        || event->type() == QEvent::MouseMove
+        || event->type() == QEvent::MouseButtonPress) {
+        if (!m_inputIdleTimer.isActive())
+            emit inputActive();
+        m_inputIdleTimer.start();
+    }
+
+    return QObject::eventFilter(obj, event);
 }
 

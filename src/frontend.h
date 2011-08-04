@@ -60,14 +60,10 @@ public:
     MainWindow *mainWindow() const;
 
     QString resourcePath() const; // ## remove me
-protected:
-    bool eventFilter(QObject *obj, QEvent *event);
 
 signals:
     void frontendChanged();
     void framerateCapChanged();
-    void inputIdle();
-    void inputActive();
     void targetsModelChanged();
 
 private:

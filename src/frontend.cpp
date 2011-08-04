@@ -116,7 +116,6 @@ public:
     Skin *currentSkin;
     MainWindow *mainWindow;
     QDeclarativeContext *rootContext;
-    QTimer inputIdleTimer;
     QSystemTrayIcon *systray;
     QFileSystemWatcher pathMonitor;
     QAbstractItemModel *targetsModel;
@@ -158,11 +157,6 @@ FrontendPrivate::FrontendPrivate(Frontend *p)
         QFontDatabase::addApplicationFont(dejavuPath % "DejaVuSans-BoldOblique.ttf");
         QApplication::setFont(QFont("DejaVu Sans"));
     }
-
-    inputIdleTimer.setInterval(Config::value("idle-timeout", 120)*1000);
-    inputIdleTimer.setSingleShot(true);
-    inputIdleTimer.start();
-    connect(&inputIdleTimer, SIGNAL(timeout()), q, SIGNAL(inputIdle()));
 
     qApp->setOverrideCursor(Qt::BlankCursor);
 
@@ -286,6 +280,7 @@ QWidget *FrontendPrivate::loadQmlSkin(const QUrl &targetUrl)
     }
     runtime->insert("config", qVariantFromValue(static_cast<QObject *>(Config::instance())));
     runtime->insert("frontend", qVariantFromValue(static_cast<QObject *>(q)));
+    runtime->insert("window", qVariantFromValue(static_cast<QObject *>(mainWindow)));
     runtime->insert("cursor", qVariantFromValue(static_cast<QObject *>(new CustomCursor(declarativeWidget))));
     runtime->insert("skin", qVariantFromValue(static_cast<QObject *>(currentSkin)));
     declarativeWidget->rootContext()->setContextProperty("runtime", runtime);
@@ -440,6 +435,13 @@ Frontend::Frontend(QObject *p)
     : QObject(p),
       d(new FrontendPrivate(this)) 
 {
+    d->mainWindow = new MainWindow;
+    optimizeWidgetAttributes(d->mainWindow, true);
+
+    connect(d->mainWindow, SIGNAL(grow()), d, SLOT(grow()));
+    connect(d->mainWindow, SIGNAL(shrink()), d, SLOT(shrink()));
+    connect(d->mainWindow, SIGNAL(resetUI()), d, SLOT(resetUI()));
+    connect(d->mainWindow, SIGNAL(toggleFullScreen()), d, SLOT(toggleFullScreen()));
 }
 
 Frontend::~Frontend()
@@ -512,20 +514,6 @@ void Frontend::addImportPath(const QString &path)
         d->rootContext->engine()->addImportPath(path);
 }
 
-bool Frontend::eventFilter(QObject *obj, QEvent *event)
-{
-    if (event->type() == QEvent::KeyPress
-        || event->type() == QEvent::KeyRelease
-        || event->type() == QEvent::MouseMove
-        || event->type() == QEvent::MouseButtonPress) {
-        if (!d->inputIdleTimer.isActive())
-            emit inputActive();
-        d->inputIdleTimer.start();
-    }
-
-    return QObject::eventFilter(obj, event);
-}
-
 QObject *Frontend::focusItem() const
 {
     QWidget *centralWidget = d->mainWindow->centralWidget();
@@ -543,15 +531,6 @@ QList<Skin *> Frontend::skins() const
 
 MainWindow *Frontend::mainWindow() const
 {
-    if (!d->mainWindow) {
-        d->mainWindow = new MainWindow;
-        optimizeWidgetAttributes(d->mainWindow, true);
-
-        connect(d->mainWindow, SIGNAL(grow()), d, SLOT(grow()));
-        connect(d->mainWindow, SIGNAL(shrink()), d, SLOT(shrink()));
-        connect(d->mainWindow, SIGNAL(resetUI()), d, SLOT(resetUI()));
-        connect(d->mainWindow, SIGNAL(toggleFullScreen()), d, SLOT(toggleFullScreen()));
-    }
     return d->mainWindow;
 }
 
