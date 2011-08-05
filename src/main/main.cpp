@@ -96,9 +96,7 @@ int main(int argc, char** argv)
 
     int ret = app.exec();
     
-#if defined(Q_WS_S60) || defined(Q_WS_MAEMO)
     g_networkSession->close();
-#endif
 
     delete mediaServer;
 
