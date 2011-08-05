@@ -186,7 +186,6 @@ FrontendPrivate::FrontendPrivate(Frontend *p)
     // register dataproviders to QML
     qmlRegisterUncreatableType<ActionMapper>("ActionMapper", 1, 0, "ActionMapper", "For enums. For methods use actionmap global variable");
     qmlRegisterType<DirModel>("DirModel", 1, 0, "DirModel");
-    qmlRegisterType<File>("File", 1, 0, "File");
     qmlRegisterType<Playlist>("Playlist", 1, 0, "Playlist");
     qmlRegisterType<MediaModel>("MediaModel", 1, 0, "MediaModel");
     qmlRegisterType<RpcConnection>("RpcConnection", 1, 0, "RpcConnection");
@@ -304,6 +303,7 @@ QWidget *FrontendPrivate::loadQmlSkin(const QUrl &targetUrl)
     runtime->insert("view", qVariantFromValue(static_cast<QObject *>(declarativeWidget)));
     runtime->insert("cursor", qVariantFromValue(static_cast<QObject *>(new CustomCursor(declarativeWidget))));
     runtime->insert("skin", qVariantFromValue(static_cast<QObject *>(currentSkin)));
+    runtime->insert("file", qVariantFromValue(static_cast<QObject *>(new File(this))));
     declarativeWidget->rootContext()->setContextProperty("runtime", runtime);
 
     engine->addImportPath(LibraryInfo::basePath() % "/imports");

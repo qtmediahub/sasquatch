@@ -27,7 +27,8 @@ SOURCES += qmh-config.cpp \
     customcursor.cpp \
     declarativeview.cpp \
     libraryinfo.cpp \
-    skinselector.cpp
+    skinselector.cpp \
+    file.cpp
 
 HEADERS += qmh-config.h \
     global.h \
