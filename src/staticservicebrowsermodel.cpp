@@ -20,8 +20,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "staticservicebrowsermodel.h"
 #include <QtGui>
 
-#include "backend.h"
-#include "qmh-util.h"
 #include "libraryinfo.h"
 
 StaticServiceBrowserModel::StaticServiceBrowserModel(QObject *parent)

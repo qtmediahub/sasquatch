@@ -2,7 +2,6 @@ include($$PROJECTROOT/src/core-common.pri)
 
 TEMPLATE = app
 TARGET = ../../hub/qtmediahub
-#DESTDIR = $${PROJECTROOT}/hub
 DEPENDPATH += .
 INCLUDEPATH += $${PROJECTROOT}/src/
 
@@ -11,11 +10,9 @@ OBJECTS_DIR = $$TEMP_DIR/.obj
 MOC_DIR = $$TEMP_DIR/.moc
 RCC_DIR = $$TEMP_DIR/.rcc
 
-linux* {
-    include($${PROJECTROOT}/src/3rdparty/qtsingleapplication/qtsingleapplication.pri)
-}
+include($${PROJECTROOT}/src/3rdparty/qtsingleapplication/qtsingleapplication.pri)
 
-QT += sql
+Qt -= gui
 
 # Input
 SOURCES += main.cpp
