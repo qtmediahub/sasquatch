@@ -30,8 +30,6 @@ ActionMapper::ActionMapper(QObject *p, QString mapPath)
       m_parent(p),
       m_mapPath(mapPath + "/devices/keymaps/")
 {
-    setObjectName("qmhrpc");
-
     setupInternalMap();
 
     m_maps = QDir(m_mapPath).entryList(QDir::Files);

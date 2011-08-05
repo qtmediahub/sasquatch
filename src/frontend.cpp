@@ -580,10 +580,13 @@ void FrontendPrivate::enableRemoteControlMode(bool enable)
     }
 
     mediaServer = new MediaServer(this);
-    mediaPlayerRpc = new MediaPlayerRpc(this);
     rpcConnection = new RpcConnection(RpcConnection::Server, QHostAddress::Any, 1234, this);
+    mediaPlayerRpc = new MediaPlayerRpc(this);
+    mediaPlayerRpc->setObjectName("qmhmediaplayer");
     trackpad = new Trackpad(this);
+    trackpad->setObjectName("trackpad");
     actionMapper = new ActionMapper(this, LibraryInfo::basePath());
+    actionMapper->setObjectName("qmhrpc");
 
     rpcConnection->registerObject(actionMapper);
     rpcConnection->registerObject(mediaPlayerRpc);

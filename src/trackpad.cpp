@@ -25,7 +25,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 Trackpad::Trackpad(QObject *p)
     : QObject(p), parent(p)
 {
-    setObjectName("trackpad");
 }
 
 Trackpad::~Trackpad()
