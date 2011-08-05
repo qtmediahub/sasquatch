@@ -38,9 +38,7 @@ public:
     Frontend(QObject *p = 0);
     ~Frontend();
 
-    void show();
-    bool setSkin(const QString &name);
-    bool setSkin(Skin *skin);
+    QWidget *create(Skin *skin, QWidget *window);
 
     QObject *targetsModel() const;
 
@@ -49,7 +47,6 @@ public:
     Q_INVOKABLE void addImportPath(const QString &path);
 
     QHash<QString, Skin *> skins() const;
-    MainWindow *mainWindow() const;
 
 signals:
     void targetsModelChanged();

@@ -20,19 +20,27 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "mainwindow.h"
 #include "qmh-config.h"
 #include "skinselector.h"
+#include "frontend.h"
 
 #include <QGraphicsView>
 #include <QDeclarativeView>
 #include <QShortcut>
 
-MainWindow::MainWindow(Frontend *frontend, QWidget *parent)
+MainWindow::MainWindow(QWidget *parent)
     : QWidget(parent),
-      m_frontend(frontend),
       m_centralWidget(0),
       m_defaultGeometry(0, 0, 1080, 720),
       m_overscanWorkAround(Config::isEnabled("overscan", false)),
       m_attemptingFullScreen(Config::isEnabled("fullscreen", true))
 {
+    setAttribute(Qt::WA_OpaquePaintEvent);
+    if (Config::isEnabled("shine-through", false))
+        setAttribute(Qt::WA_TranslucentBackground);
+    else
+        setAttribute(Qt::WA_NoSystemBackground);
+
+    m_frontend = new Frontend(this);
+
     setOrientation(Config::value("orientation", ScreenOrientationAuto));
 
     new QShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::META + Qt::ALT + Qt::Key_Backspace), this, SIGNAL(resetUI()));
@@ -234,8 +242,37 @@ void MainWindow::show()
 
 void MainWindow::selectSkin()
 {
-    SkinSelector *skinSelector = new SkinSelector(m_frontend, this);
+    SkinSelector *skinSelector = new SkinSelector(m_frontend->skins(), this);
     skinSelector->setAttribute(Qt::WA_DeleteOnClose);
+    connect(skinSelector, SIGNAL(skinSelected(Skin *)), this, SLOT(setSkin(Skin *)));
     skinSelector->exec();
+}
+
+bool MainWindow::setSkin(const QString &name)
+{
+    QHash<QString, Skin *> skins = m_frontend->skins();
+    Skin *newSkin = skins.value(name);
+    if (!newSkin) {
+        newSkin = skins.value(Config::value("default-skin", "confluence").toString());
+    }
+
+    if (!newSkin) {
+        qDebug() << "Failed to set skin:" << name;
+        return false;
+    }
+    setSkin(newSkin);
+    return true;
+}
+
+bool MainWindow::setSkin(Skin *newSkin)
+{
+    QWidget *skinWidget = m_frontend->create(newSkin, this);
+    if (!skinWidget) {
+        qDebug() << "Failed to load skin:" << newSkin->name();
+        return false;
+    }
+
+    setCentralWidget(skinWidget);
+    return true;
 }
 

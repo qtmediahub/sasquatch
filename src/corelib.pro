@@ -23,11 +23,9 @@ SOURCES += qmh-config.cpp \
     dbreader.cpp \
     devicemanager.cpp \
     powermanager.cpp \
-    mainwindow.cpp \
     customcursor.cpp \
     declarativeview.cpp \
     libraryinfo.cpp \
-    skinselector.cpp \
     file.cpp
 
 HEADERS += qmh-config.h \
@@ -44,11 +42,9 @@ HEADERS += qmh-config.h \
     dbreader.h \
     devicemanager.h \
     powermanager.h \
-    mainwindow.h \
     customcursor.h \
     declarativeview.h \
-    libraryinfo.h \
-    skinselector.h
+    libraryinfo.h
 
 include(rpc/rpc.pri)
 include(media/media.pri)

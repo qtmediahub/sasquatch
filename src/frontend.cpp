@@ -49,8 +49,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QGLWidget>
 #endif
 
-#include "mainwindow.h"
-
 #include "qmh-config.h"
 #include "dirmodel.h"
 #include "media/playlist.h"
@@ -89,7 +87,7 @@ public:
     ~FrontendPrivate();
 
 public slots:
-    QWidget *loadQmlSkin(const QUrl &url);
+    QWidget *loadQmlSkin(const QUrl &url, QWidget *window);
 
     void discoverSkins();
 
@@ -110,7 +108,6 @@ public:
     Trackpad *trackpad;
     QHash<QString, Skin *> skins;
     Skin *currentSkin;
-    MainWindow *mainWindow;
     QDeclarativeContext *rootContext;
     QSystemTrayIcon *systray;
     QFileSystemWatcher pathMonitor;
@@ -128,7 +125,6 @@ FrontendPrivate::FrontendPrivate(Frontend *p)
       mediaPlayerRpc(0),
       rpcConnection(0),
       trackpad(0),
-      mainWindow(0),
       rootContext(0),
       targetsModel(0),
       q(p)
@@ -182,8 +178,6 @@ FrontendPrivate::FrontendPrivate(Frontend *p)
 FrontendPrivate::~FrontendPrivate()
 {
     Config::setValue("skin", currentSkin->name());
-
-    delete mainWindow;
 }
 
 static void optimizeWidgetAttributes(QWidget *widget, bool transparent = false)
@@ -208,7 +202,7 @@ static void optimizeGraphicsViewAttributes(QGraphicsView *view)
     view->scene()->setItemIndexMethod(QGraphicsScene::NoIndex);
 }
 
-QWidget *FrontendPrivate::loadQmlSkin(const QUrl &targetUrl)
+QWidget *FrontendPrivate::loadQmlSkin(const QUrl &targetUrl, QWidget *window)
 {
     QPixmapCache::clear();
 
@@ -254,7 +248,7 @@ QWidget *FrontendPrivate::loadQmlSkin(const QUrl &targetUrl)
     }
     runtime->insert("config", qVariantFromValue(static_cast<QObject *>(Config::instance())));
     runtime->insert("frontend", qVariantFromValue(static_cast<QObject *>(q)));
-    runtime->insert("window", qVariantFromValue(static_cast<QObject *>(mainWindow)));
+    runtime->insert("window", qVariantFromValue(static_cast<QObject *>(window)));
     runtime->insert("view", qVariantFromValue(static_cast<QObject *>(declarativeWidget)));
     runtime->insert("cursor", qVariantFromValue(static_cast<QObject *>(new CustomCursor(declarativeWidget))));
     runtime->insert("skin", qVariantFromValue(static_cast<QObject *>(currentSkin)));
@@ -311,8 +305,6 @@ Frontend::Frontend(QObject *p)
     : QObject(p),
       d(new FrontendPrivate(this)) 
 {
-    d->mainWindow = new MainWindow(this);
-    optimizeWidgetAttributes(d->mainWindow, true);
 }
 
 Frontend::~Frontend()
@@ -321,27 +313,7 @@ Frontend::~Frontend()
     d = 0;
 }
 
-void Frontend::show()
-{
-    d->mainWindow->show();
-}
-
-bool Frontend::setSkin(const QString &name)
-{
-    Skin *newSkin = d->skins.value(name);
-    if (!newSkin) {
-        newSkin = d->skins.value(Config::value("default-skin", "confluence").toString());
-    }
-
-    if (!newSkin) {
-        qDebug() << "Failed to set skin:" << name;
-        return false;
-    }
-
-    return setSkin(newSkin);
-}
-
-bool Frontend::setSkin(Skin *skin)
+QWidget *Frontend::create(Skin *skin, QWidget *window)
 {
     QSize nativeResolution = qApp->desktop()->screenGeometry().size();
     QString nativeResolutionString = Config::value("native-res-override", QString("%1x%2").arg(nativeResolution.width()).arg(nativeResolution.height()));
@@ -357,8 +329,7 @@ bool Frontend::setSkin(Skin *skin)
 
     d->currentSkin = skin;
     d->enableRemoteControlMode(skin->isRemoteControl());
-    mainWindow()->setCentralWidget(d->loadQmlSkin(url));
-    return true;
+    return d->loadQmlSkin(url, window);
 }
 
 void Frontend::addImportPath(const QString &path)
@@ -370,11 +341,6 @@ void Frontend::addImportPath(const QString &path)
 QHash<QString, Skin *> Frontend::skins() const
 {
     return d->skins;
-}
-
-MainWindow *Frontend::mainWindow() const
-{
-    return d->mainWindow;
 }
 
 QObject *Frontend::targetsModel() const

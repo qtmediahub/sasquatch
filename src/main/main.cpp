@@ -23,8 +23,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QNetworkSession>
 #include "qtsingleapplication.h"
 
+#include "mainwindow.h"
 #include "mediaserver.h"
-#include "frontend.h"
 #include "qmh-config.h"
 
 static QNetworkSession *g_networkSession = 0;
@@ -81,12 +81,12 @@ int main(int argc, char** argv)
     Config::init(argc, argv);
 
     MediaServer *mediaServer = 0;
-    Frontend *frontend = 0;
 
     if (!Config::isEnabled("headless", qgetenv("DISPLAY").isEmpty())) {
-        frontend = new Frontend;
-        frontend->setSkin(Config::value("skin", "").toString());
-        frontend->show();
+        MainWindow *mainWindow = new MainWindow;
+        mainWindow->setAttribute(Qt::WA_DeleteOnClose);
+        mainWindow->setSkin(Config::value("skin", "").toString());
+        mainWindow->show();
     } else {
         mediaServer = new MediaServer;
     }
@@ -98,7 +98,6 @@ int main(int argc, char** argv)
 #endif
 
     delete mediaServer;
-    delete frontend;
 
     return ret;
 }

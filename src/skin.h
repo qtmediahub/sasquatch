@@ -23,8 +23,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QObject>
 #include <QMetaType>
 #include <QUrl>
+#include "global.h"
 
-class Skin : public QObject
+class QMH_EXPORT Skin : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString name READ name CONSTANT)

@@ -3,20 +3,20 @@
 
 #include <QDialog>
 
-class Frontend;
 class QListWidgetItem;
+class Skin;
 
 class SkinSelector : public QDialog
 {
     Q_OBJECT
 public:
-    SkinSelector(Frontend *frontend, QWidget *parent = 0);
+    SkinSelector(const QHash<QString, Skin *> &skins, QWidget *parent = 0);
+
+signals:
+    void skinSelected(Skin *skin);
 
 private slots:
     void handleSkinSelection(QListWidgetItem* item);
-
-private:
-    Frontend *m_frontend;
 };
 
 #endif // SKINSELECTOR_H

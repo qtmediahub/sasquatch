@@ -24,6 +24,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QTimer>
 
 class Frontend;
+class Skin;
 
 class MainWindow : public QWidget
 {
@@ -34,7 +35,7 @@ public:
         ScreenOrientationLockLandscape,
         ScreenOrientationAuto
     };
-    MainWindow(Frontend *frontend, QWidget *parent = 0);
+    MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
     void setCentralWidget(QWidget *cw);
@@ -45,6 +46,8 @@ public slots:
     void show();
     void showFullScreen();
     void showNormal();
+    bool setSkin(const QString &name);
+    bool setSkin(Skin*skin);
 
 signals:
     void resetUI();

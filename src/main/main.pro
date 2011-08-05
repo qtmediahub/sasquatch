@@ -15,7 +15,12 @@ include($${PROJECTROOT}/src/3rdparty/qtsingleapplication/qtsingleapplication.pri
 Qt -= gui
 
 # Input
-SOURCES += main.cpp
+SOURCES += main.cpp \
+           mainwindow.cpp \
+           skinselector.cpp
+
+HEADERS += mainwindow.h \
+           skinselector.h
 
 RESOURCES = main.qrc
 
