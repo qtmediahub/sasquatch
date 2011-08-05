@@ -20,18 +20,17 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "mediamodel.h"
 #include "mediascanner.h"
 #include "dbreader.h"
-#include "backend.h"
-#include <sqlite3.h>
+#include "qmh-config.h"
 
 #define DEBUG if (0) qDebug() << this << __PRETTY_FUNCTION__
 
 MediaModel::MediaModel(QObject *parent)
     : QAbstractItemModel(parent), m_loading(false), m_loaded(false), m_reader(0), m_readerThread(0)
 {
-    m_refreshTimer.setInterval(10000);
+    m_refreshTimer.setInterval(Config::value("mediamodel-refresh-interval", 10000));
     connect(&m_refreshTimer, SIGNAL(timeout()), this, SLOT(refresh()));
 
-    MediaScanner *scanner = Backend::instance()->mediaScanner();
+    MediaScanner *scanner = MediaScanner::instance();
     connect(scanner, SIGNAL(scanStarted(QString)), this, SLOT(handleScanStarted(QString)));
     connect(scanner, SIGNAL(scanFinished(QString)), this, SLOT(handleScanFinished(QString)));
     connect(scanner, SIGNAL(searchPathRemoved(QString, QString)), this, SLOT(handleScanFinished(QString)));
@@ -71,7 +70,7 @@ void MediaModel::setMediaType(const QString &type)
     emit mediaTypeChanged();
 
     // Add the fields of the table as role names
-    QSqlDriver *driver = Backend::instance()->mediaDatabase().driver();
+    QSqlDriver *driver = QSqlDatabase::database(DEFAULT_DATABASE_CONNECTION_NAME).driver();
     QSqlRecord record = driver->record(m_mediaType);
     if (record.isEmpty())
         qWarning() << "Table " << type << " is not valid it seems";
@@ -224,7 +223,7 @@ void MediaModel::createNewDbReader()
     m_reader = new DbReader;
     m_reader->moveToThread(m_readerThread);
 
-    QMetaObject::invokeMethod(m_reader, "initialize", Q_ARG(QSqlDatabase, Backend::instance()->mediaDatabase()));
+    QMetaObject::invokeMethod(m_reader, "initialize", Q_ARG(QSqlDatabase, QSqlDatabase::database(DEFAULT_DATABASE_CONNECTION_NAME)));
     connect(m_reader, SIGNAL(dataReady(DbReader *, QList<QSqlRecord>, void *)),
             this, SLOT(handleDataReady(DbReader *, QList<QSqlRecord>, void *)));
 }
@@ -272,13 +271,10 @@ void MediaModel::handleDataReady(DbReader *reader, const QList<QSqlRecord> &reco
 
     DEBUG << "Received response from db of size " << records.size();
 
-    if (records.isEmpty())
-        return;
-
     if (m_data.isEmpty()) {
         insertAll(records);
     } else {
-        insertNew(records);
+        update(records);
     }
 
     m_loading = false;
@@ -287,23 +283,24 @@ void MediaModel::handleDataReady(DbReader *reader, const QList<QSqlRecord> &reco
 
 void MediaModel::insertAll(const QList<QSqlRecord> &records)
 {
-    if (!m_cursor.isEmpty()) {
-        beginInsertRows(QModelIndex(), 0, records.count());
-    } else {
-        beginInsertRows(QModelIndex(), 0, records.count() - 1);
-    }
+    const bool addDotDot = !m_cursor.isEmpty();
+
+    if (records.isEmpty() && !addDotDot)
+        return;
+
+    beginInsertRows(QModelIndex(), 0, records.count() + (addDotDot ? 0 : -1));
 
     for (int i = 0; i < records.count(); i++) {
         QHash<int, QVariant> data = dataFromRecord(records[i]);
         m_data.append(data);
     }
 
-    if (!m_cursor.isEmpty()) {
+    if (addDotDot) {
         QHash<int, QVariant> data;
         data.insert(Qt::DisplayRole, tr(".."));
         data.insert(DotDotRole, true);
         data.insert(IsLeafRole, false);
-        m_data.append(data);
+        m_data.prepend(data);
     }
 
     endInsertRows();
@@ -322,9 +319,10 @@ int MediaModel::compareData(int idx, const QSqlRecord &record) const
     return 0;
 }
 
-void MediaModel::insertNew(const QList<QSqlRecord> &records)
+void MediaModel::update(const QList<QSqlRecord> &records)
 {
-    int old = 0, shiny = 0;
+    const bool hasDotDot = !m_cursor.isEmpty();
+    int old = (int)hasDotDot, shiny = 0;
     
     while (shiny < records.length()) {
         const QSqlRecord &record = records[shiny];
@@ -355,7 +353,8 @@ void MediaModel::insertNew(const QList<QSqlRecord> &records)
 
 QSqlQuery MediaModel::buildQuery() const
 {
-    QSqlDriver *driver = Backend::instance()->mediaDatabase().driver();
+    QSqlDatabase db = QSqlDatabase::database(DEFAULT_DATABASE_CONNECTION_NAME);
+    QSqlDriver *driver = db.driver();
 
     QStringList escapedCurParts;
     QStringList curParts = m_layoutInfo[m_cursor.count()];
@@ -363,7 +362,7 @@ QSqlQuery MediaModel::buildQuery() const
         escapedCurParts.append(driver->escapeIdentifier(curParts[i], QSqlDriver::FieldName));
     QString escapedCurPart = escapedCurParts.join(",");
 
-    QSqlQuery query(Backend::instance()->mediaDatabase());
+    QSqlQuery query(db);
     query.setForwardOnly(true);
 
     QStringList placeHolders;

@@ -23,6 +23,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QObject>
 #include <QtDeclarative>
 #include <QDebug>
+#include <QWeakPointer>
 
 class ActionMapper : public QObject
 {
@@ -50,12 +51,15 @@ public:
         VolumeDown
     };
 
-    ActionMapper(QObject *p);
+    ActionMapper(QObject *p, QString mapPath);
 
-    Q_INVOKABLE QStringList availableMaps() const;
-
+    Q_INVOKABLE QStringList availableMaps() const {
+        return m_maps;
+    }
     QString map() const { return m_mapName; }
     void setMap(const QString &map);
+
+    void setRecipient(QObject *recipient);
 
 public slots:
     void takeAction(int action) { takeAction(static_cast<Action>(action)); }
@@ -69,6 +73,7 @@ private:
     void populateMap();
     void setupInternalMap();
 
+    QWeakPointer<QObject> m_recipient;
     QObject *m_parent;
     QString m_mapName;
     QString m_mapPath;

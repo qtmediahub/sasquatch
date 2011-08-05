@@ -21,18 +21,15 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <QKeyEvent>
 
-#include "backend.h"
 #include "frontend.h"
 
 #include "qmh-config.h"
 
-ActionMapper::ActionMapper(QObject *p)
+ActionMapper::ActionMapper(QObject *p, QString mapPath)
     : QObject(p),
       m_parent(p),
-      m_mapPath(Backend::instance()->basePath() + "/devices/keymaps/")
+      m_mapPath(mapPath + "/devices/keymaps/")
 {
-    setObjectName("qmhrpc");
-
     setupInternalMap();
 
     m_maps = QDir(m_mapPath).entryList(QDir::Files);
@@ -45,6 +42,10 @@ ActionMapper::ActionMapper(QObject *p)
 
 void ActionMapper::takeAction(Action action)
 {
+    if(m_recipient.isNull()) {
+        qWarning("Trying to send an action when no recipient is set");
+        return;
+    }
     QHash<int, Action>::const_iterator it;
     for (it = m_actionMap.constBegin(); it != m_actionMap.constEnd(); ++it) {
         if (it.value() == action)
@@ -53,9 +54,9 @@ void ActionMapper::takeAction(Action action)
     if (it == m_actionMap.constEnd())
         return;
     QKeyEvent keyPress(QEvent::KeyPress, it.key(), Qt::NoModifier);
-    qApp->sendEvent(m_parent, &keyPress);
+    qApp->sendEvent(m_recipient.data(), &keyPress);
     QKeyEvent keyRelease(QEvent::KeyRelease, it.key(), Qt::NoModifier);
-    qApp->sendEvent(m_parent, &keyRelease);
+    qApp->sendEvent(m_recipient.data(), &keyRelease);
 }
 
 void ActionMapper::populateMap()
@@ -110,9 +111,16 @@ void ActionMapper::setMap(const QString &map)
     populateMap();
 }
 
-QStringList ActionMapper::availableMaps() const
+void ActionMapper::setRecipient(QObject *recipient)
 {
-    return m_maps;
+    recipient->installEventFilter(this);
+    QGraphicsView *potentialView = qobject_cast<QGraphicsView*>(recipient);
+    if (potentialView) {
+        // directly send to the scene, to avoid loops
+        m_recipient = QWeakPointer<QObject>(potentialView->scene());
+    } else {
+        m_recipient = QWeakPointer<QObject>(recipient);
+    }
 }
 
 bool ActionMapper::eventFilter(QObject *obj, QEvent *event)
@@ -123,14 +131,10 @@ bool ActionMapper::eventFilter(QObject *obj, QEvent *event)
     if (event->type() == QEvent::KeyPress || event->type() == QEvent::KeyRelease) {
         QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
         int key = keyEvent->key();
-        if (m_actionMap.contains(key))
-        {
+        if (m_actionMap.contains(key)) {
             //squash key events
-            if (primitiveKeyCompression
-                    && keyEvent->isAutoRepeat())
-            {
-                if (repeatingKeys.contains(key))
-                {
+            if (primitiveKeyCompression && keyEvent->isAutoRepeat()) {
+                if (repeatingKeys.contains(key)) {
                     repeatingKeys[key] += 1;
                     if (repeatingKeys[key]%keyDiscardRate > 1) {
                         return true;
@@ -148,12 +152,11 @@ bool ActionMapper::eventFilter(QObject *obj, QEvent *event)
                         , keyEvent->text()
                         , keyEvent->isAutoRepeat()
                         , keyEvent->count());
-
-            // directly send to the scene, to avoid loops
-            QDeclarativeView *v = qobject_cast<QDeclarativeView*>(obj);
-            if (v) {
-                QApplication::postEvent(v->scene(), e);
+            if (!m_recipient.isNull()) {
+                QApplication::postEvent(m_recipient.data(), e);
                 return true;
+            } else {
+                qDebug() << "The intended recipient has been forcibly shuffled off this mortal coil";
             }
         }
     }

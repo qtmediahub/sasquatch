@@ -20,8 +20,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "staticservicebrowsermodel.h"
 #include <QtGui>
 
-#include "backend.h"
-#include "qmh-util.h"
+#include "libraryinfo.h"
 
 StaticServiceBrowserModel::StaticServiceBrowserModel(QObject *parent)
     : QAbstractListModel(parent), m_initing(true)
@@ -32,9 +31,9 @@ StaticServiceBrowserModel::StaticServiceBrowserModel(QObject *parent)
     roleNames[PortRole] = "port";
     setRoleNames(roleNames);
 
-    QString servicesFile = Utils::storageLocation(QDesktopServices::DataLocation) + "/services.conf";
-    QDir storageLocation(Utils::storageLocation(QDesktopServices::DataLocation));
-    storageLocation.mkpath(".");
+    QString storageLocation = LibraryInfo::dataPath();
+    QString servicesFile = storageLocation + "/services.conf";
+    QDir(storageLocation).mkpath(".");
     if (QFile::exists(servicesFile)) {
         initModelFromFile(servicesFile);
     } else {
@@ -97,7 +96,7 @@ void StaticServiceBrowserModel::removeService(int i)
 
 void StaticServiceBrowserModel::save()
 {
-    QString servicesFileName = Utils::storageLocation(QDesktopServices::DataLocation) + "/services.conf";
+    QString servicesFileName = LibraryInfo::dataPath() + "/services.conf";
     QFile file(servicesFileName);
     file.open(QFile::WriteOnly);
     QTextStream stream(&file);

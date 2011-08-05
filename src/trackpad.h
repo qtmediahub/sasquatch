@@ -22,6 +22,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <QObject>
 #include <QCoreApplication>
+#include <QDeclarativeContext>
+#include <QWeakPointer>
 
 class Trackpad : public QObject
 {
@@ -32,11 +34,14 @@ public:
     ~Trackpad();
 
 public slots:
+    void setRecipient(QWidget *recipient);
     void setEnabled(bool enable);
     void moveBy(int x, int y);
     void click();
 
 private:
+    QWeakPointer<QWidget> m_recipient;
+    QWeakPointer<QDeclarativeContext> m_recipientContext;
     QObject *parent;
 };
 

@@ -14,7 +14,7 @@ DEFINES += BUILDING_QMH
 # Input
 SOURCES += qmh-config.cpp \
     frontend.cpp \
-    backend.cpp \
+    mediaserver.cpp \
     actionmapper.cpp \
     trackpad.cpp \
     scopedtransaction.cpp \
@@ -23,14 +23,17 @@ SOURCES += qmh-config.cpp \
     dbreader.cpp \
     devicemanager.cpp \
     powermanager.cpp \
-    widgetwrapper.cpp \
+    mainwindow.cpp \
     customcursor.cpp \
-    qmh-util.cpp
+    declarativeview.cpp \
+    libraryinfo.cpp \
+    skinselector.cpp \
+    file.cpp
 
 HEADERS += qmh-config.h \
     global.h \
     frontend.h \
-    backend.h \
+    mediaserver.h \
     dirmodel.h \
     file.h \
     actionmapper.h \
@@ -41,9 +44,11 @@ HEADERS += qmh-config.h \
     dbreader.h \
     devicemanager.h \
     powermanager.h \
-    widgetwrapper.h \
-    qmh-util.h \
-    customcursor.h
+    mainwindow.h \
+    customcursor.h \
+    declarativeview.h \
+    libraryinfo.h \
+    skinselector.h
 
 include(rpc/rpc.pri)
 include(media/media.pri)

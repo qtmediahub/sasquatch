@@ -25,34 +25,17 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QtDeclarative>
 #include <QDebug>
 
+#include "libraryinfo.h"
+
 class File : public QObject
 {
     Q_OBJECT
 
-    public:
-    Q_INVOKABLE QStringList readAllLines(const QString &filename)
-    {
-        QFile file(filename);
-        file.open(QIODevice::ReadOnly | QIODevice::Text);
-        QTextStream textContent(&file);
-        QStringList lines;
-        int emptyLineCount = 0;
-        while(!(file.isSequential() && textContent.atEnd())
-              && (emptyLineCount < 5))
-        {
-            QString currentLine = textContent.readLine();
-            if(currentLine.isEmpty())
-                emptyLineCount++;
-            else
-                emptyLineCount = 0;
-            lines << currentLine;
-        }
-        //Trim, especially important for virtual files
-        for(int i = 0; i < emptyLineCount; i++)
-            lines.removeLast();
+public:
+    explicit File(QObject *parent = 0);
 
-        return lines;
-    }
+    Q_INVOKABLE QStringList readAllLines(const QString &filename);
+    Q_INVOKABLE QStringList findApplications() const;
 };
 
 QML_DECLARE_TYPE(File)

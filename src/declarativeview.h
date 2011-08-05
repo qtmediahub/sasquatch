@@ -17,66 +17,43 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 ****************************************************************************/
 
-#include "device.h"
+#ifndef DECLARATIVEVIEW_H
+#define DECLARATIVEVIEW_H
 
-Device::Device(const QString &p, QObject *parent) :
-    QObject(parent)
-  , m_path(p)
-  , m_type(Device::Undefined)
+#include <QDeclarativeView>
+#include <QElapsedTimer>
+
+class DeclarativeView : public QDeclarativeView
 {
-#ifndef NO_DBUS
-    m_deviceInterface = new UDisksDeviceInterface("org.freedesktop.UDisks", m_path, QDBusConnection::systemBus(), this);
-    if (!m_deviceInterface->isValid()) {
-        m_valid = false;
-        return;
-    }
-    m_valid = true;
-    m_isPartition = m_deviceInterface->DeviceIsPartition();
-    m_mountPoint = m_deviceInterface->DeviceMountPath();
-    m_label = m_deviceInterface->IdLabel();
-    m_uuid = m_deviceInterface->IdUuid();
-    m_type = Device::UsbDrive;
-    connect(m_deviceInterface, SIGNAL(Changed()), this, SLOT(deviceChanged()));
+    Q_OBJECT
+    Q_PROPERTY(int fps READ fps NOTIFY fpsChanged)
 
-#else
-    // no implementation yet, so not valid
-    m_valid = false;
-    m_isPartition = false;
-#endif
+public:
+    DeclarativeView(QWidget *parent = 0);
+    void setSource(const QUrl &url);
 
-    emit changed();
-}
+    Q_INVOKABLE QObject *focusItem() const;
 
-void Device::mount()
-{
-#ifndef NO_DBUS
-    m_deviceInterface->FilesystemMount();
-#endif
-}
+    int fps() const;
 
-void Device::unmount()
-{
-#ifndef NO_DBUS
-    m_deviceInterface->FilesystemUnmount();
-#endif
-}
+protected:
+    void paintEvent(QPaintEvent *event);
+    void timerEvent(QTimerEvent *event);
 
-void Device::eject()
-{
-#ifndef NO_DBUS
-    m_deviceInterface->DriveEject();
-#endif
-}
+public slots:
+    void handleSourceChanged();
+    void handleStatusChanged(QDeclarativeView::Status status);
 
-void Device::deviceChanged()
-{
-#ifndef NO_DBUS
-    m_isPartition = m_deviceInterface->DeviceIsPartition();
-    m_mountPoint = m_deviceInterface->DeviceMountPath();
-    m_label = m_deviceInterface->IdLabel();
-    m_uuid = m_deviceInterface->IdUuid();
-    m_type = Device::UsbDrive;
-#endif
+signals:
+    void fpsChanged();
 
-    emit changed();
-}
+private:
+    int m_frameCount;
+    int m_timeSigma;
+    int m_fps;
+    QElapsedTimer m_frameTimer;
+    QUrl m_url;
+};
+
+#endif // DECLARATIVEVIEW_H
+

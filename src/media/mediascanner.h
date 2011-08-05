@@ -24,6 +24,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QFileInfo>
 #include <QSqlDatabase>
 #include <QSqlRecord>
+#include <QStringList>
 #include <QHash>
 #include "global.h"
 
@@ -37,7 +38,8 @@ class QMH_EXPORT MediaScanner : public QObject
     Q_PROPERTY(QString currentScanPath READ currentScanPath NOTIFY currentScanPathChanged)
 
 public:
-    MediaScanner(const QSqlDatabase &db, QObject *parent = 0);
+    static MediaScanner *instance();
+    static void destroy();
     ~MediaScanner();
 
     struct FileInfo {
@@ -56,6 +58,8 @@ public:
 
     Q_INVOKABLE void addSearchPath(const QString &type, const QString &path, const QString &name);
     Q_INVOKABLE void removeSearchPath(const QString &type, const QString &path);
+    Q_INVOKABLE QStringList searchPaths(const QString &type) const;
+
     Q_INVOKABLE void refresh(const QString &type = QString());
     Q_INVOKABLE void addParser(MediaParser *);
     
@@ -70,10 +74,15 @@ private slots:
     void handleScanPathChanged(const QString &scanPath);
 
 private:
+    explicit MediaScanner(QObject *parent = 0);
+    void ensureDatabase();
+    void loadParserPlugins();
+
     QThread *m_workerThread;
     MediaScannerWorker *m_worker;
     QString m_currentScanPath;
-
+    
+    static MediaScanner *s_instance;
     friend class MediaScannerWorker;
 };
 

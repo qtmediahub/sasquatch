@@ -17,66 +17,56 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 ****************************************************************************/
 
-#include "device.h"
+#include "mediaserver.h"
+#include "qmh-config.h"
+#include "media/mediascanner.h"
+#include "httpserver/httpserver.h"
 
-Device::Device(const QString &p, QObject *parent) :
-    QObject(parent)
-  , m_path(p)
-  , m_type(Device::Undefined)
+#include <QtCore>
+#include <QDebug>
+
+#ifdef QMH_AVAHI
+#include "qavahiservicepublisher.h"
+#endif
+
+#include "libraryinfo.h"
+
+MediaServer::MediaServer(QObject *parent)
+    : QObject(parent)
 {
-#ifndef NO_DBUS
-    m_deviceInterface = new UDisksDeviceInterface("org.freedesktop.UDisks", m_path, QDBusConnection::systemBus(), this);
-    if (!m_deviceInterface->isValid()) {
-        m_valid = false;
-        return;
+#ifdef QMH_AVAHI
+    if (Config::isEnabled("avahi", true) && Config::isEnabled("avahi-advertize", true)) {
+        QAvahiServicePublisher *publisher = new QAvahiServicePublisher(this);
+        publisher->publish(QHostInfo::localHostName(), "_qtmediahub._tcp", 1234, "Qt Media Hub JSON-RPCv2 interface");
+        qDebug() << "Advertizing session via zeroconf";
+    } else {
+        qDebug() << "Failing to advertize session via zeroconf";
     }
-    m_valid = true;
-    m_isPartition = m_deviceInterface->DeviceIsPartition();
-    m_mountPoint = m_deviceInterface->DeviceMountPath();
-    m_label = m_deviceInterface->IdLabel();
-    m_uuid = m_deviceInterface->IdUuid();
-    m_type = Device::UsbDrive;
-    connect(m_deviceInterface, SIGNAL(Changed()), this, SLOT(deviceChanged()));
-
-#else
-    // no implementation yet, so not valid
-    m_valid = false;
-    m_isPartition = false;
 #endif
 
-    emit changed();
+    ensureStandardPaths();
+    m_httpServer = new HttpServer(Config::value("stream-port", "1337").toInt(), this);
+    MediaScanner::instance();
 }
 
-void Device::mount()
+MediaServer::~MediaServer()
 {
-#ifndef NO_DBUS
-    m_deviceInterface->FilesystemMount();
-#endif
+    MediaScanner::destroy();
 }
 
-void Device::unmount()
+void MediaServer::ensureStandardPaths()
 {
-#ifndef NO_DBUS
-    m_deviceInterface->FilesystemUnmount();
-#endif
+    QDir dir;
+    dir.mkpath(LibraryInfo::thumbnailPath());
+    dir.mkpath(LibraryInfo::dataPath());
 }
 
-void Device::eject()
+HttpServer *MediaServer::httpServer() const
 {
-#ifndef NO_DBUS
-    m_deviceInterface->DriveEject();
-#endif
+    return m_httpServer;
 }
 
-void Device::deviceChanged()
+MediaScanner *MediaServer::mediaScanner() const
 {
-#ifndef NO_DBUS
-    m_isPartition = m_deviceInterface->DeviceIsPartition();
-    m_mountPoint = m_deviceInterface->DeviceMountPath();
-    m_label = m_deviceInterface->IdLabel();
-    m_uuid = m_deviceInterface->IdUuid();
-    m_type = Device::UsbDrive;
-#endif
-
-    emit changed();
+    return MediaScanner::instance();
 }

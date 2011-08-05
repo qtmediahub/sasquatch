@@ -19,14 +19,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "devicemanager.h"
 
-#ifndef QT_NO_DBUS
+#ifndef NO_DBUS
 #include "devicemanagerdbus.h"
 #endif
 
 DeviceManager::DeviceManager(QObject *parent) :
     QObject(parent)
 {
-#ifndef QT_NO_DBUS
+#ifndef NO_DBUS
     m_helper = new DeviceManagerDBus(this);
     connect(m_helper, SIGNAL(deviceAdded(QString)), this, SIGNAL(deviceAdded(QString)));
     connect(m_helper, SIGNAL(deviceRemoved(QString)), this, SIGNAL(deviceRemoved(QString)));
@@ -37,7 +37,7 @@ DeviceManager::DeviceManager(QObject *parent) :
 
 QObject *DeviceManager::getDeviceByPath(const QString &path)
 {
-#ifndef QT_NO_DBUS
+#ifndef NO_DBUS
     return qobject_cast<QObject*>(m_helper->getDeviceByPath(path));
 #else
     return 0;

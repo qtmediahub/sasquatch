@@ -17,85 +17,32 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 ****************************************************************************/
 
-#ifndef BACKEND_H
-#define BACKEND_H
+#ifndef MEDIASERVER_H
+#define MEDIASERVER_H
 
 #include <QObject>
-#include <QList>
-#include <QDateTime>
-#include <QtSql>
-#include <QDesktopServices>
+
+
+class HttpServer;
+class MediaScanner;
 
 #include "global.h"
 
-#include "media/mediaplugin.h"
-
-class QUrl;
-class BackendPrivate;
-class Skin;
-class Frontend;
-class QAction;
-class MediaScanner;
-
-class QMH_EXPORT Backend : public QObject
+class QMH_EXPORT MediaServer : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QList<Skin*> skins READ skins NOTIFY skinsChanged)
-    Q_PROPERTY(QString pluginPath READ pluginPath NOTIFY pluginPathChanged)
-    Q_PROPERTY(QString resourcePath READ resourcePath NOTIFY resourcePathChanged)
-    Q_PROPERTY(QObject *targetsModel READ targetsModel NOTIFY targetsModelChanged)
 
 public:
-    static Backend *instance();
-    ~Backend();
+    explicit MediaServer(QObject *parent = 0);
+    ~MediaServer();
 
-    static QString storageLocation(QDesktopServices::StandardLocation type);
-
-    QString language() const;
-
-    QList<Skin*> skins() const;
-
-    QList<QAction*> actions() const;
-
-    QString basePath() const;
-    QString pluginPath() const;
-    QString resourcePath() const;
-    QString thumbnailPath() const;
-
-    Q_INVOKABLE void openUrlExternally(const QUrl &url) const;
-    Q_INVOKABLE void log(const QString &logMsg);
-
-    QObject *targetsModel() const;
-
-    Frontend *frontend() const;
-
+    HttpServer *httpServer() const;
     MediaScanner *mediaScanner() const;
-    QSqlDatabase mediaDatabase() const;
-
-    Q_INVOKABLE void loadEngines();
-    Q_INVOKABLE QStringList findApplications() const;
-
-    void setPrimarySession(bool);
-
-protected:
-    bool eventFilter(QObject *obj, QEvent *event);
-
-public slots:
-    void initialize();
-
-signals:
-    void skinsChanged();
-    void pluginPathChanged();
-    void resourcePathChanged();
-    void backendChanged();
-    void inputIdle();
-    void inputActive();
-    void targetsModelChanged();
 
 private:
-    explicit Backend(QObject *parent = 0);
-    static Backend *s_instance;
-    BackendPrivate *d;
+    void ensureStandardPaths();
+
+    HttpServer *m_httpServer;
 };
 
-#endif // BACKEND_H
+#endif // MEDIASERVER_H

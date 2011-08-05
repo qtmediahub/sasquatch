@@ -49,6 +49,7 @@ public:
     };
 
     void registerObject(QObject *object);
+    void unregisterObject(QObject *object);
 
     bool listen(const QHostAddress &address = QHostAddress::Any, quint16 port = 0);
     void connectToHost(const QHostAddress &address, quint16 port);

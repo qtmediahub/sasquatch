@@ -17,66 +17,61 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 ****************************************************************************/
 
-#include "device.h"
+#include "declarativeview.h"
+#include <QGraphicsObject>
 
-Device::Device(const QString &p, QObject *parent) :
-    QObject(parent)
-  , m_path(p)
-  , m_type(Device::Undefined)
+DeclarativeView::DeclarativeView(QWidget *parent)
+    : QDeclarativeView(parent),
+      m_frameCount(0),
+      m_fps(0)
 {
-#ifndef NO_DBUS
-    m_deviceInterface = new UDisksDeviceInterface("org.freedesktop.UDisks", m_path, QDBusConnection::systemBus(), this);
-    if (!m_deviceInterface->isValid()) {
-        m_valid = false;
-        return;
+    startTimer(1000);
+    connect(this, SIGNAL(statusChanged(QDeclarativeView::Status)), this, SLOT(handleStatusChanged(QDeclarativeView::Status)));
+}
+
+void DeclarativeView::setSource(const QUrl &url)
+{
+    m_url = url;
+    QMetaObject::invokeMethod(this, "handleSourceChanged", Qt::QueuedConnection);
+}
+
+void DeclarativeView::paintEvent(QPaintEvent *event)
+{
+    m_frameTimer.restart();
+    QGraphicsView::paintEvent(event);
+    m_timeSigma += m_frameTimer.elapsed();
+    ++m_frameCount;
+}
+
+void DeclarativeView::timerEvent(QTimerEvent *event)
+{
+    if (m_timeSigma) {
+        m_fps = 1000*m_frameCount/m_timeSigma;
+        m_timeSigma = m_frameCount = 0;
+        emit fpsChanged();
     }
-    m_valid = true;
-    m_isPartition = m_deviceInterface->DeviceIsPartition();
-    m_mountPoint = m_deviceInterface->DeviceMountPath();
-    m_label = m_deviceInterface->IdLabel();
-    m_uuid = m_deviceInterface->IdUuid();
-    m_type = Device::UsbDrive;
-    connect(m_deviceInterface, SIGNAL(Changed()), this, SLOT(deviceChanged()));
-
-#else
-    // no implementation yet, so not valid
-    m_valid = false;
-    m_isPartition = false;
-#endif
-
-    emit changed();
+    QDeclarativeView::timerEvent(event);
 }
 
-void Device::mount()
+void DeclarativeView::handleSourceChanged()
 {
-#ifndef NO_DBUS
-    m_deviceInterface->FilesystemMount();
-#endif
+    QDeclarativeView::setSource(m_url);
 }
 
-void Device::unmount()
+void DeclarativeView::handleStatusChanged(QDeclarativeView::Status status)
 {
-#ifndef NO_DBUS
-    m_deviceInterface->FilesystemUnmount();
-#endif
+    if (status == QDeclarativeView::Ready) {
+        activateWindow();
+    }
 }
 
-void Device::eject()
+QObject *DeclarativeView::focusItem() const
 {
-#ifndef NO_DBUS
-    m_deviceInterface->DriveEject();
-#endif
+    return qgraphicsitem_cast<QGraphicsObject *>(scene()->focusItem());
 }
 
-void Device::deviceChanged()
+int DeclarativeView::fps() const
 {
-#ifndef NO_DBUS
-    m_isPartition = m_deviceInterface->DeviceIsPartition();
-    m_mountPoint = m_deviceInterface->DeviceMountPath();
-    m_label = m_deviceInterface->IdLabel();
-    m_uuid = m_deviceInterface->IdUuid();
-    m_type = Device::UsbDrive;
-#endif
-
-    emit changed();
+    return m_fps;
 }
+

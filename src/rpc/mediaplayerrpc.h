@@ -29,27 +29,27 @@ public:
     explicit MediaPlayerRpc(QObject *parent = 0);
 
 signals:
-    void stopRequested();
-    void pauseRequested();
-    void resumeRequested();
-    void togglePlayPauseRequested();
-    void nextRequested();
-    void previousRequested();
-    void volumeUpRequested();
-    void volumeDownRequested();
+    Q_SCRIPTABLE void stopRequested();
+    Q_SCRIPTABLE void pauseRequested();
+    Q_SCRIPTABLE void resumeRequested();
+    Q_SCRIPTABLE void togglePlayPauseRequested();
+    Q_SCRIPTABLE void nextRequested();
+    Q_SCRIPTABLE void previousRequested();
+    Q_SCRIPTABLE void volumeUpRequested();
+    Q_SCRIPTABLE void volumeDownRequested();
 
-    void playRemoteSourceRequested(const QString &uri, int position);
+    Q_SCRIPTABLE void playRemoteSourceRequested(const QString &uri, int position);
 
 public slots:
-    void playRemoteSource(const QString &uri, int position);
-    void stop() { emit stopRequested(); }
-    void pause() { emit pauseRequested(); }
-    void resume() { emit resumeRequested(); }
-    void togglePlayPause() { emit togglePlayPauseRequested(); }
-    void next() { emit nextRequested(); }
-    void previous() { emit previousRequested(); }
-    void volumeUp() { emit volumeUpRequested(); }
-    void volumeDown() { emit volumeDownRequested(); }
+    Q_SCRIPTABLE void playRemoteSource(const QString &uri, int position);
+    Q_SCRIPTABLE void stop() { emit stopRequested(); }
+    Q_SCRIPTABLE void pause() { emit pauseRequested(); }
+    Q_SCRIPTABLE void resume() { emit resumeRequested(); }
+    Q_SCRIPTABLE void togglePlayPause() { emit togglePlayPauseRequested(); }
+    Q_SCRIPTABLE void next() { emit nextRequested(); }
+    Q_SCRIPTABLE void previous() { emit previousRequested(); }
+    Q_SCRIPTABLE void volumeUp() { emit volumeUpRequested(); }
+    Q_SCRIPTABLE void volumeDown() { emit volumeDownRequested(); }
 };
 
 #endif // MEDIAPLAYERRPC_H

@@ -91,7 +91,7 @@ private:
     int compareData(int idx, const QSqlRecord &record) const;
 
     void insertAll(const QList<QSqlRecord> &records);
-    void insertNew(const QList<QSqlRecord> &records);
+    void update(const QList<QSqlRecord> &records);
 
     QString m_structure;
     QHash<QString, int> m_fieldToRole;

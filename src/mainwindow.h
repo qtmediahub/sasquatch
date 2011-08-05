@@ -17,66 +17,60 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 ****************************************************************************/
 
-#include "device.h"
+#ifndef MAINWINDOW_H
+#define MAINWINDOW_H
 
-Device::Device(const QString &p, QObject *parent) :
-    QObject(parent)
-  , m_path(p)
-  , m_type(Device::Undefined)
+#include <QWidget>
+#include <QTimer>
+
+class Frontend;
+
+class MainWindow : public QWidget
 {
-#ifndef NO_DBUS
-    m_deviceInterface = new UDisksDeviceInterface("org.freedesktop.UDisks", m_path, QDBusConnection::systemBus(), this);
-    if (!m_deviceInterface->isValid()) {
-        m_valid = false;
-        return;
-    }
-    m_valid = true;
-    m_isPartition = m_deviceInterface->DeviceIsPartition();
-    m_mountPoint = m_deviceInterface->DeviceMountPath();
-    m_label = m_deviceInterface->IdLabel();
-    m_uuid = m_deviceInterface->IdUuid();
-    m_type = Device::UsbDrive;
-    connect(m_deviceInterface, SIGNAL(Changed()), this, SLOT(deviceChanged()));
+    Q_OBJECT
+public:
+    enum ScreenOrientation {
+        ScreenOrientationLockPortrait,
+        ScreenOrientationLockLandscape,
+        ScreenOrientationAuto
+    };
+    MainWindow(Frontend *frontend, QWidget *parent = 0);
+    ~MainWindow();
 
-#else
-    // no implementation yet, so not valid
-    m_valid = false;
-    m_isPartition = false;
-#endif
+    void setCentralWidget(QWidget *cw);
+    QWidget *centralWidget() const;
 
-    emit changed();
-}
+public slots:
+    // ## These are a bit evil, since they shadow QWidget
+    void show();
+    void showFullScreen();
+    void showNormal();
 
-void Device::mount()
-{
-#ifndef NO_DBUS
-    m_deviceInterface->FilesystemMount();
-#endif
-}
+signals:
+    void resetUI();
+    void inputIdle();
+    void inputActive();
 
-void Device::unmount()
-{
-#ifndef NO_DBUS
-    m_deviceInterface->FilesystemUnmount();
-#endif
-}
+protected:
+    void resizeEvent(QResizeEvent *e);
+    bool eventFilter(QObject *obj, QEvent *event);
 
-void Device::eject()
-{
-#ifndef NO_DBUS
-    m_deviceInterface->DriveEject();
-#endif
-}
+private slots:
+    void toggleFullScreen();
+    void grow();
+    void shrink();
+    void setOrientation(ScreenOrientation orientation);
+    void handleResize();
+    void selectSkin();
 
-void Device::deviceChanged()
-{
-#ifndef NO_DBUS
-    m_isPartition = m_deviceInterface->DeviceIsPartition();
-    m_mountPoint = m_deviceInterface->DeviceMountPath();
-    m_label = m_deviceInterface->IdLabel();
-    m_uuid = m_deviceInterface->IdUuid();
-    m_type = Device::UsbDrive;
-#endif
+private:
+    QTimer m_resizeSettleTimer;
+    QTimer m_inputIdleTimer;
+    Frontend *m_frontend;
+    QWidget *m_centralWidget;
+    const QRect m_defaultGeometry;
+    bool m_overscanWorkAround;
+    bool m_attemptingFullScreen;
+};
 
-    emit changed();
-}
+#endif // MAINWINDOW_H
