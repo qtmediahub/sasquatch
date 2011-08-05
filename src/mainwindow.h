@@ -23,6 +23,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QWidget>
 #include <QTimer>
 
+class Frontend;
+
 class MainWindow : public QWidget
 {
     Q_OBJECT
@@ -32,7 +34,7 @@ public:
         ScreenOrientationLockLandscape,
         ScreenOrientationAuto
     };
-    MainWindow(QWidget *parent = 0);
+    MainWindow(Frontend *frontend, QWidget *parent = 0);
     ~MainWindow();
 
     void setCentralWidget(QWidget *cw);
@@ -59,10 +61,12 @@ private slots:
     void shrink();
     void setOrientation(ScreenOrientation orientation);
     void handleResize();
+    void selectSkin();
 
 private:
     QTimer m_resizeSettleTimer;
     QTimer m_inputIdleTimer;
+    Frontend *m_frontend;
     QWidget *m_centralWidget;
     const QRect m_defaultGeometry;
     bool m_overscanWorkAround;

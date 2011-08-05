@@ -69,7 +69,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "rpc/mediaplayerrpc.h"
 #include "customcursor.h"
 #include "httpserver/httpserver.h"
-#include "skinselector.h"
 
 #ifndef NO_DBUS
 static void registerObjectWithDbus(const QString &path, QObject *object)
@@ -93,8 +92,6 @@ public slots:
     QWidget *loadQmlSkin(const QUrl &url);
 
     void discoverSkins();
-
-    void selectSkin();
 
     void handleDirChanged(const QString &dir);
 
@@ -177,22 +174,6 @@ FrontendPrivate::FrontendPrivate(Frontend *p)
     foreach (const QString &skinPath, LibraryInfo::skinPaths()) {
         if (QDir(skinPath).exists())
             pathMonitor.addPath(skinPath);
-    }
-
-    QList<QAction*> actions;
-    QAction *selectSkinAction = new QAction(tr("Select skin"), this);
-    QAction *quitAction = new QAction(tr("Quit"), this);
-    connect(selectSkinAction, SIGNAL(triggered()), this, SLOT(selectSkin()));
-    connect(quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
-    actions.append(selectSkinAction);
-    actions.append(quitAction);
-
-    if (Config::isEnabled("systray", true)) {
-        systray = new QSystemTrayIcon(QIcon(":/images/petite-ganesh-22x22.jpg"), this);
-        systray->setVisible(true);
-        QMenu *contextMenu = new QMenu;
-        contextMenu->addActions(actions);
-        systray->setContextMenu(contextMenu);
     }
 
     discoverSkins();
@@ -318,13 +299,6 @@ void FrontendPrivate::discoverSkins()
     }
 }
 
-void FrontendPrivate::selectSkin()
-{
-    SkinSelector *skinSelector = new SkinSelector(q, mainWindow);
-    skinSelector->setAttribute(Qt::WA_DeleteOnClose);
-    skinSelector->exec();
-}
-
 void FrontendPrivate::handleDirChanged(const QString &dir)
 {
     if (LibraryInfo::skinPaths().contains(dir)) {
@@ -337,7 +311,7 @@ Frontend::Frontend(QObject *p)
     : QObject(p),
       d(new FrontendPrivate(this)) 
 {
-    d->mainWindow = new MainWindow;
+    d->mainWindow = new MainWindow(this);
     optimizeWidgetAttributes(d->mainWindow, true);
 }
 

@@ -19,13 +19,15 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "mainwindow.h"
 #include "qmh-config.h"
+#include "skinselector.h"
 
 #include <QGraphicsView>
 #include <QDeclarativeView>
 #include <QShortcut>
 
-MainWindow::MainWindow(QWidget *parent)
+MainWindow::MainWindow(Frontend *frontend, QWidget *parent)
     : QWidget(parent),
+      m_frontend(frontend),
       m_centralWidget(0),
       m_defaultGeometry(0, 0, 1080, 720),
       m_overscanWorkAround(Config::isEnabled("overscan", false)),
@@ -46,6 +48,22 @@ MainWindow::MainWindow(QWidget *parent)
     m_inputIdleTimer.setSingleShot(true);
     m_inputIdleTimer.start();
     connect(&m_inputIdleTimer, SIGNAL(timeout()), this, SIGNAL(inputIdle()));
+
+    QList<QAction*> actions;
+    QAction *selectSkinAction = new QAction(tr("Select skin"), this);
+    QAction *quitAction = new QAction(tr("Quit"), this);
+    connect(selectSkinAction, SIGNAL(triggered()), this, SLOT(selectSkin()));
+    connect(quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
+    actions.append(selectSkinAction);
+    actions.append(quitAction);
+
+    if (Config::isEnabled("systray", true)) {
+        QSystemTrayIcon *systray = new QSystemTrayIcon(QIcon(":/images/petite-ganesh-22x22.jpg"), this);
+        systray->setVisible(true);
+        QMenu *contextMenu = new QMenu;
+        contextMenu->addActions(actions);
+        systray->setContextMenu(contextMenu);
+    }
 }
 
 MainWindow::~MainWindow()
@@ -212,5 +230,12 @@ void MainWindow::show()
     } else {
         showNormal();
     }
+}
+
+void MainWindow::selectSkin()
+{
+    SkinSelector *skinSelector = new SkinSelector(m_frontend, this);
+    skinSelector->setAttribute(Qt::WA_DeleteOnClose);
+    skinSelector->exec();
 }
 
