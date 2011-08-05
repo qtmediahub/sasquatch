@@ -33,7 +33,6 @@ class QMH_EXPORT Frontend : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QObject *targetsModel READ targetsModel NOTIFY targetsModelChanged)
-    Q_PROPERTY(QString resourcePath READ resourcePath CONSTANT)
 
 public:
     Frontend(QObject *p = 0);
@@ -51,8 +50,6 @@ public:
 
     QList<Skin *> skins() const;
     MainWindow *mainWindow() const;
-
-    QString resourcePath() const; // ## remove me
 
 signals:
     void targetsModelChanged();

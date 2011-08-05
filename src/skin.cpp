@@ -18,6 +18,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 ****************************************************************************/
 
 #include "skin.h"
+#include "libraryinfo.h"
 
 #include <QtGui>
 #include <QtDebug>
@@ -110,5 +111,10 @@ Skin::Type Skin::type(const QUrl &url) const
         return Qml;
     }
     return Invalid;
+}
+
+QString Skin::resourcePath() const
+{
+    return LibraryInfo::resourcePath();
 }
 

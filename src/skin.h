@@ -30,6 +30,7 @@ class Skin : public QObject
     Q_PROPERTY(QString name READ name CONSTANT)
     Q_PROPERTY(QString path READ path CONSTANT)
     Q_PROPERTY(QString config READ config CONSTANT)
+    Q_PROPERTY(QString resourcePath READ resourcePath CONSTANT)
 
 public:
     enum Type { Invalid, Qml };
@@ -40,6 +41,7 @@ public:
     QString name() const;
     QString path() const;
     QString config() const;
+    QString resourcePath() const; // ## this doesn't belong here
 
     Type type(const QUrl &url) const; // ## remove the url argument
 
