@@ -32,7 +32,6 @@ class MainWindow;
 class QMH_EXPORT Frontend : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(bool transforms READ transforms NOTIFY frontendChanged)
     Q_PROPERTY(QObject *targetsModel READ targetsModel NOTIFY targetsModelChanged)
     Q_PROPERTY(QString resourcePath READ resourcePath CONSTANT)
 
@@ -40,7 +39,6 @@ public:
     Frontend(QObject *p = 0);
     ~Frontend();
 
-    bool transforms() const;
     void show();
     bool setSkin(const QString &name);
     bool setSkin(Skin *skin);
@@ -57,7 +55,6 @@ public:
     QString resourcePath() const; // ## remove me
 
 signals:
-    void frontendChanged();
     void targetsModelChanged();
 
 private:
