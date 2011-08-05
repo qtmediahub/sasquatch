@@ -1,7 +1,6 @@
 #include "skinselector.h"
 #include "skin.h"
 
-#include "frontend.h"
 #include <QtGui>
 
 SkinSelector::SkinSelector(const QHash<QString, Skin *> &skins, QWidget *parent)

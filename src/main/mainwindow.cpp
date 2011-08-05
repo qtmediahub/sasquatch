@@ -20,7 +20,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "mainwindow.h"
 #include "qmh-config.h"
 #include "skinselector.h"
-#include "frontend.h"
+#include "skinruntime.h"
 
 #include <QGraphicsView>
 #include <QDeclarativeView>
@@ -39,7 +39,7 @@ MainWindow::MainWindow(QWidget *parent)
     else
         setAttribute(Qt::WA_NoSystemBackground);
 
-    m_frontend = new Frontend(this);
+    m_skinRuntime = new SkinRuntime(this);
 
     setOrientation(Config::value("orientation", ScreenOrientationAuto));
 
@@ -242,7 +242,7 @@ void MainWindow::show()
 
 void MainWindow::selectSkin()
 {
-    SkinSelector *skinSelector = new SkinSelector(m_frontend->skins(), this);
+    SkinSelector *skinSelector = new SkinSelector(m_skinRuntime->skins(), this);
     skinSelector->setAttribute(Qt::WA_DeleteOnClose);
     connect(skinSelector, SIGNAL(skinSelected(Skin *)), this, SLOT(setSkin(Skin *)));
     skinSelector->exec();
@@ -250,7 +250,7 @@ void MainWindow::selectSkin()
 
 bool MainWindow::setSkin(const QString &name)
 {
-    QHash<QString, Skin *> skins = m_frontend->skins();
+    QHash<QString, Skin *> skins = m_skinRuntime->skins();
     Skin *newSkin = skins.value(name);
     if (!newSkin) {
         newSkin = skins.value(Config::value("default-skin", "confluence").toString());
@@ -266,7 +266,7 @@ bool MainWindow::setSkin(const QString &name)
 
 bool MainWindow::setSkin(Skin *newSkin)
 {
-    QWidget *skinWidget = m_frontend->create(newSkin, this);
+    QWidget *skinWidget = m_skinRuntime->create(newSkin, this);
     if (!skinWidget) {
         qDebug() << "Failed to load skin:" << newSkin->name();
         return false;

@@ -13,7 +13,7 @@ DEFINES += BUILDING_QMH
 
 # Input
 SOURCES += qmh-config.cpp \
-    frontend.cpp \
+    skinruntime.cpp \
     mediaserver.cpp \
     actionmapper.cpp \
     trackpad.cpp \
@@ -30,7 +30,7 @@ SOURCES += qmh-config.cpp \
 
 HEADERS += qmh-config.h \
     global.h \
-    frontend.h \
+    skinruntime.h \
     mediaserver.h \
     dirmodel.h \
     file.h \

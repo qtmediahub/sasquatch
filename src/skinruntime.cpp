@@ -17,7 +17,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 ****************************************************************************/
 
-#include "frontend.h"
+#include "skinruntime.h"
 #include "mediaserver.h"
 
 #include <QtGui>
@@ -79,12 +79,12 @@ static void registerObjectWithDbus(const QString &path, QObject *object)
 }
 #endif
 
-class FrontendPrivate : public QObject
+class SkinRuntimePrivate : public QObject
 {
     Q_OBJECT
 public:
-    FrontendPrivate(Frontend *p);
-    ~FrontendPrivate();
+    SkinRuntimePrivate(SkinRuntime *p);
+    ~SkinRuntimePrivate();
 
 public slots:
     QWidget *loadQmlSkin(const QUrl &url, QWidget *window);
@@ -112,10 +112,10 @@ public:
     QSystemTrayIcon *systray;
     QFileSystemWatcher pathMonitor;
     QAbstractItemModel *remoteSessionsModel;
-    Frontend *q;
+    SkinRuntime *q;
 };
 
-FrontendPrivate::FrontendPrivate(Frontend *p)
+SkinRuntimePrivate::SkinRuntimePrivate(SkinRuntime *p)
     : QObject(p),
       dbusRegistration(false),
       remoteControlMode(true),
@@ -191,7 +191,7 @@ FrontendPrivate::FrontendPrivate(Frontend *p)
     discoverSkins();
 }
 
-FrontendPrivate::~FrontendPrivate()
+SkinRuntimePrivate::~SkinRuntimePrivate()
 {
     Config::setValue("skin", currentSkin->name());
 }
@@ -218,7 +218,7 @@ static void optimizeGraphicsViewAttributes(QGraphicsView *view)
     view->scene()->setItemIndexMethod(QGraphicsScene::NoIndex);
 }
 
-QWidget *FrontendPrivate::loadQmlSkin(const QUrl &targetUrl, QWidget *window)
+QWidget *SkinRuntimePrivate::loadQmlSkin(const QUrl &targetUrl, QWidget *window)
 {
     QPixmapCache::clear();
 
@@ -281,7 +281,7 @@ QWidget *FrontendPrivate::loadQmlSkin(const QUrl &targetUrl, QWidget *window)
     return declarativeWidget;
 }
 
-void FrontendPrivate::discoverSkins()
+void SkinRuntimePrivate::discoverSkins()
 {
     qDeleteAll(skins.values());
     skins.clear();
@@ -310,7 +310,7 @@ void FrontendPrivate::discoverSkins()
     }
 }
 
-void FrontendPrivate::handleDirChanged(const QString &dir)
+void SkinRuntimePrivate::handleDirChanged(const QString &dir)
 {
     if (LibraryInfo::skinPaths().contains(dir)) {
         qWarning() << "Changes in skin path, repopulating skins";
@@ -318,19 +318,19 @@ void FrontendPrivate::handleDirChanged(const QString &dir)
     }
 }
 
-Frontend::Frontend(QObject *p)
+SkinRuntime::SkinRuntime(QObject *p)
     : QObject(p),
-      d(new FrontendPrivate(this)) 
+      d(new SkinRuntimePrivate(this)) 
 {
 }
 
-Frontend::~Frontend()
+SkinRuntime::~SkinRuntime()
 {
     delete d;
     d = 0;
 }
 
-QWidget *Frontend::create(Skin *skin, QWidget *window)
+QWidget *SkinRuntime::create(Skin *skin, QWidget *window)
 {
     QSize nativeResolution = qApp->desktop()->screenGeometry().size();
     QString nativeResolutionString = Config::value("native-res-override", QString("%1x%2").arg(nativeResolution.width()).arg(nativeResolution.height()));
@@ -349,18 +349,18 @@ QWidget *Frontend::create(Skin *skin, QWidget *window)
     return d->loadQmlSkin(url, window);
 }
 
-void Frontend::addImportPath(const QString &path)
+void SkinRuntime::addImportPath(const QString &path)
 {
     if (QFile::exists(path))
         d->rootContext->engine()->addImportPath(path);
 }
 
-QHash<QString, Skin *> Frontend::skins() const
+QHash<QString, Skin *> SkinRuntime::skins() const
 {
     return d->skins;
 }
 
-void FrontendPrivate::enableRemoteControlMode(bool enable)
+void SkinRuntimePrivate::enableRemoteControlMode(bool enable)
 {
     if (remoteControlMode == enable)
         return;
@@ -419,4 +419,4 @@ void FrontendPrivate::enableRemoteControlMode(bool enable)
 #endif
 }
 
-#include "frontend.moc"
+#include "skinruntime.moc"

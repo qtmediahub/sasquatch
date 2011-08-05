@@ -17,25 +17,25 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 ****************************************************************************/
 
-#ifndef FRONTEND_H
-#define FRONTEND_H
+#ifndef SKINRUNTIME_H
+#define SKINRUNTIME_H
 
 #include <QObject>
 #include <QStringList>
 #include "skin.h"
 #include "global.h"
 
-class FrontendPrivate;
+class SkinRuntimePrivate;
 class MainWindow;
 
-// Frontend is the common code used by all types of skins (QML, HTML).
-class QMH_EXPORT Frontend : public QObject
+// SkinRuntime is the common code used by all types of skins (QML, HTML).
+class QMH_EXPORT SkinRuntime : public QObject
 {
     Q_OBJECT
 
 public:
-    Frontend(QObject *p = 0);
-    ~Frontend();
+    SkinRuntime(QObject *p = 0);
+    ~SkinRuntime();
 
     QWidget *create(Skin *skin, QWidget *window);
 
@@ -43,7 +43,7 @@ public:
 
     QHash<QString, Skin *> skins() const;
 private:
-    FrontendPrivate *d;
+    SkinRuntimePrivate *d;
 };
 
-#endif // FRONTEND_H
+#endif // SKINRUNTIME_H 

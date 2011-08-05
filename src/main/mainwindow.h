@@ -23,7 +23,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QWidget>
 #include <QTimer>
 
-class Frontend;
+class SkinRuntime;
 class Skin;
 
 class MainWindow : public QWidget
@@ -69,7 +69,7 @@ private slots:
 private:
     QTimer m_resizeSettleTimer;
     QTimer m_inputIdleTimer;
-    Frontend *m_frontend;
+    SkinRuntime *m_skinRuntime;
     QWidget *m_centralWidget;
     const QRect m_defaultGeometry;
     bool m_overscanWorkAround;

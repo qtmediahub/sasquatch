@@ -21,8 +21,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <QKeyEvent>
 
-#include "frontend.h"
-
 #include "qmh-config.h"
 
 ActionMapper::ActionMapper(QObject *p, QString mapPath)
