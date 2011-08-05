@@ -187,12 +187,12 @@ int Playlist::previous()
     return m_currentIndex;
 }
 
-Playlist::PlayModeRoles Playlist::playMode() const
+Playlist::PlayMode Playlist::playMode() const
 {
     return m_playMode;
 }
 
-void Playlist::setPlayMode(Playlist::PlayModeRoles mode)
+void Playlist::setPlayMode(Playlist::PlayMode mode)
 {
     if (m_playMode != mode) {
         m_playMode = mode;

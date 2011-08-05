@@ -29,13 +29,13 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 class Playlist : public QAbstractListModel
 {
     Q_OBJECT
-    Q_PROPERTY(PlayModeRoles playMode READ playMode WRITE setPlayMode NOTIFY playModeChanged)
+    Q_PROPERTY(PlayMode playMode READ playMode WRITE setPlayMode NOTIFY playModeChanged)
     Q_PROPERTY(QString mediaType READ mediaType NOTIFY mediaTypeChanged)
     Q_PROPERTY(int currentIndex READ currentIndex WRITE setCurrentIndex NOTIFY currentIndexChanged)
 
     Q_ENUMS(PlaylistRoles)
     Q_ENUMS(DepthRoles)
-    Q_ENUMS(PlayModeRoles)
+    Q_ENUMS(PlayMode)
 
 public:
     enum PlaylistRoles {
@@ -49,7 +49,7 @@ public:
         Recursive
     };
 
-    enum PlayModeRoles {
+    enum PlayMode {
         Normal,
         Shuffle
     };
@@ -68,8 +68,8 @@ public:
     Q_INVOKABLE int next();
     Q_INVOKABLE int previous();
 
-    PlayModeRoles playMode() const;
-    void setPlayMode(PlayModeRoles mode);
+    PlayMode playMode() const;
+    void setPlayMode(PlayMode mode);
 
     QString mediaType() const;
 
@@ -93,7 +93,7 @@ private:
     void setMediaType(const QString &type);
 
     QList<QHash<int, QVariant> > m_data;
-    PlayModeRoles m_playMode;
+    PlayMode m_playMode;
     QString m_mediaType;
     QSqlDriver *m_driver;
     int m_currentIndex;
