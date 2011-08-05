@@ -121,7 +121,7 @@ public:
     DeviceManager *deviceManager;
     PowerManager *powerManager;
     MediaPlayerRpc *mediaPlayerRpc;
-    RpcConnection *connection;
+    RpcConnection *rpcConnection;
 
     ActionMapper *actionMapper;
     Trackpad *trackpad;
@@ -146,7 +146,7 @@ FrontendPrivate::FrontendPrivate(Frontend *p)
       deviceManager(0),
       powerManager(0),
       mediaPlayerRpc(0),
-      connection(0),
+      rpcConnection(0),
       trackpad(0),
       mainWindow(0),
       rootContext(0),
@@ -559,19 +559,19 @@ void FrontendPrivate::enableRemoteControlMode(bool enable)
         delete powerManager;
         powerManager = 0;
 
-        connection->unregisterObject(mediaPlayerRpc);
+        rpcConnection->unregisterObject(mediaPlayerRpc);
         delete mediaPlayerRpc;
         mediaPlayerRpc = 0;
 
-        connection->unregisterObject(trackpad);
+        rpcConnection->unregisterObject(trackpad);
         delete trackpad;
         trackpad = 0;
 
-        connection->unregisterObject(actionMapper);
+        rpcConnection->unregisterObject(actionMapper);
         delete actionMapper;
         actionMapper = 0;
 
-        delete connection;
+        delete rpcConnection;
 
         delete mediaServer;
         mediaServer = 0;
@@ -581,13 +581,13 @@ void FrontendPrivate::enableRemoteControlMode(bool enable)
 
     mediaServer = new MediaServer(this);
     mediaPlayerRpc = new MediaPlayerRpc(this);
-    connection = new RpcConnection(RpcConnection::Server, QHostAddress::Any, 1234, this);
+    rpcConnection = new RpcConnection(RpcConnection::Server, QHostAddress::Any, 1234, this);
     trackpad = new Trackpad(this);
     actionMapper = new ActionMapper(this, LibraryInfo::basePath());
 
-    connection->registerObject(actionMapper);
-    connection->registerObject(mediaPlayerRpc);
-    connection->registerObject(trackpad);
+    rpcConnection->registerObject(actionMapper);
+    rpcConnection->registerObject(mediaPlayerRpc);
+    rpcConnection->registerObject(trackpad);
 
 #ifndef NO_DBUS
 //Segmentation fault on mac!
