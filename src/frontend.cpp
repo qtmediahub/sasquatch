@@ -108,7 +108,7 @@ public:
 
     ActionMapper *actionMapper;
     Trackpad *trackpad;
-    QMap<QString, Skin *> skins;
+    QHash<QString, Skin *> skins;
     Skin *currentSkin;
     MainWindow *mainWindow;
     QDeclarativeContext *rootContext;
@@ -367,9 +367,9 @@ void Frontend::addImportPath(const QString &path)
         d->rootContext->engine()->addImportPath(path);
 }
 
-QList<Skin *> Frontend::skins() const
+QHash<QString, Skin *> Frontend::skins() const
 {
-    return d->skins.values();
+    return d->skins;
 }
 
 MainWindow *Frontend::mainWindow() const

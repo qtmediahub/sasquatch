@@ -48,7 +48,7 @@ public:
 
     Q_INVOKABLE void addImportPath(const QString &path);
 
-    QList<Skin *> skins() const;
+    QHash<QString, Skin *> skins() const;
     MainWindow *mainWindow() const;
 
 signals:
