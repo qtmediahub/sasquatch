@@ -26,13 +26,19 @@ Item {
     property variant mediaItem
     property alias mediaPlaylist: playlist
 
+    Playlist {
+        id: playlist
+        playMode: Playlist.Normal
+    }
+
     function stop() {
         mediaItem.stop()
     }
 
-    function play(itemdata, role, depth) {
+    function play(itemdata, depth) {
         if (itemdata != null) {
-            playIndex(playlist.add(itemdata, role ? role : Playlist.Replace, depth ? depth : Playlist.Recursive))
+            playlist.clear()
+            playIndex(playlist.append(itemdata, depth ? depth : Playlist.Recursive))
         }
     }
 
@@ -110,11 +116,6 @@ Item {
                 return thumbnail;
         }
         return mediaItem.hasVideo ? defaultVideo : defaultAudio;
-    }
-
-    Playlist {
-        id: playlist
-        playMode: Playlist.Normal
     }
 
     // RPC requests

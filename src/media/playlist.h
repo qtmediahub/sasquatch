@@ -33,16 +33,10 @@ class Playlist : public QAbstractListModel
     Q_PROPERTY(QString mediaType READ mediaType NOTIFY mediaTypeChanged)
     Q_PROPERTY(int currentIndex READ currentIndex WRITE setCurrentIndex NOTIFY currentIndexChanged)
 
-    Q_ENUMS(PlaylistRoles)
     Q_ENUMS(DepthRoles)
     Q_ENUMS(PlayMode)
 
 public:
-    enum PlaylistRoles {
-        Replace,
-        Append
-    };
-
     enum DepthRoles {
         Single,
         Flat,
@@ -62,8 +56,9 @@ public:
     Playlist(QObject *parent = 0);
     void initialize();
 
-    Q_INVOKABLE int add(const QModelIndex &index, PlaylistRoles role = Replace, DepthRoles depth = Single);
+    Q_INVOKABLE int append(const QModelIndex &index, DepthRoles depth = Single);
     Q_INVOKABLE int getRoleByName(const QString &roleName) const;
+    Q_INVOKABLE void clear();
 
     Q_INVOKABLE int next();
     Q_INVOKABLE int previous();

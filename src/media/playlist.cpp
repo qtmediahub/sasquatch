@@ -58,7 +58,14 @@ int Playlist::rowCount(const QModelIndex &parent) const
     return m_data.count();
 }
 
-int Playlist::add(const QModelIndex &index, PlaylistRoles role, DepthRoles depth)
+void Playlist::clear()
+{
+    beginResetModel();
+    m_data.clear();
+    endResetModel();
+}
+
+int Playlist::append(const QModelIndex &index, Playlist::DepthRoles depth)
 {
     DEBUG << "add item" << index;
 
@@ -76,12 +83,6 @@ int Playlist::add(const QModelIndex &index, PlaylistRoles role, DepthRoles depth
     // if new item is not same type make this playlist of new type
     if (model->mediaType() != m_mediaType)
         setMediaType(model->mediaType());
-
-    if (role == Playlist::Replace) {
-        beginResetModel();
-        m_data.clear();
-        endResetModel();
-    }
 
     int start = rowCount()-1 < 0 ? 0 : rowCount()-1;
     int end = rowCount() < 0 ? 1 : rowCount();
