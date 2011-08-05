@@ -21,6 +21,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 ****************************************************************************/
 
 #include "file.h"
+#include <QtCore>
 
 File::File(QObject *parent)
     : QObject(parent)
@@ -65,5 +66,16 @@ QStringList File::findApplications() const
         }
     }
     return apps;
+}
+
+
+QStringList File::findFiles(const QString &dir, const QStringList &nameFilters)
+{
+    QStringList result;
+    QDirIterator it(dir, nameFilters, QDir::Files, QDirIterator::Subdirectories);
+    while (it.hasNext()) {
+        result << it.next();
+   }
+   return result;
 }
 

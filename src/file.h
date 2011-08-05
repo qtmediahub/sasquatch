@@ -39,6 +39,7 @@ public:
 
     Q_INVOKABLE QStringList readAllLines(const QString &filename);
     Q_INVOKABLE QStringList findApplications() const;
+    Q_INVOKABLE QStringList findFiles(const QString &dir, const QStringList &nameFilters);
 };
 
 QML_DECLARE_TYPE(File)
