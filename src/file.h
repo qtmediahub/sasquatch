@@ -25,6 +25,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QtDeclarative>
 #include <QDebug>
 
+#include "libraryinfo.h"
+
 class File : public QObject
 {
     Q_OBJECT
@@ -52,6 +54,22 @@ class File : public QObject
             lines.removeLast();
 
         return lines;
+    }
+
+    Q_INVOKABLE QStringList findApplications() const
+    {
+        QStringList apps;
+        foreach(const QString &appSearchPath, LibraryInfo::applicationPaths()) {
+            QStringList subdirs = QDir(appSearchPath).entryList(QDir::AllDirs | QDir::NoDotAndDotDot);
+            foreach(const QString &subdir, subdirs)  {
+                QString appPath(appSearchPath + '/' + subdir + '/');
+                QString fileName(appPath + "qmhmanifest.qml"); // look for apps/x/qmhmanifest.qml
+                QFile prospectiveFile(fileName);
+                if (prospectiveFile.exists())
+                    apps << (QDir(appPath).absolutePath() + '/');
+            }
+        }
+        return apps;
     }
 };
 

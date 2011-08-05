@@ -51,8 +51,6 @@ public:
 
     Q_INVOKABLE void addImportPath(const QString &path);
 
-    Q_INVOKABLE QStringList findApplications() const;
-
     QList<Skin *> skins() const;
     MainWindow *mainWindow() const;
 
