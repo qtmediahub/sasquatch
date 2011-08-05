@@ -94,8 +94,6 @@ public slots:
 
     void discoverSkins();
 
-    void resetUI();
-
     void selectSkin();
 
     void handleDirChanged(const QString &dir);
@@ -292,14 +290,6 @@ QWidget *FrontendPrivate::loadQmlSkin(const QUrl &targetUrl)
     return declarativeWidget;
 }
 
-void FrontendPrivate::resetUI()
-{
-    if (QDeclarativeView *declarativeWidget = qobject_cast<QDeclarativeView*>(mainWindow->centralWidget())) {
-        QObject *coreObject = declarativeWidget->rootObject();
-        QMetaObject::invokeMethod(coreObject, "reset");
-    }
-}
-
 void FrontendPrivate::discoverSkins()
 {
     qDeleteAll(skins.values());
@@ -350,8 +340,6 @@ Frontend::Frontend(QObject *p)
 {
     d->mainWindow = new MainWindow;
     optimizeWidgetAttributes(d->mainWindow, true);
-
-    connect(d->mainWindow, SIGNAL(resetUI()), d, SLOT(resetUI()));
 }
 
 Frontend::~Frontend()
