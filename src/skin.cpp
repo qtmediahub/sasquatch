@@ -116,8 +116,3 @@ Skin::Type Skin::type(const QUrl &url) const
     return Invalid;
 }
 
-QString Skin::resourcePath() const
-{
-    return LibraryInfo::resourcePath();
-}
-
