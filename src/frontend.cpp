@@ -284,7 +284,6 @@ QWidget *FrontendPrivate::loadQmlSkin(const QUrl &targetUrl)
     engine->addImportPath(currentSkin->path());
 
     rootContext = declarativeWidget->rootContext();
-    declarativeWidget->installEventFilter(q); // track idleness
     declarativeWidget->setSource(targetUrl);
 
     return declarativeWidget;
