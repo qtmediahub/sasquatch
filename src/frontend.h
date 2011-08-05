@@ -32,7 +32,6 @@ class MainWindow;
 class QMH_EXPORT Frontend : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QObject *targetsModel READ targetsModel NOTIFY targetsModelChanged)
 
 public:
     Frontend(QObject *p = 0);
@@ -40,17 +39,10 @@ public:
 
     QWidget *create(Skin *skin, QWidget *window);
 
-    QObject *targetsModel() const;
-
     Q_INVOKABLE void openUrlExternally(const QUrl &url) const;
-
     Q_INVOKABLE void addImportPath(const QString &path);
 
     QHash<QString, Skin *> skins() const;
-
-signals:
-    void targetsModelChanged();
-
 private:
     FrontendPrivate *d;
 };

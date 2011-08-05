@@ -111,7 +111,7 @@ public:
     QDeclarativeContext *rootContext;
     QSystemTrayIcon *systray;
     QFileSystemWatcher pathMonitor;
-    QAbstractItemModel *targetsModel;
+    QAbstractItemModel *remoteSessionsModel;
     Frontend *q;
 };
 
@@ -126,7 +126,7 @@ FrontendPrivate::FrontendPrivate(Frontend *p)
       rpcConnection(0),
       trackpad(0),
       rootContext(0),
-      targetsModel(0),
+      remoteSessionsModel(0),
       q(p)
 {
 #ifndef NO_DBUS
@@ -171,6 +171,22 @@ FrontendPrivate::FrontendPrivate(Frontend *p)
         if (QDir(skinPath).exists())
             pathMonitor.addPath(skinPath);
     }
+
+#ifdef QMH_AVAHI
+    if (Config::isEnabled("avahi", true)) {
+        QAvahiServiceBrowserModel *model = new QAvahiServiceBrowserModel(this);
+        model->setAutoResolve(true);
+        QAvahiServiceBrowserModel::Options options = QAvahiServiceBrowserModel::NoOptions;
+        if (Config::isEnabled("avahi-hide-ipv6"), true)
+            options |= QAvahiServiceBrowserModel::HideIPv6;
+        if (Config::isEnabled("avahi-hide-local", true) && !Config::isEnabled("testing", false))
+            options |= QAvahiServiceBrowserModel::HideLocal;
+        model->browse("_qtmediahub._tcp", options);
+        remoteSessionsModel = model;
+    }
+#else
+    remoteSessionsModel = new StaticServiceBrowserModel(this);
+#endif
 
     discoverSkins();
 }
@@ -253,6 +269,7 @@ QWidget *FrontendPrivate::loadQmlSkin(const QUrl &targetUrl, QWidget *window)
     runtime->insert("cursor", qVariantFromValue(static_cast<QObject *>(new CustomCursor(declarativeWidget))));
     runtime->insert("skin", qVariantFromValue(static_cast<QObject *>(currentSkin)));
     runtime->insert("file", qVariantFromValue(static_cast<QObject *>(new File(this))));
+    runtime->insert("remoteSessionsModel", qVariantFromValue(static_cast<QObject *>(remoteSessionsModel)));
     declarativeWidget->rootContext()->setContextProperty("runtime", runtime);
 
     engine->addImportPath(LibraryInfo::basePath() % "/imports");
@@ -341,28 +358,6 @@ void Frontend::addImportPath(const QString &path)
 QHash<QString, Skin *> Frontend::skins() const
 {
     return d->skins;
-}
-
-QObject *Frontend::targetsModel() const
-{
-    if (!d->targetsModel) {
-#ifdef QMH_AVAHI
-        if (Config::isEnabled("avahi", true)) {
-            QAvahiServiceBrowserModel *model = new QAvahiServiceBrowserModel(const_cast<Frontend *>(this));
-            model->setAutoResolve(true);
-            QAvahiServiceBrowserModel::Options options = QAvahiServiceBrowserModel::NoOptions;
-            if (Config::isEnabled("avahi-hide-ipv6"), true)
-                options |= QAvahiServiceBrowserModel::HideIPv6;
-            if (Config::isEnabled("avahi-hide-local", true) && !Config::isEnabled("testing", false))
-                options |= QAvahiServiceBrowserModel::HideLocal;
-            model->browse("_qtmediahub._tcp", options);
-            d->targetsModel = model;
-        }
-#else
-        d->targetsModel = new StaticServiceBrowserModel(const_cast<Frontend *>(this));
-#endif
-    }
-    return d->targetsModel;
 }
 
 void FrontendPrivate::enableRemoteControlMode(bool enable)
