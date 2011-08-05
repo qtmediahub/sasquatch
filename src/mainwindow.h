@@ -38,19 +38,25 @@ public:
     void setCentralWidget(QWidget *cw);
     QWidget *centralWidget() const;
 
-protected:
-    void resizeEvent(QResizeEvent *e);
-    bool eventFilter(QObject *obj, QEvent *event);
+public slots:
+    // ## These are a bit evil, since they shadow QWidget
+    void show();
+    void showFullScreen();
+    void showNormal();
 
 signals:
-    void shrink();
-    void grow();
-    void toggleFullScreen();
     void resetUI();
     void inputIdle();
     void inputActive();
 
-public slots:
+protected:
+    void resizeEvent(QResizeEvent *e);
+    bool eventFilter(QObject *obj, QEvent *event);
+
+private slots:
+    void toggleFullScreen();
+    void grow();
+    void shrink();
     void setOrientation(ScreenOrientation orientation);
     void handleResize();
 
@@ -58,6 +64,9 @@ private:
     QTimer m_resizeSettleTimer;
     QTimer m_inputIdleTimer;
     QWidget *m_centralWidget;
+    const QRect m_defaultGeometry;
+    bool m_overscanWorkAround;
+    bool m_attemptingFullScreen;
 };
 
 #endif // MAINWINDOW_H

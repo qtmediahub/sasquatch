@@ -26,14 +26,17 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 MainWindow::MainWindow(QWidget *parent)
     : QWidget(parent),
-      m_centralWidget(0)
+      m_centralWidget(0),
+      m_defaultGeometry(0, 0, 1080, 720),
+      m_overscanWorkAround(Config::isEnabled("overscan", false)),
+      m_attemptingFullScreen(Config::isEnabled("fullscreen", true))
 {
     setOrientation(Config::value("orientation", ScreenOrientationAuto));
 
     new QShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::META + Qt::ALT + Qt::Key_Backspace), this, SIGNAL(resetUI()));
-    new QShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::META + Qt::ALT + Qt::Key_Down), this, SIGNAL(shrink()));
-    new QShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::META + Qt::ALT + Qt::Key_Up), this, SIGNAL(grow()));
-    new QShortcut(QKeySequence(Qt::ALT + Qt::Key_Return), this, SIGNAL(toggleFullScreen()));
+    new QShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::META + Qt::ALT + Qt::Key_Down), this, SLOT(shrink()));
+    new QShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::META + Qt::ALT + Qt::Key_Up), this, SLOT(grow()));
+    new QShortcut(QKeySequence(Qt::ALT + Qt::Key_Return), this, SLOT(toggleFullScreen()));
 
     m_resizeSettleTimer.setSingleShot(true);
 
@@ -47,6 +50,13 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
+    Config::setEnabled("overscan", m_overscanWorkAround);
+    Config::setValue("desktop-id", qApp->desktop()->screenNumber(this));
+    Config::setEnabled("fullscreen", m_attemptingFullScreen);
+    if (!m_attemptingFullScreen)
+        Config::setValue("window-geometry", geometry());
+    else if (m_overscanWorkAround)
+        Config::setValue("overscan-geometry", geometry());
 }
 
 QWidget *MainWindow::centralWidget() const
@@ -122,5 +132,85 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
     }
 
     return QObject::eventFilter(obj, event);
+}
+
+void MainWindow::grow()
+{
+    if (!m_attemptingFullScreen)
+        return;
+
+    const QRect newGeometry = geometry().adjusted(-1,-1,1,1);
+
+    const QSize desktopSize = qApp->desktop()->screenGeometry(this).size();
+    if ((newGeometry.width() > desktopSize.width())
+            || (newGeometry.height() > desktopSize.height())) {
+        Config::setEnabled("overscan", false);
+        showFullScreen();
+    } else {
+        setGeometry(newGeometry);
+    }
+}
+
+void MainWindow::shrink()
+{
+    if (!m_attemptingFullScreen)
+        return;
+
+    if (!m_overscanWorkAround) {
+        Config::setEnabled("overscan");
+        showFullScreen();
+    }
+    setGeometry(geometry().adjusted(1,1,-1,-1));
+}
+
+void MainWindow::toggleFullScreen()
+{
+    if (m_attemptingFullScreen) {
+        Config::setValue("overscan-geometry", geometry());
+        showNormal();
+    } else {
+        Config::setValue("window-geometry", geometry());
+        showFullScreen();
+    }
+}
+
+void MainWindow::showFullScreen()
+{
+    m_attemptingFullScreen = true;
+    m_overscanWorkAround = Config::isEnabled("overscan", false);
+
+    if (m_overscanWorkAround) {
+        QRect geometry = Config::value("overscan-geometry", m_defaultGeometry);
+        geometry.moveCenter(qApp->desktop()->availableGeometry().center());
+
+        setGeometry(geometry);
+        setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
+        setWindowState(Qt::WindowNoState);
+        QWidget::show();
+    } else {
+        QWidget::showFullScreen();
+    }
+
+    activateWindow();
+}
+
+void MainWindow::showNormal()
+{
+    m_attemptingFullScreen = m_overscanWorkAround = false;
+
+    setWindowFlags(Qt::Window);
+    setGeometry(Config::value("window-geometry", m_defaultGeometry));
+    QWidget::showNormal();
+
+    activateWindow();
+}
+
+void MainWindow::show()
+{
+    if (m_attemptingFullScreen) {
+        showFullScreen();
+    } else {
+        showNormal();
+    }
 }
 

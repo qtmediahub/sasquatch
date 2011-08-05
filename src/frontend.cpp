@@ -94,14 +94,6 @@ public slots:
 
     void discoverSkins();
 
-    void toggleFullScreen();
-    void showFullScreen();
-    void showNormal();
-    void activateWindow();
-
-    void grow();
-    void shrink();
-
     void resetUI();
 
     void selectSkin();
@@ -110,10 +102,6 @@ public slots:
 
 public:
     void enableRemoteControlMode(bool enable);
-
-    const QRect defaultGeometry;
-    bool overscanWorkAround;
-    bool attemptingFullScreen;
 
     bool dbusRegistration;
     bool remoteControlMode;
@@ -137,9 +125,6 @@ public:
 
 FrontendPrivate::FrontendPrivate(Frontend *p)
     : QObject(p),
-      defaultGeometry(0, 0, 1080, 720),
-      overscanWorkAround(Config::isEnabled("overscan", false)),
-      attemptingFullScreen(Config::isEnabled("fullscreen", true)),
       dbusRegistration(false),
       remoteControlMode(true),
       mediaServer(0),
@@ -217,16 +202,7 @@ FrontendPrivate::FrontendPrivate(Frontend *p)
 
 FrontendPrivate::~FrontendPrivate()
 {
-    Config::setEnabled("fullscreen", attemptingFullScreen);
     Config::setValue("skin", currentSkin->name());
-    Config::setEnabled("overscan", overscanWorkAround);
-
-    Config::setValue("desktop-id", qApp->desktop()->screenNumber(mainWindow));
-
-    if (!attemptingFullScreen)
-        Config::setValue("window-geometry", mainWindow->geometry());
-    else if (overscanWorkAround)
-        Config::setValue("overscan-geometry", mainWindow->geometry());
 
     delete mainWindow;
 }
@@ -316,88 +292,11 @@ QWidget *FrontendPrivate::loadQmlSkin(const QUrl &targetUrl)
     return declarativeWidget;
 }
 
-void FrontendPrivate::showFullScreen()
-{
-    attemptingFullScreen = true;
-    overscanWorkAround = Config::isEnabled("overscan", false);
-
-    if (overscanWorkAround) {
-        QRect geometry = Config::value("overscan-geometry", defaultGeometry);
-        geometry.moveCenter(qApp->desktop()->availableGeometry().center());
-
-        mainWindow->setGeometry(geometry);
-        mainWindow->setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
-        mainWindow->setWindowState(Qt::WindowNoState);
-        mainWindow->show();
-    } else {
-        mainWindow->showFullScreen();
-    }
-
-    QTimer::singleShot( 1, this, SLOT(activateWindow()));
-}
-
-void FrontendPrivate::showNormal()
-{
-    attemptingFullScreen = overscanWorkAround = false;
-
-    mainWindow->setWindowFlags(Qt::Window);
-    mainWindow->setGeometry(Config::value("window-geometry", defaultGeometry));
-    mainWindow->showNormal();
-
-    QTimer::singleShot( 1, this, SLOT(activateWindow()));
-}
-
-void FrontendPrivate::activateWindow()
-{
-    //Invoking this by adding it to the even queue doesn't work?
-    mainWindow->activateWindow();
-}
-
-void FrontendPrivate::grow()
-{
-    if (!attemptingFullScreen)
-        return;
-
-    const QRect newGeometry = mainWindow->geometry().adjusted(-1,-1,1,1);
-
-    const QSize desktopSize = qApp->desktop()->screenGeometry(mainWindow).size();
-    if ((newGeometry.width() > desktopSize.width())
-            || (newGeometry.height() > desktopSize.height())) {
-        Config::setEnabled("overscan", false);
-        showFullScreen();
-    } else {
-        mainWindow->setGeometry(newGeometry);
-    }
-}
-
-void FrontendPrivate::shrink()
-{
-    if (!attemptingFullScreen)
-        return;
-
-    if (!overscanWorkAround) {
-        Config::setEnabled("overscan");
-        showFullScreen();
-    }
-    mainWindow->setGeometry(mainWindow->geometry().adjusted(1,1,-1,-1));
-}
-
 void FrontendPrivate::resetUI()
 {
     if (QDeclarativeView *declarativeWidget = qobject_cast<QDeclarativeView*>(mainWindow->centralWidget())) {
         QObject *coreObject = declarativeWidget->rootObject();
         QMetaObject::invokeMethod(coreObject, "reset");
-    }
-}
-
-void FrontendPrivate::toggleFullScreen()
-{
-    if (attemptingFullScreen) {
-        Config::setValue("overscan-geometry", mainWindow->geometry());
-        showNormal();
-    } else {
-        Config::setValue("window-geometry", mainWindow->geometry());
-        showFullScreen();
     }
 }
 
@@ -452,10 +351,7 @@ Frontend::Frontend(QObject *p)
     d->mainWindow = new MainWindow;
     optimizeWidgetAttributes(d->mainWindow, true);
 
-    connect(d->mainWindow, SIGNAL(grow()), d, SLOT(grow()));
-    connect(d->mainWindow, SIGNAL(shrink()), d, SLOT(shrink()));
     connect(d->mainWindow, SIGNAL(resetUI()), d, SLOT(resetUI()));
-    connect(d->mainWindow, SIGNAL(toggleFullScreen()), d, SLOT(toggleFullScreen()));
 }
 
 Frontend::~Frontend()
@@ -466,11 +362,7 @@ Frontend::~Frontend()
 
 void Frontend::show()
 {
-    if (d->attemptingFullScreen) {
-        d->showFullScreen();
-    } else {
-        d->showNormal();
-    }
+    d->mainWindow->show();
 }
 
 bool Frontend::setSkin(const QString &name)
