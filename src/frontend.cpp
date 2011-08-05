@@ -72,10 +72,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "skinselector.h"
 
 #ifndef NO_DBUS
-static void registerObjectWithDbus(QObject *object)
+static void registerObjectWithDbus(const QString &path, QObject *object)
 {
     bool objectRegistration =
-            QDBusConnection::sessionBus().registerObject("/", object,
+            QDBusConnection::sessionBus().registerObject(path, object,
                                                          QDBusConnection::ExportScriptableSlots|QDBusConnection::ExportScriptableSignals);
     if (!objectRegistration)
         qDebug() << "Can't seem to register object with dbus service:" << QDBusConnection::sessionBus().lastError().message();
@@ -622,7 +622,7 @@ void FrontendPrivate::enableRemoteControlMode(bool enable)
     }
 
     if (dbusRegistration) {
-        ::registerObjectWithDbus(mediaPlayerRpc);
+        ::registerObjectWithDbus("/mediacontrol", mediaPlayerRpc);
     }
 #endif
 }
