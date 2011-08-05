@@ -217,7 +217,7 @@ static void optimizeWidgetAttributes(QWidget *widget, bool transparent = false)
 
 static void optimizeGraphicsViewAttributes(QGraphicsView *view)
 {
-    if (Config::isEnabled("smooth-scaling", false))
+    if (Config::isEnabled("smooth-scaling", true))
         view->setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing);
 
     view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
