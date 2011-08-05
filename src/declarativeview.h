@@ -34,6 +34,8 @@ public:
 
     Q_INVOKABLE QObject *focusItem() const;
 
+    Q_INVOKABLE void addImportPath(const QString &path);
+
     int fps() const;
 
 protected:

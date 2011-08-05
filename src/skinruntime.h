@@ -39,8 +39,6 @@ public:
 
     QWidget *create(Skin *skin, QWidget *window);
 
-    Q_INVOKABLE void addImportPath(const QString &path);
-
     QHash<QString, Skin *> skins() const;
 private:
     SkinRuntimePrivate *d;

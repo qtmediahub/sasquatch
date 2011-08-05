@@ -108,8 +108,6 @@ public:
     Trackpad *trackpad;
     QHash<QString, Skin *> skins;
     Skin *currentSkin;
-    QDeclarativeContext *rootContext;
-    QSystemTrayIcon *systray;
     QFileSystemWatcher pathMonitor;
     QAbstractItemModel *remoteSessionsModel;
     SkinRuntime *q;
@@ -125,7 +123,6 @@ SkinRuntimePrivate::SkinRuntimePrivate(SkinRuntime *p)
       mediaPlayerRpc(0),
       rpcConnection(0),
       trackpad(0),
-      rootContext(0),
       remoteSessionsModel(0),
       q(p)
 {
@@ -263,7 +260,6 @@ QWidget *SkinRuntimePrivate::loadQmlSkin(const QUrl &targetUrl, QWidget *window)
         runtime->insert("powerManager", qVariantFromValue(static_cast<QObject *>(powerManager)));
     }
     runtime->insert("config", qVariantFromValue(static_cast<QObject *>(Config::instance())));
-    runtime->insert("frontend", qVariantFromValue(static_cast<QObject *>(q)));
     runtime->insert("window", qVariantFromValue(static_cast<QObject *>(window)));
     runtime->insert("view", qVariantFromValue(static_cast<QObject *>(declarativeWidget)));
     runtime->insert("cursor", qVariantFromValue(static_cast<QObject *>(new CustomCursor(declarativeWidget))));
@@ -275,7 +271,6 @@ QWidget *SkinRuntimePrivate::loadQmlSkin(const QUrl &targetUrl, QWidget *window)
     engine->addImportPath(LibraryInfo::basePath() % "/imports");
     engine->addImportPath(currentSkin->path());
 
-    rootContext = declarativeWidget->rootContext();
     declarativeWidget->setSource(targetUrl);
 
     return declarativeWidget;
@@ -347,12 +342,6 @@ QWidget *SkinRuntime::create(Skin *skin, QWidget *window)
     d->currentSkin = skin;
     d->enableRemoteControlMode(skin->isRemoteControl());
     return d->loadQmlSkin(url, window);
-}
-
-void SkinRuntime::addImportPath(const QString &path)
-{
-    if (QFile::exists(path))
-        d->rootContext->engine()->addImportPath(path);
 }
 
 QHash<QString, Skin *> SkinRuntime::skins() const

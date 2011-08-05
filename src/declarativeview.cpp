@@ -19,6 +19,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "declarativeview.h"
 #include <QGraphicsObject>
+#include <QDeclarativeEngine>
 
 DeclarativeView::DeclarativeView(QWidget *parent)
     : QDeclarativeView(parent),
@@ -73,5 +74,10 @@ QObject *DeclarativeView::focusItem() const
 int DeclarativeView::fps() const
 {
     return m_fps;
+}
+
+void DeclarativeView::addImportPath(const QString &path)
+{
+    engine()->addImportPath(path);
 }
 
