@@ -35,10 +35,10 @@ Item {
         mediaItem.stop()
     }
 
-    function play(itemdata, depth) {
-        if (itemdata != null) {
+    function play(modelIndex, depth) {
+        if (modelIndex != null) {
             playlist.clear()
-            playIndex(playlist.append(itemdata, depth ? depth : Playlist.Recursive))
+            playIndex(playlist.append(modelIndex, depth ? depth : Playlist.Recursive))
         }
     }
 
