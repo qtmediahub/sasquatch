@@ -83,11 +83,10 @@ int main(int argc, char** argv)
 
     Config::init(argc, argv);
 
-    MainWindow *mainWindow = 0;
     MediaServer *mediaServer = 0;
 
     if (!Config::isEnabled("headless", qgetenv("DISPLAY").isEmpty())) {
-        mainWindow = new MainWindow;
+        MainWindow *mainWindow = new MainWindow;
         mainWindow->setAttribute(Qt::WA_DeleteOnClose);
         mainWindow->setSkin(Config::value("skin", "").toString());
         mainWindow->show();
@@ -99,7 +98,6 @@ int main(int argc, char** argv)
     
     g_networkSession->close();
 
-    delete mainWindow;
     delete mediaServer;
 
     return ret;
