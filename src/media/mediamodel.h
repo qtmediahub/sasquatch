@@ -78,6 +78,7 @@ public:
 
     bool isLeafLevel() const;
 
+    static void getRoleNameMapping(const QString &mediaType, QHash<int, QByteArray> *roleToName, QHash<QString, int> *nameToRole);
 signals:
     void structureChanged();
     void mediaTypeChanged();

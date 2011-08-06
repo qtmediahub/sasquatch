@@ -57,6 +57,38 @@ QString MediaModel::part() const
     return m_structure.split("|").value(m_cursor.length());
 }
 
+void MediaModel::getRoleNameMapping(const QString &mediaType, QHash<int, QByteArray> *roleToName, QHash<QString, int> *nameToRole)
+{
+    // Add the fields of the table as role names
+    QSqlDriver *driver = QSqlDatabase::database(DEFAULT_DATABASE_CONNECTION_NAME).driver();
+    QSqlRecord record = driver->record(mediaType);
+    if (record.isEmpty()) {
+        qWarning() << "Table " << mediaType << " is not valid it seems";
+        return;
+    }
+
+    for (int i = 0; i < record.count(); i++) {
+        roleToName->insert(FieldRolesBegin + i, record.fieldName(i).toUtf8());
+        nameToRole->insert(record.fieldName(i), FieldRolesBegin + i);
+    }
+
+    struct {
+        int role; 
+        const char *name;
+    } roleNames[] = {
+        { DotDotRole, "dotdot" },
+        { IsLeafRole, "isLeaf"},
+        { ModelIndexRole, "modelIndex"},
+        { PreviewUrlRole, "previewUrl"},
+        { 0, NULL }
+    };
+
+    for (int i = 0; roleNames[i].name != NULL; ++i) {
+        roleToName->insert(roleNames[i].role, roleNames[i].name);
+        nameToRole->insert(roleNames[i].name, roleNames[i].role);
+    }
+}
+
 QString MediaModel::mediaType() const
 {
     return m_mediaType;
@@ -78,18 +110,9 @@ void MediaModel::setMediaType(const QString &type)
     if (record.isEmpty())
         qWarning() << "Table " << type << " is not valid it seems";
 
-    QHash<int, QByteArray> hash = roleNames();
-    hash.insert(DotDotRole, "dotdot");
-    hash.insert(IsLeafRole, "isLeaf");
-    hash.insert(ModelIndexRole,"modelIndex");
-    hash.insert(PreviewUrlRole, "previewUrl");
-
-    for (int i = 0; i < record.count(); i++) {
-        hash.insert(FieldRolesBegin + i, record.fieldName(i).toUtf8());
-        m_fieldToRole.insert(record.fieldName(i), FieldRolesBegin + i);
-    }
-
-    setRoleNames(hash);
+    QHash<int, QByteArray> roleToName = roleNames();
+    getRoleNameMapping(type, &roleToName, &m_fieldToRole);
+    setRoleNames(roleToName);
 
     reload();
 }
