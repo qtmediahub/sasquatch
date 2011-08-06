@@ -158,6 +158,11 @@ QVariant MediaModel::data(const QModelIndex &index, int role) const
     return m_data.value(index.row()).value(role);
 }
 
+QMap<int, QVariant> MediaModel::itemData(const QModelIndex &index) const
+{
+    return m_data.value(index.row());
+}
+
 QModelIndex MediaModel::index(int row, int col, const QModelIndex &parent) const
 {
     if (parent.isValid())
@@ -241,9 +246,9 @@ void MediaModel::reload()
     endResetModel();
 }
 
-QHash<int, QVariant> MediaModel::dataFromRecord(const QSqlRecord &record) const
+QMap<int, QVariant> MediaModel::dataFromRecord(const QSqlRecord &record) const
 {
-    QHash<int, QVariant> data;
+    QMap<int, QVariant> data;
     for (int j = 0; j < record.count(); j++) {
         int role = m_fieldToRole.value(record.fieldName(j));
         if (record.fieldName(j) == "uri")
@@ -260,7 +265,7 @@ QHash<int, QVariant> MediaModel::dataFromRecord(const QSqlRecord &record) const
     }
     data.insert(Qt::DisplayRole, displayString.join(", "));
     data.insert(DotDotRole, false);
-    data.insert(IsLeafRole, m_cursor.count() + 1 == m_layoutInfo.count());
+    data.insert(IsLeafRole, isLeafLevel());
 
     data.insert(PreviewUrlRole, QUrl::fromEncoded(record.value("thumbnail").toByteArray()));
     return data;
@@ -294,12 +299,12 @@ void MediaModel::insertAll(const QList<QSqlRecord> &records)
     beginInsertRows(QModelIndex(), 0, records.count() + (addDotDot ? 0 : -1));
 
     for (int i = 0; i < records.count(); i++) {
-        QHash<int, QVariant> data = dataFromRecord(records[i]);
+        QMap<int, QVariant> data = dataFromRecord(records[i]);
         m_data.append(data);
     }
 
     if (addDotDot) {
-        QHash<int, QVariant> data;
+        QMap<int, QVariant> data;
         data.insert(Qt::DisplayRole, tr(".."));
         data.insert(DotDotRole, true);
         data.insert(IsLeafRole, false);
@@ -311,7 +316,7 @@ void MediaModel::insertAll(const QList<QSqlRecord> &records)
 
 int MediaModel::compareData(int idx, const QSqlRecord &record) const
 {
-    const QHash<int, QVariant> &curData = m_data[idx];
+    const QMap<int, QVariant> &curData = m_data[idx];
     QStringList cols = m_layoutInfo.value(m_cursor.count());
     foreach(const QString &col, cols) {
         const int role = m_fieldToRole.value(col);
@@ -429,5 +434,10 @@ void MediaModel::refresh()
     QSqlQuery q = buildQuery();
     DEBUG << m_mediaType << q.lastQuery();
     QMetaObject::invokeMethod(m_reader, "execute", Qt::QueuedConnection, Q_ARG(QSqlQuery, q));
+}
+
+bool MediaModel::isLeafLevel() const
+{
+    return m_cursor.count() + 1 == m_layoutInfo.count();
 }
 

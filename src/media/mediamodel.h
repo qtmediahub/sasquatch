@@ -71,9 +71,12 @@ public:
     bool hasChildren(const QModelIndex &parent = QModelIndex()) const;
     bool canFetchMore(const QModelIndex &parent) const;
     void fetchMore(const QModelIndex &parent);
+    QMap<int, QVariant> itemData(const QModelIndex &index) const;
 
     // PathView hack
     Q_INVOKABLE void reset() { QAbstractItemModel::reset(); }
+
+    bool isLeafLevel() const;
 
 signals:
     void structureChanged();
@@ -90,7 +93,7 @@ private:
     void createNewDbReader();
     void reload();
     QSqlQuery buildQuery() const;
-    QHash<int, QVariant> dataFromRecord(const QSqlRecord &record) const;
+    QMap<int, QVariant> dataFromRecord(const QSqlRecord &record) const;
     int compareData(int idx, const QSqlRecord &record) const;
 
     void insertAll(const QList<QSqlRecord> &records);
@@ -99,10 +102,10 @@ private:
     QString m_structure;
     QHash<QString, int> m_fieldToRole;
     QList<QStringList> m_layoutInfo;
-    QList<QHash<int, QVariant> > m_data;
+    QList<QMap<int, QVariant> > m_data;
     bool m_loading, m_loaded;
 
-    QList<QHash<int, QVariant> > m_cursor;
+    QList<QMap<int, QVariant> > m_cursor;
 
     QTimer m_refreshTimer;
 
