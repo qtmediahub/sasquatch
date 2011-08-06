@@ -29,19 +29,13 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 Playlist::Playlist(QObject *parent)
     : QAbstractListModel(parent)
     , m_playMode(Normal)
-    , m_driver(0)
     , m_currentIndex(-1)
 {
 }
 
 QVariant Playlist::data(int index, const QString &role) const
 {
-    return data(createIndex(index, 0), getRoleByName(role));
-}
-
-QVariant Playlist::data(int index, int role) const
-{
-    return data(createIndex(index, 0), role);
+    return m_data.value(index).value(m_nameToRole.value(role));
 }
 
 QVariant Playlist::data(const QModelIndex &index, int role) const
@@ -63,89 +57,57 @@ void Playlist::clear()
     beginResetModel();
     m_data.clear();
     endResetModel();
+    m_currentIndex = -1;
+    emit currentIndexChanged();
 }
 
-int Playlist::append(const QModelIndex &index, Playlist::DepthRoles depth)
+void Playlist::addCurrentLevel(MediaModel *mediaModel)
 {
-    DEBUG << "add item" << index;
+    add(mediaModel, -1);
+}
 
-    if (!index.isValid()) {
-        DEBUG << "index is not valid, epic fail";
-        return -1; // we don't have a model() to work with
+void Playlist::add(MediaModel *mediaModel, int row)
+{
+    if (!mediaModel) {
+        DEBUG << "invalid model";
+        return;
     }
 
-    const MediaModel *model = qobject_cast<const MediaModel*>(index.model());
-    if (!model) {
-        DEBUG << "model of index is not a MediaModel";
-        return -1;
-    }
+    DEBUG << "add item" << mediaModel << row;
 
     // if new item is not same type make this playlist of new type
-    if (model->mediaType() != m_mediaType)
-        setMediaType(model->mediaType());
+    if (mediaModel->mediaType() != m_mediaType)
+        setMediaType(mediaModel->mediaType());
 
-    int start = rowCount()-1 < 0 ? 0 : rowCount()-1;
-    int end = rowCount() < 0 ? 1 : rowCount();
-
-    emit beginInsertRows(QModelIndex(), start, end);
-
-    // Add the fields of the table as role names
-    if (!m_driver)
-        return -1;
-
-    QSqlRecord record = m_driver->record(m_mediaType);
-    if (record.isEmpty()) {
-        DEBUG << "Table " << m_mediaType << " is not valid it seems";
-        return -1;
-    }
-
-    int pos = -1;
-
-    if (depth == Playlist::Single) {
-        QHash<int, QVariant> dataset;
-        dataset.insert(PreviewUrlRole, index.data(MediaModel::PreviewUrlRole));
-        dataset.insert(Qt::DisplayRole, index.data(Qt::DisplayRole));
-
-        for (int i = 0; i < record.count(); i++) {
-            dataset.insert(FieldRolesBegin + i, index.data(MediaModel::FieldRolesBegin + i));
-        }
-
-        m_data.append(dataset);
-        pos = m_data.count()-1;
-    } else if (depth == Playlist::Flat || depth == Playlist::Recursive) {
-        for(int i = 0; i < model->rowCount(); i++) {
-            QModelIndex idx = model->index(i, 0, QModelIndex());
-            if (idx.isValid()) {
+    if (mediaModel->isLeafLevel()) { 
+        QModelIndex index = mediaModel->index(row, 0, QModelIndex());
+        if (index.isValid()) { // add only one itemData
+            if (index.data(MediaModel::DotDotRole).toBool())
+                return;
+            beginInsertRows(QModelIndex(), m_data.count(), m_data.count());
+            m_data.append(mediaModel->itemData(index));
+            endInsertRows();
+        } else {
+            beginInsertRows(QModelIndex(), m_data.count(), m_data.count() + mediaModel->rowCount() - 1);
+            for (int i = 0; i < mediaModel->rowCount(); i++) {
+                QModelIndex idx = mediaModel->index(i, 0, QModelIndex());
                 if (idx.data(MediaModel::DotDotRole).toBool())
                     continue;
 
-                QHash<int, QVariant> dataset;
-                dataset.insert(PreviewUrlRole, idx.data(MediaModel::PreviewUrlRole));
-                dataset.insert(Qt::DisplayRole, idx.data(Qt::DisplayRole));
-
-                for (int i = 0; i < record.count(); i++) {
-                    dataset.insert(FieldRolesBegin + i, idx.data(MediaModel::FieldRolesBegin + i));
-                }
-
-                m_data.append(dataset);
-                if (idx == index)
-                    pos = m_data.count()-1;
+                m_data.append(mediaModel->itemData(idx));
             }
+            endInsertRows();
         }
     } else {
-        qWarning() << __PRETTY_FUNCTION__ << "depth not handled, yet";
+        qWarning() << __PRETTY_FUNCTION__ << "non leaf level add is not handled yet";
     }
 
-    emit endInsertRows();
+    if (m_currentIndex == -1 && !m_data.isEmpty()) {
+        m_currentIndex = 0;
+        emit currentIndexChanged();
+    }
 
     DEBUG << "Playlist now has " << rowCount() << " items";
-
-    return pos;
-}
-
-QModelIndex Playlist::index(int row) const
-{
-    return createIndex(row, 0);
 }
 
 void Playlist::setCurrentIndex(int index)
@@ -215,38 +177,12 @@ void Playlist::setMediaType(const QString &type)
     m_data.clear();
     endResetModel();
 
+    QHash<int, QByteArray> roleToName;
+    m_nameToRole.clear();
+    MediaModel::getRoleNameMapping(type, &roleToName, &m_nameToRole);
+    setRoleNames(roleToName);
+
     m_mediaType = type;
     emit mediaTypeChanged();
-
-    // Add the fields of the table as role names
-    if (!m_driver)
-        m_driver = QSqlDatabase::database(DEFAULT_DATABASE_CONNECTION_NAME).driver();
-
-    QSqlRecord record = m_driver->record(m_mediaType);
-    if (record.isEmpty())
-        qWarning() << "Table " << type << " is not valid it seems";
-
-    QHash<int, QByteArray> hash = roleNames();
-    hash.insert(PreviewUrlRole, "previewUrl");
-
-    for (int i = 0; i < record.count(); i++) {
-        hash.insert(FieldRolesBegin + i, record.fieldName(i).toUtf8());
-    }
-
-    setRoleNames(hash);
-}
-
-int Playlist::getRoleByName(const QString &roleName) const
-{
-    QHash<int, QByteArray> hash = roleNames();
-    QHashIterator<int, QByteArray> i(hash);
-     while (i.hasNext()) {
-         i.next();
-         if (i.value() == roleName) {
-             return i.key();
-         }
-     }
-
-    return -1;
 }
 
