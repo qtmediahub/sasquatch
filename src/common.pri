@@ -19,6 +19,8 @@ isEmpty(PREFIX) {
 
 INSTALL_PREFIX=$$PREFIX/share/qtmediahub/
 DEFINES += "QMH_INSTALL_PREFIX=\\\"$$INSTALL_PREFIX\\\""
+DEFINES += "QMH_DBUS_SERVICENAME=\\\"com.nokia.qtmediahub\\\""
+DEFINES += "QMH_HELPER_DBUS_SERVICENAME=\\\"com.nokia.qtmediahub.helper\\\""
 
 # default options
 linux* {

@@ -68,6 +68,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "devicemanager.h"
 #include "powermanager.h"
 #include "rpc/mediaplayerrpc.h"
+#include "media-helper/mediabackendinterface.h"
+#include "dbusmediabackend.h"
 #include "customcursor.h"
 #include "httpserver/httpserver.h"
 
@@ -104,6 +106,7 @@ public:
     MediaServer *mediaServer;
     DeviceManager *deviceManager;
     PowerManager *powerManager;
+    MediaBackendInterface *mediaBackendInterface;
     MediaPlayerRpc *mediaPlayerRpc;
     RpcConnection *rpcConnection;
 
@@ -123,6 +126,7 @@ SkinRuntimePrivate::SkinRuntimePrivate(SkinRuntime *p)
       mediaServer(0),
       deviceManager(0),
       powerManager(0),
+      mediaBackendInterface(0),
       mediaPlayerRpc(0),
       rpcConnection(0),
       trackpad(0),
@@ -130,7 +134,7 @@ SkinRuntimePrivate::SkinRuntimePrivate(SkinRuntime *p)
       q(p)
 {
 #ifndef NO_DBUS
-    dbusRegistration = QDBusConnection::sessionBus().registerService("com.qtmediahub");
+    dbusRegistration = QDBusConnection::sessionBus().registerService(QMH_DBUS_SERVICENAME);
     if (!dbusRegistration) {
         qDebug() << "Can't seem to register dbus service:" << QDBusConnection::sessionBus().lastError().message();
     }
@@ -258,6 +262,7 @@ QWidget *SkinRuntimePrivate::loadQmlSkin(const QUrl &targetUrl, QWidget *window)
         trackpad->setRecipient(declarativeWidget);
         runtime->insert("actionMapper", qVariantFromValue(static_cast<QObject *>(actionMapper)));
         runtime->insert("trackpad", qVariantFromValue(static_cast<QObject *>(trackpad)));
+        runtime->insert("mediaBackendInterface", qVariantFromValue(static_cast<QObject *>(mediaBackendInterface)));
         runtime->insert("mediaPlayerRpc", qVariantFromValue(static_cast<QObject *>(mediaPlayerRpc)));
         runtime->insert("deviceManager", qVariantFromValue(static_cast<QObject *>(deviceManager)));
         runtime->insert("powerManager", qVariantFromValue(static_cast<QObject *>(powerManager)));
@@ -365,6 +370,10 @@ void SkinRuntimePrivate::enableRemoteControlMode(bool enable)
         delete powerManager;
         powerManager = 0;
 
+        rpcConnection->unregisterObject(mediaBackendInterface);
+        delete mediaBackendInterface;
+        mediaBackendInterface = 0;
+
         rpcConnection->unregisterObject(mediaPlayerRpc);
         delete mediaPlayerRpc;
         mediaPlayerRpc = 0;
@@ -387,6 +396,7 @@ void SkinRuntimePrivate::enableRemoteControlMode(bool enable)
 
     mediaServer = new MediaServer(this);
     rpcConnection = new RpcConnection(RpcConnection::Server, QHostAddress::Any, 1234, this);
+    mediaBackendInterface = new DBusMediaBackend(this);
     mediaPlayerRpc = new MediaPlayerRpc(this);
     mediaPlayerRpc->setObjectName("qmhmediaplayer");
     trackpad = new Trackpad(this);
