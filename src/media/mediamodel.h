@@ -93,7 +93,7 @@ private slots:
 private:
     void createNewDbReader();
     void reload();
-    QSqlQuery buildQuery() const;
+    QSqlQuery buildQuery(const QList<QMap<int, QVariant> > &cursor) const;
     QMap<int, QVariant> dataFromRecord(const QSqlRecord &record) const;
     int compareData(int idx, const QSqlRecord &record) const;
 

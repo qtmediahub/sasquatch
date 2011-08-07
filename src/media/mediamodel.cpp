@@ -237,7 +237,7 @@ void MediaModel::fetchMore(const QModelIndex &parent)
 
     m_loading = true;
 
-    QSqlQuery q = buildQuery();
+    QSqlQuery q = buildQuery(m_cursor);
     DEBUG << q.lastQuery();
     QMetaObject::invokeMethod(m_reader, "execute", Qt::QueuedConnection, Q_ARG(QSqlQuery, q));
 }
@@ -382,13 +382,13 @@ void MediaModel::update(const QList<QSqlRecord> &records)
     }
 }
 
-QSqlQuery MediaModel::buildQuery() const
+QSqlQuery MediaModel::buildQuery(const QList<QMap<int, QVariant> > &cursor) const
 {
     QSqlDatabase db = QSqlDatabase::database(DEFAULT_DATABASE_CONNECTION_NAME);
     QSqlDriver *driver = db.driver();
 
     QStringList escapedCurParts;
-    QStringList curParts = m_layoutInfo[m_cursor.count()];
+    QStringList curParts = m_layoutInfo[cursor.count()];
     for (int i = 0; i < curParts.count(); i++)
         escapedCurParts.append(driver->escapeIdentifier(curParts[i], QSqlDriver::FieldName));
     QString escapedCurPart = escapedCurParts.join(",");
@@ -397,21 +397,21 @@ QSqlQuery MediaModel::buildQuery() const
     query.setForwardOnly(true);
 
     QStringList placeHolders;
-    const bool lastPart = m_cursor.count() == m_layoutInfo.count()-1;
+    const bool lastPart = cursor.count() == m_layoutInfo.count()-1;
     QString queryString;
     // SQLite allows us to select columns that are not present in the GROUP BY. We use this feature
     // to select thumbnails for non-leaf nodes
     queryString.append("SELECT *");
     queryString.append(" FROM " + driver->escapeIdentifier(m_mediaType, QSqlDriver::TableName));
 
-    if (!m_cursor.isEmpty()) {
+    if (!cursor.isEmpty()) {
         QStringList where;
-        for (int i = 0; i < m_cursor.count(); i++) {
+        for (int i = 0; i < cursor.count(); i++) {
             QStringList subParts = m_layoutInfo[i];
             for (int j = 0; j < subParts.count(); j++) {
                 where.append(subParts[j] + " = ?");
                 const int role = m_fieldToRole.value(subParts[j]);
-                placeHolders << m_cursor[i].value(role).toString();
+                placeHolders << cursor[i].value(role).toString();
             }
         }
 
@@ -454,7 +454,7 @@ void MediaModel::refresh()
     m_loading = true;
     m_loaded = false;
 
-    QSqlQuery q = buildQuery();
+    QSqlQuery q = buildQuery(m_cursor);
     DEBUG << m_mediaType << q.lastQuery();
     QMetaObject::invokeMethod(m_reader, "execute", Qt::QueuedConnection, Q_ARG(QSqlQuery, q));
 }
