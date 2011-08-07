@@ -336,11 +336,11 @@ QWidget *SkinRuntime::create(Skin *skin, QWidget *window)
     QUrl url = skin->urlForResolution(nativeResolutionString, Config::value("fallback-resolution", "default").toString());
     if (!url.isValid()) {
         qWarning() << "Error loading skin " << skin->name();
-        return false;
+        return 0;
     }
 
     if (skin->type(url) != Skin::Qml)
-        return false;
+        return 0;
 
     d->currentSkin = skin;
     d->enableRemoteControlMode(skin->isRemoteControl());
