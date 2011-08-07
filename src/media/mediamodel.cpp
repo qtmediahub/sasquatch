@@ -237,7 +237,7 @@ void MediaModel::fetchMore(const QModelIndex &parent)
 
     m_loading = true;
 
-    QSqlQuery q = buildQuery(m_cursor);
+    QSqlQuery q = currentQuery();
     DEBUG << q.lastQuery();
     QMetaObject::invokeMethod(m_reader, "execute", Qt::QueuedConnection, Q_ARG(QSqlQuery, q));
 }
@@ -382,28 +382,21 @@ void MediaModel::update(const QList<QSqlRecord> &records)
     }
 }
 
-QSqlQuery MediaModel::buildQuery(const QList<QMap<int, QVariant> > &cursor) const
+QSqlQuery MediaModel::buildQuery(const QList<QMap<int, QVariant> > &cursor, bool forceLastPart) const
 {
     QSqlDatabase db = QSqlDatabase::database(DEFAULT_DATABASE_CONNECTION_NAME);
     QSqlDriver *driver = db.driver();
 
-    QStringList escapedCurParts;
-    QStringList curParts = m_layoutInfo[cursor.count()];
-    for (int i = 0; i < curParts.count(); i++)
-        escapedCurParts.append(driver->escapeIdentifier(curParts[i], QSqlDriver::FieldName));
-    QString escapedCurPart = escapedCurParts.join(",");
-
     QSqlQuery query(db);
     query.setForwardOnly(true);
 
-    QStringList placeHolders;
-    const bool lastPart = cursor.count() == m_layoutInfo.count()-1;
     QString queryString;
     // SQLite allows us to select columns that are not present in the GROUP BY. We use this feature
     // to select thumbnails for non-leaf nodes
     queryString.append("SELECT *");
     queryString.append(" FROM " + driver->escapeIdentifier(m_mediaType, QSqlDriver::TableName));
 
+    QStringList placeHolders;
     if (!cursor.isEmpty()) {
         QStringList where;
         for (int i = 0; i < cursor.count(); i++) {
@@ -418,6 +411,13 @@ QSqlQuery MediaModel::buildQuery(const QList<QMap<int, QVariant> > &cursor) cons
         queryString.append(" WHERE " + where.join(" AND "));
     }
 
+    QStringList escapedCurParts;
+    QStringList curParts = m_layoutInfo[cursor.count()];
+    for (int i = 0; i < curParts.count(); i++)
+        escapedCurParts.append(driver->escapeIdentifier(curParts[i], QSqlDriver::FieldName));
+    QString escapedCurPart = escapedCurParts.join(",");
+
+    const bool lastPart = forceLastPart || cursor.count() == m_layoutInfo.count()-1;
     if (!lastPart)
         queryString.append(" GROUP BY " + escapedCurPart);
 
@@ -454,7 +454,7 @@ void MediaModel::refresh()
     m_loading = true;
     m_loaded = false;
 
-    QSqlQuery q = buildQuery(m_cursor);
+    QSqlQuery q = currentQuery();
     DEBUG << m_mediaType << q.lastQuery();
     QMetaObject::invokeMethod(m_reader, "execute", Qt::QueuedConnection, Q_ARG(QSqlQuery, q));
 }
@@ -462,5 +462,17 @@ void MediaModel::refresh()
 bool MediaModel::isLeafLevel() const
 {
     return m_cursor.count() + 1 == m_layoutInfo.count();
+}
+
+QSqlQuery MediaModel::currentQuery() const
+{
+    return buildQuery(m_cursor, false /* forceLastPart */);
+}
+
+QSqlQuery MediaModel::leafNodesQuery(int row) const
+{
+    QList<QMap<int, QVariant> > cursor = m_cursor;
+    cursor.append(m_data.value(row));
+    return buildQuery(cursor, true /* forceLastPart */);
 }
 
