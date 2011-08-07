@@ -99,7 +99,17 @@ void Playlist::add(MediaModel *mediaModel, int row)
             endInsertRows();
         }
     } else {
-        qWarning() << __PRETTY_FUNCTION__ << "non leaf level add is not handled yet";
+        QSqlQuery query = mediaModel->leafNodesQuery(row);
+        query.exec();
+        QList<QMap<int, QVariant> > newData;
+        while (query.next()) {
+            QMap<int, QVariant> data = mediaModel->dataFromRecord(query.record());
+            data.insert(Qt::DisplayRole, query.record().value("title")); // ## ugh
+            newData.append(data);
+        }
+        beginInsertRows(QModelIndex(), m_data.count(), m_data.count() + newData.count() - 1);
+        m_data.append(newData);
+        endInsertRows();
     }
 
     if (m_currentIndex == -1 && !m_data.isEmpty()) {

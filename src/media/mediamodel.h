@@ -79,6 +79,7 @@ public:
     bool isLeafLevel() const;
 
     static void getRoleNameMapping(const QString &mediaType, QHash<int, QByteArray> *roleToName, QHash<QString, int> *nameToRole);
+    QMap<int, QVariant> dataFromRecord(const QSqlRecord &record) const; // ## should be made static
 
     QSqlQuery currentQuery() const;
     QSqlQuery leafNodesQuery(int row) const;
@@ -97,7 +98,6 @@ private:
     void createNewDbReader();
     void reload();
     QSqlQuery buildQuery(const QList<QMap<int, QVariant> > &cursor, bool forceLastPart) const;
-    QMap<int, QVariant> dataFromRecord(const QSqlRecord &record) const;
     int compareData(int idx, const QSqlRecord &record) const;
 
     void insertAll(const QList<QSqlRecord> &records);
