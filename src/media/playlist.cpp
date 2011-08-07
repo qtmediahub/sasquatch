@@ -22,6 +22,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "playlist.h"
 #include "mediamodel.h"
+#include "scopedtransaction.h"
 #include "global.h"
 
 #define DEBUG if (0) qDebug() << __PRETTY_FUNCTION__
@@ -31,6 +32,9 @@ Playlist::Playlist(QObject *parent)
     , m_playMode(Normal)
     , m_currentIndex(-1)
 {
+    m_saveTimer.setInterval(2000);
+    m_saveTimer.setSingleShot(true);
+    connect(&m_saveTimer, SIGNAL(timeout()), this, SLOT(saveToDatabase()));
 }
 
 QVariant Playlist::data(int index, const QString &role) const
@@ -59,6 +63,8 @@ void Playlist::clear()
     endResetModel();
     m_currentIndex = -1;
     emit currentIndexChanged();
+
+    saveLater();
 }
 
 void Playlist::addCurrentLevel(MediaModel *mediaModel)
@@ -103,8 +109,8 @@ void Playlist::add(MediaModel *mediaModel, int row)
         query.exec();
         QList<QMap<int, QVariant> > newData;
         while (query.next()) {
-            QMap<int, QVariant> data = mediaModel->dataFromRecord(query.record());
-            data.insert(Qt::DisplayRole, query.record().value("title")); // ## ugh
+            QMap<int, QVariant> data = MediaModel::dataFromRecord(m_nameToRole, query.record());
+            data.insert(Qt::DisplayRole, query.record().value("title"));
             newData.append(data);
         }
         beginInsertRows(QModelIndex(), m_data.count(), m_data.count() + newData.count() - 1);
@@ -117,6 +123,7 @@ void Playlist::add(MediaModel *mediaModel, int row)
         emit currentIndexChanged();
     }
 
+    saveLater();
     DEBUG << "Playlist now has " << rowCount() << " items";
 }
 
@@ -194,5 +201,78 @@ void Playlist::setMediaType(const QString &type)
 
     m_mediaType = type;
     emit mediaTypeChanged();
+
+    if (!m_name.isEmpty())
+        loadFromDatabase();
+}
+
+void Playlist::loadFromDatabase()
+{
+    QSqlQuery query(QSqlDatabase::database(DEFAULT_DATABASE_CONNECTION_NAME));
+    query.prepare(QString("SELECT %1.* FROM %1 JOIN playlist ON playlist.media_id = %1.id WHERE playlist.name=:playlist_name").arg(m_mediaType));
+    query.bindValue(":playlist_name", m_name);
+    if (!query.exec()) {
+        qWarning() << "Error loading playlist from database " << query.lastError() << query.lastQuery();
+    }
+    QList<QMap<int, QVariant> > newData;
+    while (query.next()) {
+        QMap<int, QVariant> data = MediaModel::dataFromRecord(m_nameToRole, query.record());
+        data.insert(Qt::DisplayRole, query.record().value("title"));
+        newData.append(data);
+    }
+    beginInsertRows(QModelIndex(), 0, newData.count()-1);
+    m_data = newData;
+    endInsertRows();
+}
+
+void Playlist::saveLater()
+{
+    if (!m_name.isEmpty())
+        m_saveTimer.start();
+}
+
+void Playlist::saveToDatabase()
+{
+    QSqlDatabase db = QSqlDatabase::database(DEFAULT_DATABASE_CONNECTION_NAME);
+    ScopedTransaction transaction(db);
+    QSqlQuery query(db);
+    query.prepare("DELETE FROM playlist WHERE name = ?");
+    query.addBindValue(m_name);
+    if (!query.exec()) {
+        qWarning() << "Failed to remove playlist";  
+        return;
+    }
+    query.prepare("INSERT INTO playlist (name, media_type, media_id) VALUES (:name, :media_type, :media_id)");
+    for (int i = 0; i < m_data.count(); i++) {
+        query.bindValue(":name", m_name);
+        query.bindValue(":media_type", m_mediaType);
+        query.bindValue(":media_id", data(i, "id"));
+        if (!query.exec()) {
+            qWarning() << "Failed to insert into playlist"; 
+        }
+    }
+}
+
+void Playlist::setName(const QString &name)
+{
+    if (m_name == name)
+        return;
+
+    if (!m_name.isEmpty() && m_saveTimer.isActive()) // pending save
+        saveToDatabase();
+
+    m_name = name;
+    emit nameChanged();
+    beginResetModel();
+    m_data.clear();
+    endResetModel();
+
+    if (!m_mediaType.isEmpty())
+        loadFromDatabase();
+}
+
+QString Playlist::name() const
+{
+    return m_name;
 }
 

@@ -31,6 +31,7 @@ class MediaModel;
 class Playlist : public QAbstractListModel
 {
     Q_OBJECT
+    Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
     Q_PROPERTY(PlayMode playMode READ playMode WRITE setPlayMode NOTIFY playModeChanged)
     Q_PROPERTY(QString mediaType READ mediaType WRITE setMediaType NOTIFY mediaTypeChanged)
     Q_PROPERTY(int currentIndex READ currentIndex WRITE setCurrentIndex NOTIFY currentIndexChanged)
@@ -52,6 +53,9 @@ public:
     Q_INVOKABLE int next();
     Q_INVOKABLE int previous();
 
+    QString name() const;
+    void setName(const QString &name);
+
     PlayMode playMode() const;
     void setPlayMode(PlayMode mode);
 
@@ -66,17 +70,27 @@ public:
     QVariant data(const QModelIndex &index, int role) const;
 
     Q_INVOKABLE QVariant data(int idx, const QString &role) const;
+
+private slots:
+    void saveToDatabase();
+    void loadFromDatabase();
+
 signals:
+    void nameChanged();
     void playModeChanged();
     void mediaTypeChanged();
     void currentIndexChanged();
 
 private:
+    void saveLater();
+
     QList<QMap<int, QVariant> > m_data;
     QHash<QString, int> m_nameToRole;
+    QString m_name;
     PlayMode m_playMode;
     QString m_mediaType;
     int m_currentIndex;
+    QTimer m_saveTimer;
 };
 
 #endif // PLAYLIST_H

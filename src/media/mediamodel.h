@@ -80,7 +80,7 @@ public:
     bool isLeafLevel() const;
 
     static void getRoleNameMapping(const QString &mediaType, QHash<int, QByteArray> *roleToName, QHash<QString, int> *nameToRole);
-    QMap<int, QVariant> dataFromRecord(const QSqlRecord &record) const; // ## should be made static
+    static QMap<int, QVariant> dataFromRecord(const QHash<QString, int> &fieldToRole, const QSqlRecord &record);
 
     QSqlQuery leafNodesQuery(int row) const;
 signals:
@@ -102,6 +102,9 @@ private:
 
     void insertAll(const QList<QSqlRecord> &records);
     void update(const QList<QSqlRecord> &records);
+
+    QMap<int, QVariant> dataFromRecord(const QSqlRecord &record) const;
+    QString displayStringFromRecord(const QSqlRecord &record) const;
 
     QString m_structure;
     QHash<QString, int> m_fieldToRole;

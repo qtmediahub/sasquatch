@@ -271,29 +271,39 @@ void MediaModel::reload()
     endResetModel();
 }
 
-QMap<int, QVariant> MediaModel::dataFromRecord(const QSqlRecord &record) const
+QMap<int, QVariant> MediaModel::dataFromRecord(const QHash<QString, int> &fieldToRole, const QSqlRecord &record)
 {
     QMap<int, QVariant> data;
     for (int j = 0; j < record.count(); j++) {
-        int role = m_fieldToRole.value(record.fieldName(j));
+        int role = fieldToRole.value(record.fieldName(j));
         if (record.fieldName(j) == "uri")
             data.insert(role, QUrl::fromEncoded(record.value(j).toByteArray()));
         else
             data.insert(role, record.value(j));
     }
 
+    data.insert(PreviewUrlRole, QUrl::fromEncoded(record.value("thumbnail").toByteArray()));
+    return data;
+}
+
+QString MediaModel::displayStringFromRecord(const QSqlRecord &record) const
+{
     // Provide 'display' role as , separated values
     QStringList cols = m_layoutInfo.value(m_cursor.count());
     QStringList displayString;
     for (int j = 0; j < cols.count(); j++) {
         displayString << record.value(cols[j]).toString();
     }
-    data.insert(Qt::DisplayRole, displayString.join(", "));
+    return displayString.join(", ");
+}
+
+QMap<int, QVariant> MediaModel::dataFromRecord(const QSqlRecord &record) const
+{
+    QMap<int, QVariant> data = dataFromRecord(m_fieldToRole, record);
+    data.insert(Qt::DisplayRole, displayStringFromRecord(record));
     data.insert(DotDotRole, false);
     data.insert(IsLeafRole, isLeafLevel());
-    data.insert(MediaTypeRole, mediaType());
-
-    data.insert(PreviewUrlRole, QUrl::fromEncoded(record.value("thumbnail").toByteArray()));
+    data.insert(MediaTypeRole, m_mediaType);
     return data;
 }
 
@@ -325,8 +335,7 @@ void MediaModel::insertAll(const QList<QSqlRecord> &records)
     beginInsertRows(QModelIndex(), 0, records.count() + (addDotDot ? 0 : -1));
 
     for (int i = 0; i < records.count(); i++) {
-        QMap<int, QVariant> data = dataFromRecord(records[i]);
-        m_data.append(data);
+        m_data.append(dataFromRecord(records[i]));
     }
 
     if (addDotDot) {
