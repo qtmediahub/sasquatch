@@ -44,7 +44,6 @@ public:
     };
 
     Playlist(QObject *parent = 0);
-    void initialize();
 
     Q_INVOKABLE void add(MediaModel *mediaModel, int row);
     Q_INVOKABLE void addCurrentLevel(MediaModel *mediaModel);
