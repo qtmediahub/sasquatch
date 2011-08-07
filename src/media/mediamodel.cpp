@@ -238,9 +238,9 @@ void MediaModel::fetchMore(const QModelIndex &parent)
 
     m_loading = true;
 
-    QSqlQuery q = currentQuery();
-    DEBUG << q.lastQuery();
-    QMetaObject::invokeMethod(m_reader, "execute", Qt::QueuedConnection, Q_ARG(QSqlQuery, q));
+    QPair<QString, QStringList> q = buildQuery(m_cursor, false /* forceLastPart */);
+    DEBUG << q.first << q.second;
+    QMetaObject::invokeMethod(m_reader, "execute", Qt::QueuedConnection, Q_ARG(QString, q.first), Q_ARG(QStringList, q.second));
 }
 
 void MediaModel::createNewDbReader()
@@ -383,13 +383,10 @@ void MediaModel::update(const QList<QSqlRecord> &records)
     }
 }
 
-QSqlQuery MediaModel::buildQuery(const QList<QMap<int, QVariant> > &cursor, bool forceLastPart) const
+QPair<QString, QStringList> MediaModel::buildQuery(const QList<QMap<int, QVariant> > &cursor, bool forceLastPart) const
 {
     QSqlDatabase db = QSqlDatabase::database(DEFAULT_DATABASE_CONNECTION_NAME);
     QSqlDriver *driver = db.driver();
-
-    QSqlQuery query(db);
-    query.setForwardOnly(true);
 
     QString queryString;
     // SQLite allows us to select columns that are not present in the GROUP BY. We use this feature
@@ -424,12 +421,7 @@ QSqlQuery MediaModel::buildQuery(const QList<QMap<int, QVariant> > &cursor, bool
 
     queryString.append(" ORDER BY " + escapedCurPart + " COLLATE NOCASE");
 
-    query.prepare(queryString);
-
-    foreach(const QString &placeHolder, placeHolders)
-        query.addBindValue(placeHolder);
-
-    return query;
+    return qMakePair(queryString, placeHolders);
 }
 
 void MediaModel::handleScanStarted(const QString &type)
@@ -455,9 +447,9 @@ void MediaModel::refresh()
     m_loading = true;
     m_loaded = false;
 
-    QSqlQuery q = currentQuery();
-    DEBUG << m_mediaType << q.lastQuery();
-    QMetaObject::invokeMethod(m_reader, "execute", Qt::QueuedConnection, Q_ARG(QSqlQuery, q));
+    QPair<QString, QStringList> q = buildQuery(m_cursor, false /* forceLastPart */);
+    DEBUG << m_mediaType << q.first << q.second;
+    QMetaObject::invokeMethod(m_reader, "execute", Qt::QueuedConnection, Q_ARG(QString, q.first), Q_ARG(QStringList, q.second));
 }
 
 bool MediaModel::isLeafLevel() const
@@ -465,15 +457,16 @@ bool MediaModel::isLeafLevel() const
     return m_cursor.count() + 1 == m_layoutInfo.count();
 }
 
-QSqlQuery MediaModel::currentQuery() const
-{
-    return buildQuery(m_cursor, false /* forceLastPart */);
-}
-
 QSqlQuery MediaModel::leafNodesQuery(int row) const
 {
     QList<QMap<int, QVariant> > cursor = m_cursor;
     cursor.append(m_data.value(row));
-    return buildQuery(cursor, true /* forceLastPart */);
+    QPair<QString, QStringList> q = buildQuery(cursor, true /* forceLastPart */);
+    QSqlQuery query(QSqlDatabase::database(DEFAULT_DATABASE_CONNECTION_NAME));
+    query.setForwardOnly(true);
+    query.prepare(q.first);
+    foreach(const QString &binding, q.second)
+        query.addBindValue(binding);
+    return query;
 }
 
