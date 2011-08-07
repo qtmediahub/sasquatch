@@ -78,6 +78,7 @@ void MediaModel::getRoleNameMapping(const QString &mediaType, QHash<int, QByteAr
     } roleNames[] = {
         { Qt::DisplayRole, "display" },
         { DotDotRole, "dotdot" },
+        { MediaTypeRole, "mediaType" },
         { IsLeafRole, "isLeaf"},
         { ModelIndexRole, "modelIndex"},
         { PreviewUrlRole, "previewUrl"},
@@ -290,6 +291,7 @@ QMap<int, QVariant> MediaModel::dataFromRecord(const QSqlRecord &record) const
     data.insert(Qt::DisplayRole, displayString.join(", "));
     data.insert(DotDotRole, false);
     data.insert(IsLeafRole, isLeafLevel());
+    data.insert(MediaTypeRole, mediaType());
 
     data.insert(PreviewUrlRole, QUrl::fromEncoded(record.value("thumbnail").toByteArray()));
     return data;
@@ -332,6 +334,7 @@ void MediaModel::insertAll(const QList<QSqlRecord> &records)
         data.insert(Qt::DisplayRole, tr(".."));
         data.insert(DotDotRole, true);
         data.insert(IsLeafRole, false);
+        data.insert(MediaTypeRole, QString());
         m_data.prepend(data);
     }
 

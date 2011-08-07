@@ -42,6 +42,7 @@ class MediaModel : public QAbstractItemModel
 public:
     enum CustomRole {
         DotDotRole = Qt::UserRole,
+        MediaTypeRole,
         IsLeafRole,
         ModelIndexRole,
         PreviewUrlRole,
