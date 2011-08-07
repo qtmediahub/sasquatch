@@ -76,6 +76,7 @@ void MediaModel::getRoleNameMapping(const QString &mediaType, QHash<int, QByteAr
         int role; 
         const char *name;
     } roleNames[] = {
+        { Qt::DisplayRole, "display" },
         { DotDotRole, "dotdot" },
         { IsLeafRole, "isLeaf"},
         { ModelIndexRole, "modelIndex"},
