@@ -1,23 +1,26 @@
 /****************************************************************************
 
-This file is part of the QtMediaHub project on http://www.gitorious.org.
+This file is part of the QtMediaHub project on http://www.qtmediahub.com
 
-Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).*
+Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).*
 All rights reserved.
 
-Contact:  Nokia Corporation (qt-info@nokia.com)**
+Contact:  Girish Ramakrishnan girish@forwardbias.in
+Contact:  Nokia Corporation donald.carr@nokia.com
+Contact:  Nokia Corporation johannes.zellner@nokia.com
 
 You may use this file under the terms of the BSD license as follows:
 
-"Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 * Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
 * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
 * Neither the name of Nokia Corporation and its Subsidiary(-ies) nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ****************************************************************************/
 
-#include "frontend.h"
+#include "skinruntime.h"
 #include "mediaserver.h"
 
 #include <QtGui>
@@ -49,8 +52,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QGLWidget>
 #endif
 
-#include "mainwindow.h"
-
 #include "qmh-config.h"
 #include "dirmodel.h"
 #include "media/playlist.h"
@@ -81,15 +82,15 @@ static void registerObjectWithDbus(const QString &path, QObject *object)
 }
 #endif
 
-class FrontendPrivate : public QObject
+class SkinRuntimePrivate : public QObject
 {
     Q_OBJECT
 public:
-    FrontendPrivate(Frontend *p);
-    ~FrontendPrivate();
+    SkinRuntimePrivate(SkinRuntime *p);
+    ~SkinRuntimePrivate();
 
 public slots:
-    QWidget *loadQmlSkin(const QUrl &url);
+    QWidget *loadQmlSkin(const QUrl &url, QWidget *window);
 
     void discoverSkins();
 
@@ -110,15 +111,12 @@ public:
     Trackpad *trackpad;
     QHash<QString, Skin *> skins;
     Skin *currentSkin;
-    MainWindow *mainWindow;
-    QDeclarativeContext *rootContext;
-    QSystemTrayIcon *systray;
     QFileSystemWatcher pathMonitor;
-    QAbstractItemModel *targetsModel;
-    Frontend *q;
+    QAbstractItemModel *remoteSessionsModel;
+    SkinRuntime *q;
 };
 
-FrontendPrivate::FrontendPrivate(Frontend *p)
+SkinRuntimePrivate::SkinRuntimePrivate(SkinRuntime *p)
     : QObject(p),
       dbusRegistration(false),
       remoteControlMode(true),
@@ -128,9 +126,7 @@ FrontendPrivate::FrontendPrivate(Frontend *p)
       mediaPlayerRpc(0),
       rpcConnection(0),
       trackpad(0),
-      mainWindow(0),
-      rootContext(0),
-      targetsModel(0),
+      remoteSessionsModel(0),
       q(p)
 {
 #ifndef NO_DBUS
@@ -176,14 +172,28 @@ FrontendPrivate::FrontendPrivate(Frontend *p)
             pathMonitor.addPath(skinPath);
     }
 
+#ifdef QMH_AVAHI
+    if (Config::isEnabled("avahi", true)) {
+        QAvahiServiceBrowserModel *model = new QAvahiServiceBrowserModel(this);
+        model->setAutoResolve(true);
+        QAvahiServiceBrowserModel::Options options = QAvahiServiceBrowserModel::NoOptions;
+        if (Config::isEnabled("avahi-hide-ipv6"), true)
+            options |= QAvahiServiceBrowserModel::HideIPv6;
+        if (Config::isEnabled("avahi-hide-local", true) && !Config::isEnabled("testing", false))
+            options |= QAvahiServiceBrowserModel::HideLocal;
+        model->browse("_qtmediahub._tcp", options);
+        remoteSessionsModel = model;
+    }
+#else
+    remoteSessionsModel = new StaticServiceBrowserModel(this);
+#endif
+
     discoverSkins();
 }
 
-FrontendPrivate::~FrontendPrivate()
+SkinRuntimePrivate::~SkinRuntimePrivate()
 {
     Config::setValue("skin", currentSkin->name());
-
-    delete mainWindow;
 }
 
 static void optimizeWidgetAttributes(QWidget *widget, bool transparent = false)
@@ -208,7 +218,7 @@ static void optimizeGraphicsViewAttributes(QGraphicsView *view)
     view->scene()->setItemIndexMethod(QGraphicsScene::NoIndex);
 }
 
-QWidget *FrontendPrivate::loadQmlSkin(const QUrl &targetUrl)
+QWidget *SkinRuntimePrivate::loadQmlSkin(const QUrl &targetUrl, QWidget *window)
 {
     QPixmapCache::clear();
 
@@ -253,24 +263,23 @@ QWidget *FrontendPrivate::loadQmlSkin(const QUrl &targetUrl)
         runtime->insert("powerManager", qVariantFromValue(static_cast<QObject *>(powerManager)));
     }
     runtime->insert("config", qVariantFromValue(static_cast<QObject *>(Config::instance())));
-    runtime->insert("frontend", qVariantFromValue(static_cast<QObject *>(q)));
-    runtime->insert("window", qVariantFromValue(static_cast<QObject *>(mainWindow)));
+    runtime->insert("window", qVariantFromValue(static_cast<QObject *>(window)));
     runtime->insert("view", qVariantFromValue(static_cast<QObject *>(declarativeWidget)));
     runtime->insert("cursor", qVariantFromValue(static_cast<QObject *>(new CustomCursor(declarativeWidget))));
     runtime->insert("skin", qVariantFromValue(static_cast<QObject *>(currentSkin)));
     runtime->insert("file", qVariantFromValue(static_cast<QObject *>(new File(this))));
+    runtime->insert("remoteSessionsModel", qVariantFromValue(static_cast<QObject *>(remoteSessionsModel)));
     declarativeWidget->rootContext()->setContextProperty("runtime", runtime);
 
     engine->addImportPath(LibraryInfo::basePath() % "/imports");
     engine->addImportPath(currentSkin->path());
 
-    rootContext = declarativeWidget->rootContext();
     declarativeWidget->setSource(targetUrl);
 
     return declarativeWidget;
 }
 
-void FrontendPrivate::discoverSkins()
+void SkinRuntimePrivate::discoverSkins()
 {
     qDeleteAll(skins.values());
     skins.clear();
@@ -299,7 +308,7 @@ void FrontendPrivate::discoverSkins()
     }
 }
 
-void FrontendPrivate::handleDirChanged(const QString &dir)
+void SkinRuntimePrivate::handleDirChanged(const QString &dir)
 {
     if (LibraryInfo::skinPaths().contains(dir)) {
         qWarning() << "Changes in skin path, repopulating skins";
@@ -307,41 +316,19 @@ void FrontendPrivate::handleDirChanged(const QString &dir)
     }
 }
 
-Frontend::Frontend(QObject *p)
+SkinRuntime::SkinRuntime(QObject *p)
     : QObject(p),
-      d(new FrontendPrivate(this)) 
+      d(new SkinRuntimePrivate(this)) 
 {
-    d->mainWindow = new MainWindow(this);
-    optimizeWidgetAttributes(d->mainWindow, true);
 }
 
-Frontend::~Frontend()
+SkinRuntime::~SkinRuntime()
 {
     delete d;
     d = 0;
 }
 
-void Frontend::show()
-{
-    d->mainWindow->show();
-}
-
-bool Frontend::setSkin(const QString &name)
-{
-    Skin *newSkin = d->skins.value(name);
-    if (!newSkin) {
-        newSkin = d->skins.value(Config::value("default-skin", "confluence").toString());
-    }
-
-    if (!newSkin) {
-        qDebug() << "Failed to set skin:" << name;
-        return false;
-    }
-
-    return setSkin(newSkin);
-}
-
-bool Frontend::setSkin(Skin *skin)
+QWidget *SkinRuntime::create(Skin *skin, QWidget *window)
 {
     QSize nativeResolution = qApp->desktop()->screenGeometry().size();
     QString nativeResolutionString = Config::value("native-res-override", QString("%1x%2").arg(nativeResolution.width()).arg(nativeResolution.height()));
@@ -357,49 +344,15 @@ bool Frontend::setSkin(Skin *skin)
 
     d->currentSkin = skin;
     d->enableRemoteControlMode(skin->isRemoteControl());
-    mainWindow()->setCentralWidget(d->loadQmlSkin(url));
-    return true;
+    return d->loadQmlSkin(url, window);
 }
 
-void Frontend::addImportPath(const QString &path)
-{
-    if (QFile::exists(path))
-        d->rootContext->engine()->addImportPath(path);
-}
-
-QHash<QString, Skin *> Frontend::skins() const
+QHash<QString, Skin *> SkinRuntime::skins() const
 {
     return d->skins;
 }
 
-MainWindow *Frontend::mainWindow() const
-{
-    return d->mainWindow;
-}
-
-QObject *Frontend::targetsModel() const
-{
-    if (!d->targetsModel) {
-#ifdef QMH_AVAHI
-        if (Config::isEnabled("avahi", true)) {
-            QAvahiServiceBrowserModel *model = new QAvahiServiceBrowserModel(const_cast<Frontend *>(this));
-            model->setAutoResolve(true);
-            QAvahiServiceBrowserModel::Options options = QAvahiServiceBrowserModel::NoOptions;
-            if (Config::isEnabled("avahi-hide-ipv6"), true)
-                options |= QAvahiServiceBrowserModel::HideIPv6;
-            if (Config::isEnabled("avahi-hide-local", true) && !Config::isEnabled("testing", false))
-                options |= QAvahiServiceBrowserModel::HideLocal;
-            model->browse("_qtmediahub._tcp", options);
-            d->targetsModel = model;
-        }
-#else
-        d->targetsModel = new StaticServiceBrowserModel(const_cast<Frontend *>(this));
-#endif
-    }
-    return d->targetsModel;
-}
-
-void FrontendPrivate::enableRemoteControlMode(bool enable)
+void SkinRuntimePrivate::enableRemoteControlMode(bool enable)
 {
     if (remoteControlMode == enable)
         return;
@@ -458,9 +411,4 @@ void FrontendPrivate::enableRemoteControlMode(bool enable)
 #endif
 }
 
-void Frontend::openUrlExternally(const QUrl & url) const
-{
-    QDesktopServices::openUrl(url);
-}
-
-#include "frontend.moc"
+#include "skinruntime.moc"
