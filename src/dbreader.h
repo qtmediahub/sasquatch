@@ -40,7 +40,7 @@ public:
 
 public slots:
     void initialize(const QSqlDatabase &db);
-    void execute(const QSqlQuery &q, void *userData = 0);
+    void execute(const QString &query, const QStringList &bindings, void *userData = 0);
     QList<QSqlRecord> readRecords(QSqlQuery &query);
 
 signals:

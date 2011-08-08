@@ -30,6 +30,5 @@ unix:!symbian {
     } else {
         target.path = $$PREFIX/bin
     }
-message(target.path)
     INSTALLS += target
 }

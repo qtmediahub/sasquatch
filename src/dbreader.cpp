@@ -52,10 +52,14 @@ void DbReader::initialize(const QSqlDatabase &db)
         qFatal("Erorr opening database: %s", qPrintable(m_db.lastError().text()));
 }
 
-void DbReader::execute(const QSqlQuery &q, void *userData)
+void DbReader::execute(const QString &q, const QStringList &bindings, void *userData)
 {
-    QSqlQuery query(q);
+    QSqlQuery query(m_db);
     query.setForwardOnly(true);
+    query.prepare(q);
+    foreach(const QString &binding, bindings)
+        query.addBindValue(binding);
+
     if (!query.exec())
         qFatal("Error executing query: %s", qPrintable(query.lastQuery()));
 

@@ -26,72 +26,64 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QtGui>
 #include <QtSql>
 
+class MediaModel;
+
 class Playlist : public QAbstractListModel
 {
     Q_OBJECT
+    Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
     Q_PROPERTY(PlayMode playMode READ playMode WRITE setPlayMode NOTIFY playModeChanged)
-    Q_PROPERTY(QString mediaType READ mediaType NOTIFY mediaTypeChanged)
     Q_PROPERTY(int currentIndex READ currentIndex WRITE setCurrentIndex NOTIFY currentIndexChanged)
 
-    Q_ENUMS(DepthRoles)
     Q_ENUMS(PlayMode)
 
 public:
-    enum DepthRoles {
-        Single,
-        Flat,
-        Recursive
-    };
-
     enum PlayMode {
         Normal,
         Shuffle
     };
 
-    enum CustomRole {
-        PreviewUrlRole = Qt::UserRole,
-        FieldRolesBegin
-    };
-
     Playlist(QObject *parent = 0);
-    void initialize();
 
-    Q_INVOKABLE int append(const QModelIndex &index, DepthRoles depth = Single);
-    Q_INVOKABLE int getRoleByName(const QString &roleName) const;
+    Q_INVOKABLE void add(MediaModel *mediaModel, int row);
+    Q_INVOKABLE void addCurrentLevel(MediaModel *mediaModel);
     Q_INVOKABLE void clear();
 
     Q_INVOKABLE int next();
     Q_INVOKABLE int previous();
 
+    QString name() const;
+    void setName(const QString &name);
+
     PlayMode playMode() const;
     void setPlayMode(PlayMode mode);
-
-    QString mediaType() const;
 
     void setCurrentIndex(int idx);
     int currentIndex() const;
 
     // reimp
     Q_INVOKABLE int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    Q_INVOKABLE QModelIndex index(int row) const;
-    Q_INVOKABLE QVariant data(int idx, int role) const;
-    Q_INVOKABLE QVariant data(int idx, const QString &role) const;
-
     QVariant data(const QModelIndex &index, int role) const;
 
+    Q_INVOKABLE QVariant data(int idx, const QString &role) const;
+
+private slots:
+    void saveToDatabase();
+    void loadFromDatabase();
+
 signals:
+    void nameChanged();
     void playModeChanged();
-    void mediaTypeChanged();
     void currentIndexChanged();
 
 private:
-    void setMediaType(const QString &type);
+    void saveLater();
 
-    QList<QHash<int, QVariant> > m_data;
+    QList<QMap<int, QVariant> > m_data;
+    QString m_name;
     PlayMode m_playMode;
-    QString m_mediaType;
-    QSqlDriver *m_driver;
     int m_currentIndex;
+    QTimer m_saveTimer;
 };
 
 #endif // PLAYLIST_H

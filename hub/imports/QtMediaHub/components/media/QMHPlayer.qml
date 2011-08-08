@@ -35,11 +35,10 @@ Item {
         mediaItem.stop()
     }
 
-    function play(modelIndex, depth) {
-        if (modelIndex != null) {
-            playlist.clear()
-            playIndex(playlist.append(modelIndex, depth ? depth : Playlist.Recursive))
-        }
+    function play(mediaModel, row) {
+        playlist.clear()
+        playlist.addCurrentLevel(mediaModel)
+        playIndex(row-1 /* adjust for dotdot */)
     }
 
     function playUri(uri) {
@@ -104,9 +103,7 @@ Item {
     }
 
     function getMetaData(role, defaultValue) {
-        if (playlist)
-            return playlist.data(playlist.currentIndex, role) || defaultValue
-        return "";
+        return playlist ? (playlist.data(playlist.currentIndex, role) || defaultValue) : ""
     }
 
     function getThumbnail(defaultAudio, defaultVideo) {
@@ -130,5 +127,15 @@ Item {
         onVolumeUpRequested: root.increaseVolume()
         onVolumeDownRequested: root.decreaseVolume()
         onPlayRemoteSourceRequested: root.playUri(uri)
+    }
+
+    Component.onCompleted: {
+        //Just for testing
+        if (false) {
+            runtime.mediaBackendInterface.play()
+            runtime.mediaBackendInterface.mute(true)
+            runtime.mediaBackendInterface.mute(false)
+            runtime.mediaBackendInterface.loadUri("file:///wickedpath")
+        }
     }
 }

@@ -42,6 +42,7 @@ class MediaModel : public QAbstractItemModel
 public:
     enum CustomRole {
         DotDotRole = Qt::UserRole,
+        MediaTypeRole,
         IsLeafRole,
         ModelIndexRole,
         PreviewUrlRole,
@@ -71,9 +72,20 @@ public:
     bool hasChildren(const QModelIndex &parent = QModelIndex()) const;
     bool canFetchMore(const QModelIndex &parent) const;
     void fetchMore(const QModelIndex &parent);
+    QMap<int, QVariant> itemData(const QModelIndex &index) const;
 
     // PathView hack
     Q_INVOKABLE void reset() { QAbstractItemModel::reset(); }
+
+    bool isLeafLevel() const;
+
+    static QHash<int, QByteArray> roleToNameMapping();
+    static QHash<QString, int> nameToRoleMapping();
+    static QMap<int, QVariant> dynamicRolesDataFromRecord(const QSqlRecord &record);
+    static void createStaticRoleNameMapping();
+    static void createDynamicRoleNameMapping(const QString &tableName);
+
+    QSqlQuery leafNodesQuery(int row) const;
 
 signals:
     void structureChanged();
@@ -89,26 +101,32 @@ private slots:
 private:
     void createNewDbReader();
     void reload();
-    QSqlQuery buildQuery() const;
-    QHash<int, QVariant> dataFromRecord(const QSqlRecord &record) const;
+    QPair<QString, QStringList> buildQuery(const QList<QMap<int, QVariant> > &cursor, bool forceLastPart) const;
     int compareData(int idx, const QSqlRecord &record) const;
 
     void insertAll(const QList<QSqlRecord> &records);
     void update(const QList<QSqlRecord> &records);
 
+    QMap<int, QVariant> dataFromRecord(const QSqlRecord &record) const;
+    QString displayStringFromRecord(const QSqlRecord &record) const;
+
     QString m_structure;
     QHash<QString, int> m_fieldToRole;
     QList<QStringList> m_layoutInfo;
-    QList<QHash<int, QVariant> > m_data;
+    QList<QMap<int, QVariant> > m_data;
     bool m_loading, m_loaded;
 
-    QList<QHash<int, QVariant> > m_cursor;
+    QList<QMap<int, QVariant> > m_cursor;
 
     QTimer m_refreshTimer;
 
     DbReader *m_reader;
     QThread *m_readerThread;
     QString m_mediaType;
+
+    static int s_currentDynamicRole;
+    static QHash<int, QByteArray> s_roleToName;
+    static QHash<QString, int> s_nameToRole;
 };
 
 #endif // MEDIAMODEL_H

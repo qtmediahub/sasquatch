@@ -107,3 +107,10 @@ CREATE TABLE radio (
     ctime INTEGER NOT NULL,
     filesize INTEGER NOT NULL
 );
+
+CREATE TABLE playlist (
+    name TEXT NOT NULL,
+    media_type TEXT NOT NULL,
+    media_id INTEGER NOT NULL
+);
+
