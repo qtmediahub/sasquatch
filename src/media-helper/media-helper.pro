@@ -21,8 +21,19 @@ SOURCES += \
     mediabackendinterface.cpp
 
 HEADERS += mediabackendinterface.h \
-           testingbackend.h \
-           xinebackend.h
+           testingbackend.h
+
+xine:unix: system(pkg-config --exists libxine) {
+    SOURCES += xinebackend.cpp
+    HEADERS += xinebackend.h
+
+    CONFIG += link_pkgconfig
+    PKGCONFIG += libxine
+    message(Use system libxine)
+    DEFINES += XINE_BACKEND
+} else {
+    xine: message(Trying to compile libxine by pkgconfig does not know of it)
+}
 
 unix:!symbian {
     maemo5 {

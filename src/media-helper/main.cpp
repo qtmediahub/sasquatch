@@ -1,4 +1,7 @@
 #include "testingbackend.h"
+#ifdef XINE_BACKEND
+#include "xinebackend.h"
+#endif
 
 #include "qtsingleapplication.h"
 #include <QDebug>
@@ -23,8 +26,13 @@ int main(int argc, char** argv)
             << QDBusConnection::sessionBus().lastError().message();
         app.exit(-1);
     }
+    MediaBackendInterface *player = 0;
+#ifdef XINE_BACKEND
+    player = new XineBackend(&app);
+#else
+    player = new TestingBackend(&app);
+#endif
 
-    MediaBackendInterface *player = new TestingBackend(&app);
     dbusRegistration = QDBusConnection::sessionBus().registerObject("/", player,
             QDBusConnection::ExportScriptableSlots|QDBusConnection::ExportScriptableSignals);
 
