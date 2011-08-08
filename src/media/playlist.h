@@ -33,7 +33,6 @@ class Playlist : public QAbstractListModel
     Q_OBJECT
     Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
     Q_PROPERTY(PlayMode playMode READ playMode WRITE setPlayMode NOTIFY playModeChanged)
-    Q_PROPERTY(QString mediaType READ mediaType WRITE setMediaType NOTIFY mediaTypeChanged)
     Q_PROPERTY(int currentIndex READ currentIndex WRITE setCurrentIndex NOTIFY currentIndexChanged)
 
     Q_ENUMS(PlayMode)
@@ -59,9 +58,6 @@ public:
     PlayMode playMode() const;
     void setPlayMode(PlayMode mode);
 
-    QString mediaType() const;
-    void setMediaType(const QString &type);
-
     void setCurrentIndex(int idx);
     int currentIndex() const;
 
@@ -78,7 +74,6 @@ private slots:
 signals:
     void nameChanged();
     void playModeChanged();
-    void mediaTypeChanged();
     void currentIndexChanged();
 
 private:
@@ -86,7 +81,6 @@ private:
 
     QList<QMap<int, QVariant> > m_data;
     QString m_name;
-    QString m_mediaType;
     PlayMode m_playMode;
     int m_currentIndex;
     QTimer m_saveTimer;

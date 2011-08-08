@@ -84,8 +84,6 @@ void Playlist::add(MediaModel *mediaModel, int row)
 
     DEBUG << "add item" << mediaModel << row;
 
-    setMediaType(mediaModel->mediaType()); // ## remove this hack
-
     if (mediaModel->isLeafLevel()) { 
         QModelIndex index = mediaModel->index(row, 0, QModelIndex());
         if (index.isValid()) { // add only one itemData
@@ -181,37 +179,34 @@ void Playlist::setPlayMode(Playlist::PlayMode mode)
     }
 }
 
-void Playlist::setMediaType(const QString &type)
-{
-    if (m_mediaType == type)
-        return;
-
-    m_mediaType = type;
-    emit mediaTypeChanged();
-
-    if (!m_name.isEmpty())
-        loadFromDatabase();
-}
-
-QString Playlist::mediaType() const
-{
-    return m_mediaType;
-}
-
 void Playlist::loadFromDatabase()
 {
     QSqlQuery query(QSqlDatabase::database(DEFAULT_DATABASE_CONNECTION_NAME));
-    query.prepare(QString("SELECT %1.* FROM %1 JOIN playlist ON playlist.media_id = %1.id WHERE playlist.name=:playlist_name").arg(m_mediaType));
+
+    QStringList mediaTypes;
+
+    query.prepare("SELECT DISTINCT media_type FROM playlist WHERE name=:playlist_name");
     query.bindValue(":playlist_name", m_name);
-    if (!query.exec()) {
-        qWarning() << "Error loading playlist from database " << query.lastError() << query.lastQuery();
-    }
-    QList<QMap<int, QVariant> > newData;
+    query.next();
     while (query.next()) {
-        QMap<int, QVariant> data = MediaModel::dynamicRolesDataFromRecord(query.record());
-        data.insert(Qt::DisplayRole, query.record().value("title"));
-        newData.append(data);
+        mediaTypes << query.value(0).toString();
     }
+
+    // FIXME: Ordering of playlist is lost
+    QList<QMap<int, QVariant> > newData;
+    foreach(const QString &mediaType, mediaTypes) {
+        query.prepare(QString("SELECT %1.* FROM %1 JOIN playlist ON playlist.media_id = %1.id WHERE playlist.name=:playlist_name").arg(mediaType));
+        query.bindValue(":playlist_name", m_name);
+
+        query.exec();
+
+        while (query.next()) {
+            QMap<int, QVariant> data = MediaModel::dynamicRolesDataFromRecord(query.record());
+            data.insert(Qt::DisplayRole, query.record().value("title"));
+            newData.append(data);
+        }
+    }
+
     beginInsertRows(QModelIndex(), 0, newData.count()-1);
     m_data = newData;
     endInsertRows();
@@ -259,8 +254,7 @@ void Playlist::setName(const QString &name)
     m_data.clear();
     endResetModel();
 
-    if (!m_mediaType.isEmpty())
-        loadFromDatabase();
+    loadFromDatabase();
 }
 
 QString Playlist::name() const
