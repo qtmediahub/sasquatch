@@ -27,6 +27,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "qmh-config.h"
 #include "libraryinfo.h"
 #include "mediaplugin.h"
+#include "mediamodel.h"
 
 #define DEBUG if (0) qDebug() << __PRETTY_FUNCTION__
 #define WARNING qWarning() << __PRETTY_FUNCTION__
@@ -175,6 +176,8 @@ void MediaScanner::handleScanPathChanged(const QString &scanPath)
 
 void MediaScanner::loadParserPlugins()
 {
+    MediaModel::createStaticRoleNameMapping();
+
     QStringList loaded;
     foreach(const QString &fileName, QDir(LibraryInfo::pluginPath()).entryList(QDir::Files)) {
         QString absoluteFilePath(LibraryInfo::pluginPath() % "/" % fileName);
@@ -192,7 +195,9 @@ void MediaScanner::loadParserPlugins()
             continue;
         }
         foreach(const QString &key, plugin->parserKeys()) {
-            addParser(plugin->createParser(key));
+            MediaParser *parser = plugin->createParser(key);
+            MediaModel::createDynamicRoleNameMapping(parser->type());
+            addParser(parser);
         }
     }
 }

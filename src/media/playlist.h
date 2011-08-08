@@ -85,10 +85,9 @@ private:
     void saveLater();
 
     QList<QMap<int, QVariant> > m_data;
-    QHash<QString, int> m_nameToRole;
     QString m_name;
-    PlayMode m_playMode;
     QString m_mediaType;
+    PlayMode m_playMode;
     int m_currentIndex;
     QTimer m_saveTimer;
 };

@@ -35,11 +35,14 @@ Playlist::Playlist(QObject *parent)
     m_saveTimer.setInterval(2000);
     m_saveTimer.setSingleShot(true);
     connect(&m_saveTimer, SIGNAL(timeout()), this, SLOT(saveToDatabase()));
+
+    setRoleNames(MediaModel::roleToNameMapping());
 }
 
 QVariant Playlist::data(int index, const QString &role) const
 {
-    return m_data.value(index).value(m_nameToRole.value(role));
+    const QHash<QString, int> nameToRole = MediaModel::nameToRoleMapping();
+    return m_data.value(index).value(nameToRole.value(role));
 }
 
 QVariant Playlist::data(const QModelIndex &index, int role) const
@@ -81,9 +84,7 @@ void Playlist::add(MediaModel *mediaModel, int row)
 
     DEBUG << "add item" << mediaModel << row;
 
-    // if new item is not same type make this playlist of new type
-    if (mediaModel->mediaType() != m_mediaType)
-        setMediaType(mediaModel->mediaType());
+    setMediaType(mediaModel->mediaType()); // ## remove this hack
 
     if (mediaModel->isLeafLevel()) { 
         QModelIndex index = mediaModel->index(row, 0, QModelIndex());
@@ -109,7 +110,7 @@ void Playlist::add(MediaModel *mediaModel, int row)
         query.exec();
         QList<QMap<int, QVariant> > newData;
         while (query.next()) {
-            QMap<int, QVariant> data = MediaModel::dataFromRecord(m_nameToRole, query.record());
+            QMap<int, QVariant> data = MediaModel::dynamicRolesDataFromRecord(query.record());
             data.insert(Qt::DisplayRole, query.record().value("title"));
             newData.append(data);
         }
@@ -180,30 +181,21 @@ void Playlist::setPlayMode(Playlist::PlayMode mode)
     }
 }
 
-QString Playlist::mediaType() const
-{
-    return m_mediaType;
-}
-
 void Playlist::setMediaType(const QString &type)
 {
-    if (type == m_mediaType)
+    if (m_mediaType == type)
         return;
-
-    beginResetModel();
-    m_data.clear();
-    endResetModel();
-
-    QHash<int, QByteArray> roleToName;
-    m_nameToRole.clear();
-    MediaModel::getRoleNameMapping(type, &roleToName, &m_nameToRole);
-    setRoleNames(roleToName);
 
     m_mediaType = type;
     emit mediaTypeChanged();
 
     if (!m_name.isEmpty())
         loadFromDatabase();
+}
+
+QString Playlist::mediaType() const
+{
+    return m_mediaType;
 }
 
 void Playlist::loadFromDatabase()
@@ -216,7 +208,7 @@ void Playlist::loadFromDatabase()
     }
     QList<QMap<int, QVariant> > newData;
     while (query.next()) {
-        QMap<int, QVariant> data = MediaModel::dataFromRecord(m_nameToRole, query.record());
+        QMap<int, QVariant> data = MediaModel::dynamicRolesDataFromRecord(query.record());
         data.insert(Qt::DisplayRole, query.record().value("title"));
         newData.append(data);
     }
@@ -245,7 +237,7 @@ void Playlist::saveToDatabase()
     query.prepare("INSERT INTO playlist (name, media_type, media_id) VALUES (:name, :media_type, :media_id)");
     for (int i = 0; i < m_data.count(); i++) {
         query.bindValue(":name", m_name);
-        query.bindValue(":media_type", m_mediaType);
+        query.bindValue(":media_type", data(i, "mediaType"));
         query.bindValue(":media_id", data(i, "id"));
         if (!query.exec()) {
             qWarning() << "Failed to insert into playlist"; 

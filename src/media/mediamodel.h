@@ -79,10 +79,14 @@ public:
 
     bool isLeafLevel() const;
 
-    static void getRoleNameMapping(const QString &mediaType, QHash<int, QByteArray> *roleToName, QHash<QString, int> *nameToRole);
-    static QMap<int, QVariant> dataFromRecord(const QHash<QString, int> &fieldToRole, const QSqlRecord &record);
+    static QHash<int, QByteArray> roleToNameMapping();
+    static QHash<QString, int> nameToRoleMapping();
+    static QMap<int, QVariant> dynamicRolesDataFromRecord(const QSqlRecord &record);
+    static void createStaticRoleNameMapping();
+    static void createDynamicRoleNameMapping(const QString &tableName);
 
     QSqlQuery leafNodesQuery(int row) const;
+
 signals:
     void structureChanged();
     void mediaTypeChanged();
@@ -119,6 +123,10 @@ private:
     DbReader *m_reader;
     QThread *m_readerThread;
     QString m_mediaType;
+
+    static int s_currentDynamicRole;
+    static QHash<int, QByteArray> s_roleToName;
+    static QHash<QString, int> s_nameToRole;
 };
 
 #endif // MEDIAMODEL_H

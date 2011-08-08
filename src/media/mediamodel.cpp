@@ -30,6 +30,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 MediaModel::MediaModel(QObject *parent)
     : QAbstractItemModel(parent), m_loading(false), m_loaded(false), m_reader(0), m_readerThread(0)
 {
+    setRoleNames(MediaModel::roleToNameMapping());
+
     m_refreshTimer.setInterval(Config::value("mediamodel-refresh-interval", 10000));
     connect(&m_refreshTimer, SIGNAL(timeout()), this, SLOT(refresh()));
 
@@ -52,26 +54,12 @@ MediaModel::~MediaModel()
     }
 }
 
-QString MediaModel::part() const
+int MediaModel::s_currentDynamicRole = MediaModel::FieldRolesBegin;
+QHash<int, QByteArray> MediaModel::s_roleToName;
+QHash<QString, int> MediaModel::s_nameToRole;
+
+void MediaModel::createStaticRoleNameMapping()
 {
-    return m_structure.split("|").value(m_cursor.length());
-}
-
-void MediaModel::getRoleNameMapping(const QString &mediaType, QHash<int, QByteArray> *roleToName, QHash<QString, int> *nameToRole)
-{
-    // Add the fields of the table as role names
-    QSqlDriver *driver = QSqlDatabase::database(DEFAULT_DATABASE_CONNECTION_NAME).driver();
-    QSqlRecord record = driver->record(mediaType);
-    if (record.isEmpty()) {
-        qWarning() << "Table " << mediaType << " is not valid it seems";
-        return;
-    }
-
-    for (int i = 0; i < record.count(); i++) {
-        roleToName->insert(FieldRolesBegin + i, record.fieldName(i).toUtf8());
-        nameToRole->insert(record.fieldName(i), FieldRolesBegin + i);
-    }
-
     struct {
         int role; 
         const char *name;
@@ -86,9 +74,44 @@ void MediaModel::getRoleNameMapping(const QString &mediaType, QHash<int, QByteAr
     };
 
     for (int i = 0; roleNames[i].name != NULL; ++i) {
-        roleToName->insert(roleNames[i].role, roleNames[i].name);
-        nameToRole->insert(roleNames[i].name, roleNames[i].role);
+        s_roleToName.insert(roleNames[i].role, roleNames[i].name);
+        s_nameToRole.insert(roleNames[i].name, roleNames[i].role);
     }
+}
+
+void MediaModel::createDynamicRoleNameMapping(const QString &table)
+{
+    // Add the fields of the table as role names
+    QSqlDriver *driver = QSqlDatabase::database(DEFAULT_DATABASE_CONNECTION_NAME).driver();
+    QSqlRecord record = driver->record(table);
+    if (record.isEmpty()) {
+        qWarning() << "Table " << table << " is not valid it seems";
+        return;
+    }
+
+    for (int i = 0; i < record.count(); i++) {
+        QByteArray field = record.fieldName(i).toUtf8();
+        if (s_nameToRole.contains(field))
+            continue;
+        s_nameToRole.insert(field, s_currentDynamicRole);
+        s_roleToName.insert(s_currentDynamicRole, field);
+        ++s_currentDynamicRole;
+    }
+}
+
+QHash<int, QByteArray> MediaModel::roleToNameMapping()
+{
+    return s_roleToName;
+}
+
+QHash<QString, int> MediaModel::nameToRoleMapping()
+{
+    return s_nameToRole;
+}
+
+QString MediaModel::part() const
+{
+    return m_structure.split("|").value(m_cursor.length());
 }
 
 QString MediaModel::mediaType() const
@@ -105,16 +128,6 @@ void MediaModel::setMediaType(const QString &type)
 
     m_mediaType = type;
     emit mediaTypeChanged();
-
-    // Add the fields of the table as role names
-    QSqlDriver *driver = QSqlDatabase::database(DEFAULT_DATABASE_CONNECTION_NAME).driver();
-    QSqlRecord record = driver->record(m_mediaType);
-    if (record.isEmpty())
-        qWarning() << "Table " << type << " is not valid it seems";
-
-    QHash<int, QByteArray> roleToName = roleNames();
-    getRoleNameMapping(type, &roleToName, &m_fieldToRole);
-    setRoleNames(roleToName);
 
     reload();
 }
@@ -271,11 +284,11 @@ void MediaModel::reload()
     endResetModel();
 }
 
-QMap<int, QVariant> MediaModel::dataFromRecord(const QHash<QString, int> &fieldToRole, const QSqlRecord &record)
+QMap<int, QVariant> MediaModel::dynamicRolesDataFromRecord(const QSqlRecord &record)
 {
     QMap<int, QVariant> data;
     for (int j = 0; j < record.count(); j++) {
-        int role = fieldToRole.value(record.fieldName(j));
+        int role = s_nameToRole.value(record.fieldName(j));
         if (record.fieldName(j) == "uri")
             data.insert(role, QUrl::fromEncoded(record.value(j).toByteArray()));
         else
@@ -299,7 +312,7 @@ QString MediaModel::displayStringFromRecord(const QSqlRecord &record) const
 
 QMap<int, QVariant> MediaModel::dataFromRecord(const QSqlRecord &record) const
 {
-    QMap<int, QVariant> data = dataFromRecord(m_fieldToRole, record);
+    QMap<int, QVariant> data = dynamicRolesDataFromRecord(record);
     data.insert(Qt::DisplayRole, displayStringFromRecord(record));
     data.insert(DotDotRole, false);
     data.insert(IsLeafRole, isLeafLevel());
