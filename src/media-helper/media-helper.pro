@@ -16,8 +16,13 @@ QT -= gui
 QT += dbus
 
 # Input
-SOURCES += main.cpp mediabackendinterface.cpp
-HEADERS += mediabackendinterface.h
+SOURCES += \
+    main.cpp \
+    mediabackendinterface.cpp
+
+HEADERS += mediabackendinterface.h \
+           testingbackend.h \
+           xinebackend.h
 
 unix:!symbian {
     maemo5 {

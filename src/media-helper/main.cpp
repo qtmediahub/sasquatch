@@ -1,4 +1,4 @@
-#include "mediabackendinterface.h"
+#include "testingbackend.h"
 
 #include "qtsingleapplication.h"
 #include <QDebug>
@@ -24,8 +24,8 @@ int main(int argc, char** argv)
         app.exit(-1);
     }
 
-    MediaBackendInterface player;
-    dbusRegistration = QDBusConnection::sessionBus().registerObject("/", &player,
+    MediaBackendInterface *player = new TestingBackend(&app);
+    dbusRegistration = QDBusConnection::sessionBus().registerObject("/", player,
             QDBusConnection::ExportScriptableSlots|QDBusConnection::ExportScriptableSignals);
 
     if (!dbusRegistration) {

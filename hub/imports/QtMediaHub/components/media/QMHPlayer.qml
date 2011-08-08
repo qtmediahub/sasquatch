@@ -128,4 +128,14 @@ Item {
         onVolumeDownRequested: root.decreaseVolume()
         onPlayRemoteSourceRequested: root.playUri(uri)
     }
+
+    Component.onCompleted: {
+        //Just for testing
+        if (false) {
+            runtime.mediaBackendInterface.play()
+            runtime.mediaBackendInterface.mute(true)
+            runtime.mediaBackendInterface.mute(false)
+            runtime.mediaBackendInterface.loadUri("file:///wickedpath")
+        }
+    }
 }
