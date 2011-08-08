@@ -13,13 +13,14 @@ public:
 signals:
 
 public slots:
-    void loadUri(const QString &uri) { Q_UNUSED(uri); qDebug() << __FUNCTION__ << uri; }
+    void loadUri(const QString &uri) { qDebug() << __FUNCTION__ << uri; }
     void stop() { qDebug() << __FUNCTION__; }
     void pause(bool on = true) { qDebug() << __FUNCTION__ << on; }
     void play() { qDebug() << __FUNCTION__; }
     void mute(bool on = true) { qDebug() << __FUNCTION__ << on; }
-    void setPosition(int position) { Q_UNUSED(position); qDebug() << __FUNCTION__; }
-    void setPosition(qreal position) { Q_UNUSED(position); qDebug() << __FUNCTION__; }
+    void setPosition(int position) { qDebug() << __FUNCTION__ << position; }
+    void setPosition(qreal position) { qDebug() << __FUNCTION__ << position; }
+    void setVolume(qreal volume) { qDebug() << __FUNCTION__ << volume; }
 };
 
 #endif // TESTINGBACKEND_H

@@ -21,6 +21,7 @@ public slots:
     Q_SCRIPTABLE virtual void mute(bool on = true) = 0;
     Q_SCRIPTABLE virtual void setPosition(int position) = 0;
     Q_SCRIPTABLE virtual void setPosition(qreal position) = 0;
+    Q_SCRIPTABLE virtual void setVolume(qreal volume) = 0;
 };
 
 #endif // MEDIAPLAYBACKINTERFACE_H

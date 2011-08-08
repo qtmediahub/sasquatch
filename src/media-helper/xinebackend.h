@@ -5,6 +5,7 @@
 
 class XineBackend : public MediaBackendInterface
 {
+    //Bare bones reference backend (audio only)
     Q_OBJECT
 public:
     explicit XineBackend(QObject *parent = 0);
@@ -20,6 +21,7 @@ public slots:
     void mute(bool on = true);
     void setPosition(int position);
     void setPosition(qreal position);
+    void setVolume(qreal volume);
 private:
     class Private;
     Private *d;

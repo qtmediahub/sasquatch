@@ -21,7 +21,7 @@ public slots:
     void mute(bool on = true) { interface->call(__FUNCTION__, on); }
     void setPosition(int position) { interface->call(__FUNCTION__, position); }
     void setPosition(qreal position) { interface->call(__FUNCTION__, position); }
-
+    void setVolume(qreal volume)  { interface->call(__FUNCTION__, volume); }
 private:
     QDBusInterface *interface;
 };
