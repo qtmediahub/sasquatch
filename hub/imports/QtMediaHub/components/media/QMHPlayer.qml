@@ -24,12 +24,8 @@ Item {
     id: root
 
     property variant mediaItem
+    property alias mediaInfo: currentMediaInfo
     property alias mediaPlaylist: playlist
-
-    Playlist {
-        id: playlist
-        playMode: Playlist.Normal
-    }
 
     function stop() {
         mediaItem.stop()
@@ -58,7 +54,7 @@ Item {
     function playIndex(idx) {
         playlist.currentIndex = idx
         mediaItem.stop();
-        mediaItem.source = getMetaData("uri", "file://")
+        mediaItem.source = currentMediaInfo.getMetaData("uri", "file://")
         mediaItem.play();
     }
 
@@ -102,19 +98,6 @@ Item {
             mediaItem.position -= 1000
     }
 
-    function getMetaData(role, defaultValue) {
-        return playlist ? (playlist.data(playlist.currentIndex, role) || defaultValue) : ""
-    }
-
-    function getThumbnail(defaultAudio, defaultVideo) {
-        if (playlist && playlist.currentIndex != -1) {
-            var thumbnail = playlist.data(playlist.currentIndex, "previewUrl")
-            if (thumbnail != "")
-                return thumbnail;
-        }
-        return mediaItem.hasVideo ? defaultVideo : defaultAudio;
-    }
-
     // RPC requests
     Connections {
         target: runtime.mediaPlayerRpc
@@ -127,6 +110,15 @@ Item {
         onVolumeUpRequested: root.increaseVolume()
         onVolumeDownRequested: root.decreaseVolume()
         onPlayRemoteSourceRequested: root.playUri(uri)
+    }
+
+    Playlist {
+        id: playlist
+        playMode: Playlist.Normal
+    }
+
+    QMHMediaInfo {
+        id: currentMediaInfo
     }
 
     Component.onCompleted: {
