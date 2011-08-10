@@ -66,13 +66,12 @@ void XineBackend::stop() {
     xine_close(d->stream);
 }
 
-void XineBackend::pause(bool on)
-{
-    if (on) {
-        xine_set_param(d->stream, XINE_PARAM_SPEED, XINE_SPEED_PAUSE);
-    } else {
-        xine_set_param(d->stream, XINE_PARAM_SPEED, XINE_SPEED_NORMAL);
-    }
+void XineBackend::pause() {
+    xine_set_param(d->stream, XINE_PARAM_SPEED, XINE_SPEED_PAUSE);
+}
+
+void XineBackend::resume() {
+    xine_set_param(d->stream, XINE_PARAM_SPEED, XINE_SPEED_NORMAL);
 }
 
 void XineBackend::play()
@@ -93,9 +92,9 @@ void XineBackend::mute(bool on)
 }
 
 void XineBackend::setPosition(int position) { Q_UNUSED(position); }
-void XineBackend::setPosition(qreal position) { Q_UNUSED(position); }
+void XineBackend::setPositionPercent(qreal position) { Q_UNUSED(position); }
 
-void XineBackend::setVolume(qreal volume) {
+void XineBackend::setVolumePercent(qreal volume) {
     //Wants an int for volume
     //Attempting to map to Video Item levels on local machine
     if (volume > 0.20) {
