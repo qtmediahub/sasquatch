@@ -68,8 +68,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "devicemanager.h"
 #include "powermanager.h"
 #include "rpc/mediaplayerrpc.h"
-#include "media-helper/mediabackendinterface.h"
-#include "dbusmediabackend.h"
+#include "mediabackendinterface.h"
+#include "mediabackenddbus.h"
 #include "customcursor.h"
 #include "httpserver/httpserver.h"
 

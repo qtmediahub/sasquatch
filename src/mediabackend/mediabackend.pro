@@ -1,7 +1,7 @@
 include($$PROJECTROOT/src/core-common.pri)
 
 TEMPLATE = app
-TARGET = ../../hub/media-helper
+TARGET = ../../hub/mediabackend
 DEPENDPATH += .
 INCLUDEPATH += $${PROJECTROOT}/src/
 
@@ -17,10 +17,9 @@ QT += dbus
 
 # Input
 SOURCES += \
-    main.cpp \
-    mediabackendinterface.cpp
+    main.cpp
 
-HEADERS += mediabackendinterface.h \
+HEADERS += ../mediabackendinterface.h \
            testingbackend.h
 
 xine:unix: system(pkg-config --exists libxine) {

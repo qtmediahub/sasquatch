@@ -5,4 +5,8 @@ TEMPLATE = subdirs
 SUBDIRS += \
            corelib.pro \
            media/plugins \
-           main/main.pro \
+           main/main.pro
+
+media-backend {
+    SUBDIRS += mediabackend
+}

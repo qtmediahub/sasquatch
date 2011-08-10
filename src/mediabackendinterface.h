@@ -8,7 +8,7 @@ class MediaBackendInterface : public QObject
 {
     Q_OBJECT
 public:
-    explicit MediaBackendInterface(QObject *parent = 0);
+    explicit MediaBackendInterface(QObject *parent = 0) : QObject(parent) { /*noimpl*/ }
     virtual ~MediaBackendInterface() { /**/ }
 
 signals:

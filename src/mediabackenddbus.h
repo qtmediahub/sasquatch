@@ -1,7 +1,7 @@
 #ifndef DBUSMEDIABACKEND_H
 #define DBUSMEDIABACKEND_H
 
-#include "media-helper/mediabackendinterface.h"
+#include "mediabackendinterface.h"
 
 #include <QtDBus>
 
