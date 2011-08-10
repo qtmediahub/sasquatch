@@ -28,8 +28,10 @@ int main(int argc, char** argv)
     }
     MediaBackendInterface *player = 0;
 #ifdef XINE_BACKEND
+#warning using xine backend
     player = new XineBackend(&app);
 #else
+#warning using qDebug testing backend
     player = new TestingBackend(&app);
 #endif
 
