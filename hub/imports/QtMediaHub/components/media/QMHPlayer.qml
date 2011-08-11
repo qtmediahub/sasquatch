@@ -19,16 +19,37 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 import QtQuick 1.0
 import Playlist 1.0
+import QtMultimediaKit 1.1
 
 Item {
     id: root
 
-    property variant mediaItem
+    anchors.fill: parent
+
+    property bool shuffle: false
+    property bool hasMedia: !!mediaBackend && mediaBackend.source != ""
+    //This reflects VideoItem perculiarities
+    property bool playing: hasMedia && mediaBackend.playing && !paused
+
+    property alias mediaElement: mediaBackend
     property alias mediaInfo: currentMediaInfo
     property alias mediaPlaylist: playlist
 
+    property alias hasAudio: mediaBackend.hasAudio
+    property alias hasVideo: mediaBackend.hasVideo
+    property alias volume: mediaBackend.volume
+    property alias position: mediaBackend.position
+    property alias seekable: mediaBackend.seekable
+    property alias status: mediaBackend.status
+    property alias paused: mediaBackend.paused
+    property alias playbackRate: mediaBackend.playbackRate
+
+    //This is the externally exposed media api
+    //maps to backend logic of pluggable backends
+    //dbus, QProcess, Video, etc
+
     function stop() {
-        mediaItem.stop()
+        mediaBackend.stop()
     }
 
     function play(mediaModel, row) {
@@ -38,9 +59,9 @@ Item {
     }
 
     function playUri(uri) {
-        mediaItem.stop();
-        mediaItem.source = uri;
-        mediaItem.play();
+        mediaBackend.stop();
+        mediaBackend.source = uri;
+        mediaBackend.play();
     }
 
     function playNext() {
@@ -53,49 +74,49 @@ Item {
 
     function playIndex(idx) {
         playlist.currentIndex = idx
-        mediaItem.stop();
-        mediaItem.source = currentMediaInfo.getMetaData("uri", "file://")
-        mediaItem.play();
+        mediaBackend.stop();
+        mediaBackend.source = currentMediaInfo.getMetaData("uri", "file://")
+        mediaBackend.play();
     }
 
     function increaseVolume() {
-        mediaItem.volume = (mediaItem.volume + 0.05 > 1) ? 1.0 : mediaItem.volume + 0.05
+        mediaBackend.volume = (mediaBackend.volume + 0.05 > 1) ? 1.0 : mediaBackend.volume + 0.05
     }
 
     function decreaseVolume() {
-        mediaItem.volume = (mediaItem.volume - 0.05 < 0) ? 0.0 : mediaItem.volume - 0.05
+        mediaBackend.volume = (mediaBackend.volume - 0.05 < 0) ? 0.0 : mediaBackend.volume - 0.05
     }
 
     function pause() {
-        mediaItem.pause()
+        mediaBackend.pause()
     }
 
     function resume() {
-        mediaItem.play()
+        mediaBackend.play()
     }
 
     function togglePlayPause() {
-        if (!mediaItem.playing || mediaItem.paused) {
-            mediaItem.play()
+        if (!mediaBackend.playing || mediaBackend.paused) {
+            mediaBackend.play()
         } else {
-            mediaItem.pause()
+            mediaBackend.pause()
         }
     }
 
     function seekForward()
     {
-        if (mediaItem.hasVideo)
-            mediaItem.position += 10000
+        if (mediaBackend.hasVideo)
+            mediaBackend.position += 10000
         else
-            mediaItem.position += 1000
+            mediaBackend.position += 1000
     }
 
     function seekBackward()
     {
-        if (mediaItem.hasVideo)
-            mediaItem.position -= 10000
+        if (mediaBackend.hasVideo)
+            mediaBackend.position -= 10000
         else
-            mediaItem.position -= 1000
+            mediaBackend.position -= 1000
     }
 
     // RPC requests
@@ -114,20 +135,33 @@ Item {
 
     Playlist {
         id: playlist
-        playMode: Playlist.Normal
+        playMode: root.shuffle ? Playlist.Shuffle : Playlist.Normal
     }
 
     QMHMediaInfo {
         id: currentMediaInfo
     }
 
-    Component.onCompleted: {
-        //Just for testing
-        if (false) {
-            runtime.mediaBackendInterface.play()
-            runtime.mediaBackendInterface.mute(true)
-            runtime.mediaBackendInterface.mute(false)
-            runtime.mediaBackendInterface.loadUri("file:///wickedpath")
+    Video {
+        //This is one backend and needs to be pluggable
+        id: mediaBackend
+        x: 0; y: 0; width: parent.width; height: parent.height; z: 1
+
+        visible: hasVideo
+        volume: runtime.config.value("media-volume", 0.1)
+
+        //Work around VideoItem shortcomings
+        property int _seekPos : -1
+
+        onSeekableChanged : {
+            if (seekable && _seekPos != -1) {
+                position = _seekPos
+                _seekPos = -1
+            }
+        }
+
+        function seek(pos) {
+            _seekPos = pos
         }
     }
 }
