@@ -19,30 +19,34 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 import QtQuick 1.0
 import Playlist 1.0
-import QtMultimediaKit 1.1
+import QtMediaHub.components 1.0
 
 Item {
     id: root
 
     anchors.fill: parent
 
+    property variant randomText: "OMGWTFBBQ"
+    property variant mediaBackend
+
     property bool shuffle: false
-    property bool hasMedia: !!mediaBackend && mediaBackend.source != ""
+    property bool hasMedia: d.isValid && mediaBackend.source != ""
     //This reflects VideoItem perculiarities
     property bool playing: hasMedia && mediaBackend.playing && !paused
 
-    property alias mediaElement: mediaBackend
+    property alias mediaElement: mediaElement
     property alias mediaInfo: currentMediaInfo
     property alias mediaPlaylist: playlist
 
-    property alias hasAudio: mediaBackend.hasAudio
-    property alias hasVideo: mediaBackend.hasVideo
-    property alias volume: mediaBackend.volume
-    property alias position: mediaBackend.position
-    property alias seekable: mediaBackend.seekable
-    property alias status: mediaBackend.status
-    property alias paused: mediaBackend.paused
-    property alias playbackRate: mediaBackend.playbackRate
+    //These should all be bound to the backend
+    property variant hasAudio: false
+    property variant hasVideo: false
+    property variant volume: 0
+    property variant position: 0
+    property variant seekable: false
+    property variant status: 0
+    property variant paused: false
+    property variant playbackRate: 1
 
     //This is the externally exposed media api
     //maps to backend logic of pluggable backends
@@ -88,18 +92,18 @@ Item {
     }
 
     function pause() {
-        mediaBackend.pause()
+        mediaBackend.paused = true
     }
 
     function resume() {
-        mediaBackend.play()
+        mediaBackend.paused = false
     }
 
     function togglePlayPause() {
         if (!mediaBackend.playing || mediaBackend.paused) {
             mediaBackend.play()
         } else {
-            mediaBackend.pause()
+            mediaBackend.paused = true
         }
     }
 
@@ -117,6 +121,11 @@ Item {
             mediaBackend.position -= 10000
         else
             mediaBackend.position -= 1000
+    }
+
+    QtObject {
+        id: d
+        property variant isValid: typeof mediaBackend != "undefined"
     }
 
     // RPC requests
@@ -142,26 +151,29 @@ Item {
         id: currentMediaInfo
     }
 
-    Video {
-        //This is one backend and needs to be pluggable
-        id: mediaBackend
-        x: 0; y: 0; width: parent.width; height: parent.height; z: 1
+    Item {
+        id: mediaElement
+        x: 0; y: 0; width: parent.width; height: parent.height;
+    }
 
-        visible: hasVideo
-        volume: runtime.config.value("media-volume", 0.1)
+    QMHUtil {
+       id: util
+    }
 
-        //Work around VideoItem shortcomings
-        property int _seekPos : -1
-
-        onSeekableChanged : {
-            if (seekable && _seekPos != -1) {
-                position = _seekPos
-                _seekPos = -1
-            }
-        }
-
-        function seek(pos) {
-            _seekPos = pos
+    Component.onCompleted: {
+        mediaBackend = util.createQmlObjectFromFile("media/QMHVideoItemBackend.qml", {}, mediaElement)
+        if (mediaBackend) {
+            console.log("Created backend successfully!")
+            Qt.createQmlObject('import QtQuick 1.0; Item { Component.onCompleted: console.log(randomText + root) }', mediaBackend)
+            Qt.createQmlObject('import QtQuick 1.0; Binding { target: root; property: "playing"; value: mediaBackend.playing }', mediaBackend)
+            Qt.createQmlObject('import QtQuick 1.0; Binding { target: root; property: "hasAudio"; value: mediaBackend.hasAudio }', mediaBackend)
+            Qt.createQmlObject('import QtQuick 1.0; Binding { target: root; property: "hasVideo"; value: mediaBackend.hasVideo }', mediaBackend)
+            Qt.createQmlObject('import QtQuick 1.0; Binding { target: root; property: "volume"; value: mediaBackend.volume }', mediaBackend)
+            Qt.createQmlObject('import QtQuick 1.0; Binding { target: root; property: "position"; value: mediaBackend.position }', mediaBackend)
+            Qt.createQmlObject('import QtQuick 1.0; Binding { target: root; property: "seekable"; value: mediaBackend.seekable }', mediaBackend)
+            Qt.createQmlObject('import QtQuick 1.0; Binding { target: root; property: "status"; value: mediaBackend.status }', mediaBackend)
+            Qt.createQmlObject('import QtQuick 1.0; Binding { target: root; property: "paused"; value: mediaBackend.paused }', mediaBackend)
+            Qt.createQmlObject('import QtQuick 1.0; Binding { target: root; property: "playbackRate"; value: mediaBackend.playbackRate }', mediaBackend)
         }
     }
 }
