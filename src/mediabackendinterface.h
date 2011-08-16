@@ -7,7 +7,21 @@
 class MediaBackendInterface : public QObject
 {
     Q_OBJECT
+    Q_ENUMS(Status)
 public:
+    enum Status
+    {
+        UnknownStatus,
+        NoMedia,
+        Loading,
+        Loaded,
+        Stalled,
+        Buffering,
+        Buffered,
+        EndOfMedia,
+        InvalidMedia
+    };
+
     explicit MediaBackendInterface(QObject *parent = 0) : QObject(parent) { /*noimpl*/ }
     virtual ~MediaBackendInterface() { /**/ }
 

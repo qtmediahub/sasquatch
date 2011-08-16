@@ -165,11 +165,11 @@ SkinRuntimePrivate::SkinRuntimePrivate(SkinRuntime *p)
     //Declarative is a hard dependency at present in any case
     // register dataproviders to QML
     qmlRegisterUncreatableType<ActionMapper>("ActionMapper", 1, 0, "ActionMapper", "For enums. For methods use actionmap global variable");
+    qmlRegisterUncreatableType<MediaBackendInterface>("MediaBackendInterface", 1, 0, "MediaBackendInterface", "For enums. For methods use actionmap global variable");
     qmlRegisterType<DirModel>("DirModel", 1, 0, "DirModel");
     qmlRegisterType<Playlist>("Playlist", 1, 0, "Playlist");
     qmlRegisterType<MediaModel>("MediaModel", 1, 0, "MediaModel");
     qmlRegisterType<RpcConnection>("RpcConnection", 1, 0, "RpcConnection");
-
     connect(&pathMonitor, SIGNAL(directoryChanged(QString)), this, SLOT(handleDirChanged(QString)));
     foreach (const QString &skinPath, LibraryInfo::skinPaths()) {
         if (QDir(skinPath).exists())

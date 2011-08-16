@@ -3,3 +3,4 @@ QMHMediaInfo 1.0 QMHMediaInfo.qml
 ParticleVisualization 1.0 ParticleVisualization.qml
 QMHVideoItemBackend 1.0 QMHVideoItemBackend.qml
 QMHMediaBackend 1.0 QMHMediaBackend.qml
+QMHExternalBackend 1.0 QMHExternalBackend.qml

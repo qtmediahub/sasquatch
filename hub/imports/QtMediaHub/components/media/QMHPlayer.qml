@@ -161,19 +161,26 @@ Item {
     }
 
     Component.onCompleted: {
-        mediaBackend = util.createQmlObjectFromFile("media/QMHVideoItemBackend.qml", {}, mediaElement)
+        mediaBackend = util.createQmlObjectFromFile(runtime.config.isEnabled("shine-through", false) ? "media/QMHExternalBackend.qml" : "media/QMHVideoItemBackend.qml", {}, mediaElement)
         if (mediaBackend) {
-            console.log("Created backend successfully!")
-            Qt.createQmlObject('import QtQuick 1.0; Item { Component.onCompleted: console.log(randomText + root) }', mediaBackend)
-            Qt.createQmlObject('import QtQuick 1.0; Binding { target: root; property: "playing"; value: mediaBackend.playing }', mediaBackend)
-            Qt.createQmlObject('import QtQuick 1.0; Binding { target: root; property: "hasAudio"; value: mediaBackend.hasAudio }', mediaBackend)
-            Qt.createQmlObject('import QtQuick 1.0; Binding { target: root; property: "hasVideo"; value: mediaBackend.hasVideo }', mediaBackend)
-            Qt.createQmlObject('import QtQuick 1.0; Binding { target: root; property: "volume"; value: mediaBackend.volume }', mediaBackend)
-            Qt.createQmlObject('import QtQuick 1.0; Binding { target: root; property: "position"; value: mediaBackend.position }', mediaBackend)
-            Qt.createQmlObject('import QtQuick 1.0; Binding { target: root; property: "seekable"; value: mediaBackend.seekable }', mediaBackend)
-            Qt.createQmlObject('import QtQuick 1.0; Binding { target: root; property: "status"; value: mediaBackend.status }', mediaBackend)
-            Qt.createQmlObject('import QtQuick 1.0; Binding { target: root; property: "paused"; value: mediaBackend.paused }', mediaBackend)
-            Qt.createQmlObject('import QtQuick 1.0; Binding { target: root; property: "playbackRate"; value: mediaBackend.playbackRate }', mediaBackend)
+            //out
+            util.createBinding("root", "hasAudio", "mediaBackend.hasAudio", mediaBackend)
+            util.createBinding("root", "hasVideo", "mediaBackend.hasVideo", mediaBackend)
+            util.createBinding("root", "seekable", "mediaBackend.seekable", mediaBackend)
+            util.createBinding("root", "status", "mediaBackend.status", mediaBackend)
+
+            //bidirectional
+            util.createBinding("root", "playing", "mediaBackend.playing", mediaBackend)
+            util.createBinding("root", "volume", "mediaBackend.volume", mediaBackend)
+            util.createBinding("root", "position", "mediaBackend.position", mediaBackend)
+            util.createBinding("root", "paused", "mediaBackend.paused", mediaBackend)
+            util.createBinding("root", "playbackRate", "mediaBackend.playbackRate", mediaBackend)
+
+            util.createBinding("mediaBackend", "playing", "root.playing", mediaBackend)
+            util.createBinding("mediaBackend", "volume", "root.volume", mediaBackend)
+            util.createBinding("mediaBackend", "position", "root.position", mediaBackend)
+            util.createBinding("mediaBackend", "paused", "root.paused", mediaBackend)
+            util.createBinding("mediaBackend", "playbackRate", "root.playbackRate", mediaBackend)
         }
     }
 }
