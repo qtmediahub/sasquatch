@@ -16,12 +16,13 @@ signals:
 public slots:
     void loadUri(const QString &uri);
     void stop();
-    void pause(bool on = true);
+    void pause();
+    void resume();
     void play();
     void mute(bool on = true);
     void setPosition(int position);
-    void setPosition(qreal position);
-    void setVolume(qreal volume);
+    void setPositionPercent(qreal position);
+    void setVolumePercent(qreal volume);
 private:
     class Private;
     Private *d;

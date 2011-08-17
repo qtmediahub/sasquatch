@@ -1,7 +1,7 @@
 #ifndef DBUSMEDIABACKEND_H
 #define DBUSMEDIABACKEND_H
 
-#include "media-helper/mediabackendinterface.h"
+#include "mediabackendinterface.h"
 
 #include <QtDBus>
 
@@ -16,12 +16,13 @@ signals:
 public slots:
     void loadUri(const QString &uri) { interface->call(__FUNCTION__, uri); }
     void stop() { interface->call(__FUNCTION__); }
-    void pause(bool on = true) { interface->call(__FUNCTION__, on); }
+    void pause() { interface->call(__FUNCTION__); }
+    void resume() { interface->call(__FUNCTION__); }
     void play() { interface->call(__FUNCTION__); }
     void mute(bool on = true) { interface->call(__FUNCTION__, on); }
     void setPosition(int position) { interface->call(__FUNCTION__, position); }
-    void setPosition(qreal position) { interface->call(__FUNCTION__, position); }
-    void setVolume(qreal volume)  { interface->call(__FUNCTION__, volume); }
+    void setPositionPercent(qreal position) { interface->call(__FUNCTION__, position); }
+    void setVolumePercent(qreal volume)  { interface->call(__FUNCTION__, volume); }
 private:
     QDBusInterface *interface;
 };

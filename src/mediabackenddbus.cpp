@@ -1,4 +1,4 @@
-#include "dbusmediabackend.h"
+#include "mediabackenddbus.h"
 
 DBusMediaBackend::DBusMediaBackend(QObject *parent)
     : MediaBackendInterface(parent),
