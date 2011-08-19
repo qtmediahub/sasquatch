@@ -69,7 +69,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "powermanager.h"
 #include "rpc/mediaplayerrpc.h"
 #include "mediabackendinterface.h"
+#ifndef NO_DBUS
 #include "mediabackenddbus.h"
+#endif
 #include "customcursor.h"
 #include "httpserver/httpserver.h"
 
@@ -396,7 +398,9 @@ void SkinRuntimePrivate::enableRemoteControlMode(bool enable)
 
     mediaServer = new MediaServer(this);
     rpcConnection = new RpcConnection(RpcConnection::Server, QHostAddress::Any, 1234, this);
+#ifndef NO_DBUS
     mediaBackendInterface = new DBusMediaBackend(this);
+#endif
     mediaPlayerRpc = new MediaPlayerRpc(this);
     mediaPlayerRpc->setObjectName("qmhmediaplayer");
     trackpad = new Trackpad(this);
