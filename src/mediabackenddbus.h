@@ -3,7 +3,9 @@
 
 #include "mediabackendinterface.h"
 
+#ifndef NO_DBUS
 #include <QtDBus>
+#endif
 
 class DBusMediaBackend : public MediaBackendInterface
 {
@@ -14,6 +16,7 @@ public:
 signals:
 
 public slots:
+#ifndef NO_DBUS
     void loadUri(const QString &uri) { interface->call(__FUNCTION__, uri); }
     void stop() { interface->call(__FUNCTION__); }
     void pause() { interface->call(__FUNCTION__); }
@@ -25,6 +28,7 @@ public slots:
     void setVolumePercent(qreal volume)  { interface->call(__FUNCTION__, volume); }
 private:
     QDBusInterface *interface;
+#endif
 };
 
 #endif // DBUSMEDIABACKEND_H
