@@ -146,7 +146,12 @@ SkinRuntimePrivate::SkinRuntimePrivate(SkinRuntime *p)
 
 #ifdef GL
     QGLFormat format;
+    //explicitly set options
+    format.setDoubleBuffer(true);
     format.setSampleBuffers(true);
+    format.setAlpha(true);
+    format.setDepth(false);
+    format.setStencil(false);
     format.setSwapInterval(1);
     QGLFormat::setDefaultFormat(format);
 #endif //GL
@@ -206,10 +211,8 @@ static void optimizeWidgetAttributes(QWidget *widget, bool transparent = true)
 {
     widget->setAttribute(Qt::WA_OpaquePaintEvent);
     widget->setAutoFillBackground(false);
-    if (transparent && Config::isEnabled("overlay-mode", false))
-        widget->setAttribute(Qt::WA_TranslucentBackground);
-    else
-        widget->setAttribute(Qt::WA_NoSystemBackground);
+    bool transparentWidget = transparent && Config::isEnabled("overlay-mode", false);
+    widget->setAttribute(transparentWidget ? Qt::WA_TranslucentBackground : Qt::WA_NoSystemBackground);
 }
 
 static void optimizeGraphicsViewAttributes(QGraphicsView *view)
@@ -222,6 +225,7 @@ static void optimizeGraphicsViewAttributes(QGraphicsView *view)
     view->setFrameStyle(0);
     view->setOptimizationFlags(QGraphicsView::DontSavePainterState);
     view->scene()->setItemIndexMethod(QGraphicsScene::NoIndex);
+    view->setCacheMode(QGraphicsView::CacheNone);
 }
 
 QWidget *SkinRuntimePrivate::loadQmlSkin(const QUrl &targetUrl, QWidget *window)
@@ -241,15 +245,15 @@ QWidget *SkinRuntimePrivate::loadQmlSkin(const QUrl &targetUrl, QWidget *window)
     if (Config::isEnabled("use-gl", true)) {
 #ifdef GLVIEWPORT
         QGLWidget *viewport = new QGLWidget(declarativeWidget);
-        optimizeWidgetAttributes(viewport);
+        viewport->qglClearColor(Qt::transparent);
         declarativeWidget->setViewport(viewport);
 #endif //GLVIEWPORT
         declarativeWidget->setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
     } else {
         declarativeWidget->setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
     }
-    optimizeWidgetAttributes(declarativeWidget->viewport());
 #endif //SCENEGRAPH
+    optimizeWidgetAttributes(declarativeWidget->viewport(), false);
 
     QDeclarativeEngine *engine = declarativeWidget->engine();
     QObject::connect(engine, SIGNAL(quit()), qApp, SLOT(quit()));
