@@ -202,11 +202,11 @@ SkinRuntimePrivate::~SkinRuntimePrivate()
     Config::setValue("skin", currentSkin->name());
 }
 
-static void optimizeWidgetAttributes(QWidget *widget, bool transparent = false)
+static void optimizeWidgetAttributes(QWidget *widget, bool transparent = true)
 {
     widget->setAttribute(Qt::WA_OpaquePaintEvent);
     widget->setAutoFillBackground(false);
-    if (transparent && Config::isEnabled("shine-through", false))
+    if (transparent && Config::isEnabled("overlay-mode", false))
         widget->setAttribute(Qt::WA_TranslucentBackground);
     else
         widget->setAttribute(Qt::WA_NoSystemBackground);
@@ -241,16 +241,14 @@ QWidget *SkinRuntimePrivate::loadQmlSkin(const QUrl &targetUrl, QWidget *window)
     if (Config::isEnabled("use-gl", true)) {
 #ifdef GLVIEWPORT
         QGLWidget *viewport = new QGLWidget(declarativeWidget);
-        //Why do I have to set this here?
-        //Why can't I set it in the MainWindow?
-        optimizeWidgetAttributes(viewport, false);
-
+        optimizeWidgetAttributes(viewport);
         declarativeWidget->setViewport(viewport);
 #endif //GLVIEWPORT
         declarativeWidget->setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
     } else {
         declarativeWidget->setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
     }
+    optimizeWidgetAttributes(declarativeWidget->viewport());
 #endif //SCENEGRAPH
 
     QDeclarativeEngine *engine = declarativeWidget->engine();
