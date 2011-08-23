@@ -40,7 +40,8 @@ bool VideoParser::canRead(const QFileInfo &info) const
                 << "mov"
                 << "ogv"
                 << "wmv"
-                << "mkv";
+                << "mkv"
+                << Config::value("additional-video-extensions", QString()).split(",");
 
     return supportedTypes.contains(info.suffix());
 }
