@@ -207,14 +207,6 @@ SkinRuntimePrivate::~SkinRuntimePrivate()
     Config::setValue("skin", currentSkin->name());
 }
 
-static void optimizeWidgetAttributes(QWidget *widget, bool transparent = true)
-{
-    widget->setAttribute(Qt::WA_OpaquePaintEvent);
-    widget->setAutoFillBackground(false);
-    bool transparentWidget = transparent && Config::isEnabled("overlay-mode", false);
-    widget->setAttribute(transparentWidget ? Qt::WA_TranslucentBackground : Qt::WA_NoSystemBackground);
-}
-
 static void optimizeGraphicsViewAttributes(QGraphicsView *view)
 {
     if (Config::isEnabled("smooth-scaling", true))
@@ -238,22 +230,22 @@ QWidget *SkinRuntimePrivate::loadQmlSkin(const QUrl &targetUrl, QWidget *window)
 #else
     DeclarativeView *declarativeWidget = new DeclarativeView;
 
-    optimizeWidgetAttributes(declarativeWidget);
     optimizeGraphicsViewAttributes(declarativeWidget);
     declarativeWidget->setResizeMode(QDeclarativeView::SizeRootObjectToView);
 
     if (Config::isEnabled("use-gl", true)) {
 #ifdef GLVIEWPORT
-        QGLWidget *viewport = new QGLWidget(declarativeWidget);
+        QGLWidget *viewport = new QGLWidget();
+        viewport->setAttribute(Qt::WA_TranslucentBackground);
         viewport->qglClearColor(Qt::transparent);
         declarativeWidget->setViewport(viewport);
 #endif //GLVIEWPORT
         declarativeWidget->setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
     } else {
+        declarativeWidget->viewport()->setAutoFillBackground(false);
         declarativeWidget->setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
     }
 #endif //SCENEGRAPH
-    optimizeWidgetAttributes(declarativeWidget->viewport(), false);
 
     QDeclarativeEngine *engine = declarativeWidget->engine();
     QObject::connect(engine, SIGNAL(quit()), qApp, SLOT(quit()));
