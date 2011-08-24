@@ -25,11 +25,11 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "dbreader.h"
 #include "qmh-config.h"
 
-#define DEBUG if (1) qDebug() << this << __PRETTY_FUNCTION__
+#define DEBUG if (0) qDebug() << this << __PRETTY_FUNCTION__
 #define WARNING if (1) qWarning() << this << __PRETTY_FUNCTION__
 
 MediaModel::MediaModel(QObject *parent)
-    : QAbstractItemModel(parent), m_loading(false), m_loaded(false), m_reader(0), m_readerThread(0), m_back(false)
+    : QAbstractItemModel(parent), m_loading(false), m_loaded(false), m_reader(0), m_readerThread(0), m_autoForward(false)
 {
     setRoleNames(MediaModel::roleToNameMapping());
 
@@ -161,12 +161,12 @@ void MediaModel::enter(int index)
     }
 
     if (m_data.at(index)[DotDotRole].toBool() && !m_cursor.isEmpty()) {
-        m_back = true;
+        m_autoForward = false;
         back();
         return;
     }
 
-    m_back = false;
+    m_autoForward = true;
     DEBUG << "Entering " << index;
     m_cursor.append(m_data[index]);
     reload();
@@ -365,12 +365,14 @@ void MediaModel::insertAll(const QList<QSqlRecord> &records)
 
     endInsertRows();
 
-    if (records.count() == 1 && addDotDot && m_data[1].value(Qt::DisplayRole).toString().isEmpty()) { // 'auto-enter"
-        qDebug() << "Auto entering";
-        if (m_back)
+    if (records.count() == 1 && m_data[addDotDot ? 1 : 0].value(Qt::DisplayRole).toString().isEmpty()) {
+        // Automatically move forward or backward if the model has just one item and that item is null
+        if (m_autoForward) {
+            enter(addDotDot ? 1 : 0);
+        } else {
+            Q_ASSERT(addDotDot);
             back();
-        else
-            enter(1);
+        }
     }
 }
 
