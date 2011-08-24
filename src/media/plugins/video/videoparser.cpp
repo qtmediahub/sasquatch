@@ -177,6 +177,30 @@ static QString determineTitle(const QFileInfo &info)
     return title;
 }
 
+static QPair<QString, QString> determineShowAndSeason(const QFileInfo &info, const QString &searchPath)
+{
+    QString show, season;
+    QDir dir = info.dir();
+    if (dir.absolutePath()== searchPath.midRef(0, searchPath.length()-1)) {
+        QString baseName = info.baseName();
+        QRegExp re("[^-)]*", Qt::CaseInsensitive);
+        if (re.indexIn(baseName) == -1) {
+            show = baseName;
+        } else {
+            show = re.cap(0);
+        }
+    } else {
+        QDir parentDir = dir;
+        if (!parentDir.cdUp() || parentDir.absolutePath() == searchPath.midRef(0, searchPath.length()-1)) {
+            show = dir.dirName();
+        } else {
+            show = parentDir.dirName();
+            season = dir.dirName();
+        }
+    }
+    return qMakePair(show, season);
+}
+
 // ## See if DELETE+INSERT is the best approach. Sqlite3 supports INSERT OR IGNORE which could aslo be used
 // ## Also check other upsert methods
 QList<QSqlRecord> VideoParser::updateMediaInfos(const QList<QFileInfo> &fis, const QString &searchPath, QSqlDatabase db)
@@ -193,8 +217,8 @@ QList<QSqlRecord> VideoParser::updateMediaInfos(const QList<QFileInfo> &fis, con
         if (!query.exec())
             qWarning() << query.lastError().text();
 
-        if (!query.prepare("INSERT INTO video (filepath, title, thumbnail, uri, directory, mtime, ctime, filesize) "
-                           " VALUES (:filepath, :title, :thumbnail, :uri, :directory, :mtime, :ctime, :filesize)")) {
+        if (!query.prepare("INSERT INTO video (filepath, title, thumbnail, uri, directory, mtime, ctime, filesize, show, season) "
+                           " VALUES (:filepath, :title, :thumbnail, :uri, :directory, :mtime, :ctime, :filesize, :show, :season)")) {
             qWarning() << query.lastError().text();
             return records;
         }
@@ -208,6 +232,10 @@ QList<QSqlRecord> VideoParser::updateMediaInfos(const QList<QFileInfo> &fis, con
         query.bindValue(":mtime", fi.lastModified().toTime_t());
         query.bindValue(":ctime", fi.created().toTime_t());
         query.bindValue(":filesize", fi.size());
+
+        QPair<QString, QString> showAndSeason = determineShowAndSeason(fi, searchPath);
+        query.bindValue(":show", showAndSeason.first);
+        query.bindValue(":season", showAndSeason.second);
 
         if (!query.exec())
             qWarning() << query.lastError().text();
