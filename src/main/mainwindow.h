@@ -32,6 +32,7 @@ class Skin;
 class MainWindow : public QWidget
 {
     Q_OBJECT
+    Q_PROPERTY(bool overlayMode READ overlayMode WRITE enableOverlayMode NOTIFY overlayModeChange)
 public:
     enum ScreenOrientation {
         ScreenOrientationLockPortrait,
@@ -44,6 +45,9 @@ public:
     void setCentralWidget(QWidget *cw);
     QWidget *centralWidget() const;
 
+    bool overlayMode() { return m_isOverlay; }
+    void enableOverlayMode(bool isOverlay){ m_isOverlay = isOverlay; }
+
 public slots:
     // ## These are a bit evil, since they shadow QWidget
     void show();
@@ -53,6 +57,7 @@ public slots:
     bool setSkin(Skin*skin);
 
 signals:
+    void overlayModeChange();
     void resetUI();
     void inputIdle();
     void inputActive();
@@ -75,6 +80,7 @@ private:
     SkinRuntime *m_skinRuntime;
     QWidget *m_centralWidget;
     const QRect m_defaultGeometry;
+    bool m_isOverlay;
     bool m_overscanWorkAround;
     bool m_attemptingFullScreen;
 };

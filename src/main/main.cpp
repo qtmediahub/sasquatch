@@ -86,7 +86,7 @@ int main(int argc, char** argv)
     MainWindow *mainWindow = 0;
     MediaServer *mediaServer = 0;
 
-    if (!Config::isEnabled("headless", qgetenv("DISPLAY").isEmpty())) {
+    if (!Config::isEnabled("headless", false)) {
         mainWindow = new MainWindow;
         mainWindow->setSkin(Config::value("skin", "").toString());
         mainWindow->show();
