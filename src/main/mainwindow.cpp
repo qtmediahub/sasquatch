@@ -62,7 +62,7 @@ MainWindow::MainWindow(QWidget *parent)
     QAction *selectSkinAction = new QAction(tr("Select skin"), this);
     QAction *quitAction = new QAction(tr("Quit"), this);
     connect(selectSkinAction, SIGNAL(triggered()), this, SLOT(selectSkin()));
-    connect(quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
+    connect(quitAction, SIGNAL(triggered()), this, SLOT(close()));
     actions.append(selectSkinAction);
     actions.append(quitAction);
 
