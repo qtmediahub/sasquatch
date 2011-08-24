@@ -68,7 +68,7 @@ signals:
     void scanPathChanged(const QString &path);
 
 private:
-    void scan(MediaParser *parser, const QString &path);
+    void scan(MediaParser *parser, const QString &searchPath);
 
     MediaScanner *m_scanner;
     QSqlDatabase m_db;
@@ -281,14 +281,14 @@ void MediaScannerWorker::removeSearchPath(const QString &type, const QString &_p
     emit m_scanner->searchPathRemoved(type, path);
 }
 
-void MediaScannerWorker::scan(MediaParser *parser, const QString &path)
+void MediaScannerWorker::scan(MediaParser *parser, const QString &searchPath)
 {
     QQueue<QString> dirQ;
-    dirQ.enqueue(path);
+    dirQ.enqueue(searchPath);
 
     QList<QFileInfo> diskFileInfos;
 
-    QSet<qint64> fileIds = parser->fileIdsInPath(path, m_db);
+    QSet<qint64> fileIds = parser->fileIdsInPath(searchPath, m_db);
 
     while (!dirQ.isEmpty() && !m_stop) {
         QString curdir = dirQ.dequeue();
@@ -316,7 +316,7 @@ void MediaScannerWorker::scan(MediaParser *parser, const QString &path)
 
                 diskFileInfos.append(diskFileInfo);
                 if (diskFileInfos.count() > BULK_LIMIT) {
-                    QList<QSqlRecord> records = parser->updateMediaInfos(diskFileInfos, m_db);
+                    QList<QSqlRecord> records = parser->updateMediaInfos(diskFileInfos, searchPath, m_db);
                     diskFileInfos.clear();
                 }
                 DEBUG << diskFileInfo.absoluteFilePath() << " : added";
@@ -334,7 +334,7 @@ void MediaScannerWorker::scan(MediaParser *parser, const QString &path)
     }
 
     if (!diskFileInfos.isEmpty())
-        parser->updateMediaInfos(diskFileInfos, m_db);
+        parser->updateMediaInfos(diskFileInfos, searchPath, m_db);
 
     DEBUG << "Removing " << fileIds;
     parser->removeFiles(fileIds, m_db);

@@ -34,7 +34,7 @@ public:
 
     QString type() const { return "video"; }
     bool canRead(const QFileInfo &info) const;
-    QList<QSqlRecord> updateMediaInfos(const QList<QFileInfo> &fi, QSqlDatabase db);
+    QList<QSqlRecord> updateMediaInfos(const QList<QFileInfo> &fi, const QString &searchPath, QSqlDatabase db);
 };
 
 #endif // VIDEOPARSER_H

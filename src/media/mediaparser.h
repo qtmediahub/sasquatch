@@ -39,7 +39,7 @@ public:
 
     virtual QString type() const = 0;
     virtual bool canRead(const QFileInfo &info) const = 0;
-    virtual QList<QSqlRecord> updateMediaInfos(const QList<QFileInfo> &fi, QSqlDatabase db) = 0;
+    virtual QList<QSqlRecord> updateMediaInfos(const QList<QFileInfo> &fi, const QString &searchPath, QSqlDatabase db) = 0;
 
     QSet<qint64> fileIdsInPath(const QString &path, QSqlDatabase db);
     QHash<QString, MediaScanner::FileInfo> topLevelFilesInPath(const QString &path, QSqlDatabase db);
