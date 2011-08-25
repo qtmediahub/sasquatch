@@ -143,6 +143,7 @@ void MediaModel::setStructure(const QString &str)
     if (str == m_structure)
         return;
     DEBUG << str;
+    m_cursor.clear();
     m_structure = str;
     m_layoutInfo.clear();
     foreach(const QString &part, m_structure.split("|"))
