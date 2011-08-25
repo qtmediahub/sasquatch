@@ -36,7 +36,7 @@ public:
 
     QString type() const { return "picture"; }
     bool canRead(const QFileInfo &info) const;
-    QList<QSqlRecord> updateMediaInfos(const QList<QFileInfo> &fi, QSqlDatabase db);
+    QList<QSqlRecord> updateMediaInfos(const QList<QFileInfo> &fi, const QString &serachPath, QSqlDatabase db);
 };
 
 #endif // PICTUREPARSER_H

@@ -81,8 +81,9 @@ static QByteArray determineThumbnail(const ExifReader &reader, const QFileInfo &
 
 // ## See if DELETE+INSERT is the best approach. Sqlite3 supports INSERT OR IGNORE which could aslo be used
 // ## Also check other upsert methods
-QList<QSqlRecord> PictureParser::updateMediaInfos(const QList<QFileInfo> &fis, QSqlDatabase db)
+QList<QSqlRecord> PictureParser::updateMediaInfos(const QList<QFileInfo> &fis, const QString &searchPath, QSqlDatabase db)
 {
+    Q_UNUSED(searchPath);
     QList<QSqlRecord> records;
     QSqlQuery query(db);
     ScopedTransaction transaction(db);

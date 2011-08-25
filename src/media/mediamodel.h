@@ -124,6 +124,8 @@ private:
     QThread *m_readerThread;
     QString m_mediaType;
 
+    bool m_autoForward;
+
     static int s_currentDynamicRole;
     static QHash<int, QByteArray> s_roleToName;
     static QHash<QString, int> s_nameToRole;

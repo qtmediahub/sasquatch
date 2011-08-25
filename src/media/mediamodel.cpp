@@ -26,9 +26,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "qmh-config.h"
 
 #define DEBUG if (0) qDebug() << this << __PRETTY_FUNCTION__
+#define WARNING if (1) qWarning() << this << __PRETTY_FUNCTION__
 
 MediaModel::MediaModel(QObject *parent)
-    : QAbstractItemModel(parent), m_loading(false), m_loaded(false), m_reader(0), m_readerThread(0)
+    : QAbstractItemModel(parent), m_loading(false), m_loaded(false), m_reader(0), m_readerThread(0), m_autoForward(false)
 {
     setRoleNames(MediaModel::roleToNameMapping());
 
@@ -155,15 +156,17 @@ void MediaModel::setStructure(const QString &str)
 void MediaModel::enter(int index)
 {
     if (m_cursor.count() + 1 == m_layoutInfo.count() && !m_data.at(index)[DotDotRole].toBool() /* up on leaf node is OK */) {
-        DEBUG << "Refusing to enter leaf node";
+        WARNING << "Refusing to enter leaf node";
         return;
     }
 
     if (m_data.at(index)[DotDotRole].toBool() && !m_cursor.isEmpty()) {
+        m_autoForward = false;
         back();
         return;
     }
 
+    m_autoForward = true;
     DEBUG << "Entering " << index;
     m_cursor.append(m_data[index]);
     reload();
@@ -361,6 +364,16 @@ void MediaModel::insertAll(const QList<QSqlRecord> &records)
     }
 
     endInsertRows();
+
+    if (records.count() == 1 && m_data[addDotDot ? 1 : 0].value(Qt::DisplayRole).toString().isEmpty()) {
+        // Automatically move forward or backward if the model has just one item and that item is null
+        if (m_autoForward) {
+            enter(addDotDot ? 1 : 0);
+        } else {
+            Q_ASSERT(addDotDot);
+            back();
+        }
+    }
 }
 
 int MediaModel::compareData(int idx, const QSqlRecord &record) const
@@ -425,9 +438,14 @@ QPair<QString, QStringList> MediaModel::buildQuery(const QList<QMap<int, QVarian
         for (int i = 0; i < cursor.count(); i++) {
             QStringList subParts = m_layoutInfo[i];
             for (int j = 0; j < subParts.count(); j++) {
-                where.append(subParts[j] + " = ?");
                 const int role = m_fieldToRole.value(subParts[j]);
-                placeHolders << cursor[i].value(role).toString();
+                QString value = cursor[i].value(role).toString();
+                if (value.isEmpty()) {
+                    where.append(subParts[j] + " is NULL");
+                } else {
+                    placeHolders << value;
+                    where.append(subParts[j] + " = ?");
+                }
             }
         }
 

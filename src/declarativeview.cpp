@@ -23,6 +23,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "declarativeview.h"
 #include <QGraphicsObject>
 #include <QDeclarativeEngine>
+#include <QDebug>
 
 DeclarativeView::DeclarativeView(QWidget *parent)
     : QDeclarativeView(parent),
@@ -42,7 +43,7 @@ void DeclarativeView::setSource(const QUrl &url)
 void DeclarativeView::paintEvent(QPaintEvent *event)
 {
     m_frameTimer.restart();
-    QGraphicsView::paintEvent(event);
+    QDeclarativeView::paintEvent(event);
     m_timeSigma += m_frameTimer.elapsed();
     ++m_frameCount;
 }

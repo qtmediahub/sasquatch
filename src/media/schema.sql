@@ -43,6 +43,10 @@ CREATE TABLE video (
     thumbnail TEXT,
     uri TEXT,
 
+    /* video metadata */
+    show TEXT,  /* programme */
+    season TEXT,
+
     /* stat information */
     directory TEXT NOT NULL,
     mtime INTEGER NOT NULL,
