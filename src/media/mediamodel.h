@@ -82,6 +82,8 @@ public:
     static QHash<int, QByteArray> roleToNameMapping();
     static QHash<QString, int> nameToRoleMapping();
     static QMap<int, QVariant> dynamicRolesDataFromRecord(const QSqlRecord &record);
+
+    // Called by the MediaScanner
     static void createStaticRoleNameMapping();
     static void createDynamicRoleNameMapping(const QString &tableName);
 
@@ -111,7 +113,6 @@ private:
     QString displayStringFromRecord(const QSqlRecord &record) const;
 
     QString m_structure;
-    QHash<QString, int> m_fieldToRole;
     QList<QStringList> m_layoutInfo;
     QList<QMap<int, QVariant> > m_data;
     bool m_loading, m_loaded;

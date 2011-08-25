@@ -382,7 +382,7 @@ int MediaModel::compareData(int idx, const QSqlRecord &record) const
     const QMap<int, QVariant> &curData = m_data[idx];
     QStringList cols = m_layoutInfo.value(m_cursor.count());
     foreach(const QString &col, cols) {
-        const int role = m_fieldToRole.value(col);
+        const int role = s_nameToRole.value(col);
         int cmp = QString::compare(curData.value(role).toString(), record.value(col).toString(), Qt::CaseInsensitive); // ## must use sqlite's compare
         if (cmp != 0)
             return cmp;
@@ -439,7 +439,7 @@ QPair<QString, QStringList> MediaModel::buildQuery(const QList<QMap<int, QVarian
         for (int i = 0; i < cursor.count(); i++) {
             QStringList subParts = m_layoutInfo[i];
             for (int j = 0; j < subParts.count(); j++) {
-                const int role = m_fieldToRole.value(subParts[j]);
+                const int role = s_nameToRole.value(subParts[j]);
                 QString value = cursor[i].value(role).toString();
                 if (value.isEmpty()) {
                     where.append(subParts[j] + " is NULL");
