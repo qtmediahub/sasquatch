@@ -25,10 +25,6 @@ HEADERS += mainwindow.h \
 RESOURCES = main.qrc
 
 unix:!symbian {
-    maemo5 {
-        target.path = $$PREFIX/bin
-    } else {
-        target.path = $$PREFIX/bin
-    }
+    target.path = $$PREFIX/bin
     INSTALLS += target
 }
