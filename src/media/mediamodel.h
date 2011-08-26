@@ -38,6 +38,9 @@ class MediaModel : public QAbstractItemModel
     Q_PROPERTY(QString structure READ structure WRITE setStructure NOTIFY structureChanged)
     Q_PROPERTY(QString mediaType READ mediaType WRITE setMediaType NOTIFY mediaTypeChanged)
     Q_PROPERTY(QString part READ part NOTIFY partChanged)
+    Q_PROPERTY(DotDotPosition dotDotPosition READ dotDotPosition WRITE setDotDotPosition NOTIFY dotDotPositionChanged)
+
+    Q_ENUMS(DotDotPosition)
 
 public:
     enum CustomRole {
@@ -49,6 +52,11 @@ public:
         FieldRolesBegin
     };
 
+    enum DotDotPosition {
+        Beginning,
+        End
+    };
+
     MediaModel(QObject *parent = 0);
     ~MediaModel();
 
@@ -57,6 +65,9 @@ public:
 
     QString mediaType() const;
     void setMediaType(const QString &type);
+
+    DotDotPosition dotDotPosition() const;
+    void setDotDotPosition(DotDotPosition position);
 
     Q_INVOKABLE void back(int count = 1);
     Q_INVOKABLE void enter(int index);
@@ -93,6 +104,7 @@ signals:
     void structureChanged();
     void mediaTypeChanged();
     void partChanged();
+    void dotDotPositionChanged();
 
 private slots:
     void handleDataReady(DbReader *reader, const QList<QSqlRecord> &data, void *node);
@@ -126,6 +138,8 @@ private:
     QString m_mediaType;
 
     bool m_autoForward;
+
+    DotDotPosition m_dotDotPosition;
 
     static int s_currentDynamicRole;
     static QHash<int, QByteArray> s_roleToName;
