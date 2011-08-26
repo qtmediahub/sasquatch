@@ -161,10 +161,14 @@ void MediaModel::setDotDotPosition(MediaModel::DotDotPosition position)
         return;
 
     const bool hasDotDot = !m_cursor.isEmpty();
-    if (m_dotDotPosition == MediaModel::Beginning) {
-        m_data.append(m_data.takeFirst());
-    } else {
-        m_data.prepend(m_data.takeLast());
+    if (hasDotDot) {
+        emit layoutAboutToBeChanged();
+        if (m_dotDotPosition == MediaModel::Beginning) {
+            m_data.append(m_data.takeFirst());
+        } else {
+            m_data.prepend(m_data.takeLast());
+        }
+        emit layoutChanged();
     }
     m_dotDotPosition = position;
     emit dotDotPositionChanged();
