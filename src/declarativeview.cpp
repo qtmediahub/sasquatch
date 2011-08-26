@@ -24,6 +24,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QGraphicsObject>
 #include <QDeclarativeEngine>
 #include <QDebug>
+#include <QPaintEvent>
 
 DeclarativeView::DeclarativeView(QWidget *parent)
     : QDeclarativeView(parent),
@@ -42,6 +43,9 @@ void DeclarativeView::setSource(const QUrl &url)
 
 void DeclarativeView::paintEvent(QPaintEvent *event)
 {
+    QPainter painter(viewport());
+    painter.fillRect(event->rect(), Qt::transparent);
+    painter.end();
     m_frameTimer.restart();
     QDeclarativeView::paintEvent(event);
     m_timeSigma += m_frameTimer.elapsed();
