@@ -24,13 +24,9 @@ DEFINES += "QMH_HELPER_DBUS_SERVICENAME=\\\"com.nokia.qtmediahub.helper\\\""
 
 # default options
 linux* {
-    CONFIG += gstreamer
+    !no-gst:CONFIG += gstreamer
+    !no-gl:CONFIG += glviewport
     !no-avahi: CONFIG += avahi
-}
-
-# default options
-{
-    CONFIG += glviewport
 }
 
 glgs {

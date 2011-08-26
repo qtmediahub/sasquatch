@@ -248,7 +248,7 @@ QWidget *SkinRuntimePrivate::loadQmlSkin(const QUrl &targetUrl, QWidget *window)
         declarativeWidget->setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
     }
 #endif //SCENEGRAPH
-
+    declarativeWidget->viewport()->setAttribute(Qt::WA_OpaquePaintEvent);
     QDeclarativeEngine *engine = declarativeWidget->engine();
     QObject::connect(engine, SIGNAL(quit()), qApp, SLOT(quit()));
 

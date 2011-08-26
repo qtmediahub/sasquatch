@@ -70,8 +70,8 @@ int main(int argc, char** argv)
 
     QtSingleApplication app(argc, argv);
     app.setApplicationName("qtmediahub");
-    app.setOrganizationName("Nokia");
-    app.setOrganizationDomain("nokia.com");
+    app.setOrganizationName("MediaTrolls");
+    app.setOrganizationDomain("qtmediahub.com");
 
     setupNetwork();
 

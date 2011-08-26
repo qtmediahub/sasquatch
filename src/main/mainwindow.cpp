@@ -37,7 +37,6 @@ MainWindow::MainWindow(QWidget *parent)
       m_overscanWorkAround(Config::isEnabled("overscan", false)),
       m_attemptingFullScreen(Config::isEnabled("fullscreen", true))
 {
-    setAttribute(Qt::WA_OpaquePaintEvent);
     setAttribute(m_isOverlay ? Qt::WA_TranslucentBackground : Qt::WA_NoSystemBackground);
 
     m_skinRuntime = new SkinRuntime(this);

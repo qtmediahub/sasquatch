@@ -29,7 +29,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #define WARNING if (1) qWarning() << this << __PRETTY_FUNCTION__
 
 MediaModel::MediaModel(QObject *parent)
-    : QAbstractItemModel(parent), m_loading(false), m_loaded(false), m_reader(0), m_readerThread(0), m_autoForward(false)
+    : QAbstractItemModel(parent), m_loading(false), m_loaded(false), m_reader(0), m_readerThread(0), m_autoForward(false),
+      m_dotDotPosition(MediaModel::Beginning)
 {
     setRoleNames(MediaModel::roleToNameMapping());
 
@@ -143,6 +144,7 @@ void MediaModel::setStructure(const QString &str)
     if (str == m_structure)
         return;
     DEBUG << str;
+    m_cursor.clear();
     m_structure = str;
     m_layoutInfo.clear();
     foreach(const QString &part, m_structure.split("|"))
@@ -151,6 +153,30 @@ void MediaModel::setStructure(const QString &str)
     reload();
 
     emit structureChanged();
+}
+
+void MediaModel::setDotDotPosition(MediaModel::DotDotPosition position)
+{
+    if (m_dotDotPosition == position)
+        return;
+
+    const bool hasDotDot = !m_cursor.isEmpty();
+    if (hasDotDot) {
+        emit layoutAboutToBeChanged();
+        if (m_dotDotPosition == MediaModel::Beginning) {
+            m_data.append(m_data.takeFirst());
+        } else {
+            m_data.prepend(m_data.takeLast());
+        }
+        emit layoutChanged();
+    }
+    m_dotDotPosition = position;
+    emit dotDotPositionChanged();
+}
+
+MediaModel::DotDotPosition MediaModel::dotDotPosition() const
+{
+    return m_dotDotPosition;
 }
 
 void MediaModel::enter(int index)
@@ -360,15 +386,19 @@ void MediaModel::insertAll(const QList<QSqlRecord> &records)
         data.insert(DotDotRole, true);
         data.insert(IsLeafRole, false);
         data.insert(MediaTypeRole, QString());
-        m_data.prepend(data);
+        if (m_dotDotPosition == MediaModel::Beginning) {
+            m_data.prepend(data);
+        } else {
+            m_data.append(data);
+        }
     }
 
     endInsertRows();
 
-    if (records.count() == 1 && m_data[addDotDot ? 1 : 0].value(Qt::DisplayRole).toString().isEmpty()) {
+    if (records.count() == 1 && m_data[addDotDot && m_dotDotPosition == MediaModel::Beginning ? 1 : 0].value(Qt::DisplayRole).toString().isEmpty()) {
         // Automatically move forward or backward if the model has just one item and that item is null
         if (m_autoForward) {
-            enter(addDotDot ? 1 : 0);
+            enter(addDotDot && m_dotDotPosition == MediaModel::Beginning ? 1 : 0);
         } else {
             Q_ASSERT(addDotDot);
             back();
@@ -381,7 +411,7 @@ int MediaModel::compareData(int idx, const QSqlRecord &record) const
     const QMap<int, QVariant> &curData = m_data[idx];
     QStringList cols = m_layoutInfo.value(m_cursor.count());
     foreach(const QString &col, cols) {
-        const int role = m_fieldToRole.value(col);
+        const int role = s_nameToRole.value(col);
         int cmp = QString::compare(curData.value(role).toString(), record.value(col).toString(), Qt::CaseInsensitive); // ## must use sqlite's compare
         if (cmp != 0)
             return cmp;
@@ -392,11 +422,15 @@ int MediaModel::compareData(int idx, const QSqlRecord &record) const
 void MediaModel::update(const QList<QSqlRecord> &records)
 {
     const bool hasDotDot = !m_cursor.isEmpty();
-    int old = (int)hasDotDot, shiny = 0;
+    const int oldStart = hasDotDot && m_dotDotPosition == MediaModel::Beginning ? 1 : 0;
+    const int oldEnd = hasDotDot && m_dotDotPosition == MediaModel::End ? m_data.count() - 1 : m_data.count();
+
+    int old = oldStart;
+    int shiny = 0;
     
     while (shiny < records.length()) {
         const QSqlRecord &record = records[shiny];
-        int cmp = old == m_data.count() ? 1 : compareData(old, record);
+        int cmp = old == oldEnd ? 1 : compareData(old, record);
         
         if (cmp == 0) {
             ++old;
@@ -414,9 +448,10 @@ void MediaModel::update(const QList<QSqlRecord> &records)
         }
     }
 
-    if (old != m_data.count()) {
-        beginRemoveRows(QModelIndex(), old, m_data.count()-1);
-        m_data = m_data.mid(0, old);
+    if (old != oldEnd) {
+        beginRemoveRows(QModelIndex(), old, oldEnd-1);
+        for (int i = old; i <= oldEnd-1; i++)
+            m_data.removeAt(old);
         endRemoveRows();
     }
 }
@@ -438,7 +473,7 @@ QPair<QString, QStringList> MediaModel::buildQuery(const QList<QMap<int, QVarian
         for (int i = 0; i < cursor.count(); i++) {
             QStringList subParts = m_layoutInfo[i];
             for (int j = 0; j < subParts.count(); j++) {
-                const int role = m_fieldToRole.value(subParts[j]);
+                const int role = s_nameToRole.value(subParts[j]);
                 QString value = cursor[i].value(role).toString();
                 if (value.isEmpty()) {
                     where.append(subParts[j] + " is NULL");
