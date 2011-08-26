@@ -43,9 +43,10 @@ void DeclarativeView::setSource(const QUrl &url)
 
 void DeclarativeView::paintEvent(QPaintEvent *event)
 {
-    QPainter painter(viewport());
-    painter.fillRect(event->rect(), Qt::transparent);
-    painter.end();
+    if (window()->property("overlayMode").toBool()) {
+        QPainter painter(viewport());
+        painter.fillRect(event->rect(), Qt::transparent);
+    }
     m_frameTimer.restart();
     QDeclarativeView::paintEvent(event);
     m_timeSigma += m_frameTimer.elapsed();
