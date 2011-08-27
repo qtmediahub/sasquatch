@@ -54,7 +54,7 @@ public:
         VolumeDown
     };
 
-    ActionMapper(QObject *p, const QString &mapPath);
+    ActionMapper(const QString &mapPath, QObject *parent);
 
     Q_INVOKABLE QStringList availableMaps() const {
         return m_maps;
@@ -77,7 +77,6 @@ private:
     void setupInternalMap();
 
     QWeakPointer<QObject> m_recipient;
-    QObject *m_parent;
     QString m_mapName;
     QString m_mapPath;
     QStringList m_maps;

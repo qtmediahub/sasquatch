@@ -26,9 +26,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "qmh-config.h"
 
-ActionMapper::ActionMapper(QObject *p, const QString &mapPath)
-    : QObject(p),
-      m_parent(p),
+ActionMapper::ActionMapper(const QString &mapPath, QObject *parent)
+    : QObject(parent),
       m_mapPath(mapPath + "/devices/keymaps/")
 {
     setupInternalMap();
