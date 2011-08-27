@@ -71,16 +71,10 @@ void ActionMapper::takeAction(Action action)
         qWarning("Trying to send an action when no recipient is set");
         return;
     }
-    QHash<int, Action>::const_iterator it;
-    for (it = m_actionMap.constBegin(); it != m_actionMap.constEnd(); ++it) {
-        if (it.value() == action)
-            break;
-    }
-    if (it == m_actionMap.constEnd())
-        return;
-    QKeyEvent keyPress(QEvent::KeyPress, it.key(), Qt::NoModifier);
+    Qt::Key key = s_actionToQtKeyMap.value(action);
+    QKeyEvent keyPress(QEvent::KeyPress, key, Qt::NoModifier);
     qApp->sendEvent(m_recipient.data(), &keyPress);
-    QKeyEvent keyRelease(QEvent::KeyRelease, it.key(), Qt::NoModifier);
+    QKeyEvent keyRelease(QEvent::KeyRelease, key, Qt::NoModifier);
     qApp->sendEvent(m_recipient.data(), &keyRelease);
 }
 
