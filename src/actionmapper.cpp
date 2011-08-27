@@ -139,16 +139,16 @@ bool ActionMapper::eventFilter(QObject *obj, QEvent *event)
         if (m_actionMap.contains(key)) {
             //squash key events
             if (primitiveKeyCompression && keyEvent->isAutoRepeat()) {
-                if (repeatingKeys.contains(key)) {
-                    repeatingKeys[key] += 1;
-                    if (repeatingKeys[key]%keyDiscardRate > 1) {
+                if (m_repeatingKeys.contains(key)) {
+                    m_repeatingKeys[key] += 1;
+                    if (m_repeatingKeys[key]%keyDiscardRate > 1) {
                         return true;
                     }
                 } else {
-                    repeatingKeys[key] = 0;
+                    m_repeatingKeys[key] = 0;
                 }
             } else {
-                repeatingKeys.remove(key);
+                m_repeatingKeys.remove(key);
             }
             //end squash
             QKeyEvent *e = new QKeyEvent(keyEvent->type()
