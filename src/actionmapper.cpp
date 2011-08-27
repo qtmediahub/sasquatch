@@ -38,7 +38,7 @@ ActionMapper::ActionMapper(QObject *parent)
     populateMap();
 }
 
-static QHash<ActionMapper::Action, Qt::Key> s_actionToQtKeyMap;
+QHash<ActionMapper::Action, Qt::Key> ActionMapper::s_actionToQtKeyMap;
 
 void ActionMapper::setupQtKeyMap()
 {
