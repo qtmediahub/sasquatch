@@ -26,8 +26,7 @@ SOURCES += qmh-config.cpp \
     customcursor.cpp \
     declarativeview.cpp \
     libraryinfo.cpp \
-    file.cpp \
-    mediabackenddbus.cpp
+    file.cpp
 
 HEADERS += qmh-config.h \
     global.h \
@@ -45,9 +44,16 @@ HEADERS += qmh-config.h \
     powermanager.h \
     customcursor.h \
     declarativeview.h \
-    libraryinfo.h \
-    mediabackendinterface.h \
-    mediabackenddbus.h
+    libraryinfo.h
+
+!no-dbus {
+    HEADERS += \
+        mediabackendinterface.h \
+        mediabackenddbus.h
+
+    SOURCES += \
+        mediabackenddbus.cpp
+}
 
 include(rpc/rpc.pri)
 include(media/media.pri)

@@ -24,8 +24,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 MediaBackendDbus::MediaBackendDbus(QObject *parent)
     : MediaBackendInterface(parent)
-#ifndef NO_DBUS
      , interface(new QDBusInterface(QMH_HELPER_DBUS_SERVICENAME, "/", QString(), QDBusConnection::sessionBus(), this))
-#endif
 {
 }

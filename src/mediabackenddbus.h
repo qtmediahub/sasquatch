@@ -25,9 +25,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "mediabackendinterface.h"
 
-#ifndef NO_DBUS
 #include <QtDBus>
-#endif
 
 class MediaBackendDbus : public MediaBackendInterface
 {
@@ -38,7 +36,6 @@ public:
 signals:
 
 public slots:
-#ifndef NO_DBUS
     void loadUri(const QString &uri) { interface->call(__FUNCTION__, uri); }
     void stop() { interface->call(__FUNCTION__); }
     void pause() { interface->call(__FUNCTION__); }
@@ -50,7 +47,6 @@ public slots:
     void setVolumePercent(qreal volume)  { interface->call(__FUNCTION__, volume); }
 private:
     QDBusInterface *interface;
-#endif
 };
 
 #endif // MEDIABACKENDDBUS_H

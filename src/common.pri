@@ -54,8 +54,12 @@ mac {
     MOBILITY += multimedia systeminfo
 }
 
-!contains(QT_CONFIG, dbus) | no-dbus {
-    message(Disabling dbus support due to absence/explicit configuration)
+!contains(QT_CONFIG, dbus) {
+    CONFIG += no-dbus
+}
+
+no-dbus {
+    message(Disabling dbus support)
     DEFINES += NO_DBUS
 }
 
