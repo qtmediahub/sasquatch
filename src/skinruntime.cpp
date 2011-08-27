@@ -368,7 +368,6 @@ void SkinRuntimePrivate::enableRemoteControlMode(bool enable)
         delete powerManager;
         powerManager = 0;
 
-        rpcConnection->unregisterObject(mediaBackendInterface);
         delete mediaBackendInterface;
         mediaBackendInterface = 0;
 
