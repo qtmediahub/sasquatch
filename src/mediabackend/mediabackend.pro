@@ -31,7 +31,7 @@ xine:unix: system(pkg-config --exists libxine) {
     message(Use system libxine)
     DEFINES += XINE_BACKEND
 } else {
-    xine: message(Trying to compile libxine by pkgconfig does not know of it)
+    xine: message(Trying to compile libxine but pkgconfig does not know of it)
 }
 
 unix:!symbian {
