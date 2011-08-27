@@ -72,13 +72,14 @@ protected:
 private:
     bool loadMapFromDisk(const QString &mapFilePath);
     void populateMap();
-    void setupInternalMap();
+
+    static void setupQtKeyMap();
+    static QHash<Action, Qt::Key> s_actionToQtKeyMap;
 
     QWeakPointer<QObject> m_recipient;
     QString m_mapName;
     QString m_mapPath;
     QHash<int, Action> m_actionMap;
-    QHash<Action, Qt::Key> m_internalActionMap;
     QHash<int,int> m_repeatingKeys;
 };
 

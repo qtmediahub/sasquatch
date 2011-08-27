@@ -30,7 +30,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 ActionMapper::ActionMapper(QObject *parent)
     : QObject(parent)
 {
-    setupInternalMap();
+    setupQtKeyMap();
 
     qDebug() << "Available maps " << availableMaps();
     m_mapName = Config::value("keymap", "stdkeyboard").toString();
@@ -38,9 +38,36 @@ ActionMapper::ActionMapper(QObject *parent)
     populateMap();
 }
 
+static QHash<ActionMapper::Action, Qt::Key> s_actionToQtKeyMap;
+
+void ActionMapper::setupQtKeyMap()
+{
+    static bool initialized = false;
+    if (initialized)
+        return;
+    s_actionToQtKeyMap.insert(ActionMapper::Left, Qt::Key_Left);
+    s_actionToQtKeyMap.insert(ActionMapper::Right, Qt::Key_Right);
+    s_actionToQtKeyMap.insert(ActionMapper::Up, Qt::Key_Up);
+    s_actionToQtKeyMap.insert(ActionMapper::Down, Qt::Key_Down);
+    s_actionToQtKeyMap.insert(ActionMapper::Enter, Qt::Key_Enter);
+    s_actionToQtKeyMap.insert(ActionMapper::Menu, Qt::Key_Menu);
+    s_actionToQtKeyMap.insert(ActionMapper::Context, Qt::Key_Context1);
+    s_actionToQtKeyMap.insert(ActionMapper::ContextualUp, Qt::Key_PageUp);
+    s_actionToQtKeyMap.insert(ActionMapper::ContextualDown, Qt::Key_PageDown);
+    s_actionToQtKeyMap.insert(ActionMapper::MediaPlayPause, Qt::Key_MediaTogglePlayPause);
+    s_actionToQtKeyMap.insert(ActionMapper::MediaStop, Qt::Key_MediaStop);
+    s_actionToQtKeyMap.insert(ActionMapper::MediaPrevious, Qt::Key_MediaPrevious);
+    s_actionToQtKeyMap.insert(ActionMapper::MediaNext, Qt::Key_MediaNext);
+    s_actionToQtKeyMap.insert(ActionMapper::Back, Qt::Key_Back);
+    s_actionToQtKeyMap.insert(ActionMapper::VolumeUp, Qt::Key_VolumeUp);
+    s_actionToQtKeyMap.insert(ActionMapper::VolumeDown, Qt::Key_VolumeDown);
+
+    initialized = true;
+}
+
 void ActionMapper::takeAction(Action action)
 {
-    if(m_recipient.isNull()) {
+    if (m_recipient.isNull()) {
         qWarning("Trying to send an action when no recipient is set");
         return;
     }
@@ -152,7 +179,7 @@ bool ActionMapper::eventFilter(QObject *obj, QEvent *event)
             }
             //end squash
             QKeyEvent *e = new QKeyEvent(keyEvent->type()
-                        , m_internalActionMap.value(m_actionMap.value(keyEvent->key()))
+                        , s_actionToQtKeyMap.value(m_actionMap.value(keyEvent->key()))
                         , keyEvent->modifiers()
                         , keyEvent->text()
                         , keyEvent->isAutoRepeat()
@@ -168,25 +195,5 @@ bool ActionMapper::eventFilter(QObject *obj, QEvent *event)
 
     // standard event processing
     return QObject::eventFilter(obj, event);
-}
-
-void ActionMapper::setupInternalMap()
-{
-    m_internalActionMap.insert(Left, Qt::Key_Left);
-    m_internalActionMap.insert(Right, Qt::Key_Right);
-    m_internalActionMap.insert(Up, Qt::Key_Up);
-    m_internalActionMap.insert(Down, Qt::Key_Down);
-    m_internalActionMap.insert(Enter, Qt::Key_Enter);
-    m_internalActionMap.insert(Menu, Qt::Key_Menu);
-    m_internalActionMap.insert(Context, Qt::Key_Context1);
-    m_internalActionMap.insert(ContextualUp, Qt::Key_PageUp);
-    m_internalActionMap.insert(ContextualDown, Qt::Key_PageDown);
-    m_internalActionMap.insert(MediaPlayPause, Qt::Key_MediaTogglePlayPause);
-    m_internalActionMap.insert(MediaStop, Qt::Key_MediaStop);
-    m_internalActionMap.insert(MediaPrevious, Qt::Key_MediaPrevious);
-    m_internalActionMap.insert(MediaNext, Qt::Key_MediaNext);
-    m_internalActionMap.insert(Back, Qt::Key_Back);
-    m_internalActionMap.insert(VolumeUp, Qt::Key_VolumeUp);
-    m_internalActionMap.insert(VolumeDown, Qt::Key_VolumeDown);
 }
 
