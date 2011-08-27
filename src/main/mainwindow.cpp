@@ -43,9 +43,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     setOrientation(Config::value("orientation", ScreenOrientationAuto));
 
-    new QShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::META + Qt::ALT + Qt::Key_Backspace), this, SIGNAL(resetUI()));
-    new QShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::META + Qt::ALT + Qt::Key_Down), this, SLOT(shrink()));
-    new QShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::META + Qt::ALT + Qt::Key_Up), this, SLOT(grow()));
+    new QShortcut(QKeySequence(Qt::ALT + Qt::Key_Backspace), this, SIGNAL(resetUI()));
+    new QShortcut(QKeySequence(Qt::ALT + Qt::Key_Down), this, SLOT(shrink()));
+    new QShortcut(QKeySequence(Qt::ALT + Qt::Key_Up), this, SLOT(grow()));
     new QShortcut(QKeySequence(Qt::ALT + Qt::Key_Return), this, SLOT(toggleFullScreen()));
 
     m_resizeSettleTimer.setSingleShot(true);
