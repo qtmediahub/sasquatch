@@ -395,7 +395,7 @@ void SkinRuntimePrivate::enableRemoteControlMode(bool enable)
     mediaServer = new MediaServer(this);
     rpcConnection = new RpcConnection(RpcConnection::Server, QHostAddress::Any, 1234, this);
 #ifndef NO_DBUS
-    mediaBackendInterface = new DBusMediaBackend(this);
+    mediaBackendInterface = new MediaBackendDbus(this);
 #endif
     mediaPlayerRpc = new MediaPlayerRpc(this);
     mediaPlayerRpc->setObjectName("qmhmediaplayer");
