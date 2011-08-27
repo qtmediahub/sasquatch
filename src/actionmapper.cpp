@@ -21,20 +21,18 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 ****************************************************************************/
 
 #include "actionmapper.h"
+#include "libraryinfo.h"
 
 #include <QKeyEvent>
 
 #include "qmh-config.h"
 
-ActionMapper::ActionMapper(const QString &mapPath, QObject *parent)
-    : QObject(parent),
-      m_mapPath(mapPath + "/devices/keymaps/")
+ActionMapper::ActionMapper(QObject *parent)
+    : QObject(parent)
 {
     setupInternalMap();
 
-    m_maps = QDir(m_mapPath).entryList(QDir::Files);
-    qDebug() << "Available keyboard maps" << m_maps;
-
+    qDebug() << "Available maps " << availableMaps();
     m_mapName = Config::value("keymap", "stdkeyboard").toString();
     qDebug() << "used keymap" << m_mapName;
     populateMap();
@@ -62,7 +60,7 @@ void ActionMapper::takeAction(Action action)
 void ActionMapper::populateMap()
 {
     m_actionMap.clear();
-    loadMapFromDisk(m_mapPath + m_mapName);
+    loadMapFromDisk(LibraryInfo::keyboardMapPath() + m_mapName);
 }
 
 bool ActionMapper::loadMapFromDisk(const QString &mapFilePath)
@@ -103,6 +101,13 @@ bool ActionMapper::loadMapFromDisk(const QString &mapFilePath)
     }
 
     return true;
+}
+
+QStringList ActionMapper::availableMaps() const
+{
+    QStringList maps = QDir(LibraryInfo::keyboardMapPath()).entryList(QDir::Files);
+    qDebug() << "Available keyboard maps" << maps;
+    return maps;
 }
 
 void ActionMapper::setMap(const QString &map)

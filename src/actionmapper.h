@@ -54,11 +54,9 @@ public:
         VolumeDown
     };
 
-    ActionMapper(const QString &mapPath, QObject *parent);
+    ActionMapper(QObject *parent = 0);
 
-    Q_INVOKABLE QStringList availableMaps() const {
-        return m_maps;
-    }
+    Q_INVOKABLE QStringList availableMaps() const;
     QString map() const { return m_mapName; }
     void setMap(const QString &map);
 
@@ -79,7 +77,6 @@ private:
     QWeakPointer<QObject> m_recipient;
     QString m_mapName;
     QString m_mapPath;
-    QStringList m_maps;
     QHash<int, Action> m_actionMap;
     QHash<Action, Qt::Key> m_internalActionMap;
     QHash<int,int> repeatingKeys;

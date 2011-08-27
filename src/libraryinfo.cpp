@@ -132,3 +132,8 @@ QString LibraryInfo::databaseFilePath()
     return LibraryInfo::dataPath() + "/media.db";
 }
 
+QString LibraryInfo::keyboardMapPath()
+{
+    return LibraryInfo::basePath() + "/devices/keymaps/";
+}
+

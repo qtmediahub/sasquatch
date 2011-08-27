@@ -40,6 +40,7 @@ public:
     static QString tempPath();
     static QString logPath();
     static QString databaseFilePath();
+    static QString keyboardMapPath();
 
 private:
     LibraryInfo();
