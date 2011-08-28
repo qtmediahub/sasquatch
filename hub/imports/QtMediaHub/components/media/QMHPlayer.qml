@@ -161,7 +161,7 @@ Item {
     }
 
     Component.onCompleted: {
-        mediaBackend = util.createQmlObjectFromFile(runtime.window.overlayMode ? "media/QMHExternalBackend.qml" : "media/QMHVideoItemBackend.qml", {}, mediaElement)
+        mediaBackend = util.createQmlObjectFromFile(runtime.config.value("overlay-mode", false) ? "media/QMHExternalBackend.qml" : "media/QMHVideoItemBackend.qml", {}, mediaElement)
         if (mediaBackend) {
             //out
             util.createBinding("root", "hasAudio", "mediaBackend.hasAudio", mediaBackend)

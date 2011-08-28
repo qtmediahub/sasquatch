@@ -236,7 +236,7 @@ QWidget *SkinRuntimePrivate::loadQmlSkin(const QUrl &targetUrl, QWidget *window)
     if (Config::isEnabled("use-gl", true)) {
 #ifdef GLVIEWPORT
         QGLWidget *viewport = new QGLWidget();
-        if (window->property("overlayMode").toBool()) {
+        if (Config::isEnabled("overlay-mode", false)) {
             viewport->setAttribute(Qt::WA_TranslucentBackground);
         }
         viewport->qglClearColor(Qt::transparent);

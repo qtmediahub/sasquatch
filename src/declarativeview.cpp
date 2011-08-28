@@ -25,6 +25,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QDeclarativeEngine>
 #include <QDebug>
 #include <QPaintEvent>
+#include "qmh-config.h"
 
 #ifdef GL
 #include <QGLWidget>
@@ -48,14 +49,17 @@ void DeclarativeView::setSource(const QUrl &url)
 void DeclarativeView::paintEvent(QPaintEvent *event)
 {
     static bool isGLViewport
-        #ifdef GL
+#ifdef GL
             = qobject_cast<QGLWidget*>(viewport());
-        #else
+#else
             = false;
-        #endif
-    if (window()->property("overlayMode").toBool() && !isGLViewport) {
-        QPainter painter(viewport());
-        painter.fillRect(event->rect(), Qt::transparent);
+#endif
+    if (!isGLViewport) {
+        bool isOverlayMode = Config::isEnabled("overlay-mode", false);
+        if (isOverlayMode) {
+            QPainter painter(viewport());
+            painter.fillRect(event->rect(), Qt::transparent);
+        }
     }
     m_frameTimer.restart();
     QDeclarativeView::paintEvent(event);
