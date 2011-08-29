@@ -20,18 +20,18 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 ****************************************************************************/
 
-#ifndef MEDIABACKENDDBUS_H
-#define MEDIABACKENDDBUS_H
+#ifndef MEDIAPLAYER_DBUS_H
+#define MEDIAPLAYER_DBUS_H
 
-#include "mediabackendinterface.h"
+#include "abstractmediaplayer.h"
 
 #include <QtDBus>
 
-class MediaBackendDbus : public MediaBackendInterface
+class MediaPlayerDbus : public AbstractMediaPlayer
 {
     Q_OBJECT
 public:
-    explicit MediaBackendDbus(QObject *parent = 0);
+    explicit MediaPlayerDbus(QObject *parent = 0);
 
 signals:
 
@@ -49,5 +49,5 @@ private:
     QDBusInterface *interface;
 };
 
-#endif // MEDIABACKENDDBUS_H
+#endif // MEDIAPLAYER_DBUS_H
 

@@ -20,13 +20,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 ****************************************************************************/
 
-#ifndef MEDIABACKENDINTERFACE_H
-#define MEDIABACKENDINTERFACE_H
+#ifndef ABSTRACTMEDIAPLAYER_H
+#define ABSTRACTMEDIAPLAYER_H
 
 #include <QObject>
 #include <QDebug>
 
-class MediaBackendInterface : public QObject
+// Media Player API used by the "non-mobility" QML Video element
+class AbstractMediaPlayer : public QObject
 {
     Q_OBJECT
     Q_ENUMS(Status)
@@ -43,8 +44,8 @@ public:
         InvalidMedia
     };
 
-    explicit MediaBackendInterface(QObject *parent = 0) : QObject(parent) { /*noimpl*/ }
-    virtual ~MediaBackendInterface() { /**/ }
+    explicit AbstractMediaPlayer(QObject *parent = 0) : QObject(parent) { /*noimpl*/ }
+    virtual ~AbstractMediaPlayer() { /**/ }
 
 signals:
 
@@ -60,5 +61,5 @@ public slots:
     Q_SCRIPTABLE virtual void setVolumePercent(qreal volume) = 0;
 };
 
-#endif // MEDIABACKENDINTERFACE_H
+#endif // ABSTRACTMEDIAPLAYER_H
 

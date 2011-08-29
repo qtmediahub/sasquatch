@@ -68,9 +68,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "devicemanager.h"
 #include "powermanager.h"
 #include "rpc/mediaplayerrpc.h"
-#include "mediabackendinterface.h"
+#include "abstractmediaplayer.h"
 #ifndef NO_DBUS
-#include "mediabackenddbus.h"
+#include "mediaplayer_dbus.h"
 #endif
 #include "customcursor.h"
 #include "httpserver/httpserver.h"
@@ -108,7 +108,7 @@ public:
     MediaServer *mediaServer;
     DeviceManager *deviceManager;
     PowerManager *powerManager;
-    MediaBackendInterface *mediaBackendInterface;
+    AbstractMediaPlayer *mediaPlayer;
     MediaPlayerRpc *mediaPlayerRpc;
     RpcConnection *rpcConnection;
 
@@ -128,7 +128,7 @@ SkinRuntimePrivate::SkinRuntimePrivate(SkinRuntime *p)
       mediaServer(0),
       deviceManager(0),
       powerManager(0),
-      mediaBackendInterface(0),
+      mediaPlayer(0),
       mediaPlayerRpc(0),
       rpcConnection(0),
       trackpad(0),
@@ -173,7 +173,7 @@ SkinRuntimePrivate::SkinRuntimePrivate(SkinRuntime *p)
     //Declarative is a hard dependency at present in any case
     // register dataproviders to QML
     qmlRegisterUncreatableType<ActionMapper>("ActionMapper", 1, 0, "ActionMapper", "For enums. For methods use actionmap global variable");
-    qmlRegisterUncreatableType<MediaBackendInterface>("MediaBackendInterface", 1, 0, "MediaBackendInterface", "For enums. For methods use actionmap global variable");
+    qmlRegisterUncreatableType<AbstractMediaPlayer>("AbstractMediaPlayer", 1, 0, "AbstractMediaPlayer", "For enums. For methods use actionmap global variable");
     qmlRegisterType<DirModel>("DirModel", 1, 0, "DirModel");
     qmlRegisterType<Playlist>("Playlist", 1, 0, "Playlist");
     qmlRegisterType<MediaModel>("MediaModel", 1, 0, "MediaModel");
@@ -263,7 +263,7 @@ QWidget *SkinRuntimePrivate::loadQmlSkin(const QUrl &targetUrl, QWidget *window)
         trackpad->setRecipient(declarativeWidget);
         runtime->insert("actionMapper", qVariantFromValue(static_cast<QObject *>(actionMapper)));
         runtime->insert("trackpad", qVariantFromValue(static_cast<QObject *>(trackpad)));
-        runtime->insert("mediaBackendInterface", qVariantFromValue(static_cast<QObject *>(mediaBackendInterface)));
+        runtime->insert("mediaPlayer", qVariantFromValue(static_cast<QObject *>(mediaPlayer)));
         runtime->insert("mediaPlayerRpc", qVariantFromValue(static_cast<QObject *>(mediaPlayerRpc)));
         runtime->insert("deviceManager", qVariantFromValue(static_cast<QObject *>(deviceManager)));
         runtime->insert("powerManager", qVariantFromValue(static_cast<QObject *>(powerManager)));
@@ -371,8 +371,8 @@ void SkinRuntimePrivate::enableRemoteControlMode(bool enable)
         delete powerManager;
         powerManager = 0;
 
-        delete mediaBackendInterface;
-        mediaBackendInterface = 0;
+        delete mediaPlayer;
+        mediaPlayer = 0;
 
         rpcConnection->unregisterObject(mediaPlayerRpc);
         delete mediaPlayerRpc;
@@ -398,7 +398,7 @@ void SkinRuntimePrivate::enableRemoteControlMode(bool enable)
     rpcConnection = new RpcConnection(RpcConnection::Server, QHostAddress::Any, 1234, this);
 #ifndef NO_DBUS
     if (Config::value("overlay-mode", false))
-        mediaBackendInterface = new MediaBackendDbus(this);
+        mediaPlayer = new MediaPlayerDbus(this);
 #endif
     mediaPlayerRpc = new MediaPlayerRpc(this);
     mediaPlayerRpc->setObjectName("qmhmediaplayer");

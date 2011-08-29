@@ -20,10 +20,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 ****************************************************************************/
 
-#include "mediabackenddbus.h"
+#include "mediaplayer_dbus.h"
 
-MediaBackendDbus::MediaBackendDbus(QObject *parent)
-    : MediaBackendInterface(parent)
+MediaPlayerDbus::MediaPlayerDbus(QObject *parent)
+    : AbstractMediaPlayer(parent)
      , interface(new QDBusInterface(QMH_HELPER_DBUS_SERVICENAME, "/", QString(), QDBusConnection::sessionBus(), this))
 {
 }

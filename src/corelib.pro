@@ -44,15 +44,12 @@ HEADERS += qmh-config.h \
     powermanager.h \
     customcursor.h \
     declarativeview.h \
-    libraryinfo.h
+    libraryinfo.h \
+    abstractmediaplayer.h
 
 !no-dbus {
-    HEADERS += \
-        mediabackendinterface.h \
-        mediabackenddbus.h
-
-    SOURCES += \
-        mediabackenddbus.cpp
+    HEADERS += mediaplayer_dbus.h
+    SOURCES += mediaplayer_dbus.cpp
 }
 
 include(rpc/rpc.pri)
