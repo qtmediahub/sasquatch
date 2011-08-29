@@ -14,7 +14,7 @@ public:
 signals:
 
 public slots:
-    void loadUri(const QString &uri);
+    void setSource(const QString &source);
     void stop();
     void pause();
     void resume();
@@ -23,6 +23,7 @@ public slots:
     void setPosition(int position);
     void setPositionPercent(qreal position);
     void setVolumePercent(qreal volume);
+
 private:
     class Private;
     Private *d;

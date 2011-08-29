@@ -55,11 +55,11 @@ XinePlayer::~XinePlayer()
     d = 0;
 }
 
-void XinePlayer::loadUri(const QString &uri)
+void XinePlayer::setSource(const QString &source)
 {
     //Strip the formatting off the incoming uri
     //file:// /
-    d->mediaPath = uri.mid(7);
+    d->mediaPath = source.mid(7);
 }
 
 void XinePlayer::stop() {

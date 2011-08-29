@@ -13,7 +13,7 @@ public:
 signals:
 
 public slots:
-    void loadUri(const QString &uri) { qDebug() << __FUNCTION__ << uri; }
+    void setSource(const QString &source) { qDebug() << __FUNCTION__ << source; }
     void stop() { qDebug() << __FUNCTION__; }
     void pause() { qDebug() << __FUNCTION__; }
     void resume() { qDebug() << __FUNCTION__; }
