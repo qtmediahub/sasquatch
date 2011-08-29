@@ -28,3 +28,13 @@ AbstractMediaPlayer::Status AbstractMediaPlayer::status() const
     return m_status;
 }
 
+bool AbstractMediaPlayer::hasAudio() const
+{
+    return false;
+}
+
+bool AbstractMediaPlayer::hasVideo() const
+{
+    return false;
+}
+

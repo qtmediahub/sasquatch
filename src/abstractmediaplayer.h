@@ -34,6 +34,8 @@ class QMH_EXPORT AbstractMediaPlayer : public QObject
     Q_OBJECT
     Q_PROPERTY(QString source READ source WRITE setSource NOTIFY sourceChanged)
     Q_PROPERTY(Status status READ status NOTIFY statusChanged)
+    Q_PROPERTY(bool hasVideo READ hasVideo NOTIFY hasVideoChanged)
+    Q_PROPERTY(bool hasAudio READ hasAudio NOTIFY hasAudioChanged)
 
 public:
     enum Status {
@@ -55,9 +57,14 @@ public:
     virtual QString source() const;
     virtual Status status() const;
 
+    virtual bool hasVideo() const;
+    virtual bool hasAudio() const;
+
 signals:
     void sourceChanged();
     void statusChanged();
+    void hasAudioChanged();
+    void hasVideoChanged();
 
 public slots:
     Q_SCRIPTABLE virtual void play() = 0;
