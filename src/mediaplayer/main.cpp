@@ -29,9 +29,11 @@ int main(int argc, char** argv)
     AbstractMediaPlayer *player = 0;
 #ifdef XINE_PLAYER
 #warning using xine backend
+    qDebug() << "Xine player started";
     player = new XinePlayer(&app);
 #else
 #warning using qDebug testing backend
+    qDebug() << "qDebug player started";
     player = new TestingPlayer(&app);
 #endif
 
