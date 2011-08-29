@@ -33,6 +33,8 @@ class QMH_EXPORT AbstractMediaPlayer : public QObject
 {
     Q_OBJECT
     Q_ENUMS(Status)
+    Q_PROPERTY(Status status READ status NOTIFY statusChanged)
+
 public:
     enum Status {
         UnknownStatus,
@@ -46,10 +48,13 @@ public:
         InvalidMedia
     };
 
-    explicit AbstractMediaPlayer(QObject *parent = 0) : QObject(parent) { /*noimpl*/ }
+    explicit AbstractMediaPlayer(QObject *parent = 0);
     virtual ~AbstractMediaPlayer() { /**/ }
 
+    virtual Status status() const;
+
 signals:
+    void statusChanged();
 
 public slots:
     Q_SCRIPTABLE virtual void loadUri(const QString &uri) = 0;
@@ -61,6 +66,12 @@ public slots:
     Q_SCRIPTABLE virtual void setPosition(int position) = 0;
     Q_SCRIPTABLE virtual void setPositionPercent(qreal position) = 0;
     Q_SCRIPTABLE virtual void setVolumePercent(qreal volume) = 0;
+
+protected:
+    virtual void setStatus(Status status);
+
+private:
+    Status m_status;
 };
 
 #endif // ABSTRACTMEDIAPLAYER_H

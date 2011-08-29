@@ -26,7 +26,8 @@ SOURCES += qmh-config.cpp \
     customcursor.cpp \
     declarativeview.cpp \
     libraryinfo.cpp \
-    file.cpp
+    file.cpp \
+    abstractmediaplayer.cpp
 
 HEADERS += qmh-config.h \
     global.h \
