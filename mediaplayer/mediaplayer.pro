@@ -1,7 +1,7 @@
 include($$PROJECTROOT/src/core-common.pri)
 
 TEMPLATE = app
-TARGET = ../../hub/mediaplayer
+TARGET = ../hub/mediaplayer
 DEPENDPATH += .
 INCLUDEPATH += $${PROJECTROOT}/src/
 
@@ -19,7 +19,7 @@ QT += dbus
 SOURCES += \
     main.cpp
 
-HEADERS += ../abstractmediaplayer.h \
+HEADERS += ../src/abstractmediaplayer.h \
            testingplayer.h
 
 xine:unix: system(pkg-config --exists libxine) {
