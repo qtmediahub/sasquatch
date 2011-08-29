@@ -158,6 +158,7 @@ SkinRuntimePrivate::SkinRuntimePrivate(SkinRuntime *p)
 
     QString dejavuPath(LibraryInfo::resourcePath() % "/3rdparty/dejavu-fonts-ttf-2.32/ttf/");
     if (QDir(dejavuPath).exists()) {
+        qDebug() << "Using the application specified dejavu font";
         QFontDatabase::addApplicationFont(dejavuPath % "DejaVuSans.ttf");
         QFontDatabase::addApplicationFont(dejavuPath % "DejaVuSans-Bold.ttf");
         QFontDatabase::addApplicationFont(dejavuPath % "DejaVuSans-Oblique.ttf");
