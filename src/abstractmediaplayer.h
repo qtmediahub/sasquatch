@@ -26,8 +26,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QObject>
 #include <QDebug>
 
+#include "global.h"
+
 // Media Player API used by the "non-mobility" QML Video element
-class AbstractMediaPlayer : public QObject
+class QMH_EXPORT AbstractMediaPlayer : public QObject
 {
     Q_OBJECT
     Q_ENUMS(Status)

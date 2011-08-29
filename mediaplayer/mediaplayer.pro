@@ -19,8 +19,8 @@ QT += dbus
 SOURCES += \
     main.cpp
 
-HEADERS += ../src/abstractmediaplayer.h \
-           testingplayer.h
+HEADERS += \
+    testingplayer.h
 
 xine:unix: system(pkg-config --exists libxine) {
     SOURCES += xineplayer.cpp
