@@ -24,6 +24,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 MediaPlayerDbus::MediaPlayerDbus(QObject *parent)
     : AbstractMediaPlayer(parent)
-     , interface(new QDBusInterface(QMH_HELPER_DBUS_SERVICENAME, "/", QString(), QDBusConnection::sessionBus(), this))
+     , interface(new QDBusInterface(QMH_PLAYER_DBUS_SERVICENAME, "/", QString(), QDBusConnection::sessionBus(), this))
 {
 }

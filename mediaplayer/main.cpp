@@ -19,7 +19,7 @@ int main(int argc, char** argv)
         return false;
     }
 
-    bool dbusRegistration = QDBusConnection::sessionBus().registerService(QMH_HELPER_DBUS_SERVICENAME);
+    bool dbusRegistration = QDBusConnection::sessionBus().registerService(QMH_PLAYER_DBUS_SERVICENAME);
     if (!dbusRegistration) {
         qDebug()
             << "Can't seem to register dbus service:"
