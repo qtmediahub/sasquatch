@@ -32,7 +32,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 class QMH_EXPORT AbstractMediaPlayer : public QObject
 {
     Q_OBJECT
-    Q_ENUMS(Status)
+    Q_PROPERTY(QString source READ source WRITE setSource NOTIFY sourceChanged)
     Q_PROPERTY(Status status READ status NOTIFY statusChanged)
 
 public:
@@ -47,30 +47,34 @@ public:
         EndOfMedia,
         InvalidMedia
     };
+    Q_ENUMS(Status)
 
     explicit AbstractMediaPlayer(QObject *parent = 0);
     virtual ~AbstractMediaPlayer() { /**/ }
 
+    virtual QString source() const;
     virtual Status status() const;
 
 signals:
+    void sourceChanged();
     void statusChanged();
 
 public slots:
-    Q_SCRIPTABLE virtual void loadUri(const QString &uri) = 0;
+    Q_SCRIPTABLE virtual void play() = 0;
     Q_SCRIPTABLE virtual void stop() = 0;
     Q_SCRIPTABLE virtual void pause() = 0;
     Q_SCRIPTABLE virtual void resume() = 0;
-    Q_SCRIPTABLE virtual void play() = 0;
     Q_SCRIPTABLE virtual void mute(bool on = true) = 0;
     Q_SCRIPTABLE virtual void setPosition(int position) = 0;
     Q_SCRIPTABLE virtual void setPositionPercent(qreal position) = 0;
     Q_SCRIPTABLE virtual void setVolumePercent(qreal volume) = 0;
 
 protected:
+    virtual void setSource(const QString &source);
     virtual void setStatus(Status status);
 
 private:
+    QString m_source;
     Status m_status;
 };
 

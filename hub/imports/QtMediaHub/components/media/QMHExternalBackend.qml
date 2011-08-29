@@ -26,7 +26,7 @@ QMHMediaBackend {
 
 
     onSourceChanged: {
-        runtime.mediaPlayer.loadUri(source)
+        runtime.mediaPlayer.source = source
         //Benefit of the doubt!
         status = AbstractMediaPlayer.Buffered
         hasAudio = true

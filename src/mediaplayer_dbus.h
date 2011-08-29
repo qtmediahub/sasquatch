@@ -36,11 +36,11 @@ public:
 signals:
 
 public slots:
-    void loadUri(const QString &uri) { interface->call(__FUNCTION__, uri); }
+    void setSource(const QString &source) { AbstractMediaPlayer::setSource(source); interface->call(__FUNCTION__, source); }
+    void play() { interface->call(__FUNCTION__); }
     void stop() { interface->call(__FUNCTION__); }
     void pause() { interface->call(__FUNCTION__); }
     void resume() { interface->call(__FUNCTION__); }
-    void play() { interface->call(__FUNCTION__); }
     void mute(bool on = true) { interface->call(__FUNCTION__, on); }
     void setPosition(int position) { interface->call(__FUNCTION__, position); }
     void setPositionPercent(qreal position) { interface->call(__FUNCTION__, position); }
