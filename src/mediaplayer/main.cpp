@@ -1,6 +1,6 @@
-#include "testingbackend.h"
-#ifdef XINE_BACKEND
-#include "xinebackend.h"
+#include "testingplayer.h"
+#ifdef XINE_PLAYER
+#include "xineplayer.h"
 #endif
 
 #include "qtsingleapplication.h"
@@ -26,13 +26,13 @@ int main(int argc, char** argv)
             << QDBusConnection::sessionBus().lastError().message();
         app.exit(-1);
     }
-    MediaBackendInterface *player = 0;
-#ifdef XINE_BACKEND
+    AbstractMediaPlayer *player = 0;
+#ifdef XINE_PLAYER
 #warning using xine backend
-    player = new XineBackend(&app);
+    player = new XinePlayer(&app);
 #else
 #warning using qDebug testing backend
-    player = new TestingBackend(&app);
+    player = new TestingPlayer(&app);
 #endif
 
     dbusRegistration = QDBusConnection::sessionBus().registerObject("/", player,

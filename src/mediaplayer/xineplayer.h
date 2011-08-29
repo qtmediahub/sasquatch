@@ -1,15 +1,15 @@
 #ifndef XINEBACKEND_H
 #define XINEBACKEND_H
 
-#include "mediabackendinterface.h"
+#include "abstractmediaplayer.h"
 
-class XineBackend : public MediaBackendInterface
+class XinePlayer : public AbstractMediaPlayer
 {
     //Bare bones reference backend (audio only)
     Q_OBJECT
 public:
-    explicit XineBackend(QObject *parent = 0);
-    ~XineBackend();
+    explicit XinePlayer(QObject *parent = 0);
+    ~XinePlayer();
 
 signals:
 

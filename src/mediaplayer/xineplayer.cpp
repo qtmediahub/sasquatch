@@ -1,9 +1,9 @@
-#include "xinebackend.h"
+#include "xineplayer.h"
 
 #include <xine.h>
 #include <xine/xineutils.h>
 
-class XineBackend::Private
+class XinePlayer::Private
 {
 public:
     Private();
@@ -16,7 +16,7 @@ public:
     xine_event_queue_t  *event_queue;
 };
 
-XineBackend::Private::Private()
+XinePlayer::Private::Private()
 {
     char configfile[2048];
 
@@ -30,7 +30,7 @@ XineBackend::Private::Private()
     event_queue = xine_event_new_queue(stream);
 }
 
-XineBackend::Private::~Private()
+XinePlayer::Private::~Private()
 {
     xine_close(stream);
     xine_event_dispose_queue(event_queue);
@@ -45,36 +45,36 @@ XineBackend::Private::~Private()
     //delete event_queue;
 }
 
-XineBackend::XineBackend(QObject *parent) :
-    MediaBackendInterface(parent),
+XinePlayer::XinePlayer(QObject *parent) :
+    AbstractMediaPlayer(parent),
     d(new Private()) { /**/ }
 
-XineBackend::~XineBackend()
+XinePlayer::~XinePlayer()
 {
     delete d;
     d = 0;
 }
 
-void XineBackend::loadUri(const QString &uri)
+void XinePlayer::loadUri(const QString &uri)
 {
     //Strip the formatting off the incoming uri
     //file:// /
     d->mediaPath = uri.mid(7);
 }
 
-void XineBackend::stop() {
+void XinePlayer::stop() {
     xine_close(d->stream);
 }
 
-void XineBackend::pause() {
+void XinePlayer::pause() {
     xine_set_param(d->stream, XINE_PARAM_SPEED, XINE_SPEED_PAUSE);
 }
 
-void XineBackend::resume() {
+void XinePlayer::resume() {
     xine_set_param(d->stream, XINE_PARAM_SPEED, XINE_SPEED_NORMAL);
 }
 
-void XineBackend::play()
+void XinePlayer::play()
 {
     if ((!xine_open(d->stream, d->mediaPath.toAscii().constData()))
             || (!xine_play(d->stream, 0, 0))) {
@@ -82,7 +82,7 @@ void XineBackend::play()
     }
 }
 
-void XineBackend::mute(bool on)
+void XinePlayer::mute(bool on)
 {
     if (on) {
         xine_set_param(d->stream, XINE_PARAM_AUDIO_AMP_MUTE, 1);
@@ -91,10 +91,10 @@ void XineBackend::mute(bool on)
     }
 }
 
-void XineBackend::setPosition(int position) { Q_UNUSED(position); }
-void XineBackend::setPositionPercent(qreal position) { Q_UNUSED(position); }
+void XinePlayer::setPosition(int position) { Q_UNUSED(position); }
+void XinePlayer::setPositionPercent(qreal position) { Q_UNUSED(position); }
 
-void XineBackend::setVolumePercent(qreal volume) {
+void XinePlayer::setVolumePercent(qreal volume) {
     //Wants an int for volume
     //Attempting to map to Video Item levels on local machine
     if (volume > 0.20) {

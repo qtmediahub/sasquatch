@@ -1,14 +1,14 @@
-#ifndef TESTINGBACKEND_H
-#define TESTINGBACKEND_H
+#ifndef TESTINGPLAYER_H
+#define TESTINGPLAYER_H
 
-#include "mediabackendinterface.h"
+#include "abstractmediaplayer.h"
 
-class TestingBackend : public MediaBackendInterface
+class TestingPlayer : public AbstractMediaPlayer
 {
     Q_OBJECT
 public:
-    explicit TestingBackend(QObject *parent = 0) :
-        MediaBackendInterface(parent) { /**/ }
+    explicit TestingPlayer(QObject *parent = 0) :
+        AbstractMediaPlayer(parent) { /**/ }
 
 signals:
 
@@ -24,4 +24,4 @@ public slots:
     void setVolumePercent(qreal volume) { qDebug() << __FUNCTION__ << volume; }
 };
 
-#endif // TESTINGBACKEND_H
+#endif // TESTINGPLAYER_H
