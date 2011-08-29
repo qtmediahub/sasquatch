@@ -236,12 +236,14 @@ QWidget *SkinRuntimePrivate::loadQmlSkin(const QUrl &targetUrl, QWidget *window)
 
     if (Config::isEnabled("use-gl", true)) {
 #ifdef GLVIEWPORT
-        QGLWidget *viewport = new QGLWidget();
-        if (Config::isEnabled("overlay-mode", false)) {
-            viewport->setAttribute(Qt::WA_TranslucentBackground);
+        if (Config::isEnabled("use-glviewport", true)) {
+            QGLWidget *viewport = new QGLWidget();
+            if (Config::isEnabled("overlay-mode", false)) {
+                viewport->setAttribute(Qt::WA_TranslucentBackground);
+            }
+            viewport->qglClearColor(Qt::transparent);
+            declarativeWidget->setViewport(viewport);
         }
-        viewport->qglClearColor(Qt::transparent);
-        declarativeWidget->setViewport(viewport);
 #endif //GLVIEWPORT
         declarativeWidget->setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
     } else {
