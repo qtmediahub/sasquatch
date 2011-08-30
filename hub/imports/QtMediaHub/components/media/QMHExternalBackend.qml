@@ -1,7 +1,9 @@
 import QtQuick 1.0
 import AbstractMediaPlayer 1.0
+import QtMediaHub.components 1.0
 
 QMHMediaBackend {
+    id: root
 //    property variant source
 
     //state
@@ -24,7 +26,6 @@ QMHMediaBackend {
     paused: false
     playbackRate: 1.0
 
-
     onSourceChanged: {
         runtime.mediaPlayer.source = source
         //Benefit of the doubt!
@@ -44,4 +45,13 @@ QMHMediaBackend {
     //As (setable) property and what to keep as function
     function play() { runtime.mediaPlayer.play() }
     function stop() { runtime.mediaPlayer.stop() }
+
+    QMHUtil {
+       id: util
+    }
+
+    Component.onCompleted: {
+        util.createBinding("root", "hasVideo", "runtime.mediaPlayer.hasVideo", root)
+        util.createBinding("root", "status", "runtime.mediaPlayer.status", root)
+    }
 }
