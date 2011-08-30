@@ -26,6 +26,7 @@ Rectangle {
 
     property variant resourcePath: "particles/"
     property bool running : false
+    property int particleCountFactor : 3
 
     QtObject {
         id: d
@@ -34,7 +35,7 @@ Rectangle {
 
     Timer {
         interval: 250; running: d.running; repeat: true
-        onTriggered: part3.burst(250)
+        onTriggered: part3.burst(2*particleCountFactor )
     }
 
     ParallelAnimation {
@@ -84,7 +85,7 @@ Rectangle {
         height: 1
         source: resourcePath + "particle2.png"
         lifeSpan: 5000
-        count: d.running ? 500 : 0
+        count: d.running ? 50*particleCountFactor  : 0
         angle: 0
         scale: 0.5
         opacity:  0.5
@@ -101,7 +102,7 @@ Rectangle {
         height: 30
         source: resourcePath + "particle1.png"
         lifeSpan: 5000
-        count: d.running ? 400 : 0
+        count: d.running ? 40*particleCountFactor  : 0
         angle: 70
         angleDeviation: 36
         velocity: 300
@@ -119,7 +120,7 @@ Rectangle {
         height: parent.height
         source: resourcePath + "particle.png"
         lifeSpan: 5000
-        count: d.running ? 200 : 0
+        count: d.running ? 20*particleCountFactor  : 0
         angle: 270
         angleDeviation: 45
         velocity: 50
