@@ -151,27 +151,10 @@ void ActionMapper::setRecipient(QObject *recipient)
 
 bool ActionMapper::eventFilter(QObject *obj, QEvent *event)
 {
-    static int keyDiscardRate = qMax(1, Config::value("keyDiscardRate", 15));
-    static int primitiveKeyCompression = Config::value("keyCompress", true);
-
     if (event->type() == QEvent::KeyPress || event->type() == QEvent::KeyRelease) {
         QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
         int key = keyEvent->key();
         if (m_actionMap.contains(key)) {
-            //squash key events
-            if (primitiveKeyCompression && keyEvent->isAutoRepeat()) {
-                if (m_repeatingKeys.contains(key)) {
-                    m_repeatingKeys[key] += 1;
-                    if (m_repeatingKeys[key]%keyDiscardRate > 1) {
-                        return true;
-                    }
-                } else {
-                    m_repeatingKeys[key] = 0;
-                }
-            } else {
-                m_repeatingKeys.remove(key);
-            }
-            //end squash
             QKeyEvent *e = new QKeyEvent(keyEvent->type()
                         , s_actionToQtKeyMap.value(m_actionMap.value(keyEvent->key()))
                         , keyEvent->modifiers()
