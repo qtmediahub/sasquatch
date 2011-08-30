@@ -1,7 +1,7 @@
 include($$PROJECTROOT/src/core-common.pri)
 
 TEMPLATE = app
-TARGET = ../../hub/mediabackend
+TARGET = ../hub/mediaplayer
 DEPENDPATH += .
 INCLUDEPATH += $${PROJECTROOT}/src/
 
@@ -19,17 +19,17 @@ QT += dbus
 SOURCES += \
     main.cpp
 
-HEADERS += ../mediabackendinterface.h \
-           testingbackend.h
+HEADERS += \
+    testingplayer.h
 
 xine:unix: system(pkg-config --exists libxine) {
-    SOURCES += xinebackend.cpp
-    HEADERS += xinebackend.h
+    SOURCES += xineplayer.cpp
+    HEADERS += xineplayer.h
 
     CONFIG += link_pkgconfig
     PKGCONFIG += libxine
     message(Use system libxine)
-    DEFINES += XINE_BACKEND
+    DEFINES += XINE_PLAYER
 } else {
     xine: message(Trying to compile libxine but pkgconfig does not know of it)
 }

@@ -20,10 +20,70 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 ****************************************************************************/
 
-#include "mediabackenddbus.h"
+#ifndef ABSTRACTMEDIAPLAYER_H
+#define ABSTRACTMEDIAPLAYER_H
 
-MediaBackendDbus::MediaBackendDbus(QObject *parent)
-    : MediaBackendInterface(parent)
-     , interface(new QDBusInterface(QMH_HELPER_DBUS_SERVICENAME, "/", QString(), QDBusConnection::sessionBus(), this))
+#include <QObject>
+#include <QDebug>
+
+#include "global.h"
+
+// Media Player API used by the "non-mobility" QML Video element
+class QMH_EXPORT AbstractMediaPlayer : public QObject
 {
-}
+    Q_OBJECT
+    Q_PROPERTY(QString source READ source WRITE setSource NOTIFY sourceChanged)
+    Q_PROPERTY(Status status READ status NOTIFY statusChanged)
+    Q_PROPERTY(bool hasVideo READ hasVideo NOTIFY hasVideoChanged)
+    Q_PROPERTY(bool hasAudio READ hasAudio NOTIFY hasAudioChanged)
+
+public:
+    enum Status {
+        UnknownStatus,
+        NoMedia,
+        Loading,
+        Loaded,
+        Stalled,
+        Buffering,
+        Buffered,
+        EndOfMedia,
+        InvalidMedia
+    };
+    Q_ENUMS(Status)
+
+    explicit AbstractMediaPlayer(QObject *parent = 0);
+    virtual ~AbstractMediaPlayer() { /**/ }
+
+    virtual QString source() const;
+    virtual Status status() const;
+
+    virtual bool hasVideo() const;
+    virtual bool hasAudio() const;
+
+signals:
+    void sourceChanged();
+    void statusChanged();
+    void hasAudioChanged();
+    void hasVideoChanged();
+
+public slots:
+    Q_SCRIPTABLE virtual void play() = 0;
+    Q_SCRIPTABLE virtual void stop() = 0;
+    Q_SCRIPTABLE virtual void pause() = 0;
+    Q_SCRIPTABLE virtual void resume() = 0;
+    Q_SCRIPTABLE virtual void mute(bool on = true) = 0;
+    Q_SCRIPTABLE virtual void setPosition(int position) = 0;
+    Q_SCRIPTABLE virtual void setPositionPercent(qreal position) = 0;
+    Q_SCRIPTABLE virtual void setVolumePercent(qreal volume) = 0;
+
+protected:
+    virtual void setSource(const QString &source);
+    virtual void setStatus(Status status);
+
+private:
+    QString m_source;
+    Status m_status;
+};
+
+#endif // ABSTRACTMEDIAPLAYER_H
+

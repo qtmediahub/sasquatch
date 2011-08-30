@@ -66,7 +66,16 @@ static void setupNetwork()
 
 int main(int argc, char** argv)
 {
-    QApplication::setGraphicsSystem("raster");
+    bool overrideGraphicsSystem = false;
+    for(int i = 0; i < argc; ++i) {
+        if (qstrcmp(argv[i], "-graphicssystem") == 0) {
+            overrideGraphicsSystem = true;
+            break;
+        }
+    }
+
+    if (!overrideGraphicsSystem)
+        QApplication::setGraphicsSystem("raster");
 
     QtSingleApplication app(argc, argv);
     app.setApplicationName("qtmediahub");

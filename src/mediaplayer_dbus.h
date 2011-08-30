@@ -20,27 +20,27 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 ****************************************************************************/
 
-#ifndef MEDIABACKENDDBUS_H
-#define MEDIABACKENDDBUS_H
+#ifndef MEDIAPLAYER_DBUS_H
+#define MEDIAPLAYER_DBUS_H
 
-#include "mediabackendinterface.h"
+#include "abstractmediaplayer.h"
 
 #include <QtDBus>
 
-class MediaBackendDbus : public MediaBackendInterface
+class MediaPlayerDbus : public AbstractMediaPlayer
 {
     Q_OBJECT
 public:
-    explicit MediaBackendDbus(QObject *parent = 0);
+    explicit MediaPlayerDbus(QObject *parent = 0);
 
 signals:
 
 public slots:
-    void loadUri(const QString &uri) { interface->call(__FUNCTION__, uri); }
+    void setSource(const QString &source) { AbstractMediaPlayer::setSource(source); interface->call(__FUNCTION__, source); }
+    void play() { interface->call(__FUNCTION__); }
     void stop() { interface->call(__FUNCTION__); }
     void pause() { interface->call(__FUNCTION__); }
     void resume() { interface->call(__FUNCTION__); }
-    void play() { interface->call(__FUNCTION__); }
     void mute(bool on = true) { interface->call(__FUNCTION__, on); }
     void setPosition(int position) { interface->call(__FUNCTION__, position); }
     void setPositionPercent(qreal position) { interface->call(__FUNCTION__, position); }
@@ -49,5 +49,5 @@ private:
     QDBusInterface *interface;
 };
 
-#endif // MEDIABACKENDDBUS_H
+#endif // MEDIAPLAYER_DBUS_H
 

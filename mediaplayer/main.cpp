@@ -20,45 +20,53 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 ****************************************************************************/
 
-#ifndef MEDIABACKENDINTERFACE_H
-#define MEDIABACKENDINTERFACE_H
+#include "testingplayer.h"
+#ifdef XINE_PLAYER
+#include "xineplayer.h"
+#endif
 
-#include <QObject>
+#include "qtsingleapplication.h"
 #include <QDebug>
+#include <QtDBus>
 
-class MediaBackendInterface : public QObject
+int main(int argc, char** argv)
 {
-    Q_OBJECT
-    Q_ENUMS(Status)
-public:
-    enum Status {
-        UnknownStatus,
-        NoMedia,
-        Loading,
-        Loaded,
-        Stalled,
-        Buffering,
-        Buffered,
-        EndOfMedia,
-        InvalidMedia
-    };
+    QtSingleApplication app(argc, argv);
+    app.setApplicationName("mediahelper");
+    app.setOrganizationName("Nokia");
+    app.setOrganizationDomain("nokia.com");
 
-    explicit MediaBackendInterface(QObject *parent = 0) : QObject(parent) { /*noimpl*/ }
-    virtual ~MediaBackendInterface() { /**/ }
+    if (app.isRunning()) {
+        qWarning() << app.applicationName() << "is already running, aborting";
+        return false;
+    }
 
-signals:
+    bool dbusRegistration = QDBusConnection::sessionBus().registerService(QMH_PLAYER_DBUS_SERVICENAME);
+    if (!dbusRegistration) {
+        qDebug()
+            << "Can't seem to register dbus service:"
+            << QDBusConnection::sessionBus().lastError().message();
+        app.exit(-1);
+    }
+    AbstractMediaPlayer *player = 0;
+#ifdef XINE_PLAYER
+#warning using xine backend
+    qDebug() << "Xine player started";
+    player = new XinePlayer(&app);
+#else
+#warning using qDebug testing backend
+    qDebug() << "qDebug player started";
+    player = new TestingPlayer(&app);
+#endif
 
-public slots:
-    Q_SCRIPTABLE virtual void loadUri(const QString &uri) = 0;
-    Q_SCRIPTABLE virtual void stop() = 0;
-    Q_SCRIPTABLE virtual void pause() = 0;
-    Q_SCRIPTABLE virtual void resume() = 0;
-    Q_SCRIPTABLE virtual void play() = 0;
-    Q_SCRIPTABLE virtual void mute(bool on = true) = 0;
-    Q_SCRIPTABLE virtual void setPosition(int position) = 0;
-    Q_SCRIPTABLE virtual void setPositionPercent(qreal position) = 0;
-    Q_SCRIPTABLE virtual void setVolumePercent(qreal volume) = 0;
-};
+    dbusRegistration = QDBusConnection::sessionBus().registerObject("/", player,
+            QDBusConnection::ExportScriptableSlots|QDBusConnection::ExportScriptableSignals);
 
-#endif // MEDIABACKENDINTERFACE_H
-
+    if (!dbusRegistration) {
+        qDebug()
+            << "Can't seem to register dbus object:"
+            << QDBusConnection::sessionBus().lastError().message();
+        app.exit(-1);
+    }
+    return app.exec();
+}
