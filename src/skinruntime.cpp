@@ -145,15 +145,18 @@ SkinRuntimePrivate::SkinRuntimePrivate(SkinRuntime *p)
     QPixmapCache::setCacheLimit(Config::value("cacheSize", 0)*1024);
 
 #ifdef GL
-    QGLFormat format;
-    //explicitly set options
-    format.setDoubleBuffer(true);
-    format.setSampleBuffers(true);
-    format.setAlpha(true);
-    format.setDepth(false);
-    format.setStencil(false);
-    format.setSwapInterval(1);
-    QGLFormat::setDefaultFormat(format);
+    //Can't fool with the default format when dealing with the Tegra for some reason
+    if (Config::isEnabled("adjust-gl-format", true)) {
+        QGLFormat format;
+        //explicitly set options
+        format.setDoubleBuffer(true);
+        format.setSampleBuffers(true);
+        format.setAlpha(true);
+        format.setDepth(false);
+        format.setStencil(false);
+        format.setSwapInterval(1);
+        QGLFormat::setDefaultFormat(format);
+    }
 #endif //GL
 
     QString dejavuPath(LibraryInfo::resourcePath() % "/3rdparty/dejavu-fonts-ttf-2.32/ttf/");
