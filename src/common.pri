@@ -11,6 +11,8 @@ isEmpty(PREFIX) {
     unix:!symbian {
         maemo5 {
             PREFIX=/opt/usr
+        } harmattan {
+            PREFIX=/opt/qtmediahub
         } else {
             PREFIX=/usr/local
         }

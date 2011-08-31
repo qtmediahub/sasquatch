@@ -52,7 +52,7 @@ void Trackpad::setEnabled(bool e)
         qWarning("Trying to use Declarative specific functionality outside of Declarative");
         return;
     }
-    QDeclarativeExpression expression(m_recipientContext.data(), 0, QString("cursor.enableCursor(%1)").arg(e));
+    QDeclarativeExpression expression(m_recipientContext.data(), 0, QString("runtime.cursor.enableCursor(%1)").arg(e));
     expression.evaluate();
     if (expression.hasError())
         qWarning() << "Failed to enable/disable cursor";
@@ -65,7 +65,7 @@ void Trackpad::moveBy(int x, int y)
         return;
     }
 
-    QDeclarativeExpression expression(m_recipientContext.data(), 0, QString("cursor.moveBy(%1,%2)").arg(x).arg(y));
+    QDeclarativeExpression expression(m_recipientContext.data(), 0, QString("runtime.cursor.moveBy(%1,%2)").arg(x).arg(y));
     expression.evaluate();
     if (expression.hasError())
         qWarning() << "Failed to enable/disable cursor";
