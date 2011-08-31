@@ -37,6 +37,14 @@ class QMH_EXPORT AbstractMediaPlayer : public QObject
     Q_PROPERTY(bool hasVideo READ hasVideo NOTIFY hasVideoChanged)
     Q_PROPERTY(bool hasAudio READ hasAudio NOTIFY hasAudioChanged)
 
+    Q_PROPERTY(bool playing READ playing WRITE setPlaying NOTIFY playingChanged)
+    Q_PROPERTY(qreal volume READ volume WRITE setVolume NOTIFY volumeChanged)
+    Q_PROPERTY(int position READ position WRITE setPosition NOTIFY positionChanged)
+    Q_PROPERTY(bool seekable READ seekable NOTIFY seekableChanged)
+    Q_PROPERTY(bool paused READ paused WRITE setPaused NOTIFY pausedChanged)
+    Q_PROPERTY(qreal playbackRate READ playbackRate WRITE setPlaybackRate NOTIFY playbackRateChanged)
+    Q_PROPERTY(int duration READ duration NOTIFY durationChanged)
+
 public:
     enum Status {
         UnknownStatus,
@@ -54,11 +62,19 @@ public:
     explicit AbstractMediaPlayer(QObject *parent = 0);
     virtual ~AbstractMediaPlayer() { /**/ }
 
-    virtual QString source() const;
+    virtual QString source() const { return QString(); }
     virtual Status status() const;
 
-    virtual bool hasVideo() const;
-    virtual bool hasAudio() const;
+    virtual bool hasVideo() const { return false; }
+    virtual bool hasAudio() const { return false; }
+
+    virtual bool playing() const { return false; }
+    virtual qreal volume() const { return 0; }
+    virtual int position() const { return 0; }
+    virtual bool seekable() const { return false; }
+    virtual bool paused() const { return false; }
+    virtual qreal playbackRate() const { return 1; }
+    virtual int duration() const { return 0; }
 
 signals:
     void sourceChanged();
@@ -66,7 +82,21 @@ signals:
     void hasAudioChanged();
     void hasVideoChanged();
 
+    void playingChanged();
+    void volumeChanged();
+    void positionChanged();
+    void seekableChanged();
+    void pausedChanged();
+    void playbackRateChanged();
+    void durationChanged();
+
 public slots:
+    Q_SCRIPTABLE virtual void setSource(const QString &source) { Q_UNUSED(source); }
+    Q_SCRIPTABLE virtual void setPlaying(bool p) { p ? play() : stop(); }
+    Q_SCRIPTABLE virtual void setVolume(qreal vol) { Q_UNUSED(vol); }
+    Q_SCRIPTABLE virtual void setPaused(bool p) { p ? pause() : resume(); }
+    Q_SCRIPTABLE virtual void setPlaybackRate(qreal rate) { Q_UNUSED(rate); }
+
     Q_SCRIPTABLE virtual void play() = 0;
     Q_SCRIPTABLE virtual void stop() = 0;
     Q_SCRIPTABLE virtual void pause() = 0;
@@ -77,11 +107,9 @@ public slots:
     Q_SCRIPTABLE virtual void setVolumePercent(qreal volume) = 0;
 
 protected:
-    virtual void setSource(const QString &source);
     virtual void setStatus(Status status);
 
 private:
-    QString m_source;
     Status m_status;
 };
 

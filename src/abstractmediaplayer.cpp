@@ -6,17 +6,6 @@ AbstractMediaPlayer::AbstractMediaPlayer(QObject *parent)
 {
 }
 
-void AbstractMediaPlayer::setSource(const QString &source)
-{
-    m_source = source;
-    emit sourceChanged();
-}
-
-QString AbstractMediaPlayer::source() const
-{
-    return m_source;
-}
-
 void AbstractMediaPlayer::setStatus(Status status)
 {
     m_status = status;
@@ -26,15 +15,5 @@ void AbstractMediaPlayer::setStatus(Status status)
 AbstractMediaPlayer::Status AbstractMediaPlayer::status() const
 {
     return m_status;
-}
-
-bool AbstractMediaPlayer::hasAudio() const
-{
-    return false;
-}
-
-bool AbstractMediaPlayer::hasVideo() const
-{
-    return false;
 }
 

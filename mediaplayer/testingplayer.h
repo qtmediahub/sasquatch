@@ -36,13 +36,19 @@ signals:
 
 public slots:
     void setSource(const QString &source) { qDebug() << __FUNCTION__ << source; }
+    void setPlaying(bool p) { qDebug() << __FUNCTION__; }
+    void setVolume(qreal vol) { qDebug() << __FUNCTION__ << vol; }
+    void setPaused(bool p) { qDebug() << __FUNCTION__ << p; }
+    void setPlaybackRate(qreal rate) { qDebug() << __FUNCTION__ << rate; }
+
+    void play() { qDebug() << __FUNCTION__; }
     void stop() { qDebug() << __FUNCTION__; }
     void pause() { qDebug() << __FUNCTION__; }
     void resume() { qDebug() << __FUNCTION__; }
-    void play() { qDebug() << __FUNCTION__; }
     void mute(bool on = true) { qDebug() << __FUNCTION__ << on; }
     void setPosition(int position) { qDebug() << __FUNCTION__ << position; }
     void setPositionPercent(qreal position) { qDebug() << __FUNCTION__ << position; }
+    void setVolume(int volume) { qDebug() << __FUNCTION__ << volume; }
     void setVolumePercent(qreal volume) { qDebug() << __FUNCTION__ << volume; }
 };
 
