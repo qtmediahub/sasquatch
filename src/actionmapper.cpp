@@ -78,6 +78,18 @@ void ActionMapper::takeAction(Action action)
     qApp->sendEvent(m_recipient.data(), &keyRelease);
 }
 
+void ActionMapper::processKey(int key)
+{
+    if (m_recipient.isNull()) {
+        qWarning("Trying to send a key when no recipient is set");
+        return;
+    }
+    QKeyEvent keyPress(QEvent::KeyPress, key, Qt::NoModifier);
+    qApp->sendEvent(m_recipient.data(), &keyPress);
+    QKeyEvent keyRelease(QEvent::KeyRelease, key, Qt::NoModifier);
+    qApp->sendEvent(m_recipient.data(), &keyRelease);
+}
+
 void ActionMapper::populateMap()
 {
     m_actionMap.clear();

@@ -65,6 +65,7 @@ public:
 public slots:
     void takeAction(int action) { takeAction(static_cast<Action>(action)); }
     void takeAction(Action action);
+    void processKey(int key);
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event);
