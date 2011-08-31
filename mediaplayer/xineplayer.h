@@ -36,15 +36,15 @@ public:
 signals:
 
 public slots:
-    void setSource(const QString &source);
-    void stop();
-    void pause();
-    void resume();
-    void play();
-    void mute(bool on = true);
-    void setPosition(int position);
-    void setPositionPercent(qreal position);
-    void setVolumePercent(qreal volume);
+    Q_SCRIPTABLE void setSource(const QString &source);
+    Q_SCRIPTABLE void stop();
+    Q_SCRIPTABLE void pause();
+    Q_SCRIPTABLE void resume();
+    Q_SCRIPTABLE void play();
+    Q_SCRIPTABLE void mute(bool on = true);
+    Q_SCRIPTABLE void setPosition(int position);
+    Q_SCRIPTABLE void setPositionPercent(qreal position);
+    Q_SCRIPTABLE void setVolumePercent(qreal volume);
 
 private:
     class Private;

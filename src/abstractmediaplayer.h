@@ -91,20 +91,20 @@ signals:
     void durationChanged();
 
 public slots:
-    Q_SCRIPTABLE virtual void setSource(const QString &source) { Q_UNUSED(source); }
-    Q_SCRIPTABLE virtual void setPlaying(bool p) { p ? play() : stop(); }
-    Q_SCRIPTABLE virtual void setVolume(qreal vol) { Q_UNUSED(vol); }
-    Q_SCRIPTABLE virtual void setPaused(bool p) { p ? pause() : resume(); }
-    Q_SCRIPTABLE virtual void setPlaybackRate(qreal rate) { Q_UNUSED(rate); }
+    virtual void setSource(const QString &source) { Q_UNUSED(source); }
+    virtual void setPlaying(bool p) { p ? play() : stop(); }
+    virtual void setVolume(qreal vol) { Q_UNUSED(vol); }
+    virtual void setPaused(bool p) { p ? pause() : resume(); }
+    virtual void setPlaybackRate(qreal rate) { Q_UNUSED(rate); }
 
-    Q_SCRIPTABLE virtual void play() = 0;
-    Q_SCRIPTABLE virtual void stop() = 0;
-    Q_SCRIPTABLE virtual void pause() = 0;
-    Q_SCRIPTABLE virtual void resume() = 0;
-    Q_SCRIPTABLE virtual void mute(bool on = true) = 0;
-    Q_SCRIPTABLE virtual void setPosition(int position) = 0;
-    Q_SCRIPTABLE virtual void setPositionPercent(qreal position) = 0;
-    Q_SCRIPTABLE virtual void setVolumePercent(qreal volume) = 0;
+    virtual void play() = 0;
+    virtual void stop() = 0;
+    virtual void pause() = 0;
+    virtual void resume() = 0;
+    virtual void mute(bool on = true) = 0;
+    virtual void setPosition(int position) = 0;
+    virtual void setPositionPercent(qreal position) = 0;
+    virtual void setVolumePercent(qreal volume) = 0;
 
 protected:
     virtual void setStatus(Status status);
