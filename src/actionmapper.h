@@ -80,7 +80,6 @@ private:
     QString m_mapName;
     QString m_mapPath;
     QHash<int, Action> m_actionMap;
-    QHash<int,int> m_repeatingKeys;
 };
 
 QML_DECLARE_TYPE(ActionMapper)
