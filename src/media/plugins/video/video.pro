@@ -4,7 +4,7 @@
 
 include(../plugins.pri)
 
-unix: !no-pkg-cfg:system(pkg-config --exists gstreamer-0.10) {
+unix: !no-pkg-cfg:!no-gst:system(pkg-config --exists gstreamer-0.10) {
     DEFINES += THUMBNAIL_GSTREAMER
 
     CONFIG += link_pkgconfig
