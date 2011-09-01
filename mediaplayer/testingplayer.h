@@ -35,21 +35,21 @@ public:
 signals:
 
 public slots:
-    void setSource(const QString &source) { qDebug() << __FUNCTION__ << source; }
-    void setPlaying(bool p) { qDebug() << __FUNCTION__; }
-    void setVolume(qreal vol) { qDebug() << __FUNCTION__ << vol; }
-    void setPaused(bool p) { qDebug() << __FUNCTION__ << p; }
-    void setPlaybackRate(qreal rate) { qDebug() << __FUNCTION__ << rate; }
+    Q_SCRIPTABLE void setSource(const QString &source) { qDebug() << __FUNCTION__ << source; }
+    Q_SCRIPTABLE void setPlaying(bool p) { qDebug() << __FUNCTION__; }
+    Q_SCRIPTABLE void setVolume(qreal vol) { qDebug() << __FUNCTION__ << vol; }
+    Q_SCRIPTABLE void setPaused(bool p) { qDebug() << __FUNCTION__ << p; }
+    Q_SCRIPTABLE void setPlaybackRate(qreal rate) { qDebug() << __FUNCTION__ << rate; }
 
-    void play() { qDebug() << __FUNCTION__; }
-    void stop() { qDebug() << __FUNCTION__; }
-    void pause() { qDebug() << __FUNCTION__; }
-    void resume() { qDebug() << __FUNCTION__; }
-    void mute(bool on = true) { qDebug() << __FUNCTION__ << on; }
-    void setPosition(int position) { qDebug() << __FUNCTION__ << position; }
-    void setPositionPercent(qreal position) { qDebug() << __FUNCTION__ << position; }
-    void setVolume(int volume) { qDebug() << __FUNCTION__ << volume; }
-    void setVolumePercent(qreal volume) { qDebug() << __FUNCTION__ << volume; }
+    Q_SCRIPTABLE void play() { qDebug() << __FUNCTION__; }
+    Q_SCRIPTABLE void stop() { qDebug() << __FUNCTION__; }
+    Q_SCRIPTABLE void pause() { qDebug() << __FUNCTION__; }
+    Q_SCRIPTABLE void resume() { qDebug() << __FUNCTION__; }
+    Q_SCRIPTABLE void mute(bool on = true) { qDebug() << __FUNCTION__ << on; }
+    Q_SCRIPTABLE void setPosition(int position) { qDebug() << __FUNCTION__ << position; }
+    Q_SCRIPTABLE void setPositionPercent(qreal position) { qDebug() << __FUNCTION__ << position; }
+    Q_SCRIPTABLE void setVolume(int volume) { qDebug() << __FUNCTION__ << volume; }
+    Q_SCRIPTABLE void setVolumePercent(qreal volume) { qDebug() << __FUNCTION__ << volume; }
 };
 
 #endif // TESTINGPLAYER_H
