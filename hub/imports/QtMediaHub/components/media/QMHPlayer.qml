@@ -79,6 +79,8 @@ Item {
     function playIndex(idx) {
         playlist.currentIndex = idx
         mediaBackend.stop();
+        if (playlist.currentIndex == -1)
+            return;
         mediaBackend.source = currentMediaInfo.getMetaData("uri", "file://")
         mediaBackend.play();
     }
