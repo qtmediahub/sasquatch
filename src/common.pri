@@ -24,6 +24,12 @@ DEFINES += "QMH_INSTALL_PREFIX=\\\"$$INSTALL_PREFIX\\\""
 DEFINES += "QMH_DBUS_SERVICENAME=\\\"com.nokia.qtmediahub\\\""
 DEFINES += "QMH_PLAYER_DBUS_SERVICENAME=\\\"com.nokia.qtmediahub.player\\\""
 
+PKG_CONFIG_PATH=$$(PKG_CONFIG_PATH)
+mac:isEmpty(PKG_CONFIG_PATH) {
+    message(pkg-config usage on mac requires:)
+    message(export PKG_CONFIG_PATH=/opt/local/lib/pkgconfig)
+}
+
 # default options
 linux* {
     !no-gl:CONFIG += glviewport

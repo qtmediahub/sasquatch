@@ -38,7 +38,7 @@ static QStringList standardResourcePaths(const QString &suffix)
     paths <<  basePath % QString::fromLatin1("/../../") % suffix; // submodule repo
 #endif
 
-    paths << "" QMH_INSTALL_PREFIX % QString::fromLatin1("/") % suffix % QString::fromLatin1("/");
+    paths << QMH_INSTALL_PREFIX % QString::fromLatin1("/") % suffix % QString::fromLatin1("/");
     paths << QDir::homePath() % "/.qtmediahub/" % suffix % QString::fromLatin1("/");
 
     QString configPath = Config::value(suffix % "-path", QString());
