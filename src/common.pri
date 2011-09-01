@@ -26,7 +26,6 @@ DEFINES += "QMH_PLAYER_DBUS_SERVICENAME=\\\"com.nokia.qtmediahub.player\\\""
 
 # default options
 linux* {
-    !no-gst:CONFIG += gstreamer
     !no-gl:CONFIG += glviewport
     !no-avahi: CONFIG += avahi
 }

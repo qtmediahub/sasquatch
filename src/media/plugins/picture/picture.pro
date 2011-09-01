@@ -4,7 +4,7 @@
 
 include(../plugins.pri)
 
-unix: system(pkg-config --exists libexif) {
+unix: !no-pkg-cfg:system(pkg-config --exists libexif) {
     CONFIG += link_pkgconfig
     PKGCONFIG += libexif
     message(Use system libexif)

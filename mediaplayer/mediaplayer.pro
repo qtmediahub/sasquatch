@@ -22,7 +22,7 @@ SOURCES += \
 HEADERS += \
     testingplayer.h
 
-xine:unix: system(pkg-config --exists libxine) {
+xine:unix: !no-pkg-cfg:system(pkg-config --exists libxine) {
     SOURCES += xineplayer.cpp
     HEADERS += xineplayer.h
 

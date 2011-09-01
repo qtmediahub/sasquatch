@@ -37,7 +37,6 @@ linux* {
     # If you change the defaults here, fix src/common.pri
     message(Linux specific options: ('*' indicates that option is enabled by default))
     message(Use CONFIG+=<option> to enable and CONFIG-=<option> to disable)
-    message(gstreamer* - Thumbnail videos using gstreamer)
     message(avahi* - Enabled Avahi support)
     message(glviewport* - Render using a GL Viewport)
     message(glgs - Render using GL graphics system (Avoid like the plague!))

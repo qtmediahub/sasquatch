@@ -4,7 +4,7 @@
 
 include(../plugins.pri)
 
-unix: system(pkg-config --exists taglib) {
+unix: !no-pkg-cfg:system(pkg-config --exists taglib) {
     CONFIG += link_pkgconfig
     PKGCONFIG += taglib
     message(Use system taglib)
