@@ -66,6 +66,8 @@ public:
     Q_INVOKABLE void refresh(const QString &type = QString());
     Q_INVOKABLE void addParser(MediaParser *);
     
+    Q_INVOKABLE QStringList availableParserPlugins() const;
+
 signals:
     void currentScanPathChanged();
     void scanStarted(const QString &type);
@@ -84,6 +86,7 @@ private:
     QThread *m_workerThread;
     MediaScannerWorker *m_worker;
     QString m_currentScanPath;
+    QStringList m_parserTypes;
     
     static MediaScanner *s_instance;
     friend class MediaScannerWorker;

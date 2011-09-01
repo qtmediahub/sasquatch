@@ -129,6 +129,7 @@ void MediaScanner::ensureDatabase()
 void MediaScanner::addParser(MediaParser *parser)
 {
     parser->setParent(this);
+    m_parserTypes.append(parser->type());
     QMetaObject::invokeMethod(m_worker, "addParser", Qt::QueuedConnection, Q_ARG(MediaParser *, parser));
 }
 
@@ -200,6 +201,11 @@ void MediaScanner::loadParserPlugins()
             addParser(parser);
         }
     }
+}
+
+QStringList MediaScanner::availableParserPlugins() const
+{
+    return m_parserTypes;
 }
 
 MediaScannerWorker::MediaScannerWorker(MediaScanner *scanner)
