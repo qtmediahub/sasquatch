@@ -44,8 +44,15 @@ MainWindow::MainWindow(QWidget *parent)
     setOrientation(Config::value("orientation", ScreenOrientationAuto));
 
     new QShortcut(QKeySequence(Qt::ALT + Qt::Key_Backspace), this, SIGNAL(resetUI()));
-    new QShortcut(QKeySequence(Qt::ALT + Qt::Key_Down), this, SLOT(shrink()));
-    new QShortcut(QKeySequence(Qt::ALT + Qt::Key_Up), this, SLOT(grow()));
+    new QShortcut(QKeySequence(Qt::ALT + Qt::Key_Down), this, SLOT(decreaseHeight()));
+    new QShortcut(QKeySequence(Qt::ALT + Qt::Key_Up), this, SLOT(increaseHeight()));
+    new QShortcut(QKeySequence(Qt::ALT + Qt::Key_Right), this, SLOT(decreaseWidth()));
+    new QShortcut(QKeySequence(Qt::ALT + Qt::Key_Left), this, SLOT(increaseWidth()));
+    new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_Right), this, SLOT(moveRight()));
+    new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_Left), this, SLOT(moveLeft()));
+    new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_Up), this, SLOT(moveUp()));
+    new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_Down), this, SLOT(moveDown()));
+
     new QShortcut(QKeySequence(Qt::ALT + Qt::Key_Return), this, SLOT(toggleFullScreen()));
 
     m_resizeSettleTimer.setSingleShot(true);
@@ -160,12 +167,12 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
     return QObject::eventFilter(obj, event);
 }
 
-void MainWindow::grow()
+void MainWindow::increaseHeight()
 {
     if (!m_attemptingFullScreen)
         return;
 
-    const QRect newGeometry = geometry().adjusted(-1,-1,1,1);
+    const QRect newGeometry = geometry().adjusted(0,-1,0,1);
 
     const QSize desktopSize = qApp->desktop()->screenGeometry(this).size();
     if ((newGeometry.width() > desktopSize.width())
@@ -177,7 +184,25 @@ void MainWindow::grow()
     }
 }
 
-void MainWindow::shrink()
+void MainWindow::increaseWidth()
+{
+    if (!m_attemptingFullScreen)
+        return;
+
+    const QRect newGeometry = geometry().adjusted(-1,0,1,0);
+
+    const QSize desktopSize = qApp->desktop()->screenGeometry(this).size();
+    if ((newGeometry.width() > desktopSize.width())
+            || (newGeometry.height() > desktopSize.height())) {
+        Config::setEnabled("overscan", false);
+        showFullScreen();
+    } else {
+        setGeometry(newGeometry);
+    }
+
+}
+
+void MainWindow::decreaseHeight()
 {
     if (!m_attemptingFullScreen)
         return;
@@ -186,7 +211,47 @@ void MainWindow::shrink()
         Config::setEnabled("overscan");
         showFullScreen();
     }
-    setGeometry(geometry().adjusted(1,1,-1,-1));
+    setGeometry(geometry().adjusted(0,1,0,-1));
+}
+
+void MainWindow::decreaseWidth()
+{
+    if (!m_attemptingFullScreen)
+        return;
+
+    if (!m_overscanWorkAround) {
+        Config::setEnabled("overscan");
+        showFullScreen();
+    }
+    setGeometry(geometry().adjusted(1,0,-1,0));
+}
+
+void MainWindow::moveLeft()
+{
+    QRect g = geometry();
+    g.moveLeft(g.left() - 1);
+    setGeometry(g);
+}
+
+void MainWindow::moveRight()
+{
+    QRect g = geometry();
+    g.moveLeft(g.left() + 1);
+    setGeometry(g);
+}
+
+void MainWindow::moveDown()
+{
+    QRect g = geometry();
+    g.moveTop(g.top() + 1);
+    setGeometry(g);
+}
+
+void MainWindow::moveUp()
+{
+    QRect g = geometry();
+    g.moveTop(g.top() - 1);
+    setGeometry(g);
 }
 
 void MainWindow::toggleFullScreen()

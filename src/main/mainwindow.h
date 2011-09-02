@@ -63,8 +63,15 @@ protected:
 
 private slots:
     void toggleFullScreen();
-    void grow();
-    void shrink();
+    void increaseHeight();
+    void decreaseHeight();
+    void increaseWidth();
+    void decreaseWidth();
+    void moveLeft();
+    void moveRight();
+    void moveUp();
+    void moveDown();
+
     void setOrientation(ScreenOrientation orientation);
     void handleResize();
     void selectSkin();
