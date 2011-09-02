@@ -53,5 +53,6 @@ QMHMediaBackend {
     Component.onCompleted: {
         util.createBinding("root", "hasVideo", "runtime.mediaPlayer.hasVideo", root)
         util.createBinding("root", "status", "runtime.mediaPlayer.status", root)
+        util.createBinding("root", "playing", "runtime.mediaPlayer.playing", root)
     }
 }
