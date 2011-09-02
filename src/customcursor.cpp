@@ -33,7 +33,7 @@ public:
     MouseEventHorizon(QObject *p) : QObject(p) { /**/ }
 
     bool eventFilter(QObject *obj, QEvent *event) {
-        if(event->type() == QEvent::MouseMove) {
+        if (event->type() == QEvent::MouseMove) {
             return true;
         }
         return QObject::eventFilter(obj, event);
@@ -46,13 +46,14 @@ CustomCursor::CustomCursor(QObject *parent) :
     m_clickedTimer(0),
     m_currentBehavior(Blank),
     m_blankCursor(Qt::BlankCursor),
-    m_EventSink(new MouseEventHorizon(this))
+    m_eventSink(new MouseEventHorizon(this))
 {
     enableCursor(Config::isEnabled("mouse", true));
 }
 
-void CustomCursor::enableCursor(bool enable, bool temporary) {
-    qApp->removeEventFilter(m_EventSink);
+void CustomCursor::enableCursor(bool enable, bool temporary)
+{
+    qApp->removeEventFilter(m_eventSink);
     qApp->removeEventFilter(this);
     if (enable) {
         m_clickedTimer = new QTimer(this);
@@ -64,50 +65,55 @@ void CustomCursor::enableCursor(bool enable, bool temporary) {
         setIdleTimeout(Config::value("hideIdleCursorTimeout", 2));
     } else {
         if (!Config::isEnabled("touch", false))
-            qApp->installEventFilter(m_EventSink);
+            qApp->installEventFilter(m_eventSink);
     }
     if (!temporary)
         Config::setEnabled("mouse", enable);
 }
 
-void CustomCursor::moveBy(int dx, int dy) {
+void CustomCursor::moveBy(int dx, int dy)
+{
     QPoint pos = QCursor::pos();
     QCursor::setPos(pos.x() + dx, pos.y() + dy);
 }
 
-QString CustomCursor::defaultCursorPath() const {
+QString CustomCursor::defaultCursorPath() const
+{
     return m_defaultCursorPath;
 }
 
-QString CustomCursor::clickedCursorPath() const {
+QString CustomCursor::clickedCursorPath() const
+{
     return m_clickedCursorPath;
 }
 
-void CustomCursor::setDefaultCursorPath(const QString &path) {
+void CustomCursor::setDefaultCursorPath(const QString &path)
+{
     m_defaultCursorPath = path;
     m_defaultCursor = QCursor(QPixmap(m_defaultCursorPath), 0, 0);
 }
 
-void CustomCursor::setClickedCursorPath(const QString &path) {
+void CustomCursor::setClickedCursorPath(const QString &path)
+{
     m_clickedCursorPath = path;
     m_clickedCursor = QCursor(QPixmap(m_clickedCursorPath), 0, 0);
 }
 
 int CustomCursor::idleTimeout() const
 {
-    if(m_timer)
+    if (m_timer)
         return m_timer->interval();
     return 0;
 }
 
 void CustomCursor::setIdleTimeout(int secs)
 {
-    if(secs == 0) {
+    if (secs == 0) {
         delete m_timer;
         m_timer = 0;
         return;
     }
-    if(!m_timer) {
+    if (!m_timer) {
         m_timer = new QTimer(this);
         connect(m_timer, SIGNAL(timeout()), this, SLOT(handleIdleTimeout()));
     }
@@ -116,7 +122,7 @@ void CustomCursor::setIdleTimeout(int secs)
 
 void CustomCursor::setCursor(Behavior current)
 {
-    if(m_currentBehavior == current)
+    if (m_currentBehavior == current)
         return;
 
     switch(current)
@@ -136,22 +142,25 @@ void CustomCursor::setCursor(Behavior current)
     m_currentBehavior = current;
 }
 
-bool CustomCursor::eventFilter(QObject *obj, QEvent *event) {
-    if(event->type() == QEvent::MouseMove) {
-        if(m_timer)
+bool CustomCursor::eventFilter(QObject *obj, QEvent *event)
+{
+    if (event->type() == QEvent::MouseMove) {
+        if (m_timer)
             m_timer->start();
         setCursor(Default);
-    } else if(event->type() == QEvent::MouseButtonPress) {
+    } else if (event->type() == QEvent::MouseButtonPress) {
         setCursor(Clicked);
         m_clickedTimer->start();
     }
     return QObject::eventFilter(obj, event);
 }
 
-void CustomCursor::handleClickedTimeout() {
+void CustomCursor::handleClickedTimeout()
+{
     setCursor(Default);
 }
 
-void CustomCursor::handleIdleTimeout() {
+void CustomCursor::handleIdleTimeout()
+{
     setCursor(Blank);
 }

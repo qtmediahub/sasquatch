@@ -71,7 +71,7 @@ private:
     QCursor m_clickedCursor;
     QCursor m_blankCursor;
 
-    QObject *m_EventSink;
+    QObject *m_eventSink;
 };
 
 #endif // CUSTOMCURSOR_H
