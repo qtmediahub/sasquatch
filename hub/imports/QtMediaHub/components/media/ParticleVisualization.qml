@@ -22,7 +22,12 @@ import Qt.labs.particles 1.0
 
 Rectangle {
     id: root
-    color: "black"
+    color:  "black"
+    opacity: d.running ? 1 : 0
+
+    Behavior on opacity {
+        NumberAnimation {}
+    }
 
     property variant resourcePath: "particles/"
     property bool running : false
