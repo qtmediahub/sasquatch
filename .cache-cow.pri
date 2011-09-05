@@ -6,12 +6,6 @@ exists($$QMAKE_CACHE) {
     !equals(PROJECTROOT, $$BASE_NAME): system(rm $$QMAKE_CACHE)
 }
 
-isEmpty(PROJECTROOT) {
-    system(echo "PROJECTROOT=$$BASE_NAME" > $$QMAKE_CACHE)
-    system(echo "CONFIG-=qt_framework" >> $$QMAKE_CACHE)
-    error(Cache created; please rerun qmake)
-}
-
 linux* {
     # If you change the defaults here, fix src/common.pri
     message(We set these variables in the toplevel .qmake.cache file)
@@ -24,4 +18,11 @@ linux* {
     message(glgs - Render using GL graphics system (Avoid like the plague!))
 }
 
+isEmpty(PROJECTROOT) {
+    message()
+    system(echo "PROJECTROOT=$$BASE_NAME" > $$QMAKE_CACHE)
+    system(echo "CONFIG-=qt_framework" >> $$QMAKE_CACHE)
+    message(Cache created)
+    message(Please rerun qmake)
+}
 
