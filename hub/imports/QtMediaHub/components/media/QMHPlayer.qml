@@ -20,6 +20,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 import QtQuick 1.0
 import Playlist 1.0
 import QtMediaHub.components 1.0
+import MediaModel 1.0
+
 
 Item {
     id: root
@@ -60,7 +62,7 @@ Item {
     function play(mediaModel, row) {
         playlist.clear()
         playlist.addCurrentLevel(mediaModel)
-        playIndex(row-1 /* adjust for dotdot */)
+        playIndex(mediaModel.dotDotPosition == MediaModel.Beginning ? row-1 /* adjust for dotdot */: row)
     }
 
     function playUri(uri) {
