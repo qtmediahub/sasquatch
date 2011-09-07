@@ -84,9 +84,20 @@ void ActionMapper::processKey(int key)
         qWarning("Trying to send a key when no recipient is set");
         return;
     }
-    QKeyEvent keyPress(QEvent::KeyPress, key, Qt::NoModifier);
+
+    int code = key;
+    bool upper = false;
+
+    // lower-/upper-case characters
+    if (key >= 97 && key <=122) {
+        code -= 32;
+    } else if (key >= Qt::Key_A && key <= Qt::Key_Z) {
+        upper = true;
+    }
+
+    QKeyEvent keyPress(QEvent::KeyPress, code, upper ? Qt::ShiftModifier : Qt::NoModifier, QString(key));
     qApp->sendEvent(m_recipient.data(), &keyPress);
-    QKeyEvent keyRelease(QEvent::KeyRelease, key, Qt::NoModifier);
+    QKeyEvent keyRelease(QEvent::KeyRelease, code, upper ? Qt::ShiftModifier : Qt::NoModifier, QString(key));
     qApp->sendEvent(m_recipient.data(), &keyRelease);
 }
 
