@@ -20,6 +20,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 import QtQuick 1.0
 import Playlist 1.0
 import QtMediaHub.components 1.0
+import MediaModel 1.0
+
 
 Item {
     id: root
@@ -47,6 +49,7 @@ Item {
     property variant status: 0
     property variant paused: false
     property variant playbackRate: 1
+    property variant duration: 0
 
     //This is the externally exposed media api
     //maps to backend logic of pluggable backends
@@ -59,7 +62,7 @@ Item {
     function play(mediaModel, row) {
         playlist.clear()
         playlist.addCurrentLevel(mediaModel)
-        playIndex(row-1 /* adjust for dotdot */)
+        playIndex(mediaModel.dotDotPosition == MediaModel.Beginning ? row-1 /* adjust for dotdot */: row)
     }
 
     function playUri(uri) {
@@ -169,7 +172,8 @@ Item {
             util.createBinding("root", "hasAudio", "mediaBackend.hasAudio", mediaBackend)
             util.createBinding("root", "hasVideo", "mediaBackend.hasVideo", mediaBackend)
             util.createBinding("root", "seekable", "mediaBackend.seekable", mediaBackend)
-            util.createBinding("root", "status", "mediaBackend.status", mediaBackend)
+            util.createBinding("root", "status",   "mediaBackend.status",   mediaBackend)
+            util.createBinding("root", "duration", "mediaBackend.duration", mediaBackend)
 
             //bidirectional
             util.createBinding("root", "playing", "mediaBackend.playing", mediaBackend)

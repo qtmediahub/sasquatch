@@ -22,7 +22,8 @@ QMHMediaBackend {
     Binding { target: root; property: "hasAudio"; value: video.hasAudio }
     Binding { target: root; property: "hasVideo"; value: video.hasVideo }
     Binding { target: root; property: "seekable"; value: video.seekable }
-    Binding { target: root; property: "status"; value: video.status }
+    Binding { target: root; property: "status";   value: video.status }
+    Binding { target: root; property: "duration"; value: video.duration }
 
     //bidirectional
     Binding { target: root; property: "playing"; value: video.playing }
