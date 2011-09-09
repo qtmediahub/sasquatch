@@ -27,7 +27,8 @@ SOURCES += qmh-config.cpp \
     declarativeview.cpp \
     libraryinfo.cpp \
     file.cpp \
-    abstractmediaplayer.cpp
+    abstractmediaplayer.cpp \
+    tarfileengine.cpp
 
 HEADERS += qmh-config.h \
     global.h \
@@ -46,7 +47,9 @@ HEADERS += qmh-config.h \
     customcursor.h \
     declarativeview.h \
     libraryinfo.h \
-    abstractmediaplayer.h
+    abstractmediaplayer.h \
+    tarfileengine.h \
+    refcountedengine.h
 
 !no-dbus {
     HEADERS += mediaplayer_dbus.h

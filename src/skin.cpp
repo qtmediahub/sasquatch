@@ -53,16 +53,15 @@ QString Skin::config() const
 Skin *Skin::createSkin(const QString &skinPath, QObject *parent)
 {
     QString mapFile = skinPath + "/skin.map";
-    if (QFile(mapFile).exists()) {
-        Skin *skin = new Skin(parent);
-        QFileInfo fileInfo(mapFile);
-        skin->m_name = fileInfo.dir().dirName();
-        skin->m_path = fileInfo.absoluteDir().absolutePath();
-        skin->m_config = mapFile;
-        return skin;
-    }
+    if (!QFile(mapFile).exists())
+        return 0;
 
-    return 0;
+    Skin *skin = new Skin(parent);
+    QFileInfo fileInfo(skinPath);
+    skin->m_name = fileInfo.fileName();
+    skin->m_path = skinPath; // fileInfo.canonicalFilePath() doesn't work for qar files
+    skin->m_config = mapFile;
+    return skin;
 }
 
 QUrl Skin::urlForResolution(const QString &nativeResolutionString, const QString &fallbackResolution)

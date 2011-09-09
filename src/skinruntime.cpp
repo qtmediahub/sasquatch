@@ -22,6 +22,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "skinruntime.h"
 #include "mediaserver.h"
+#include "tarfileengine.h"
 
 #include <QtGui>
 #include <QDebug>
@@ -118,6 +119,7 @@ public:
     Skin *currentSkin;
     QFileSystemWatcher pathMonitor;
     QAbstractItemModel *remoteSessionsModel;
+    TarFileEngineHandler *tarFileEngineHandler;
     SkinRuntime *q;
 };
 
@@ -133,6 +135,7 @@ SkinRuntimePrivate::SkinRuntimePrivate(SkinRuntime *p)
       rpcConnection(0),
       trackpad(0),
       remoteSessionsModel(0),
+      tarFileEngineHandler(0),
       q(p)
 {
 #ifndef NO_DBUS
@@ -203,12 +206,14 @@ SkinRuntimePrivate::SkinRuntimePrivate(SkinRuntime *p)
     remoteSessionsModel = new StaticServiceBrowserModel(this);
 #endif
 
+    tarFileEngineHandler = new TarFileEngineHandler;
     discoverSkins();
 }
 
 SkinRuntimePrivate::~SkinRuntimePrivate()
 {
     Config::setValue("skin", currentSkin->name());
+    delete tarFileEngineHandler;
 }
 
 static void optimizeGraphicsViewAttributes(QGraphicsView *view)
