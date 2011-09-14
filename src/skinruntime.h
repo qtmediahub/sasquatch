@@ -40,7 +40,7 @@ public:
     SkinRuntime(QObject *p = 0);
     ~SkinRuntime();
 
-    QWidget *create(Skin *skin, QWidget *window);
+    QObject *create(Skin *skin, QObject *window);
 
     QHash<QString, Skin *> skins() const;
 private:

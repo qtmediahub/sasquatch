@@ -23,6 +23,11 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "actionmapper.h"
 #include "libraryinfo.h"
 
+#ifdef SCENEGRAPH
+#include <QGraphicsView>
+#include <QApplication>
+#endif
+
 #include <QKeyEvent>
 
 #include "qmh-config.h"

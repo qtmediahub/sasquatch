@@ -23,8 +23,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #ifndef ACTIONMAPPER_H
 #define ACTIONMAPPER_H
 
-#include <QObject>
 #include <QtDeclarative>
+#include <QObject>
 #include <QDebug>
 #include <QWeakPointer>
 

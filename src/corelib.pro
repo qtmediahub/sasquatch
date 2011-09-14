@@ -45,11 +45,15 @@ HEADERS += qmh-config.h \
     devicemanager.h \
     powermanager.h \
     customcursor.h \
-    declarativeview.h \
     libraryinfo.h \
     abstractmediaplayer.h \
     tarfileengine.h \
     refcountedengine.h
+
+!scenegraph {
+    HEADERS += \
+        declarativeview.h
+}
 
 !no-dbus {
     HEADERS += mediaplayer_dbus.h

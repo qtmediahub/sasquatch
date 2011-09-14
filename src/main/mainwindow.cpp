@@ -335,13 +335,16 @@ bool MainWindow::setSkin(const QString &name)
 
 bool MainWindow::setSkin(Skin *newSkin)
 {
-    QWidget *skinWidget = m_skinRuntime->create(newSkin, this);
+    QObject *skinWidget = m_skinRuntime->create(newSkin, this);
     if (!skinWidget) {
         qDebug() << "Failed to load skin:" << newSkin->name();
         return false;
     }
 
-    setCentralWidget(skinWidget);
+    QWidget *widget = qobject_cast<QWidget*>(skinWidget);
+    if (widget) {
+        setCentralWidget(widget);
+    }
     return true;
 }
 

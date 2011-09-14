@@ -36,8 +36,11 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #ifdef SCENEGRAPH
 #include <QSGItem>
 #include <QSGView>
+#include <QApplication>
+#include <QDesktopWidget>
 #else
 #include <QtDeclarative>
+#include "declarativeview.h"
 #endif
 
 #ifndef NO_DBUS
@@ -61,7 +64,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "media/mediascanner.h"
 #include "actionmapper.h"
 #include "rpc/rpcconnection.h"
-#include "declarativeview.h"
 #include "libraryinfo.h"
 #include "qmldebugging.h"
 #include "actionmapper.h"
@@ -95,7 +97,7 @@ public:
     ~SkinRuntimePrivate();
 
 public slots:
-    QWidget *loadQmlSkin(const QUrl &url, QWidget *window);
+    QObject *loadQmlSkin(const QUrl &url, QObject *window);
 
     void discoverSkins();
 
@@ -216,6 +218,7 @@ SkinRuntimePrivate::~SkinRuntimePrivate()
     delete tarFileEngineHandler;
 }
 
+#ifndef SCENEGRAPH
 static void optimizeGraphicsViewAttributes(QGraphicsView *view)
 {
     if (Config::isEnabled("smooth-scaling", true))
@@ -228,8 +231,9 @@ static void optimizeGraphicsViewAttributes(QGraphicsView *view)
     view->scene()->setItemIndexMethod(QGraphicsScene::NoIndex);
     view->setCacheMode(QGraphicsView::CacheNone);
 }
+#endif
 
-QWidget *SkinRuntimePrivate::loadQmlSkin(const QUrl &targetUrl, QWidget *window)
+QObject *SkinRuntimePrivate::loadQmlSkin(const QUrl &targetUrl, QObject *window)
 {
     QPixmapCache::clear();
 
@@ -258,8 +262,8 @@ QWidget *SkinRuntimePrivate::loadQmlSkin(const QUrl &targetUrl, QWidget *window)
         declarativeWidget->viewport()->setAutoFillBackground(false);
         declarativeWidget->setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
     }
-#endif //SCENEGRAPH
     declarativeWidget->viewport()->setAttribute(Qt::WA_OpaquePaintEvent);
+#endif //SCENEGRAPH
     QDeclarativeEngine *engine = declarativeWidget->engine();
     QObject::connect(engine, SIGNAL(quit()), qApp, SLOT(quit()));
 
@@ -267,8 +271,10 @@ QWidget *SkinRuntimePrivate::loadQmlSkin(const QUrl &targetUrl, QWidget *window)
     if (!remoteControlMode) {
         runtime->insert("mediaScanner", qVariantFromValue(static_cast<QObject *>(mediaServer->mediaScanner())));
         runtime->insert("httpServer", qVariantFromValue(static_cast<QObject *>(mediaServer->httpServer())));
+#ifndef SCENEGRAPH
         actionMapper->setRecipient(declarativeWidget);
         trackpad->setRecipient(declarativeWidget);
+#endif //Fixme: Need to harden code for non-QWidget derived classes
         runtime->insert("actionMapper", qVariantFromValue(static_cast<QObject *>(actionMapper)));
         runtime->insert("trackpad", qVariantFromValue(static_cast<QObject *>(trackpad)));
         runtime->insert("mediaPlayer", qVariantFromValue(static_cast<QObject *>(mediaPlayer)));
@@ -283,6 +289,7 @@ QWidget *SkinRuntimePrivate::loadQmlSkin(const QUrl &targetUrl, QWidget *window)
     runtime->insert("skin", qVariantFromValue(static_cast<QObject *>(currentSkin)));
     runtime->insert("file", qVariantFromValue(static_cast<QObject *>(new File(this))));
     runtime->insert("remoteSessionsModel", qVariantFromValue(static_cast<QObject *>(remoteSessionsModel)));
+
     declarativeWidget->rootContext()->setContextProperty("runtime", runtime);
 
     engine->addImportPath(LibraryInfo::basePath() % "/imports");
@@ -332,7 +339,7 @@ void SkinRuntimePrivate::handleDirChanged(const QString &dir)
 
 SkinRuntime::SkinRuntime(QObject *p)
     : QObject(p),
-      d(new SkinRuntimePrivate(this)) 
+      d(new SkinRuntimePrivate(this))
 {
 }
 
@@ -342,7 +349,7 @@ SkinRuntime::~SkinRuntime()
     d = 0;
 }
 
-QWidget *SkinRuntime::create(Skin *skin, QWidget *window)
+QObject *SkinRuntime::create(Skin *skin, QObject *window)
 {
     QSize nativeResolution = qApp->desktop()->screenGeometry().size();
     QString nativeResolutionString = Config::value("native-res-override", QString("%1x%2").arg(nativeResolution.width()).arg(nativeResolution.height()));
