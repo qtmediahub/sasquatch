@@ -54,6 +54,21 @@ CREATE TABLE video (
     filesize INTEGER NOT NULL
 );
 
+CREATE TABLE snes (
+    id INTEGER PRIMARY KEY, /* alias for ROWID, see http://www.sqlite.org/autoinc.html */
+    filepath TEXT NOT NULL UNIQUE,
+
+    title TEXT,
+    thumbnail TEXT,
+    uri TEXT,
+
+    /* stat information */
+    directory TEXT NOT NULL,
+    mtime INTEGER NOT NULL,
+    ctime INTEGER NOT NULL,
+    filesize INTEGER NOT NULL
+);
+
 CREATE TABLE picture (
     id INTEGER PRIMARY KEY, /* alias for ROWID, see http://www.sqlite.org/autoinc.html */
     filepath TEXT NOT NULL UNIQUE,

@@ -68,6 +68,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "qmldebugging.h"
 #include "actionmapper.h"
 #include "trackpad.h"
+#include "processmanager.h"
 #include "devicemanager.h"
 #include "powermanager.h"
 #include "rpc/mediaplayerrpc.h"
@@ -109,6 +110,7 @@ public:
     bool dbusRegistration;
     bool remoteControlMode;
     MediaServer *mediaServer;
+    ProcessManager *processManager;
     DeviceManager *deviceManager;
     PowerManager *powerManager;
     AbstractMediaPlayer *mediaPlayer;
@@ -130,6 +132,7 @@ SkinRuntimePrivate::SkinRuntimePrivate(SkinRuntime *p)
       dbusRegistration(false),
       remoteControlMode(true),
       mediaServer(0),
+      processManager(0),
       deviceManager(0),
       powerManager(0),
       mediaPlayer(0),
@@ -279,6 +282,7 @@ QObject *SkinRuntimePrivate::loadQmlSkin(const QUrl &targetUrl, QObject *window)
         runtime->insert("trackpad", qVariantFromValue(static_cast<QObject *>(trackpad)));
         runtime->insert("mediaPlayer", qVariantFromValue(static_cast<QObject *>(mediaPlayer)));
         runtime->insert("mediaPlayerRpc", qVariantFromValue(static_cast<QObject *>(mediaPlayerRpc)));
+        runtime->insert("processManager", qVariantFromValue(static_cast<QObject *>(processManager)));
         runtime->insert("deviceManager", qVariantFromValue(static_cast<QObject *>(deviceManager)));
         runtime->insert("powerManager", qVariantFromValue(static_cast<QObject *>(powerManager)));
     }
@@ -381,6 +385,9 @@ void SkinRuntimePrivate::enableRemoteControlMode(bool enable)
     remoteControlMode = enable;
 
     if (enable) {
+        delete processManager;
+        processManager = 0;
+
         delete deviceManager;
         deviceManager = 0;
         delete powerManager;
@@ -425,6 +432,8 @@ void SkinRuntimePrivate::enableRemoteControlMode(bool enable)
     rpcConnection->registerObject(actionMapper);
     rpcConnection->registerObject(mediaPlayerRpc);
     rpcConnection->registerObject(trackpad);
+
+    processManager = new ProcessManager(this);
 
 #ifndef NO_DBUS
 //Segmentation fault on mac!

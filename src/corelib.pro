@@ -28,7 +28,8 @@ SOURCES += qmh-config.cpp \
     libraryinfo.cpp \
     file.cpp \
     abstractmediaplayer.cpp \
-    tarfileengine.cpp
+    tarfileengine.cpp \
+    processmanager.cpp
 
 HEADERS += qmh-config.h \
     global.h \
@@ -48,7 +49,8 @@ HEADERS += qmh-config.h \
     libraryinfo.h \
     abstractmediaplayer.h \
     tarfileengine.h \
-    refcountedengine.h
+    refcountedengine.h \
+    processmanager.h
 
 !scenegraph {
     HEADERS += \
@@ -87,3 +89,5 @@ unix:!symbian {
     target.path = $${PREFIX}/lib/
     INSTALLS += target
 }
+
+
