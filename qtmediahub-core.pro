@@ -8,33 +8,27 @@ include(.cache-cow.pri)
 
     TEMPLATE = subdirs
 
-    folder_01.source = hub/devices hub/imports hub/resources
+    # add additional folders for keymaps, qml imports and resources to install step
+    folder_01.source =  hub/share/qtmediahub/keymaps \
+                        hub/share/qtmediahub/imports \
+                        hub/share/qtmediahub/resources
     DEPLOYMENTFOLDERS = folder_01
-
-    #for(deploymentfolder, DEPLOYMENTFOLDERS) {
-    #    item = item$${deploymentfolder}
-    #    itemsources = $${item}.sources
-    #    $$itemsources = $$eval($${deploymentfolder}.source)
-    #    itempath = $${item}.path
-    #    $$itempath= $$eval($${deploymentfolder}.target)
-    #    export($$itemsources)
-    #    export($$itempath)
-    #    DEPLOYMENT += $$item
-    #}
-
-    CONFIG(android) : installPrefix = /assets$${INSTALL_PREFIX}
-               else : installPrefix = $${INSTALL_PREFIX}
 
     for(deploymentfolder, DEPLOYMENTFOLDERS) {
         item = item$${deploymentfolder}
         itemfiles = $${item}.files
         $$itemfiles = $$eval($${deploymentfolder}.source)
         itempath = $${item}.path
-        $$itempath = $${installPrefix}/$$eval($${deploymentfolder}.target)
+        $$itempath = $${PREFIX}/share/qtmediahub/$$eval($${deploymentfolder}.target)
         export($$itemfiles)
         export($$itempath)
         INSTALLS += $$item
     }
+
+    message()
+    message("If you want to use QtMediaHub without make install step (in-source), use PREFIX=$PWD/hub as qmake argument")
+    message("current PREFIX is "$$PREFIX)
+    message()
 
     # due to wrong deploysteps in creator for symbian,
     # comment SUBDIRS below out

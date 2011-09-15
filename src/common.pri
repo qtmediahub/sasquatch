@@ -10,17 +10,16 @@ MOC_DIR = $$TEMP_DIR/.moc
 isEmpty(PREFIX) {
     unix:!symbian {
         maemo5 {
-            PREFIX=/opt/usr
+            PREFIX=/opt/usr/
         } harmattan {
-            PREFIX=/opt/qtmediahub
+            PREFIX=/opt/qtmediahub/
         } else {
-            PREFIX=/usr/local
+            PREFIX=/usr/local/
         }
     }
 }
 
-INSTALL_PREFIX=$$PREFIX/share/qtmediahub/
-DEFINES += "QMH_INSTALL_PREFIX=\\\"$$INSTALL_PREFIX\\\""
+DEFINES += "QMH_PREFIX=\\\"$$PREFIX\\\""
 DEFINES += "QMH_DBUS_SERVICENAME=\\\"com.nokia.qtmediahub\\\""
 DEFINES += "QMH_PLAYER_DBUS_SERVICENAME=\\\"com.nokia.qtmediahub.player\\\""
 

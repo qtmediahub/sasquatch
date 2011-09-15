@@ -27,25 +27,22 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 static QStringList standardResourcePaths(const QString &suffix)
 {
-    QString basePath = LibraryInfo::basePath();
     QStringList paths;
 
-    // TODO check below two paths if still valid maybe basePath is wrong as the default value
-    paths <<  basePath % QString::fromLatin1("/") % suffix; // unified repo
-#ifdef Q_OS_MAC
-    paths <<  basePath % QString::fromLatin1("/../../../") % suffix; // submodule repo
-#else
-    paths <<  basePath % QString::fromLatin1("/../../") % suffix; // submodule repo
-#endif
-
-    paths << QMH_INSTALL_PREFIX % QString::fromLatin1("/") % suffix % QString::fromLatin1("/");
+    paths << QMH_PREFIX % QString::fromLatin1("/share/qtmediahub/") % suffix % QString::fromLatin1("/");
     paths << QDir::homePath() % "/.qtmediahub/" % suffix % QString::fromLatin1("/");
 
+    // TODO should only be there for development
+    //   can be removed as soon as we have qar skins
+    paths <<  QCoreApplication::applicationDirPath() % QString::fromLatin1("/../../../") % suffix; // submodule repo
+
+    // allows changing resource paths with eg. -skins-path on runtime
     QString configPath = Config::value(suffix % "-path", QString());
     if (!configPath.isEmpty())
         paths << QDir(configPath).absolutePath();
 
-    QString envVar("QMH_" % suffix.toUpper() % "PATH");
+    // allows changing resource paths with exporting with eg. QMH_SKINS_PATH on runtime
+    QString envVar("QMH_" % suffix.toUpper() % "_PATH");
     if (!qgetenv(envVar.toLatin1().constData()).isEmpty())
         paths << QDir(qgetenv(envVar.toLatin1().constData())).absolutePath();
 
@@ -73,43 +70,19 @@ QString LibraryInfo::logPath()
     return storageLocation(QDesktopServices::TempLocation);
 }
 
-QString LibraryInfo::basePath()
-{
-    static QString cachedBasePath;
-    if (!cachedBasePath.isEmpty())
-        return cachedBasePath;
-
-#ifdef Q_OS_MAC
-    QString platformOffset("/../../../");
-#else
-    QString platformOffset;
-#endif
-
-    QString defaultBasePath(QMH_INSTALL_PREFIX);
-    if (Config::value("testing", false) || !QDir(defaultBasePath).exists()) {
-        qDebug() << "Either testing or uninstalled: running in build dir";
-        defaultBasePath = QCoreApplication::applicationDirPath() + platformOffset;
-    }
-    cachedBasePath = Config::value("base-path",  defaultBasePath);
-    return cachedBasePath;
-}
-
 QString LibraryInfo::translationPath()
 {
-    return basePath() % "/translations/";
+    return QMH_PREFIX % QString::fromLatin1("/share/qtmediahub/translations/");
 }
 
 QString LibraryInfo::pluginPath()
 {
-    return QDir(Config::value("plugins-path", QString(basePath() % "/plugins"))).absolutePath();
+    return QMH_PREFIX % QString::fromLatin1("/lib/qtmediahub/");
 }
 
 QString LibraryInfo::resourcePath()
 {
-    if (!qgetenv("QMH_RESOURCEPATH").isEmpty())
-        return QDir(qgetenv("QMH_RESOURCEPATH")).absolutePath();
-    else
-        return QDir(Config::value("resources-path", QString(basePath() % "/resources"))).absolutePath();
+    return QMH_PREFIX % QString::fromLatin1("/share/qtmediahub/resources/");
 }
 
 QString LibraryInfo::thumbnailPath()
@@ -127,13 +100,18 @@ QStringList LibraryInfo::applicationPaths()
     return standardResourcePaths("apps");
 }
 
+QStringList LibraryInfo::keyboardMapPaths()
+{
+    return standardResourcePaths("keymaps");
+}
+
 QString LibraryInfo::databaseFilePath()
 {
     return LibraryInfo::dataPath() + "/media.db";
 }
 
-QString LibraryInfo::keyboardMapPath()
+QString LibraryInfo::qmlImportPath()
 {
-    return LibraryInfo::basePath() + "/devices/keymaps/";
+    return QMH_PREFIX % QString::fromLatin1("/share/qtmediahub/imports/");
 }
 

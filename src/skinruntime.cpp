@@ -296,7 +296,7 @@ QObject *SkinRuntimePrivate::loadQmlSkin(const QUrl &targetUrl, QObject *window)
 
     declarativeWidget->rootContext()->setContextProperty("runtime", runtime);
 
-    engine->addImportPath(LibraryInfo::basePath() % "/imports");
+    engine->addImportPath(LibraryInfo::qmlImportPath());
     engine->addImportPath(currentSkin->path());
 
     declarativeWidget->setSource(targetUrl);
