@@ -2,7 +2,7 @@
 #You have discovered my treachery, Qt Components needs to be discoverable
 #source with . ./qtmediahub when debugging
 scriptPath=$(cd ${0%/*} && pwd -P)
-HUB_RELATIVE_PATH=$scriptPath/lib
+HUB_RELATIVE_PATH=$scriptPath/../lib
 if [ `uname` = "Darwin" ]; then
     export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$HUB_RELATIVE_PATH
     $scriptPath/qtmediahub.app/Contents/MacOS/qtmediahub $@
