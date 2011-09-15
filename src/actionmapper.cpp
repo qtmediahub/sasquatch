@@ -110,8 +110,11 @@ void ActionMapper::populateMap()
 {
     m_actionMap.clear();
     foreach (const QString &keyboardMapPath, LibraryInfo::keyboardMapPaths()) {
-        if (QDir(keyboardMapPath + m_mapName).exists())
-            loadMapFromDisk(keyboardMapPath + m_mapName);
+        if (QFile::exists(keyboardMapPath + "/" + m_mapName)
+            && loadMapFromDisk(keyboardMapPath + m_mapName)) {
+            qDebug() << "Using key map:" << keyboardMapPath + m_mapName;
+            break;
+        }
     }
 }
 
