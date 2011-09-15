@@ -8,13 +8,18 @@ OBJECTS_DIR = $$TEMP_DIR/.obj
 MOC_DIR = $$TEMP_DIR/.moc
 
 isEmpty(PREFIX) {
-    unix:!symbian {
-        maemo5 {
-            PREFIX=/opt/usr/
-        } harmattan {
-            PREFIX=/opt/qtmediahub/
-        } else {
-            PREFIX=/usr/local/
+    #yield to explicit PREFIX usage
+    PREFIX=$${PROJECTROOT}/hub
+    deployable {
+        #Use our fuzzy heuristic logic for prefix setting
+        unix:!symbian {
+            maemo5 {
+                PREFIX=/opt/usr/
+            } harmattan {
+                PREFIX=/opt/qtmediahub/
+            } else {
+                PREFIX=/usr/local/
+            }
         }
     }
 }
