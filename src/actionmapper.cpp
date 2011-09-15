@@ -161,7 +161,6 @@ QStringList ActionMapper::availableMaps() const
     foreach (const QString &keyboardMapPath, LibraryInfo::keyboardMapPaths()) {
         maps << QDir(keyboardMapPath).entryList(QDir::Files);
     }
-    qDebug() << "Available keyboard maps" << maps;
     return maps;
 }
 
