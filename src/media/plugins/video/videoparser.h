@@ -29,12 +29,14 @@ class VideoParser : public MediaParser
 {
     Q_OBJECT
 public:
-    VideoParser() { }
+    VideoParser();
     ~VideoParser() { }
 
     QString type() const { return "video"; }
     bool canRead(const QFileInfo &info) const;
     QList<QSqlRecord> updateMediaInfos(const QList<QFileInfo> &fi, const QString &searchPath, QSqlDatabase db);
+private:
+    QStringList m_supportedTypes;
 };
 
 #endif // VIDEOPARSER_H

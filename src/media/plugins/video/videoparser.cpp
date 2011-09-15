@@ -29,21 +29,29 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #define DEBUG if (0) qDebug() << __PRETTY_FUNCTION__
 
+
+VideoParser::VideoParser()
+{
+    m_supportedTypes << "avi"
+                     << "ogg"
+                     << "mp4"
+                     << "mpeg"
+                     << "mpg"
+                     << "mov"
+                     << "ogv"
+                     << "wmv"
+                     << "mkv";
+
+    QStringList additionalExtensions = Config::value("additional-video-extensions", QString()).split(",", QString::SkipEmptyParts);
+
+    if (!additionalExtensions.isEmpty()) {
+        m_supportedTypes << additionalExtensions;
+    }
+}
+
 bool VideoParser::canRead(const QFileInfo &info) const
 {
-    static QStringList supportedTypes = QStringList()
-                << "avi"
-                << "ogg"
-                << "mp4"
-                << "mpeg"
-                << "mpg"
-                << "mov"
-                << "ogv"
-                << "wmv"
-                << "mkv"
-                << Config::value("additional-video-extensions", QString()).split(",");
-
-    return supportedTypes.contains(info.suffix());
+    return m_supportedTypes.contains(info.suffix());
 }
 
 #ifdef THUMBNAIL_GSTREAMER

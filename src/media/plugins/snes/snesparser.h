@@ -29,12 +29,14 @@ class SnesParser : public MediaParser
 {
     Q_OBJECT
 public:
-    SnesParser() { }
+    SnesParser();
     ~SnesParser() { }
 
     QString type() const { return "snes"; }
     bool canRead(const QFileInfo &info) const;
     QList<QSqlRecord> updateMediaInfos(const QList<QFileInfo> &fi, const QString &searchPath, QSqlDatabase db);
+private:
+    QStringList m_supportedTypes;
 };
 
 #endif // SNESPARSER_H

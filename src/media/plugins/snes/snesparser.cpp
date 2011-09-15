@@ -29,13 +29,20 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #define DEBUG if (0) qDebug() << __PRETTY_FUNCTION__
 
+SnesParser::SnesParser()
+{
+    QStringList additionalExtensions = Config::value("additional-snes-extensions", QString()).split(",", QString::SkipEmptyParts);
+
+    m_supportedTypes << "smc";
+
+    if (!additionalExtensions.isEmpty()) {
+        m_supportedTypes << additionalExtensions;
+    }
+}
+
 bool SnesParser::canRead(const QFileInfo &info) const
 {
-    static QStringList supportedTypes = QStringList()
-                << "smc"
-                << Config::value("additional-snes-extensions", QString()).split(",");
-
-    return supportedTypes.contains(info.suffix());
+    return m_supportedTypes.contains(info.suffix());
 }
 
 QString determineTitle(const QFileInfo &fi) {
