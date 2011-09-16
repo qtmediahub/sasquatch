@@ -24,7 +24,6 @@ HEADERS += mainwindow.h \
 
 RESOURCES = main.qrc
 
-unix:!symbian {
-    target.path = $$PREFIX/bin
-    INSTALLS += target
-}
+target.path = $$PREFIX/bin
+INSTALLS += target
+

@@ -34,11 +34,5 @@ xine:unix: !no-pkg-cfg:system(pkg-config --exists libxine) {
     xine: message(Trying to compile libxine but pkgconfig does not know of it)
 }
 
-unix:!symbian {
-    maemo5 {
-        target.path = $$PREFIX/bin
-    } else {
-        target.path = $$PREFIX/bin
-    }
-    INSTALLS += target
-}
+target.path = $$PREFIX/bin
+INSTALLS += target

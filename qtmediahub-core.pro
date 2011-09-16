@@ -31,10 +31,7 @@ include(.cache-cow.pri)
     message("current PREFIX is "$$PREFIX)
     message()
 
-    # due to wrong deploysteps in creator for symbian,
-    # comment SUBDIRS below out
-    SUBDIRS += \
-               src
+    SUBDIRS += src
 
     OTHER_FILES += \
         qtc_packaging/debian_harmattan/rules \

@@ -85,9 +85,9 @@ contains(QT_CONFIG, dbus) {
     HEADERS += devicemanagerdbus.h
 }
 
-unix:!symbian {
-    target.path = $${PREFIX}/lib/
-    INSTALLS += target
-}
+
+target.path = $${PREFIX}/lib/
+INSTALLS += target
+
 
 
