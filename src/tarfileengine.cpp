@@ -108,6 +108,8 @@ TarFileEngine::TarFileEngine(const QString &filePath,
     if (m_fileSuffix.endsWith('/'))
         m_fileSuffix.remove(m_fileSuffix.count() - 1, 1);
 
+    m_fileSuffix.replace("//", "/");
+
     // retrieve entry data
     if (m_fileSuffix.isEmpty())
         m_data = tarFile->entries.value(".", 0);
