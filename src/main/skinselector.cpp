@@ -22,12 +22,15 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "skinselector.h"
 #include "skin.h"
+#include "skinmanager.h"
 
 #include <QtGui>
 
-SkinSelector::SkinSelector(const QHash<QString, Skin *> &skins, QWidget *parent)
+SkinSelector::SkinSelector(SkinManager *skinManager, QWidget *parent)
     : QDialog(parent)
 {
+	QHash<QString, Skin *> skins = skinManager->skins();
+
     QVBoxLayout *vbox = new QVBoxLayout(this);
     QListWidget *skinsView = new QListWidget(this);
 

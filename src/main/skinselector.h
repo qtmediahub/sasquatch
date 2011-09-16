@@ -26,13 +26,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QDialog>
 
 class QListWidgetItem;
+class SkinManager;
 class Skin;
 
 class SkinSelector : public QDialog
 {
     Q_OBJECT
 public:
-    SkinSelector(const QHash<QString, Skin *> &skins, QWidget *parent = 0);
+    SkinSelector(SkinManager *skinManager, QWidget *parent = 0);
 
 signals:
     void skinSelected(Skin *skin);

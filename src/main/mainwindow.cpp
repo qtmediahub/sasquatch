@@ -299,7 +299,7 @@ void MainWindow::show()
 
 void MainWindow::selectSkin()
 {
-    SkinSelector *skinSelector = new SkinSelector(m_skinManager->skins(), this);
+    SkinSelector *skinSelector = new SkinSelector(m_skinManager, this);
     skinSelector->setAttribute(Qt::WA_DeleteOnClose);
     connect(skinSelector, SIGNAL(skinSelected(Skin *)), this, SLOT(setSkin(Skin *)));
     skinSelector->exec();
