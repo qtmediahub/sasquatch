@@ -1,6 +1,6 @@
 include(common.pri)
 
-DESTDIR = ../hub/lib
+DESTDIR = ../lib
 TEMPLATE = lib
 TARGET = qmhcore
 DEPENDPATH += .

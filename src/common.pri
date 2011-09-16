@@ -9,7 +9,7 @@ MOC_DIR = $$TEMP_DIR/.moc
 
 isEmpty(PREFIX) {
     #yield to explicit PREFIX usage
-    PREFIX=$${PROJECTROOT}/hub
+    PREFIX=$${PROJECTROOT}
     deployable {
         #Use our fuzzy heuristic logic for prefix setting
         unix:!symbian {

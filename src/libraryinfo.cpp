@@ -34,7 +34,7 @@ static QStringList standardResourcePaths(const QString &suffix)
 
     // TODO should only be there for development
     //   can be removed as soon as we have qar skins
-    paths <<  QCoreApplication::applicationDirPath() % QString::fromLatin1("/../../../") % suffix; // submodule repo
+    paths <<  QCoreApplication::applicationDirPath() % QString::fromLatin1("/../../") % suffix; // submodule repo
 
     // allows changing resource paths with eg. -skins-path on runtime
     QString configPath = Config::value(suffix % "-path", QString());

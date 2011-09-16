@@ -9,9 +9,9 @@ include(.cache-cow.pri)
     TEMPLATE = subdirs
 
     # add additional folders for keymaps, qml imports and resources to install step
-    folder_01.source =  hub/share/qtmediahub/keymaps \
-                        hub/share/qtmediahub/imports \
-                        hub/share/qtmediahub/resources
+    folder_01.source =  share/qtmediahub/keymaps \
+                        share/qtmediahub/imports \
+                        share/qtmediahub/resources
     DEPLOYMENTFOLDERS = folder_01
 
     for(deploymentfolder, DEPLOYMENTFOLDERS) {
@@ -26,7 +26,7 @@ include(.cache-cow.pri)
     }
 
     message()
-    message("If you want to set an explicit deployment (make install) PREFIX please add it to .qmake.cache or use PREFIX=$PWD/hub as recursive qmake argument")
+    message("If you want to set an explicit deployment (make install) PREFIX please add it to .qmake.cache or use PREFIX=$PWD as recursive qmake argument")
     message("QtMediaHub is built to run in-source (without make install) by default")
     message("current PREFIX is "$$PREFIX)
     message()

@@ -1,7 +1,7 @@
 include($$PROJECTROOT/src/core-common.pri)
 
 TEMPLATE = lib
-DESTDIR = $$PROJECTROOT/hub/lib/qtmediahub/
+DESTDIR = $$PROJECTROOT/lib/qtmediahub/
 CONFIG += plugin
 QT += sql
 

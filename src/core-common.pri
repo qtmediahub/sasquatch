@@ -1,6 +1,6 @@
 include($$PROJECTROOT/src/common.pri)
 
-CORE_LIB_DIR = $$PROJECTROOT/hub/lib/
+CORE_LIB_DIR = $$PROJECTROOT/lib/
 
 QMAKE_LIBDIR += $${CORE_LIB_DIR}
 
