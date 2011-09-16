@@ -27,6 +27,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QTimer>
 
 class SkinRuntime;
+class SkinManager;
 class Skin;
 
 class MainWindow : public QWidget
@@ -79,6 +80,7 @@ private slots:
 private:
     QTimer m_resizeSettleTimer;
     QTimer m_inputIdleTimer;
+	SkinManager *m_skinManager;
     SkinRuntime *m_skinRuntime;
     QWidget *m_centralWidget;
     const QRect m_defaultGeometry;

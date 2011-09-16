@@ -41,8 +41,6 @@ public:
     ~SkinRuntime();
 
     QObject *create(Skin *skin, QObject *window);
-
-    QHash<QString, Skin *> skins() const;
 private:
     SkinRuntimePrivate *d;
 };

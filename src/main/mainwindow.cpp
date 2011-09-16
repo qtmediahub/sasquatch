@@ -22,6 +22,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "mainwindow.h"
 #include "qmh-config.h"
+#include "skinmanager.h"
 #include "skinselector.h"
 #include "skinruntime.h"
 
@@ -79,6 +80,8 @@ MainWindow::MainWindow(QWidget *parent)
         contextMenu->addActions(actions);
         systray->setContextMenu(contextMenu);
     }
+
+	m_skinManager = new SkinManager(this);
 }
 
 MainWindow::~MainWindow()
@@ -296,7 +299,7 @@ void MainWindow::show()
 
 void MainWindow::selectSkin()
 {
-    SkinSelector *skinSelector = new SkinSelector(m_skinRuntime->skins(), this);
+    SkinSelector *skinSelector = new SkinSelector(m_skinManager->skins(), this);
     skinSelector->setAttribute(Qt::WA_DeleteOnClose);
     connect(skinSelector, SIGNAL(skinSelected(Skin *)), this, SLOT(setSkin(Skin *)));
     skinSelector->exec();
@@ -304,7 +307,7 @@ void MainWindow::selectSkin()
 
 bool MainWindow::setSkin(const QString &name)
 {
-    QHash<QString, Skin *> skins = m_skinRuntime->skins();
+    QHash<QString, Skin *> skins = m_skinManager->skins();
     Skin *newSkin = skins.value(name);
     if (!newSkin && skins.size() > 0) {
         newSkin = skins.value(Config::value("default-skin", "confluence").toString());

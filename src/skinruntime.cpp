@@ -100,10 +100,6 @@ public:
 public slots:
     QObject *loadQmlSkin(const QUrl &url, QObject *window);
 
-    void discoverSkins();
-
-    void handleDirChanged(const QString &dir);
-
 public:
     void enableRemoteControlMode(bool enable);
 
@@ -119,11 +115,8 @@ public:
 
     ActionMapper *actionMapper;
     Trackpad *trackpad;
-    QHash<QString, Skin *> skins;
     Skin *currentSkin;
-    QFileSystemWatcher pathMonitor;
     QAbstractItemModel *remoteSessionsModel;
-    TarFileEngineHandler *tarFileEngineHandler;
     SkinRuntime *q;
 };
 
@@ -140,7 +133,6 @@ SkinRuntimePrivate::SkinRuntimePrivate(SkinRuntime *p)
       rpcConnection(0),
       trackpad(0),
       remoteSessionsModel(0),
-      tarFileEngineHandler(0),
       q(p)
 {
 #ifndef NO_DBUS
@@ -192,11 +184,6 @@ SkinRuntimePrivate::SkinRuntimePrivate(SkinRuntime *p)
     qmlRegisterType<Playlist>("Playlist", 1, 0, "Playlist");
     qmlRegisterType<MediaModel>("MediaModel", 1, 0, "MediaModel");
     qmlRegisterType<RpcConnection>("RpcConnection", 1, 0, "RpcConnection");
-    connect(&pathMonitor, SIGNAL(directoryChanged(QString)), this, SLOT(handleDirChanged(QString)));
-    foreach (const QString &skinPath, LibraryInfo::skinPaths()) {
-        if (QDir(skinPath).exists())
-            pathMonitor.addPath(skinPath);
-    }
 
 #ifdef QMH_AVAHI
     if (Config::isEnabled("avahi", true)) {
@@ -213,15 +200,11 @@ SkinRuntimePrivate::SkinRuntimePrivate(SkinRuntime *p)
 #else
     remoteSessionsModel = new StaticServiceBrowserModel(this);
 #endif
-
-    tarFileEngineHandler = new TarFileEngineHandler;
-    discoverSkins();
 }
 
 SkinRuntimePrivate::~SkinRuntimePrivate()
 {
     Config::setValue("skin", currentSkin->name());
-    delete tarFileEngineHandler;
 }
 
 #ifndef SCENEGRAPH
@@ -309,43 +292,6 @@ QObject *SkinRuntimePrivate::loadQmlSkin(const QUrl &targetUrl, QObject *window)
     return declarativeWidget;
 }
 
-void SkinRuntimePrivate::discoverSkins()
-{
-    qDeleteAll(skins.values());
-    skins.clear();
-
-    foreach (const QString &skinPath, LibraryInfo::skinPaths()) {
-        QStringList potentialSkins = QDir(skinPath).entryList(QDir::Dirs | QDir::NoDotAndDotDot);
-
-        foreach(const QString &currentPath, potentialSkins) {
-            const QString prospectivePath = skinPath % "/" % currentPath;
-            if (Skin *skin = Skin::createSkin(prospectivePath, this))
-                skins.insert(skin->name(), skin);
-        }
-    }
-
-    if (skins.isEmpty()) {
-        qWarning() << "No skins are found in your skin paths"<< endl \
-                   << "If you don't intend to run this without skins"<< endl \
-                   << "Please read the INSTALL doc available here:" \
-                   << "http://gitorious.org/qtmediahub/qtmediahub-core/blobs/master/INSTALL" \
-                   << "for further details";
-    } else {
-        QStringList sl;
-        foreach(Skin *skin, skins)
-            sl.append(skin->name());
-        qDebug() << "Available skins:" << sl.join(",");
-    }
-}
-
-void SkinRuntimePrivate::handleDirChanged(const QString &dir)
-{
-    if (LibraryInfo::skinPaths().contains(dir)) {
-        qWarning() << "Changes in skin path, repopulating skins";
-        discoverSkins();
-    }
-}
-
 SkinRuntime::SkinRuntime(QObject *p)
     : QObject(p),
       d(new SkinRuntimePrivate(this))
@@ -375,11 +321,6 @@ QObject *SkinRuntime::create(Skin *skin, QObject *window)
     d->currentSkin = skin;
     d->enableRemoteControlMode(skin->isRemoteControl() || Config::isEnabled("remote-override", false));
     return d->loadQmlSkin(url, window);
-}
-
-QHash<QString, Skin *> SkinRuntime::skins() const
-{
-    return d->skins;
 }
 
 void SkinRuntimePrivate::enableRemoteControlMode(bool enable)
