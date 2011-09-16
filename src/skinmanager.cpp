@@ -62,7 +62,10 @@ void SkinManager::discoverSkins()
     }
 }
 
-QList<Skin *> SkinManager::skinsModel() const
+QList<QObject *> SkinManager::skinsModel() const
 {
-	return m_skins.values();
+    QList<QObject *> list;
+    foreach(QObject *skin, m_skins.values())
+        list << skin;
+    return list;
 }
