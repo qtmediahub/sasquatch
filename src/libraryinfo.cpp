@@ -29,11 +29,9 @@ static QStringList standardResourcePaths(const QString &suffix)
 {
     QStringList paths;
 
-    paths << QMH_PREFIX % QString::fromLatin1("/share/qtmediahub/") % suffix % QString::fromLatin1("/");
-    paths << QDir::homePath() % "/.qtmediahub/" % suffix % QString::fromLatin1("/");
+    // The order of the added paths is relevant!
 
     // TODO should only be there for development
-    //   can be removed as soon as we have qar skins
     paths <<  QCoreApplication::applicationDirPath() % QString::fromLatin1("/../../") % suffix; // submodule repo
 
     // allows changing resource paths with eg. -skins-path on runtime
@@ -45,6 +43,10 @@ static QStringList standardResourcePaths(const QString &suffix)
     QString envVar("QMH_" % suffix.toUpper() % "_PATH");
     if (!qgetenv(envVar.toLatin1().constData()).isEmpty())
         paths << QDir(qgetenv(envVar.toLatin1().constData())).absolutePath();
+
+    paths << QMH_PROJECTROOT % QString::fromLatin1("/share/qtmediahub/") % suffix % QString::fromLatin1("/");
+    paths << QDir::homePath() % "/.qtmediahub/" % suffix % QString::fromLatin1("/");
+    paths << QMH_PREFIX % QString::fromLatin1("/share/qtmediahub/") % suffix % QString::fromLatin1("/");
 
     return paths;
 }
@@ -70,24 +72,24 @@ QString LibraryInfo::logPath()
     return storageLocation(QDesktopServices::TempLocation);
 }
 
-QString LibraryInfo::translationPath()
+QStringList LibraryInfo::translationPaths()
 {
-    return QMH_PREFIX % QString::fromLatin1("/share/qtmediahub/translations/");
+    return standardResourcePaths("translations");
 }
 
-QString LibraryInfo::pluginPath()
+QStringList LibraryInfo::pluginPaths()
 {
-    return QMH_PREFIX % QString::fromLatin1("/lib/qtmediahub/");
+    QStringList ret;
+
+    ret << QMH_PROJECTROOT % QString::fromLatin1("/lib/qtmediahub/");
+    ret << QMH_PREFIX % QString::fromLatin1("/lib/qtmediahub/");
+
+    return ret;
 }
 
-QString LibraryInfo::resourcePath()
+QStringList LibraryInfo::resourcePaths()
 {
-    return QMH_PREFIX % QString::fromLatin1("/share/qtmediahub/resources/");
-}
-
-QString LibraryInfo::thumbnailPath()
-{
-    return Config::value("thumbnail-path", QDir::homePath() + "/.thumbnails/" + QApplication::applicationName() + "/");
+    return standardResourcePaths("resources");
 }
 
 QStringList LibraryInfo::skinPaths()
@@ -105,13 +107,17 @@ QStringList LibraryInfo::keyboardMapPaths()
     return standardResourcePaths("keymaps");
 }
 
+QStringList LibraryInfo::qmlImportPaths()
+{
+    return standardResourcePaths("imports");
+}
+
+QString LibraryInfo::thumbnailPath()
+{
+    return Config::value("thumbnail-path", QDir::homePath() + "/.thumbnails/" + QApplication::applicationName() + "/");
+}
+
 QString LibraryInfo::databaseFilePath()
 {
     return LibraryInfo::dataPath() + "/media.db";
 }
-
-QString LibraryInfo::qmlImportPath()
-{
-    return QMH_PREFIX % QString::fromLatin1("/share/qtmediahub/imports/");
-}
-

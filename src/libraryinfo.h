@@ -29,18 +29,18 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 class QMH_EXPORT LibraryInfo
 {
 public:
-    static QString translationPath();
-    static QString pluginPath();
-    static QString resourcePath();
-    static QString thumbnailPath();
+    static QStringList translationPaths();
+    static QStringList pluginPaths();
+    static QStringList resourcePaths();
     static QStringList skinPaths();
     static QStringList applicationPaths();
     static QStringList keyboardMapPaths();
+    static QStringList qmlImportPaths();
+    static QString thumbnailPath();
     static QString dataPath();
     static QString tempPath();
     static QString logPath();
     static QString databaseFilePath();
-    static QString qmlImportPath();
 
 private:
     LibraryInfo();

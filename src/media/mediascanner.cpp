@@ -180,25 +180,32 @@ void MediaScanner::loadParserPlugins()
     MediaModel::createStaticRoleNameMapping();
 
     QStringList loaded;
-    foreach(const QString &fileName, QDir(LibraryInfo::pluginPath()).entryList(QDir::Files)) {
-        QString absoluteFilePath(LibraryInfo::pluginPath() % "/" % fileName);
-        QPluginLoader pluginLoader(absoluteFilePath);
+    foreach (const QString &pluginPath, LibraryInfo::pluginPaths()) {
+        foreach (const QString &fileName, QDir(pluginPath).entryList(QDir::Files)) {
+            QString absoluteFilePath(pluginPath % "/" % fileName);
+            if (loaded.contains(fileName)) {
+                DEBUG << "Don't load plugin" << absoluteFilePath << "plugin with same name already loaded";
+                continue;
+            }
+            QPluginLoader pluginLoader(absoluteFilePath);
 
-        if (!pluginLoader.load()) {
-            qWarning() << tr("Cant load plugin: %1 returns %2").arg(absoluteFilePath).arg(pluginLoader.errorString());
-            continue;
-        }
+            if (!pluginLoader.load()) {
+                qWarning() << tr("Cant load plugin: %1 returns %2").arg(absoluteFilePath).arg(pluginLoader.errorString());
+                continue;
+            }
 
-        MediaPlugin *plugin = qobject_cast<MediaPlugin*>(pluginLoader.instance());
-        if (!plugin) {
-            qWarning() << tr("Invalid media plugin present: %1").arg(absoluteFilePath);
-            pluginLoader.unload();
-            continue;
-        }
-        foreach(const QString &key, plugin->parserKeys()) {
-            MediaParser *parser = plugin->createParser(key);
-            MediaModel::createDynamicRoleNameMapping(parser->type());
-            addParser(parser);
+            MediaPlugin *plugin = qobject_cast<MediaPlugin*>(pluginLoader.instance());
+            if (!plugin) {
+                qWarning() << tr("Invalid media plugin present: %1").arg(absoluteFilePath);
+                pluginLoader.unload();
+                continue;
+            }
+            foreach(const QString &key, plugin->parserKeys()) {
+                MediaParser *parser = plugin->createParser(key);
+                MediaModel::createDynamicRoleNameMapping(parser->type());
+                addParser(parser);
+            }
+            loaded << fileName;
         }
     }
 }

@@ -8,23 +8,20 @@ OBJECTS_DIR = $$TEMP_DIR/.obj
 MOC_DIR = $$TEMP_DIR/.moc
 
 isEmpty(PREFIX) {
-    #yield to explicit PREFIX usage
-    PREFIX=$${PROJECTROOT}
-    deployable {
-        #Use our fuzzy heuristic logic for prefix setting
-        unix:!symbian {
-            maemo5 {
-                PREFIX=/opt/usr/
-            } harmattan {
-                PREFIX=/opt/qtmediahub/
-            } else {
-                PREFIX=/usr/local/
-            }
+    #Use our fuzzy heuristic logic for prefix setting
+    unix:!symbian {
+        maemo5 {
+            PREFIX=/opt/usr/
+        } harmattan {
+            PREFIX=/opt/qtmediahub/
+        } else {
+            PREFIX=/usr/local/
         }
     }
 }
 
 DEFINES += "QMH_PREFIX=\\\"$$PREFIX\\\""
+DEFINES += "QMH_PROJECTROOT=\\\"$$PROJECTROOT\\\""
 DEFINES += "QMH_DBUS_SERVICENAME=\\\"com.nokia.qtmediahub\\\""
 DEFINES += "QMH_PLAYER_DBUS_SERVICENAME=\\\"com.nokia.qtmediahub.player\\\""
 

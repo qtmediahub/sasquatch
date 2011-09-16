@@ -167,14 +167,17 @@ SkinRuntimePrivate::SkinRuntimePrivate(SkinRuntime *p)
     }
 #endif //GL
 
-    QString dejavuPath(LibraryInfo::resourcePath() % "/3rdparty/dejavu-fonts-ttf-2.32/ttf/");
-    if (QDir(dejavuPath).exists()) {
-        qDebug() << "Using the application specified dejavu font";
-        QFontDatabase::addApplicationFont(dejavuPath % "DejaVuSans.ttf");
-        QFontDatabase::addApplicationFont(dejavuPath % "DejaVuSans-Bold.ttf");
-        QFontDatabase::addApplicationFont(dejavuPath % "DejaVuSans-Oblique.ttf");
-        QFontDatabase::addApplicationFont(dejavuPath % "DejaVuSans-BoldOblique.ttf");
-        QApplication::setFont(QFont("DejaVu Sans"));
+    foreach (const QString &resourcePath, LibraryInfo::resourcePaths()) {
+        QString dejavuPath(resourcePath % "/3rdparty/dejavu-fonts-ttf-2.32/ttf/");
+        if (QDir(dejavuPath).exists()) {
+            qDebug() << "Using the application specified dejavu font";
+            QFontDatabase::addApplicationFont(dejavuPath % "DejaVuSans.ttf");
+            QFontDatabase::addApplicationFont(dejavuPath % "DejaVuSans-Bold.ttf");
+            QFontDatabase::addApplicationFont(dejavuPath % "DejaVuSans-Oblique.ttf");
+            QFontDatabase::addApplicationFont(dejavuPath % "DejaVuSans-BoldOblique.ttf");
+            QApplication::setFont(QFont("DejaVu Sans"));
+            break;
+        }
     }
 
     qApp->setOverrideCursor(Qt::BlankCursor);
@@ -296,7 +299,9 @@ QObject *SkinRuntimePrivate::loadQmlSkin(const QUrl &targetUrl, QObject *window)
 
     declarativeWidget->rootContext()->setContextProperty("runtime", runtime);
 
-    engine->addImportPath(LibraryInfo::qmlImportPath());
+    foreach (const QString &qmlImportPath, LibraryInfo::qmlImportPaths()) {
+        engine->addImportPath(qmlImportPath);
+    }
     engine->addImportPath(currentSkin->path());
 
     declarativeWidget->setSource(targetUrl);
