@@ -49,7 +49,7 @@ HEADERS += qmh-config.h \
     libraryinfo.h \
     abstractmediaplayer.h \
     tarfileengine.h \
-    refcountedengine.h \
+    refcountedcache.h \
     processmanager.h
 
 !scenegraph {
