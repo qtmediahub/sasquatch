@@ -35,6 +35,9 @@ class SkinSelector : public QDialog
 public:
     SkinSelector(SkinManager *skinManager, QWidget *parent = 0);
 
+protected:
+    QSize sizeHint() const;
+
 signals:
     void skinSelected(Skin *skin);
 

@@ -25,25 +25,28 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "skinmanager.h"
 
 #include <QtGui>
+#include <QtDeclarative>
 
 SkinSelector::SkinSelector(SkinManager *skinManager, QWidget *parent)
     : QDialog(parent)
 {
-	QHash<QString, Skin *> skins = skinManager->skins();
+    QHash<QString, Skin *> skins = skinManager->skins();
 
     QVBoxLayout *vbox = new QVBoxLayout(this);
-    QListWidget *skinsView = new QListWidget(this);
+    vbox->setContentsMargins(0, 0, 0, 0);
 
-    connect(skinsView, SIGNAL(itemActivated(QListWidgetItem*)),
-            this, SLOT(handleSkinSelection(QListWidgetItem*)));
-
-    foreach(Skin *skin, skins) {
-        QListWidgetItem *item = new QListWidgetItem(skin->name());
-        item->setData(Qt::UserRole, qVariantFromValue<Skin *>(skin));
-        skinsView->addItem(item);
-    }
-
+    QDeclarativeView *skinsView = new QDeclarativeView;
+    skinsView->setFrameStyle(QFrame::NoFrame);
+    skinsView->setResizeMode(QDeclarativeView::SizeRootObjectToView);
+    skinsView->rootContext()->setContextProperty("skinManager", skinManager);
+    skinsView->rootContext()->setContextProperty("window", parent);
+    skinsView->setSource(QUrl("qrc:/skinselector.qml"));
     vbox->addWidget(skinsView);
+}
+
+QSize SkinSelector::sizeHint() const
+{
+    return QSize(640, 380);
 }
 
 void SkinSelector::handleSkinSelection(QListWidgetItem* item) 

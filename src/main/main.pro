@@ -12,7 +12,7 @@ RCC_DIR = $$TEMP_DIR/.rcc
 
 include($${PROJECTROOT}/src/3rdparty/qtsingleapplication/qtsingleapplication.pri)
 
-Qt -= gui
+Qt += gui declarative
 
 # Input
 SOURCES += main.cpp \

@@ -3,9 +3,9 @@
 #include "tarfileengine.h"
 
 SkinManager::SkinManager(QObject *parent)
-	: QObject(parent)
+    : QObject(parent)
 {
-	connect(&m_pathMonitor, SIGNAL(directoryChanged(QString)), this, SLOT(handleDirChanged(QString)));
+    connect(&m_pathMonitor, SIGNAL(directoryChanged(QString)), this, SLOT(handleDirChanged(QString)));
     foreach (const QString &skinPath, LibraryInfo::skinPaths()) {
         if (QDir(skinPath).exists())
             m_pathMonitor.addPath(skinPath);
@@ -17,12 +17,12 @@ SkinManager::SkinManager(QObject *parent)
 
 SkinManager::~SkinManager()
 {
-	delete m_tarFileEngineHandler;
+    delete m_tarFileEngineHandler;
 }
 
 QHash<QString, Skin *> SkinManager::skins() const
 {
-	return m_skins;
+    return m_skins;
 }
 
 void SkinManager::handleDirChanged(const QString &dir)
@@ -62,3 +62,7 @@ void SkinManager::discoverSkins()
     }
 }
 
+QList<Skin *> SkinManager::skinsModel() const
+{
+	return m_skins.values();
+}

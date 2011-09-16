@@ -10,12 +10,15 @@ class TarFileEngineHandler;
 
 class QMH_EXPORT SkinManager : public QObject
 {
-	Q_OBJECT
+    Q_OBJECT
+    Q_PROPERTY(QList<Skin *> skinsModel READ skinsModel CONSTANT) // ## Make into QDeclarativeListProperty
+
 public:
     SkinManager(QObject *parent = 0);
     ~SkinManager();
 
     QHash<QString, Skin *> skins() const;
+    QList<Skin *> skinsModel() const;
 
 private slots:
     void discoverSkins();

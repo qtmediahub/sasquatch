@@ -51,7 +51,7 @@ public slots:
     void showFullScreen();
     void showNormal();
     bool setSkin(const QString &name);
-    bool setSkin(Skin*skin);
+    bool setSkin(Skin *skin);
 
 signals:
     void resetUI();
