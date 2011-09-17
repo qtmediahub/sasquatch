@@ -38,7 +38,6 @@ ListView {
             Text {
                 id: skinName
                 font.bold: true
-                text: model.modelData.name
                 color: delegate.ListView.view.isCurrentItem ? palette.highlightedText : palette.text
             }
 
@@ -69,6 +68,7 @@ ListView {
             doc.onreadystatechange = function() {
                 if (doc.readyState == XMLHttpRequest.DONE && doc.responseText) {
                     var manifest = eval('(' + doc.responseText + ')')
+                    skinName.text = manifest.name
                     if (manifest.screenshot)
                         screenshot.source = "file://" + model.modelData.path + "/" + manifest.screenshot
                     var authors = []
