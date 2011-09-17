@@ -118,7 +118,9 @@ void RpcConnection::sendError(QTcpSocket *socket, const QString &id, int error, 
     errorMap.insert("data", data);
     responseMap.insert("error", errorMap);
 
-    QByteArray jsonRpc = Json::stringify(QVariant(responseMap));
+    JsonWriter writer;
+    writer.stringify(QVariant(responseMap));
+    QByteArray jsonRpc = writer.result().toUtf8();
 
     struct Header { int length; } header;
     header.length = htonl(jsonRpc.length());
@@ -137,12 +139,18 @@ void RpcConnection::handleReadyRead()
         header.length = ntohl(header.length);
         QByteArray msg = socket->read(header.length); // ## assumes we got complete message
 
-        QString error;
-        QVariantMap map = Json::parse(msg, &error).toMap();
-        if (!error.isEmpty() || map["jsonrpc"].toString() != "2.0") {
+        JsonReader reader;
+        if (!reader.parse(msg)) {
             if (m_mode == Server)
-                sendError(socket, map["id"].toString(), ParseError, "Malformatted JSON-RPC", error);
-            qWarning() << "Malformatted JSON-RPC " << error;
+                sendError(socket, "null", ParseError, "Not JSON", reader.errorString());
+            qWarning() << "Not a JSON " << msg;
+            return;
+        }
+        QVariantMap map = reader.result().toMap();
+        if (map["jsonrpc"].toString() != "2.0") {
+            if (m_mode == Server)
+                sendError(socket, map["id"].toString(), InvalidRequest, "Version mismatch", "Expecting JSON-RPC 2.0");
+            qWarning() << "Version mismatch, expecting 2.0 JSON-RPC";
             return;
         }
 
@@ -223,7 +231,9 @@ void RpcConnection::sendResponse(QTcpSocket *socket, const QString &id, const QV
     responseMap.insert("jsonrpc", "2.0");
     responseMap.insert("result", result);
     responseMap.insert("id", id);
-    QByteArray jsonRpc = Json::stringify(QVariant(responseMap));
+    JsonWriter writer;
+    writer.stringify(responseMap);
+    QByteArray jsonRpc = writer.result().toUtf8();
 
     struct Header { int length; } header;
     header.length = htonl(jsonRpc.length());
@@ -264,7 +274,9 @@ int RpcConnection::call(const QByteArray &method, const QVariant &arg0, const QV
     map.insert("method", method);
     map.insert("params", params);
     map.insert("id", m_id++);
-    QByteArray jsonRpc = Json::stringify(QVariant(map));
+    JsonWriter writer;
+    writer.stringify(map);
+    QByteArray jsonRpc = writer.result().toUtf8();
 
     header.length = htonl(jsonRpc.length());
     m_socket->write((const char *)&header, sizeof(header));
