@@ -22,6 +22,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "skin.h"
 #include "libraryinfo.h"
+#include "jsonparser/json.h"
 
 #include <QtGui>
 #include <QtDebug>
@@ -52,7 +53,7 @@ QString Skin::config() const
 
 Skin *Skin::createSkin(const QString &skinPath, QObject *parent)
 {
-    QString mapFile = skinPath + "/skin.map";
+    QString mapFile = skinPath + "/skin.manifest";
     if (!QFile(mapFile).exists())
         return 0;
 
@@ -69,35 +70,36 @@ QUrl Skin::urlForResolution(const QString &nativeResolutionString, const QString
     //http://en.wikipedia.org/wiki/720p
     //1440, 1080, 720, 576, 480, 360, 240
     QHash<QString, QString> resolutionHash;
-    resolutionHash["1440"] = "2560x1440";
-    resolutionHash["1080"] = "1920x1080";
-    resolutionHash["720"] = "1280x720";
+    resolutionHash["1440p"] = "2560x1440";
+    resolutionHash["1080p"] = "1920x1080";
+    resolutionHash["720p"] = "1280x720";
 
     QFile skinConfig(m_config);
     if (!skinConfig.open(QIODevice::ReadOnly)) {
         qWarning() << "Can't read " << m_config << " of skin " << m_name;
         return QUrl();
     }
+	JsonReader reader;
+	if (!reader.parse(skinConfig.readAll())) {
+		qWarning() << "Failed to parse config file " << m_config << reader.errorString();
+		return QUrl();
+	}
+	QHash<QString, QString> resolutionToFile;
 
-    QHash<QString, QString> fileForResolution;
-    QTextStream skinStream(&skinConfig);
-    while (!skinStream.atEnd()) {
-        QStringList resolutionToFile = skinStream.readLine().split(":");
-        if (resolutionToFile.count() == 2) {
-            QString resolution =
-                    resolutionHash.contains(resolutionToFile.at(0))
-                    ? resolutionHash[resolutionToFile.at(0)]
-                    : resolutionToFile.at(0);
-            fileForResolution[resolution] = resolutionToFile.at(1);
-        } else {
-            qWarning() << "bad line in skin configuration";
-        }
-    }
+	const QVariantMap root = reader.result().toMap();
+	const QVariantMap resolutions = root["resolutions"].toMap();
+	foreach(const QVariant &v, resolutions) {
+		QString name = v.toString();
+		QString resolutionSize = resolutionHash.contains(name) ? resolutionHash[name] : name;
+		QVariantMap resolution = v.toMap();
+		resolutionToFile[resolutionSize] = resolutions[name].toMap()["file"].toString();
+	}
+	resolutionToFile["default"] = resolutions[root["default_resolution"].toString()].toMap()["file"].toString();
 
     QString urlPath =
-            fileForResolution.contains(nativeResolutionString)
-            ? fileForResolution[nativeResolutionString]
-            : fileForResolution[fallbackResolution];
+            resolutionToFile.contains(nativeResolutionString)
+            ? resolutionToFile[nativeResolutionString]
+            : resolutionToFile[fallbackResolution];
 
     return QUrl::fromLocalFile(m_path % "/" % urlPath);
 }
