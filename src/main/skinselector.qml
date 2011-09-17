@@ -68,7 +68,7 @@ ListView {
             doc.onreadystatechange = function() {
                 if (doc.readyState == XMLHttpRequest.DONE && doc.responseText) {
                     var manifest = eval('(' + doc.responseText + ')')
-                    skinName.text = manifest.name
+                    skinName.text = manifest.name + " (v" + manifest.version + ")"
                     if (manifest.screenshot)
                         screenshot.source = "file://" + model.modelData.path + "/" + manifest.screenshot
                     var authors = []
