@@ -61,10 +61,10 @@ void DeclarativeView::paintEvent(QPaintEvent *event)
             painter.fillRect(event->rect(), Qt::transparent);
         }
     }
+    m_frameTimer.restart();
     QDeclarativeView::paintEvent(event);
     m_timeSigma += m_frameTimer.elapsed();
     ++m_frameCount;
-    m_frameTimer.restart();
 }
 
 void DeclarativeView::timerEvent(QTimerEvent *event)
