@@ -34,6 +34,7 @@ class DeclarativeView : public QDeclarativeView
 public:
     DeclarativeView(QWidget *parent = 0);
     void setSource(const QUrl &url);
+    void setViewport(QWidget * widget);
 
     Q_INVOKABLE QObject *focusItem() const;
 
@@ -53,6 +54,9 @@ signals:
     void fpsChanged();
 
 private:
+    bool drivenFPS;
+    bool overlayMode;
+    bool glViewport;
     int m_frameCount;
     int m_timeSigma;
     int m_fps;

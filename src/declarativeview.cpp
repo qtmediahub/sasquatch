@@ -33,7 +33,11 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 DeclarativeView::DeclarativeView(QWidget *parent)
     : QDeclarativeView(parent),
+      drivenFPS(Config::isEnabled("driven-fps", false)),
+      overlayMode(Config::isEnabled("overlay-mode", false)),
+      glViewport(false),
       m_frameCount(0),
+      m_timeSigma(0),
       m_fps(0)
 {
     startTimer(1000);
@@ -46,34 +50,43 @@ void DeclarativeView::setSource(const QUrl &url)
     QMetaObject::invokeMethod(this, "handleSourceChanged", Qt::QueuedConnection);
 }
 
+void DeclarativeView::setViewport(QWidget * widget)
+{
+#ifdef GL
+    glViewport = qobject_cast<QGLWidget*>(widget);
+#else
+    glViewport = false;
+#endif
+}
+
 void DeclarativeView::paintEvent(QPaintEvent *event)
 {
-    static bool isGLViewport
-#ifdef GL
-            = qobject_cast<QGLWidget*>(viewport());
-#else
-            = false;
-#endif
-    if (!isGLViewport) {
-        bool isOverlayMode = Config::isEnabled("overlay-mode", false);
-        if (isOverlayMode) {
-            QPainter painter(viewport());
-            painter.fillRect(event->rect(), Qt::transparent);
-        }
+    if (!glViewport && overlayMode) {
+        QPainter painter(viewport());
+        painter.fillRect(event->rect(), Qt::transparent);
     }
-    m_frameTimer.restart();
-    QDeclarativeView::paintEvent(event);
-    m_timeSigma += m_frameTimer.elapsed();
     ++m_frameCount;
+
+    if (drivenFPS) {
+        QDeclarativeView::paintEvent(event);
+        //Force the frog march
+        viewport()->update();
+    } else {
+        m_frameTimer.restart();
+        QDeclarativeView::paintEvent(event);
+        m_timeSigma += m_frameTimer.elapsed();
+    }
 }
 
 void DeclarativeView::timerEvent(QTimerEvent *event)
 {
-    if (m_timeSigma) {
+    if (!drivenFPS && m_timeSigma) {
         m_fps = 1000*m_frameCount/m_timeSigma;
-        m_timeSigma = m_frameCount = 0;
-        emit fpsChanged();
+    } else {
+        m_fps = m_frameCount;
     }
+    m_timeSigma = m_frameCount = 0;
+    emit fpsChanged();
     QDeclarativeView::timerEvent(event);
 }
 
