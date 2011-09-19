@@ -78,6 +78,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #endif
 #include "customcursor.h"
 #include "httpserver/httpserver.h"
+#include "inputcontext.h"
 
 #ifndef NO_DBUS
 static void registerObjectWithDbus(const QString &path, QObject *object)
@@ -117,6 +118,7 @@ public:
     Trackpad *trackpad;
     Skin *currentSkin;
     QAbstractItemModel *remoteSessionsModel;
+    InputContext *inputContext;
     SkinRuntime *q;
 };
 
@@ -133,6 +135,7 @@ SkinRuntimePrivate::SkinRuntimePrivate(SkinRuntime *p)
       rpcConnection(0),
       trackpad(0),
       remoteSessionsModel(0),
+      inputContext(0),
       q(p)
 {
 #ifndef NO_DBUS
@@ -378,6 +381,8 @@ void SkinRuntimePrivate::enableRemoteControlMode(bool enable)
     rpcConnection->registerObject(actionMapper);
     rpcConnection->registerObject(mediaPlayerRpc);
     rpcConnection->registerObject(trackpad);
+
+    inputContext = new InputContext(this);
 
     processManager = new ProcessManager(this);
 

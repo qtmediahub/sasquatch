@@ -30,7 +30,8 @@ SOURCES += qmh-config.cpp \
     abstractmediaplayer.cpp \
     tarfileengine.cpp \
     processmanager.cpp \
-    skinmanager.cpp
+    skinmanager.cpp \
+    inputcontext.cpp
 
 HEADERS += qmh-config.h \
     global.h \
@@ -52,7 +53,8 @@ HEADERS += qmh-config.h \
     tarfileengine.h \
     refcountedcache.h \
     processmanager.h \
-	skinmanager.h
+    skinmanager.h \
+    inputcontext.h
 
 !scenegraph {
     HEADERS += \
