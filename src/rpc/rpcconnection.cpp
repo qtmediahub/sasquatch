@@ -194,6 +194,10 @@ void RpcConnection::handleRpcCall(QTcpSocket *socket, const QVariantMap &map)
         return;
     }
 
+    // ## This approach is quite simplistic and will not handle the case where the slot
+    // takes a parameter type which is compatible with the parameter type received from
+    // the json code. For example, the JSON parser code always parses numbers as qlonglong
+    // which effectively forces all our slots to take qlonglong argument (and not int).
     QByteArray normalizedMethod = method.toLatin1() + "(" + stringifyParamTypes(params) + ")";
     idx = object->metaObject()->indexOfMethod(normalizedMethod);
     if (idx < 0) {

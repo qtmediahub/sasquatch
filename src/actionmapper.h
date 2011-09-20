@@ -63,11 +63,9 @@ public:
     void setRecipient(QObject *recipient);
 
 public slots:
-    void takeAction(int action) { takeAction(static_cast<Action>(action)); }
     void takeAction(qlonglong action) { takeAction(static_cast<Action>(action)); }
     void takeAction(Action action);
-    void processKey(qlonglong key) { processKey(static_cast<int>(key)); }
-    void processKey(int key);
+    void processKey(qlonglong key);
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event);
