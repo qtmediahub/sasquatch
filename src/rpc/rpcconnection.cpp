@@ -100,9 +100,10 @@ bool RpcConnection::listen(const QHostAddress &address, quint16 port)
 
 void RpcConnection::handleNewConnection()
 {
-    QTcpSocket *socket = m_server->nextPendingConnection();
+    QPointer<QTcpSocket> socket = m_server->nextPendingConnection();
     connect(socket, SIGNAL(readyRead()), this, SLOT(handleReadyRead()));
     connect(socket, SIGNAL(disconnected()), socket, SLOT(deleteLater()));
+    m_clients << socket;
     // qDebug() << "Connected to client";
 }
 
@@ -257,31 +258,43 @@ int RpcConnection::call(const QByteArray &method, const QVariant &arg0, const QV
                         const QVariant &arg2, const QVariant &arg3, const QVariant &arg4, const QVariant &arg5,
                         const QVariant &arg6, const QVariant &arg7, const QVariant &arg8, const QVariant &arg9)
 {
-    Q_ASSERT(m_mode == Client); // can't invoke methods in server mode since we use m_socket below
-    struct Header { int length; } header;
+        struct Header { int length; } header;
 
-    QVariantList params;
-    params << arg0 << arg1 << arg2 << arg3 << arg4 << arg5 << arg6 << arg7 << arg8 << arg9;
-    int i;
-    for (i = 0; i < params.count(); i++) {
-        if (params[i].isNull())
-            break;
+        QVariantList params;
+        params << arg0 << arg1 << arg2 << arg3 << arg4 << arg5 << arg6 << arg7 << arg8 << arg9;
+        int i;
+        for (i = 0; i < params.count(); i++) {
+            if (params[i].isNull())
+                break;
+        }
+        params = params.mid(0, i);
+
+        QVariantMap map;
+        map.insert("jsonrpc", "2.0");
+        map.insert("method", method);
+        map.insert("params", params);
+        map.insert("id", m_id++);
+        JsonWriter writer;
+        writer.stringify(map);
+        QByteArray jsonRpc = writer.result().toUtf8();
+
+    if (m_mode == Client) {
+        header.length = htonl(jsonRpc.length());
+        m_socket->write((const char *)&header, sizeof(header));
+        m_socket->write(jsonRpc);
+        m_socket->flush();
+    } else {
+        foreach (QPointer<QTcpSocket> socket, m_clients) {
+            if (socket.isNull()) {
+                m_clients.removeOne(socket);
+                continue;
+            }
+            header.length = htonl(jsonRpc.length());
+            socket->write((const char *)&header, sizeof(header));
+            socket->write(jsonRpc);
+            socket->flush();
+        }
     }
-    params = params.mid(0, i);
-
-    QVariantMap map;
-    map.insert("jsonrpc", "2.0");
-    map.insert("method", method);
-    map.insert("params", params);
-    map.insert("id", m_id++);
-    JsonWriter writer;
-    writer.stringify(map);
-    QByteArray jsonRpc = writer.result().toUtf8();
-
-    header.length = htonl(jsonRpc.length());
-    m_socket->write((const char *)&header, sizeof(header));
-    m_socket->write(jsonRpc);
-    m_socket->flush();
 
     return m_id;
 }

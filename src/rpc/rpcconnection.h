@@ -26,6 +26,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QObject>
 #include <QHostAddress>
 #include <QVariant>
+#include <QPointer>
 
 class QTcpServer;
 class QTcpSocket;
@@ -100,6 +101,7 @@ private:
     QTcpSocket *m_socket;
     QHash<QString, QObject *> m_objects;
     int m_id;
+    QList<QPointer<QTcpSocket> > m_clients;
 };
 
 #endif // RPCCONNECTION_H
