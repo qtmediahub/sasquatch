@@ -34,6 +34,7 @@ class Playlist : public QAbstractListModel
     Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
     Q_PROPERTY(PlayMode playMode READ playMode WRITE setPlayMode NOTIFY playModeChanged)
     Q_PROPERTY(int currentIndex READ currentIndex WRITE setCurrentIndex NOTIFY currentIndexChanged)
+    Q_PROPERTY(bool wrapAround READ wrapAround WRITE setWrapAround NOTIFY wrapAroundChanged)
 
     Q_ENUMS(PlayMode)
 
@@ -61,6 +62,9 @@ public:
     void setCurrentIndex(int idx);
     int currentIndex() const;
 
+    void setWrapAround(bool wrap);
+    bool wrapAround() const;
+
     // reimp
     Q_INVOKABLE int rowCount(const QModelIndex &parent = QModelIndex()) const;
     QVariant data(const QModelIndex &index, int role) const;
@@ -75,6 +79,7 @@ signals:
     void nameChanged();
     void playModeChanged();
     void currentIndexChanged();
+    void wrapAroundChanged();
 
 private:
     void saveLater();
@@ -83,6 +88,7 @@ private:
     QString m_name;
     PlayMode m_playMode;
     int m_currentIndex;
+    bool m_wrapAround;
     QTimer m_saveTimer;
 };
 

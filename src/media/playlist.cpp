@@ -31,6 +31,7 @@ Playlist::Playlist(QObject *parent)
     : QAbstractListModel(parent)
     , m_playMode(Normal)
     , m_currentIndex(-1)
+    , m_wrapAround(false)
 {
     m_saveTimer.setInterval(2000);
     m_saveTimer.setSingleShot(true);
@@ -131,7 +132,7 @@ void Playlist::setCurrentIndex(int index)
     if (m_currentIndex == index)
         return;
 
-    if (index >= rowCount() || index < 0) {
+    if (index >= rowCount()) { // index can be < 0 to "unset" the current index
         DEBUG << "Invalid index " << index;
         return;
     }
@@ -151,8 +152,10 @@ int Playlist::next()
     int index;
     if (m_playMode == Shuffle) {
         index = int((qreal(qrand())/RAND_MAX)*rowCount());
-    } else {
+    } else if (m_wrapAround) {
         index = m_currentIndex >= rowCount()-1 ? 0 : m_currentIndex+1;
+    } else {
+        index = m_currentIndex >= rowCount()-1 ? -1 : m_currentIndex+1;
     }
 
     setCurrentIndex(index);
@@ -161,7 +164,12 @@ int Playlist::next()
 
 int Playlist::previous()
 {
-    int index = m_currentIndex <= 0 ? rowCount()-1 : m_currentIndex-1;
+    int index;
+    if (m_wrapAround) {
+        index = m_currentIndex <= 0 ? rowCount()-1 : m_currentIndex-1;
+    } else {
+        index = m_currentIndex <= 0 ? -1 : m_currentIndex-1;
+    }
     setCurrentIndex(index);
     return m_currentIndex;
 }
@@ -260,5 +268,19 @@ void Playlist::setName(const QString &name)
 QString Playlist::name() const
 {
     return m_name;
+}
+
+void Playlist::setWrapAround(bool wrap)
+{
+    if (m_wrapAround == wrap)
+        return;
+
+    m_wrapAround = wrap;
+    emit wrapAroundChanged();
+}
+
+bool Playlist::wrapAround() const
+{
+    return m_wrapAround;
 }
 

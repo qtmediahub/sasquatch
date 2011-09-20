@@ -150,6 +150,7 @@ Item {
     Playlist {
         id: playlist
         playMode: root.shuffle ? Playlist.Shuffle : Playlist.Normal
+        wrapAround: false
     }
 
     QMHMediaInfo {
