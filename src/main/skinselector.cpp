@@ -25,7 +25,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "skinmanager.h"
 
 #include <QtGui>
+
+#ifdef SCENEGRAPH
+#include <QtWidgets>
+#include <QSGView>
+#include <QDeclarativeContext>
+#else
 #include <QtDeclarative>
+#endif
 
 SkinSelector::SkinSelector(SkinManager *skinManager, QWidget *parent)
     : QDialog(parent)
@@ -34,14 +41,19 @@ SkinSelector::SkinSelector(SkinManager *skinManager, QWidget *parent)
 
     QVBoxLayout *vbox = new QVBoxLayout(this);
     vbox->setContentsMargins(0, 0, 0, 0);
-
+#ifdef SCENEGRAPH
+    QSGView *skinsView = new QSGView;
+    skinsView->setResizeMode(QSGView::SizeRootObjectToView);
+    skinsView->show();
+#else
     QDeclarativeView *skinsView = new QDeclarativeView;
     skinsView->setFrameStyle(QFrame::NoFrame);
     skinsView->setResizeMode(QDeclarativeView::SizeRootObjectToView);
+    vbox->addWidget(skinsView);
+#endif
     skinsView->rootContext()->setContextProperty("skinManager", skinManager);
     skinsView->rootContext()->setContextProperty("window", parent);
     skinsView->setSource(QUrl("qrc:/skinselector.qml"));
-    vbox->addWidget(skinsView);
 }
 
 QSize SkinSelector::sizeHint() const

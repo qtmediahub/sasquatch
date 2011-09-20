@@ -23,6 +23,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "trackpad.h"
 #include <QtGui>
 #include <QtDeclarative>
+#ifdef SCENEGRAPH
+#include <QtWidgets>
+#endif
 
 Trackpad::Trackpad(QObject *p)
     : QObject(p), parent(p)
@@ -35,6 +38,7 @@ Trackpad::~Trackpad()
 
 void Trackpad::setRecipient(QWidget *recipient)
 {
+#ifndef SCENEGRAPH
     QGraphicsView *potentialView = qobject_cast<QGraphicsView*>(recipient);
     QDeclarativeView *potentialDeclarativeView = qobject_cast<QDeclarativeView*>(recipient);
     if (potentialDeclarativeView)
@@ -44,6 +48,7 @@ void Trackpad::setRecipient(QWidget *recipient)
     } else {
         m_recipient = QWeakPointer<QWidget>(recipient);
     }
+#endif
 }
 
 void Trackpad::setEnabled(bool e)

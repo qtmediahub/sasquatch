@@ -24,7 +24,6 @@ SOURCES += qmh-config.cpp \
     devicemanager.cpp \
     powermanager.cpp \
     customcursor.cpp \
-    declarativeview.cpp \
     libraryinfo.cpp \
     file.cpp \
     abstractmediaplayer.cpp \
@@ -56,9 +55,11 @@ HEADERS += qmh-config.h \
     skinmanager.h \
     inputcontext.h
 
-!scenegraph {
+!qt5 {
     HEADERS += \
         declarativeview.h
+    SOURCES += \
+        declarativeview.cpp
 }
 
 !no-dbus {

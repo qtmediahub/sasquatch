@@ -27,8 +27,13 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "skinruntime.h"
 
 #include <QGraphicsView>
-#include <QDeclarativeView>
 #include <QShortcut>
+
+#ifdef SCENEGRAPH
+#include <QtWidgets>
+#else
+#include <QDeclarativeView>
+#endif
 
 MainWindow::MainWindow(QWidget *parent)
     : QWidget(parent),

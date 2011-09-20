@@ -2,7 +2,8 @@
 # Add with care
 
 qt5 {
-    QT += v8 network sql declarative
+    DEFINES += SCENEGRAPH
+    QT += v8 network sql declarative widgets
 } else {
     QT += declarative script network sql
 }
@@ -52,10 +53,6 @@ glviewport {
 gl {
     DEFINES += GL
     QT += opengl
-}
-
-scenegraph {
-    DEFINES += SCENEGRAPH
 }
 
 mac {
