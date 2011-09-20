@@ -101,6 +101,10 @@ public:
 public slots:
     QObject *loadQmlSkin(const QUrl &url, QObject *window);
 
+    // TODO check if there is some better place
+    void rpcSendInputMethodStart();
+    void rpcSendInputMethodStop();
+
 public:
     void enableRemoteControlMode(bool enable);
 
@@ -383,6 +387,8 @@ void SkinRuntimePrivate::enableRemoteControlMode(bool enable)
     rpcConnection->registerObject(trackpad);
 
     inputContext = new InputContext(this);
+    connect(inputContext, SIGNAL(inputMethodStartRequested()), this, SLOT(rpcSendInputMethodStart()));
+    connect(inputContext, SIGNAL(inputMethodStopRequested()), this, SLOT(rpcSendInputMethodStop()));
 
     processManager = new ProcessManager(this);
 
@@ -397,6 +403,22 @@ void SkinRuntimePrivate::enableRemoteControlMode(bool enable)
         ::registerObjectWithDbus("/mediacontrol", mediaPlayerRpc);
     }
 #endif
+}
+
+void SkinRuntimePrivate::rpcSendInputMethodStart()
+{
+    if (!rpcConnection)
+        return;
+
+    rpcConnection->call("inputContext.inputMethodStartRequested");
+}
+
+void SkinRuntimePrivate::rpcSendInputMethodStop()
+{
+    if (!rpcConnection)
+        return;
+
+    rpcConnection->call("inputContext.inputMethodStopRequested");
 }
 
 #include "skinruntime.moc"
