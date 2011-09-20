@@ -50,7 +50,7 @@ void DeclarativeView::setSource(const QUrl &url)
     QMetaObject::invokeMethod(this, "handleSourceChanged", Qt::QueuedConnection);
 }
 
-void DeclarativeView::setViewport(QWidget *widget)
+void DeclarativeView::setupViewport(QWidget *widget)
 {
 #ifdef GL
     m_glViewport = qobject_cast<QGLWidget*>(widget);

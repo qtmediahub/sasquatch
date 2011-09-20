@@ -34,7 +34,6 @@ class DeclarativeView : public QDeclarativeView
 public:
     DeclarativeView(QWidget *parent = 0);
     void setSource(const QUrl &url);
-    void setViewport(QWidget * widget);
 
     Q_INVOKABLE QObject *focusItem() const;
 
@@ -49,6 +48,9 @@ protected:
 public slots:
     void handleSourceChanged();
     void handleStatusChanged(QDeclarativeView::Status status);
+
+protected slots:
+    void setupViewport(QWidget *viewport);
 
 signals:
     void fpsChanged();
