@@ -3,7 +3,7 @@
 #include <QApplication>
 #include <QtDebug>
 
-#define DEBUG if (1) qDebug() << __PRETTY_FUNCTION__
+#define DEBUG if (0) qDebug() << __PRETTY_FUNCTION__
 
 InputContext::InputContext(QObject *parent) :
     QInputContext(parent),
