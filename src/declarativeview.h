@@ -54,9 +54,9 @@ signals:
     void fpsChanged();
 
 private:
-    bool drivenFPS;
-    bool overlayMode;
-    bool glViewport;
+    bool m_drivenFPS;
+    bool m_overlayMode;
+    bool m_glViewport;
     int m_frameCount;
     int m_timeSigma;
     int m_fps;

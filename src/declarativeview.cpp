@@ -33,9 +33,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 DeclarativeView::DeclarativeView(QWidget *parent)
     : QDeclarativeView(parent),
-      drivenFPS(Config::isEnabled("driven-fps", false)),
-      overlayMode(Config::isEnabled("overlay-mode", false)),
-      glViewport(false),
+      m_drivenFPS(Config::isEnabled("driven-fps", false)),
+      m_overlayMode(Config::isEnabled("overlay-mode", false)),
+      m_glViewport(false),
       m_frameCount(0),
       m_timeSigma(0),
       m_fps(0)
@@ -50,24 +50,24 @@ void DeclarativeView::setSource(const QUrl &url)
     QMetaObject::invokeMethod(this, "handleSourceChanged", Qt::QueuedConnection);
 }
 
-void DeclarativeView::setViewport(QWidget * widget)
+void DeclarativeView::setViewport(QWidget *widget)
 {
 #ifdef GL
-    glViewport = qobject_cast<QGLWidget*>(widget);
+    m_glViewport = qobject_cast<QGLWidget*>(widget);
 #else
-    glViewport = false;
+    m_glViewport = false;
 #endif
 }
 
 void DeclarativeView::paintEvent(QPaintEvent *event)
 {
-    if (!glViewport && overlayMode) {
+    if (!m_glViewport && m_overlayMode) {
         QPainter painter(viewport());
         painter.fillRect(event->rect(), Qt::transparent);
     }
     ++m_frameCount;
 
-    if (drivenFPS) {
+    if (m_drivenFPS) {
         QDeclarativeView::paintEvent(event);
         //Force the frog march
         viewport()->update();
@@ -80,7 +80,7 @@ void DeclarativeView::paintEvent(QPaintEvent *event)
 
 void DeclarativeView::timerEvent(QTimerEvent *event)
 {
-    if (!drivenFPS && m_timeSigma) {
+    if (!m_drivenFPS && m_timeSigma) {
         m_fps = 1000*m_frameCount/m_timeSigma;
     } else {
         m_fps = m_frameCount;
