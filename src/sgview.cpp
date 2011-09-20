@@ -20,70 +20,54 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 ****************************************************************************/
 
-#ifndef DECLARATIVEVIEW_H
-#define DECLARATIVEVIEW_H
+#include "declarativeview.h"
+#include <QSGItem>
+#include <QDeclarativeEngine>
+#include <QDebug>
+#include "qmh-config.h"
 
-#include <QElapsedTimer>
-
-#ifdef SCENEGRAPH
-#include <QSGView>
-#else
-#include <QDeclarativeView>
-#endif
-
-#ifdef SCENEGRAPH
-class DeclarativeView : public QSGView
-#else
-class DeclarativeView : public QDeclarativeView
-#endif
+DeclarativeView::DeclarativeView(QWindow *parent)
+    : QSGView(parent),
+      m_drivenFPS(Config::isEnabled("driven-fps", false)),
+      m_overlayMode(Config::isEnabled("overlay-mode", false)),
+      m_glViewport(false),
+      m_frameCount(0),
+      m_timeSigma(0),
+      m_fps(0)
 {
-    Q_OBJECT
-    Q_PROPERTY(int fps READ fps NOTIFY fpsChanged)
+    connect(this, SIGNAL(statusChanged(QSGView::Status)), this, SLOT(handleStatusChanged(QSGView::Status)));
+}
 
-public:
-#ifdef SCENEGRAPH
-    DeclarativeView(QWindow *parent = 0);
-#else
-    DeclarativeView(QWidget *parent = 0);
-#endif
-    void setSource(const QUrl &url);
+void DeclarativeView::setSource(const QUrl &url)
+{
+    m_url = url;
+    QMetaObject::invokeMethod(this, "handleSourceChanged", Qt::QueuedConnection);
+}
 
-    Q_INVOKABLE QObject *focusItem() const;
+void DeclarativeView::handleSourceChanged()
+{
+    QSGView::setSource(m_url);
+}
 
-    Q_INVOKABLE void addImportPath(const QString &path);
+void DeclarativeView::handleStatusChanged(QSGView::Status status)
+{
+    //Dodgy work around for gnome focus issues?
+    if (status == QSGView::Ready) {
+        requestActivateWindow();
+    }
+}
 
-    int fps() const;
+QObject *DeclarativeView::focusItem() const
+{
+    return static_cast<QObject*>(activeFocusItem());
+}
 
-#ifndef SCENEGRAPH
-protected:
-    void paintEvent(QPaintEvent *event);
-    void timerEvent(QTimerEvent *event);
+int DeclarativeView::fps() const
+{
+    return m_fps;
+}
 
-protected slots:
-    void setupViewport(QWidget *viewport);
-#endif
-
-public slots:
-    void handleSourceChanged();
-#ifdef SCENEGRAPH
-    void handleStatusChanged(QSGView::Status status);
-#else
-    void handleStatusChanged(QDeclarativeView::Status status);
-#endif
-
-signals:
-    void fpsChanged();
-
-private:
-    bool m_drivenFPS;
-    bool m_overlayMode;
-    bool m_glViewport;
-    int m_frameCount;
-    int m_timeSigma;
-    int m_fps;
-    QElapsedTimer m_frameTimer;
-    QUrl m_url;
-};
-
-#endif // DECLARATIVEVIEW_H
-
+void DeclarativeView::addImportPath(const QString &path)
+{
+    engine()->addImportPath(path);
+}

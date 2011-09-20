@@ -30,6 +30,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QShortcut>
 
 #ifdef SCENEGRAPH
+#include <QSGView>
 #include <QtWidgets>
 #else
 #include <QDeclarativeView>
@@ -295,11 +296,14 @@ void MainWindow::showNormal()
 
 void MainWindow::show()
 {
+    //FIXME: QML 2 related hackery
+#ifndef SCENEGRAPH
     if (m_attemptingFullScreen) {
         showFullScreen();
     } else {
         showNormal();
     }
+#endif
 }
 
 void MainWindow::selectSkin()
@@ -342,6 +346,12 @@ bool MainWindow::setSkin(Skin *newSkin)
     if (widget) {
         setCentralWidget(widget);
     }
+#ifdef SCENEGRAPH
+    else {
+        //FIXME: We clearly need parity window state management in the long run
+        (qobject_cast<QWindow*>(skinWidget))->show();
+    }
+#endif
     return true;
 }
 

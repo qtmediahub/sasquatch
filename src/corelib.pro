@@ -53,11 +53,13 @@ HEADERS += qmh-config.h \
     refcountedcache.h \
     processmanager.h \
     skinmanager.h \
+    declarativeview.h \
     inputcontext.h
 
-!qt5 {
-    HEADERS += \
-        declarativeview.h
+qt5 {
+    SOURCES += \
+        sgview.cpp
+} else {
     SOURCES += \
         declarativeview.cpp
 }

@@ -33,14 +33,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "staticservicebrowsermodel.h"
 #endif
 
+#include "declarativeview.h"
+
 #ifdef SCENEGRAPH
 #include <QSGItem>
-#include <QSGView>
 #include <QApplication>
 #include <QDesktopWidget>
 #else
 #include <QtDeclarative>
-#include "declarativeview.h"
 #endif
 
 #ifndef NO_DBUS
@@ -233,12 +233,11 @@ QObject *SkinRuntimePrivate::loadQmlSkin(const QUrl &targetUrl, QObject *window)
 {
     QPixmapCache::clear();
 
-#ifdef SCENEGRAPH
-    QSGView *declarativeWidget = new QSGView;
-    declarativeWidget->setResizeMode(QSGView::SizeRootObjectToView);
-#else
     DeclarativeView *declarativeWidget = new DeclarativeView;
 
+#ifdef SCENEGRAPH
+    declarativeWidget->setResizeMode(QSGView::SizeRootObjectToView);
+#else
     optimizeGraphicsViewAttributes(declarativeWidget);
     declarativeWidget->setResizeMode(QDeclarativeView::SizeRootObjectToView);
 
