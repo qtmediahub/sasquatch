@@ -1,7 +1,11 @@
 # This is a common file for the corelib, plugins and main
 # Add with care
 
-QT += declarative script network sql
+qt5 {
+    QT += v8 network sql declarative
+} else {
+    QT += declarative script network sql
+}
 
 TEMP_DIR = .tmp
 OBJECTS_DIR = $$TEMP_DIR/.obj
