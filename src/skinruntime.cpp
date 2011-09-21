@@ -114,7 +114,6 @@ public:
     ProcessManager *processManager;
     DeviceManager *deviceManager;
     PowerManager *powerManager;
-    AbstractMediaPlayer *mediaPlayer;
     MediaPlayerRpc *mediaPlayerRpc;
     RpcConnection *rpcConnection;
 
@@ -134,7 +133,6 @@ SkinRuntimePrivate::SkinRuntimePrivate(SkinRuntime *p)
       processManager(0),
       deviceManager(0),
       powerManager(0),
-      mediaPlayer(0),
       mediaPlayerRpc(0),
       rpcConnection(0),
       trackpad(0),
@@ -191,6 +189,11 @@ SkinRuntimePrivate::SkinRuntimePrivate(SkinRuntime *p)
     qmlRegisterType<Playlist>("Playlist", 1, 0, "Playlist");
     qmlRegisterType<MediaModel>("MediaModel", 1, 0, "MediaModel");
     qmlRegisterType<RpcConnection>("RpcConnection", 1, 0, "RpcConnection");
+#ifndef NO_DBUS
+    if (Config::value("overlay-mode", false)) {
+        qmlRegisterType<MediaPlayerDbus>("OverlayModeMediaPlayer", 1, 0, "OverlayModeMediaPlayer");
+    }
+#endif
 
 #ifdef QMH_AVAHI
     if (Config::isEnabled("avahi", true)) {
@@ -272,7 +275,6 @@ QObject *SkinRuntimePrivate::loadQmlSkin(const QUrl &targetUrl, QObject *window)
 #endif //Fixme: Need to harden code for non-QWidget derived classes
         runtime->insert("actionMapper", qVariantFromValue(static_cast<QObject *>(actionMapper)));
         runtime->insert("trackpad", qVariantFromValue(static_cast<QObject *>(trackpad)));
-        runtime->insert("mediaPlayer", qVariantFromValue(static_cast<QObject *>(mediaPlayer)));
         runtime->insert("mediaPlayerRpc", qVariantFromValue(static_cast<QObject *>(mediaPlayerRpc)));
         runtime->insert("processManager", qVariantFromValue(static_cast<QObject *>(processManager)));
         runtime->insert("deviceManager", qVariantFromValue(static_cast<QObject *>(deviceManager)));
@@ -288,8 +290,10 @@ QObject *SkinRuntimePrivate::loadQmlSkin(const QUrl &targetUrl, QObject *window)
 
     declarativeWidget->rootContext()->setContextProperty("runtime", runtime);
 
+    const QString videoPlayer = Config::value("overlay-mode", false) ? "overlaymode" : "mobility";
     foreach (const QString &qmlImportPath, LibraryInfo::qmlImportPaths()) {
         engine->addImportPath(qmlImportPath);
+        engine->addImportPath(qmlImportPath % "/QtMediaHub/components/media/" % videoPlayer); // ## is this correct?
     }
     engine->addImportPath(currentSkin->path());
 
@@ -345,9 +349,6 @@ void SkinRuntimePrivate::enableRemoteControlMode(bool enable)
         delete powerManager;
         powerManager = 0;
 
-        delete mediaPlayer;
-        mediaPlayer = 0;
-
         rpcConnection->unregisterObject(mediaPlayerRpc);
         delete mediaPlayerRpc;
         mediaPlayerRpc = 0;
@@ -370,10 +371,6 @@ void SkinRuntimePrivate::enableRemoteControlMode(bool enable)
 
     mediaServer = new MediaServer(this);
     rpcConnection = new RpcConnection(RpcConnection::Server, QHostAddress::Any, 1234, this);
-#ifndef NO_DBUS
-    if (Config::value("overlay-mode", false))
-        mediaPlayer = new MediaPlayerDbus(this);
-#endif
     mediaPlayerRpc = new MediaPlayerRpc(this);
     mediaPlayerRpc->setObjectName("qmhmediaplayer");
     trackpad = new Trackpad(this);

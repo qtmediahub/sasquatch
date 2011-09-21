@@ -21,41 +21,42 @@ import QtQuick 1.0
 import Playlist 1.0
 import QtMediaHub.components 1.0
 import MediaModel 1.0
-
+import VideoPlayer 1.0
 
 Item {
     id: root
 
     anchors.fill: parent
 
-    property variant mediaBackend
-
     property bool shuffle: false
-    property bool hasMedia: d.isValid && mediaBackend.source != ""
+    property bool hasMedia: d.isValid && videoPlayer.source != ""
     //This reflects VideoItem perculiarities
-    property bool playing: hasMedia && mediaBackend.playing && !paused
+    property bool playing: hasMedia && videoPlayer.playing && !paused
 
     property alias mediaElement: mediaElement
     property alias mediaInfo: currentMediaInfo
     property alias mediaPlaylist: playlist
 
-    //These should all be bound to the backend
-    property variant hasAudio: false
-    property variant hasVideo: false
-    property variant volume: 0
-    property variant position: 0
-    property variant seekable: false
-    property variant status: 0
-    property variant paused: false
-    property variant playbackRate: 1
-    property variant duration: 0
+    property alias videoPlayer: videoPlayer
 
-    //This is the externally exposed media api
-    //maps to backend logic of pluggable backends
-    //dbus, QProcess, Video, etc
+    VideoPlayer {
+        id: videoPlayer
+    }
+    // ## Why are we exposing these properties when videoPlayer itself is exported?
+    //These should all be bound to the backend
+    // ## Given properties specific types other than variant
+    property alias hasAudio: videoPlayer.hasAudio
+    property alias hasVideo: videoPlayer.hasVideo
+    property alias volume: videoPlayer.volume
+    property alias position: videoPlayer.position
+    property alias seekable: videoPlayer.seekable
+    property alias status: videoPlayer.status
+    property alias paused: videoPlayer.paused
+    property alias playbackRate: videoPlayer.playbackRate
+    property alias duration: videoPlayer.duration
 
     function stop() {
-        mediaBackend.stop()
+        videoPlayer.stop()
     }
 
     function play(mediaModel, row) {
@@ -65,9 +66,9 @@ Item {
     }
 
     function playUri(uri) {
-        mediaBackend.stop();
-        mediaBackend.source = uri;
-        mediaBackend.play();
+        videoPlayer.stop();
+        videoPlayer.source = uri;
+        videoPlayer.play();
     }
 
     function playNext() {
@@ -80,56 +81,54 @@ Item {
 
     function playIndex(idx) {
         playlist.currentIndex = idx
-        mediaBackend.stop();
+        videoPlayer.stop();
         if (playlist.currentIndex == -1)
             return;
-        mediaBackend.source = currentMediaInfo.getMetaData("uri", "file://")
-        mediaBackend.play();
+        videoPlayer.source = currentMediaInfo.getMetaData("uri", "file://")
+        videoPlayer.play();
     }
 
     function increaseVolume() {
-        mediaBackend.volume = (mediaBackend.volume + 0.05 > 1) ? 1.0 : mediaBackend.volume + 0.05
+        videoPlayer.volume = (videoPlayer.volume + 0.05 > 1) ? 1.0 : videoPlayer.volume + 0.05
     }
 
     function decreaseVolume() {
-        mediaBackend.volume = (mediaBackend.volume - 0.05 < 0) ? 0.0 : mediaBackend.volume - 0.05
+        videoPlayer.volume = (videoPlayer.volume - 0.05 < 0) ? 0.0 : videoPlayer.volume - 0.05
     }
 
     function pause() {
-        mediaBackend.paused = true
+        videoPlayer.paused = true
     }
 
     function resume() {
-        mediaBackend.paused = false
+        videoPlayer.paused = false
     }
 
     function togglePlayPause() {
-        if (!mediaBackend.playing || mediaBackend.paused) {
-            mediaBackend.play()
+        if (!videoPlayer.playing || videoPlayer.paused) {
+            videoPlayer.play()
         } else {
-            mediaBackend.paused = true
+            videoPlayer.paused = true
         }
     }
 
-    function seekForward()
-    {
-        if (mediaBackend.hasVideo)
-            mediaBackend.position += 10000
+    function seekForward() {
+        if (videoPlayer.hasVideo)
+            videoPlayer.position += 10000
         else
-            mediaBackend.position += 1000
+            videoPlayer.position += 1000
     }
 
-    function seekBackward()
-    {
-        if (mediaBackend.hasVideo)
-            mediaBackend.position -= 10000
+    function seekBackward() {
+        if (videoPlayer.hasVideo)
+            videoPlayer.position -= 10000
         else
-            mediaBackend.position -= 1000
+            videoPlayer.position -= 1000
     }
 
     QtObject {
         id: d
-        property variant isValid: typeof mediaBackend != "undefined"
+        property variant isValid: typeof videoPlayer != "undefined"
     }
 
     // RPC requests
@@ -159,34 +158,5 @@ Item {
     Item {
         id: mediaElement
         x: 0; y: 0; width: parent.width; height: parent.height;
-    }
-
-    QMHUtil {
-       id: util
-    }
-
-    Component.onCompleted: {
-        mediaBackend = util.createQmlObjectFromFile(runtime.config.value("overlay-mode", false) ? "media/QMHExternalBackend.qml" : "media/QMHVideoItemBackend.qml", {}, mediaElement)
-        if (mediaBackend) {
-            //out
-            util.createBinding("root", "hasAudio", "mediaBackend.hasAudio", mediaBackend)
-            util.createBinding("root", "hasVideo", "mediaBackend.hasVideo", mediaBackend)
-            util.createBinding("root", "seekable", "mediaBackend.seekable", mediaBackend)
-            util.createBinding("root", "status",   "mediaBackend.status",   mediaBackend)
-            util.createBinding("root", "duration", "mediaBackend.duration", mediaBackend)
-
-            //bidirectional
-            util.createBinding("root", "playing", "mediaBackend.playing", mediaBackend)
-            util.createBinding("root", "volume", "mediaBackend.volume", mediaBackend)
-            util.createBinding("root", "position", "mediaBackend.position", mediaBackend)
-            util.createBinding("root", "paused", "mediaBackend.paused", mediaBackend)
-            util.createBinding("root", "playbackRate", "mediaBackend.playbackRate", mediaBackend)
-
-            util.createBinding("mediaBackend", "playing", "root.playing", mediaBackend)
-            util.createBinding("mediaBackend", "volume", "root.volume", mediaBackend)
-            util.createBinding("mediaBackend", "position", "root.position", mediaBackend)
-            util.createBinding("mediaBackend", "paused", "root.paused", mediaBackend)
-            util.createBinding("mediaBackend", "playbackRate", "root.playbackRate", mediaBackend)
-        }
     }
 }
