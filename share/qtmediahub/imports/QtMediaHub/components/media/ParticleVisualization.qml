@@ -29,7 +29,7 @@ Rectangle {
         NumberAnimation {}
     }
 
-    property variant resourcePath: "particles/"
+    property string resourcePath: "particles/"
     property bool running : false
     property int particleCountFactor : 3
 
