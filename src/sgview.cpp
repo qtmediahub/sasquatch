@@ -35,6 +35,9 @@ DeclarativeView::DeclarativeView(QWindow *parent)
       m_timeSigma(0),
       m_fps(0)
 {
+    if (Config::isEnabled("vsync-anim", false))
+            setVSyncAnimations(true);
+
     connect(this, SIGNAL(statusChanged(QSGView::Status)), this, SLOT(handleStatusChanged(QSGView::Status)));
 }
 
