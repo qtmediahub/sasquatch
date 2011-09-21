@@ -50,7 +50,7 @@ HEADERS += qmh-config.h \
     libraryinfo.h \
     abstractmediaplayer.h \
     tarfileengine.h \
-    refcountedcache.h \
+    refcountcache.h \
     processmanager.h \
     skinmanager.h \
     declarativeview.h \
