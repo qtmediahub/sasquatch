@@ -28,7 +28,6 @@ Item {
 
     anchors.fill: parent
 
-    property variant randomText: "OMGWTFBBQ"
     property variant mediaBackend
 
     property bool shuffle: false
