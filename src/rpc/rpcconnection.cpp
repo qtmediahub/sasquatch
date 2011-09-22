@@ -100,9 +100,9 @@ bool RpcConnection::listen(const QHostAddress &address, quint16 port)
 
 void RpcConnection::handleNewConnection()
 {
-    QPointer<QTcpSocket> socket = m_server->nextPendingConnection();
-    connect(socket, SIGNAL(readyRead()), this, SLOT(handleReadyRead()));
-    connect(socket, SIGNAL(disconnected()), socket, SLOT(deleteLater()));
+    QWeakPointer<QTcpSocket> socket = m_server->nextPendingConnection();
+    connect(socket.data(), SIGNAL(readyRead()), this, SLOT(handleReadyRead()));
+    connect(socket.data(), SIGNAL(disconnected()), socket.data(), SLOT(deleteLater()));
     m_clients << socket;
     // qDebug() << "Connected to client";
 }
@@ -288,15 +288,16 @@ int RpcConnection::call(const QByteArray &method, const QVariant &arg0, const QV
         m_socket->write(jsonRpc);
         m_socket->flush();
     } else {
-        foreach (QPointer<QTcpSocket> socket, m_clients) {
+        foreach (QWeakPointer<QTcpSocket> socket, m_clients) {
             if (socket.isNull()) {
                 m_clients.removeOne(socket);
+                delete socket.data();
                 continue;
             }
             header.length = htonl(jsonRpc.length());
-            socket->write((const char *)&header, sizeof(header));
-            socket->write(jsonRpc);
-            socket->flush();
+            socket.data()->write((const char *)&header, sizeof(header));
+            socket.data()->write(jsonRpc);
+            socket.data()->flush();
         }
     }
 
