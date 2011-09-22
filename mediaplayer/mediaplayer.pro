@@ -1,7 +1,7 @@
 include($$PROJECTROOT/src/core-common.pri)
 
 TEMPLATE = app
-TARGET = ../hub/mediaplayer
+TARGET = ../bin/mediaplayer
 DEPENDPATH += .
 INCLUDEPATH += $${PROJECTROOT}/src/
 
