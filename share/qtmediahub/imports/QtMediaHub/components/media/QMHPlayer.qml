@@ -33,7 +33,6 @@ Item {
     //This reflects VideoItem perculiarities
     property bool playing: hasMedia && videoPlayer.playing && !paused
 
-    property alias mediaElement: mediaElement
     property alias mediaInfo: currentMediaInfo
     property alias mediaPlaylist: playlist
 
@@ -157,10 +156,5 @@ Item {
 
     QMHMediaInfo {
         id: currentMediaInfo
-    }
-
-    Item {
-        id: mediaElement
-        x: 0; y: 0; width: parent.width; height: parent.height;
     }
 }
