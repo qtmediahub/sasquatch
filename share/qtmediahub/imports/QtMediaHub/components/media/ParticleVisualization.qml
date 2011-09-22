@@ -35,7 +35,7 @@ Rectangle {
 
     QtObject {
         id: d
-        property bool running: root.running && Qt.application.active
+        property bool running: root.running
     }
 
     Timer {
