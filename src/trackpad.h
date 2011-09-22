@@ -39,7 +39,7 @@ public:
 public slots:
     void setRecipient(QWidget *recipient);
     void setEnabled(bool enable);
-    void moveBy(int x, int y);
+    void moveBy(qlonglong x, qlonglong y);
     void click();
 
 private:

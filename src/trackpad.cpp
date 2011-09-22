@@ -63,7 +63,7 @@ void Trackpad::setEnabled(bool e)
         qWarning() << "Failed to enable/disable cursor";
 }
 
-void Trackpad::moveBy(int x, int y)
+void Trackpad::moveBy(qlonglong x, qlonglong y)
 {
     if(m_recipientContext.isNull()) {
         qWarning("Trying to use Declarative specific functionality outside of Declarative");
