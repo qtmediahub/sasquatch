@@ -25,8 +25,6 @@ Item {
         id: video
         anchors.fill: parent
 
-        volume: runtime.config.value("media-volume", 0.1)
-
         //Work around VideoItem shortcomings
         property int _seekPos : -1
 

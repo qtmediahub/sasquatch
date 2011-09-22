@@ -39,9 +39,6 @@ Item {
 
     property alias videoPlayer: videoPlayer
 
-    VideoPlayer {
-        id: videoPlayer
-    }
     // ## Why are we exposing these properties when videoPlayer itself is exported?
     //These should all be bound to the backend
     // ## Given properties specific types other than variant
@@ -129,6 +126,13 @@ Item {
     QtObject {
         id: d
         property variant isValid: typeof videoPlayer != "undefined"
+    }
+
+    VideoPlayer {
+        id: videoPlayer
+
+        volume: runtime.config.value("media-volume", 0.5)
+        onVolumeChanged: runtime.config.setValue("media-volume", volume)
     }
 
     // RPC requests
