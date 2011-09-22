@@ -290,10 +290,10 @@ QObject *SkinRuntimePrivate::loadQmlSkin(const QUrl &targetUrl, QObject *window)
 
     declarativeWidget->rootContext()->setContextProperty("runtime", runtime);
 
-    const QString videoPlayer = Config::value("overlay-mode", false) ? "overlaymode" : "mobility";
+    const QString mediaPlayer = Config::value("overlay-mode", false) ? "overlaymode" : "mobility";
     foreach (const QString &qmlImportPath, LibraryInfo::qmlImportPaths()) {
         engine->addImportPath(qmlImportPath);
-        engine->addImportPath(qmlImportPath % "/QtMediaHub/components/media/" % videoPlayer); // ## is this correct?
+        engine->addImportPath(qmlImportPath % "/QtMediaHub/components/media/" % mediaPlayer); // ## is this correct?
     }
     engine->addImportPath(currentSkin->path());
 

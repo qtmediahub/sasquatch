@@ -1,7 +1,7 @@
 import QtQuick 1.0
 
 // The code here is merely documentation of the properties that
-// are required to be implemented by a VideoPlayer
+// are required to be implemented by a MediaPlayer
 Item {
     property string source
     property bool playing

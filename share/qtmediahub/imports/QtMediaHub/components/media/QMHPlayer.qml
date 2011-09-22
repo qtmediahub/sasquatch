@@ -21,7 +21,7 @@ import QtQuick 1.0
 import Playlist 1.0
 import QtMediaHub.components 1.0
 import MediaModel 1.0
-import VideoPlayer 1.0
+import MediaPlayer 1.0
 
 Item {
     id: root
@@ -29,25 +29,25 @@ Item {
     anchors.fill: parent
 
     property bool shuffle: false
-    property bool hasMedia: videoPlayer.source != ""
+    property bool hasMedia: mediaPlayer.source != ""
     //This reflects VideoItem perculiarities
-    property bool playing: hasMedia && videoPlayer.playing && !paused
+    property bool playing: hasMedia && mediaPlayer.playing && !paused
 
     property alias mediaInfo: currentMediaInfo
     property alias mediaPlaylist: playlist
 
-    property alias hasAudio: videoPlayer.hasAudio
-    property alias hasVideo: videoPlayer.hasVideo
-    property alias volume: videoPlayer.volume
-    property alias position: videoPlayer.position
-    property alias seekable: videoPlayer.seekable
-    property alias status: videoPlayer.status
-    property alias paused: videoPlayer.paused
-    property alias playbackRate: videoPlayer.playbackRate
-    property alias duration: videoPlayer.duration
+    property alias hasAudio: mediaPlayer.hasAudio
+    property alias hasVideo: mediaPlayer.hasVideo
+    property alias volume: mediaPlayer.volume
+    property alias position: mediaPlayer.position
+    property alias seekable: mediaPlayer.seekable
+    property alias status: mediaPlayer.status
+    property alias paused: mediaPlayer.paused
+    property alias playbackRate: mediaPlayer.playbackRate
+    property alias duration: mediaPlayer.duration
 
     function stop() {
-        videoPlayer.stop()
+        mediaPlayer.stop()
     }
 
     function play(mediaModel, row) {
@@ -57,9 +57,9 @@ Item {
     }
 
     function playUri(uri) {
-        videoPlayer.stop();
-        videoPlayer.source = uri;
-        videoPlayer.play();
+        mediaPlayer.stop();
+        mediaPlayer.source = uri;
+        mediaPlayer.play();
     }
 
     function playNext() {
@@ -72,53 +72,53 @@ Item {
 
     function playIndex(idx) {
         playlist.currentIndex = idx
-        videoPlayer.stop();
+        mediaPlayer.stop();
         if (playlist.currentIndex == -1)
             return;
-        videoPlayer.source = currentMediaInfo.getMetaData("uri", "file://")
-        videoPlayer.play();
+        mediaPlayer.source = currentMediaInfo.getMetaData("uri", "file://")
+        mediaPlayer.play();
     }
 
     function increaseVolume() {
-        videoPlayer.volume = (videoPlayer.volume + 0.05 > 1) ? 1.0 : videoPlayer.volume + 0.05
+        mediaPlayer.volume = (mediaPlayer.volume + 0.05 > 1) ? 1.0 : mediaPlayer.volume + 0.05
     }
 
     function decreaseVolume() {
-        videoPlayer.volume = (videoPlayer.volume - 0.05 < 0) ? 0.0 : videoPlayer.volume - 0.05
+        mediaPlayer.volume = (mediaPlayer.volume - 0.05 < 0) ? 0.0 : mediaPlayer.volume - 0.05
     }
 
     function pause() {
-        videoPlayer.paused = true
+        mediaPlayer.paused = true
     }
 
     function resume() {
-        videoPlayer.paused = false
+        mediaPlayer.paused = false
     }
 
     function togglePlayPause() {
-        if (!videoPlayer.playing || videoPlayer.paused) {
-            videoPlayer.play()
+        if (!mediaPlayer.playing || mediaPlayer.paused) {
+            mediaPlayer.play()
         } else {
-            videoPlayer.paused = true
+            mediaPlayer.paused = true
         }
     }
 
     function seekForward() {
-        if (videoPlayer.hasVideo)
-            videoPlayer.position += 10000
+        if (mediaPlayer.hasVideo)
+            mediaPlayer.position += 10000
         else
-            videoPlayer.position += 1000
+            mediaPlayer.position += 1000
     }
 
     function seekBackward() {
-        if (videoPlayer.hasVideo)
-            videoPlayer.position -= 10000
+        if (mediaPlayer.hasVideo)
+            mediaPlayer.position -= 10000
         else
-            videoPlayer.position -= 1000
+            mediaPlayer.position -= 1000
     }
 
-    VideoPlayer {
-        id: videoPlayer
+    MediaPlayer {
+        id: mediaPlayer
 
         volume: runtime.config.value("media-volume", 0.5)
         onVolumeChanged: runtime.config.setValue("media-volume", volume)
