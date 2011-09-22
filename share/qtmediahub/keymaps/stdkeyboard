@@ -12,5 +12,5 @@ MediaPrevious=MediaPrevious,F5
 MediaNext=MediaNext,F8
 ContextualUp=Plus
 ContextualDown=Minus
-VolumeUp=VolumeUp
-VolumeDown=VolumeDown
+VolumeUp=VolumeUp,F10
+VolumeDown=VolumeDown,F9
