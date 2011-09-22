@@ -29,7 +29,7 @@ Item {
     anchors.fill: parent
 
     property bool shuffle: false
-    property bool hasMedia: d.isValid && videoPlayer.source != ""
+    property bool hasMedia: videoPlayer.source != ""
     //This reflects VideoItem perculiarities
     property bool playing: hasMedia && videoPlayer.playing && !paused
 
@@ -120,11 +120,6 @@ Item {
             videoPlayer.position -= 10000
         else
             videoPlayer.position -= 1000
-    }
-
-    QtObject {
-        id: d
-        property variant isValid: typeof videoPlayer != "undefined"
     }
 
     VideoPlayer {
