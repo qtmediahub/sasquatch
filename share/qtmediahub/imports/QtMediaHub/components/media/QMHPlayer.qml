@@ -36,9 +36,6 @@ Item {
     property alias mediaInfo: currentMediaInfo
     property alias mediaPlaylist: playlist
 
-    property alias videoPlayer: videoPlayer
-
-    // ## Why are we exposing these properties when videoPlayer itself is exported?
     property alias hasAudio: videoPlayer.hasAudio
     property alias hasVideo: videoPlayer.hasVideo
     property alias volume: videoPlayer.volume
