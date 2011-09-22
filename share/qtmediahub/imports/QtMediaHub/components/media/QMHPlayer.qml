@@ -39,8 +39,6 @@ Item {
     property alias videoPlayer: videoPlayer
 
     // ## Why are we exposing these properties when videoPlayer itself is exported?
-    //These should all be bound to the backend
-    // ## Given properties specific types other than variant
     property alias hasAudio: videoPlayer.hasAudio
     property alias hasVideo: videoPlayer.hasVideo
     property alias volume: videoPlayer.volume
