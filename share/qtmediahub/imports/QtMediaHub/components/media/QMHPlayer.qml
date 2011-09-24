@@ -33,7 +33,6 @@ Item {
     //This reflects VideoItem perculiarities
     property bool playing: hasMedia && mediaPlayer.playing && !paused
 
-    property alias mediaInfo: currentMediaInfo
     property alias mediaPlaylist: playlist
 
     property alias hasAudio: mediaPlayer.hasAudio
@@ -46,6 +45,32 @@ Item {
     property alias playbackRate: mediaPlayer.playbackRate
     property alias duration: mediaPlayer.duration
 
+
+    // metadata
+    property string thumbnail: root.getThumbnail()
+    property string artist: root.getMetaData("artist", qsTr("Unknown Artist"))
+    property string album: root.getMetaData("album", qsTr("Unknown Album"))
+    property string title: root.getMetaData("title", qsTr("Unknown Title"))
+    property string track: root.getMetaData("track", "")
+    property string mediaId: root.getMetaData("id", "0")
+
+
+    // functions to retrieve metadata
+    function getMetaData(role, defaultValue) {
+        return playlist ? (playlist.data(playlist.currentIndex, role) || defaultValue) : ""
+    }
+
+    function getThumbnail() {
+        if (playlist && playlist.currentIndex != -1) {
+            var thumbnail = playlist.data(playlist.currentIndex, "previewUrl")
+            if (thumbnail != "")
+                return thumbnail;
+        }
+        return ""
+    }
+
+
+    // mediaplayer control functions
     function stop() {
         mediaPlayer.stop()
     }
@@ -75,7 +100,7 @@ Item {
         mediaPlayer.stop();
         if (playlist.currentIndex == -1)
             return;
-        mediaPlayer.source = currentMediaInfo.getMetaData("uri", "file://")
+        mediaPlayer.source = root.getMetaData("uri", "file://")
         mediaPlayer.play();
     }
 
@@ -142,9 +167,5 @@ Item {
         id: playlist
         playMode: root.shuffle ? Playlist.Shuffle : Playlist.Normal
         wrapAround: false
-    }
-
-    QMHMediaInfo {
-        id: currentMediaInfo
     }
 }
