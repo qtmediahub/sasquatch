@@ -73,9 +73,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "powermanager.h"
 #include "rpc/mediaplayerrpc.h"
 #include "abstractmediaplayer.h"
-#ifndef NO_DBUS
-#include "mediaplayer_dbus.h"
-#endif
+//#ifndef NO_DBUS
+//#include "mediaplayer_dbus.h"
+//#endif
+#include "mediaplayervlc/mediaplayervlc.h"
 #include "customcursor.h"
 #include "httpserver/httpserver.h"
 #include "inputcontext.h"
@@ -193,7 +194,8 @@ SkinRuntimePrivate::SkinRuntimePrivate(SkinRuntime *p)
     qmlRegisterType<RpcConnection>("RpcConnection", 1, 0, "RpcConnection");
 #ifndef NO_DBUS
     if (Config::value("overlay-mode", false)) {
-        qmlRegisterType<MediaPlayerDbus>("OverlayModeMediaPlayer", 1, 0, "OverlayModeMediaPlayer");
+//        qmlRegisterType<MediaPlayerDbus>("OverlayModeMediaPlayer", 1, 0, "OverlayModeMediaPlayer");
+        qmlRegisterType<MediaPlayerVLC>("OverlayModeMediaPlayer", 1, 0, "OverlayModeMediaPlayer");
     }
 #endif
 

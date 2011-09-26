@@ -92,6 +92,11 @@ contains(QT_CONFIG, dbus) {
     HEADERS += devicemanagerdbus.h
 }
 
+vlc {
+    SUBDIRS += vlc
+    LIBS += -lvlc
+}
+
 
 target.path = $${PREFIX}/lib/
 INSTALLS += target
