@@ -79,7 +79,7 @@ private:
     bool m_hasAudio;
     bool m_playing;
     qreal m_volume;
-    int m_position;
+    qreal m_position;
     bool m_seekable;
     bool m_paused;
     qreal m_playbackRate;

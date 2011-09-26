@@ -46,7 +46,7 @@ MediaPlayerVLC::MediaPlayerVLC(QObject *parent) :
     m_surface->setPalette(p);
     m_surface->showFullScreen();
 
-    startTimer(500);
+    startTimer(100);
 }
 
 MediaPlayerVLC::~MediaPlayerVLC()
@@ -77,11 +77,13 @@ void MediaPlayerVLC::timerEvent(QTimerEvent *)
     if (!m_media || !m_mediaPlayer)
         return;
 
-    libvlc_media_track_info_t **tracks;
-    if (libvlc_media_get_tracks_info(m_media, tracks) >= 1) {
-        setHasAudio((tracks[0]->i_type == libvlc_track_audio || tracks[0]->i_type == libvlc_track_video));
-        setHasVideo(tracks[0]->i_type == libvlc_track_video);
+    libvlc_media_track_info_t *tracks;
+    int count = libvlc_media_get_tracks_info(m_media, &tracks);
+    if (count >= 1) {
+        setHasAudio((tracks->i_type == libvlc_track_audio || tracks->i_type == libvlc_track_video));
+        setHasVideo(tracks->i_type == libvlc_track_video);
     }
+    delete tracks;
 
     int v = libvlc_audio_get_volume(m_mediaPlayer);
     if (m_volume != v) {
@@ -89,8 +91,7 @@ void MediaPlayerVLC::timerEvent(QTimerEvent *)
         emit volumeChanged();
     }
 
-    int p = libvlc_media_player_get_position(m_mediaPlayer);
-    qDebug() << "position is" << p;
+    float p = libvlc_media_player_get_position(m_mediaPlayer);
     if (m_position != p) {
         m_position = p;
         emit positionChanged();
@@ -224,7 +225,10 @@ void MediaPlayerVLC::setPosition(int position)
     if (!m_mediaPlayer)
         return;
 
-    libvlc_media_player_set_position(m_mediaPlayer, position);
+    if (m_duration == 0)
+        return;
+
+    libvlc_media_player_set_position(m_mediaPlayer, (qreal)position/m_duration);
 }
 
 void MediaPlayerVLC::setPositionPercent(qreal position)
@@ -287,7 +291,7 @@ qreal MediaPlayerVLC::volume() const
 
 int MediaPlayerVLC::position() const
 {
-    return m_position;
+    return m_position*m_duration;
 }
 
 bool MediaPlayerVLC::seekable() const
