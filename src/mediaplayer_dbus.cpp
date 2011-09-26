@@ -22,7 +22,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "mediaplayer_dbus.h"
 
-MediaPlayerDbus::MediaPlayerDbus(QObject *parent)
+MediaPlayerDbus::MediaPlayerDbus(QDeclarativeItem *parent)
     : AbstractMediaPlayer(parent)
      , interface(new QDBusInterface(QMH_PLAYER_DBUS_SERVICENAME, "/", QString(), QDBusConnection::sessionBus(), this))
 {

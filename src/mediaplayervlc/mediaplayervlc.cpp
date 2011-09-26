@@ -23,8 +23,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "mediaplayervlc.h"
 
 #include <QWidget>
+#include <QApplication>
 
-MediaPlayerVLC::MediaPlayerVLC(QObject *parent) :
+MediaPlayerVLC::MediaPlayerVLC(QDeclarativeItem *parent) :
     AbstractMediaPlayer(parent),
     m_source(""),
     m_hasVideo(false),
@@ -44,7 +45,7 @@ MediaPlayerVLC::MediaPlayerVLC(QObject *parent) :
     QPalette p = m_surface->palette();
     p.setColor(QPalette::Background, QColor(Qt::black));
     m_surface->setPalette(p);
-    m_surface->showFullScreen();
+    m_surface->show();
 
     startTimer(100);
 }
@@ -332,6 +333,11 @@ void MediaPlayerVLC::setHasVideo(bool v)
 
     m_hasVideo = v;
     emit hasVideoChanged();
+}
+
+void MediaPlayerVLC::geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry)
+{
+    m_surface->setGeometry(newGeometry.toRect());
 }
 
 

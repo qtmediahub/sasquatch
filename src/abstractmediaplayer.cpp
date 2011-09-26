@@ -1,7 +1,7 @@
 #include "abstractmediaplayer.h"
 
-AbstractMediaPlayer::AbstractMediaPlayer(QObject *parent)
-    : QObject(parent),
+AbstractMediaPlayer::AbstractMediaPlayer(QDeclarativeItem *parent)
+    : QDeclarativeItem(parent),
       m_status(UnknownStatus)
 {
 }

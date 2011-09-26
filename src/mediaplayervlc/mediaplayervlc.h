@@ -33,7 +33,7 @@ class MediaPlayerVLC : public AbstractMediaPlayer
 {
     Q_OBJECT
 public:
-    explicit MediaPlayerVLC(QObject *parent = 0);
+    explicit MediaPlayerVLC(QDeclarativeItem *parent = 0);
     ~MediaPlayerVLC();
 
     virtual QString source() const;
@@ -64,6 +64,7 @@ public slots:
 
 protected:
     void timerEvent(QTimerEvent *);
+    virtual void geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry);
 
 private:
     void setHasAudio(bool a);

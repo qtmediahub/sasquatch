@@ -5,9 +5,11 @@ import OverlayModeMediaPlayer 1.0
 
 Item {
     id: root
+    anchors.fill: parent
 
     OverlayModeMediaPlayer {
         id: mediaPlayer
+        anchors.fill: parent
     }
 
     property alias source: mediaPlayer.source

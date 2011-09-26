@@ -31,7 +31,7 @@ class MediaPlayerDbus : public AbstractMediaPlayer
 {
     Q_OBJECT
 public:
-    explicit MediaPlayerDbus(QObject *parent = 0);
+    explicit MediaPlayerDbus(QDeclarativeItem *parent = 0);
 
 signals:
 
