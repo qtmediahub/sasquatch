@@ -90,6 +90,7 @@ void MediaPlayerVLC::timerEvent(QTimerEvent *)
     }
 
     int p = libvlc_media_player_get_position(m_mediaPlayer);
+    qDebug() << "position is" << p;
     if (m_position != p) {
         m_position = p;
         emit positionChanged();
@@ -131,8 +132,11 @@ void MediaPlayerVLC::timerEvent(QTimerEvent *)
         }
     }
 
-    m_seekable = true;
-    emit seekableChanged();
+    bool s = libvlc_media_player_is_seekable(m_mediaPlayer);
+    if (m_seekable != s) {
+        m_seekable = s;
+        emit seekableChanged();
+    }
 
     float r = libvlc_media_player_get_rate(m_mediaPlayer);
     if (m_playbackRate != r) {
