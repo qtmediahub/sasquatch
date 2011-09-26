@@ -20,15 +20,20 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 ****************************************************************************/
 
+#include "mainwindow.h"
+#include "mediaserver.h"
+#include "qmh-config.h"
+
 #include <QApplication>
 #include <QNetworkProxy>
 #include <QNetworkConfigurationManager>
 #include <QNetworkSession>
-#include "qtsingleapplication.h"
 
-#include "mainwindow.h"
-#include "mediaserver.h"
-#include "qmh-config.h"
+#ifdef SCENEGRAPH
+#include <QGuiApplication>
+#else
+#include "qtsingleapplication.h"
+#endif
 
 static QNetworkSession *g_networkSession = 0;
 
@@ -66,6 +71,9 @@ static void setupNetwork()
 
 int main(int argc, char** argv)
 {
+#ifdef SCENEGRAPH
+    QGuiApplication app(argc, argv);
+#else
     bool overrideGraphicsSystem = false;
     for(int i = 0; i < argc; ++i) {
         if (qstrcmp(argv[i], "-graphicssystem") == 0) {
@@ -78,17 +86,20 @@ int main(int argc, char** argv)
         QApplication::setGraphicsSystem("raster");
 
     QtSingleApplication app(argc, argv);
+#endif
     app.setApplicationName("qtmediahub");
     app.setOrganizationName("MediaTrolls");
     app.setOrganizationDomain("qtmediahub.com");
 
     setupNetwork();
 
+#ifndef SCENEGRAPH
     bool primarySession = !app.isRunning();
     if (!(Config::isEnabled("multi-instance", false) || primarySession)) {
         qWarning() << app.applicationName() << "is already running, aborting";
         return false;
     }
+#endif
 
     Config::init(argc, argv);
 
