@@ -30,7 +30,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QNetworkSession>
 
 #ifdef SCENEGRAPH
-#include <QGuiApplication>
+#include <QApplication>
 #else
 #include "qtsingleapplication.h"
 #endif
@@ -72,7 +72,7 @@ static void setupNetwork()
 int main(int argc, char** argv)
 {
 #ifdef SCENEGRAPH
-    QGuiApplication app(argc, argv);
+    QApplication app(argc, argv);
 #else
     bool overrideGraphicsSystem = false;
     for(int i = 0; i < argc; ++i) {

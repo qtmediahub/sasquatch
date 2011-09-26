@@ -4,6 +4,8 @@
 qt5 {
     DEFINES += SCENEGRAPH
     QT += v8 network sql declarative widgets
+    #Until we guard linkage of avahi-qt4
+    CONFIG += meegoesque
 } else {
     QT += declarative script network sql
 }
