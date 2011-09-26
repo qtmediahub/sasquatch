@@ -46,7 +46,7 @@ MediaPlayerVLC::MediaPlayerVLC(QObject *parent) :
     m_surface->setPalette(p);
     m_surface->showFullScreen();
 
-    startTimer(1000);
+    startTimer(500);
 }
 
 MediaPlayerVLC::~MediaPlayerVLC()
@@ -86,7 +86,7 @@ void MediaPlayerVLC::timerEvent(QTimerEvent *)
     int v = libvlc_audio_get_volume(m_mediaPlayer);
     if (m_volume != v) {
         m_volume = v;
-        emit playingChanged();
+        emit volumeChanged();
     }
 
     int p = libvlc_media_player_get_position(m_mediaPlayer);
@@ -243,8 +243,6 @@ void MediaPlayerVLC::setVolume(qreal volume)
 {
     if (!m_mediaPlayer)
         return;
-
-    qDebug() << "setVolume" << volume;
 
     libvlc_audio_set_volume(m_mediaPlayer, volume*100.0);
 }
