@@ -191,7 +191,7 @@ static QPair<QString, QString> determineShowAndSeason(const QFileInfo &info, con
     QString show, season;
     QDir dir = info.dir();
     if (dir.absolutePath()== searchPath.midRef(0, searchPath.length()-1)) {
-        QString baseName = info.baseName();
+        QString baseName = info.fileName().mid(0, info.fileName().lastIndexOf('.'));
         QRegExp re("[^-)]*", Qt::CaseInsensitive);
         if (re.indexIn(baseName) == -1) {
             show = baseName;
