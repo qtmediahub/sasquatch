@@ -73,10 +73,13 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "powermanager.h"
 #include "rpc/mediaplayerrpc.h"
 #include "abstractmediaplayer.h"
-//#ifndef NO_DBUS
-//#include "mediaplayer_dbus.h"
-//#endif
-#include "mediaplayervlc/mediaplayervlc.h"
+
+#ifdef MEDIAPLAYER_DBUS
+#include "mediaplayer_dbus.h"
+#elif defined(MEDIAPLAYER_VLC)
+#include "mediaplayervlc.h"
+#endif
+
 #include "customcursor.h"
 #include "httpserver/httpserver.h"
 #include "inputcontext.h"
@@ -192,12 +195,14 @@ SkinRuntimePrivate::SkinRuntimePrivate(SkinRuntime *p)
     qmlRegisterType<Playlist>("Playlist", 1, 0, "Playlist");
     qmlRegisterType<MediaModel>("MediaModel", 1, 0, "MediaModel");
     qmlRegisterType<RpcConnection>("RpcConnection", 1, 0, "RpcConnection");
-#ifndef NO_DBUS
+
     if (Config::value("overlay-mode", false)) {
-//        qmlRegisterType<MediaPlayerDbus>("OverlayModeMediaPlayer", 1, 0, "OverlayModeMediaPlayer");
+#ifdef MEDIAPLAYER_DBUS
+    qmlRegisterType<MediaPlayerDbus>("OverlayModeMediaPlayer", 1, 0, "OverlayModeMediaPlayer");
+#elif defined(MEDIAPLAYER_VLC)
         qmlRegisterType<MediaPlayerVLC>("OverlayModeMediaPlayer", 1, 0, "OverlayModeMediaPlayer");
-    }
 #endif
+    }
 
 #ifdef QMH_AVAHI
     if (Config::isEnabled("avahi", true)) {
