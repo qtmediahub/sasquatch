@@ -23,13 +23,22 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #ifndef ABSTRACTMEDIAPLAYER_H
 #define ABSTRACTMEDIAPLAYER_H
 
+#ifdef SCENEGRAPH
+#include <QSGItem>
+#else
 #include <QDeclarativeItem>
+#endif
+
 #include <QDebug>
 
 #include "global.h"
 
 // Media Player API used by the "non-mobility" QML Video element
+#ifdef SCENEGRAPH
+class QMH_EXPORT AbstractMediaPlayer : public QSGItem
+#else
 class QMH_EXPORT AbstractMediaPlayer : public QDeclarativeItem
+#endif
 {
     Q_OBJECT
     Q_PROPERTY(QString source READ source WRITE setSource NOTIFY sourceChanged)
@@ -59,7 +68,11 @@ public:
     };
     Q_ENUMS(Status)
 
+#ifdef SCENEGRAPH
+    explicit AbstractMediaPlayer(QSGItem *parent = 0);
+#else
     explicit AbstractMediaPlayer(QDeclarativeItem *parent = 0);
+#endif
     virtual ~AbstractMediaPlayer() { /**/ }
 
     virtual QString source() const { return QString(); }

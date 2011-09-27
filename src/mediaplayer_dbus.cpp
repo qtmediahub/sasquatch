@@ -22,7 +22,11 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "mediaplayer_dbus.h"
 
+#ifdef SCENEGRAPH
+MediaPlayerDbus::MediaPlayerDbus(QSGItem *parent)
+#else
 MediaPlayerDbus::MediaPlayerDbus(QDeclarativeItem *parent)
+#endif
     : AbstractMediaPlayer(parent)
      , interface(new QDBusInterface(QMH_PLAYER_DBUS_SERVICENAME, "/", QString(), QDBusConnection::sessionBus(), this))
 {

@@ -1,7 +1,12 @@
 #include "abstractmediaplayer.h"
 
+#ifdef SCENEGRAPH
+AbstractMediaPlayer::AbstractMediaPlayer(QSGItem *parent)
+    : QSGItem(parent),
+#else
 AbstractMediaPlayer::AbstractMediaPlayer(QDeclarativeItem *parent)
     : QDeclarativeItem(parent),
+#endif
       m_status(UnknownStatus)
 {
 }
