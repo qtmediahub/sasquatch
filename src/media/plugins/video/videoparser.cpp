@@ -40,7 +40,8 @@ VideoParser::VideoParser()
                      << "mov"
                      << "ogv"
                      << "wmv"
-                     << "mkv";
+                     << "mkv"
+                     << "ts";
 
     QStringList additionalExtensions = Config::value("additional-video-extensions", QString()).split(",", QString::SkipEmptyParts);
 
