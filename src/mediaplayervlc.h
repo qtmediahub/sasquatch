@@ -20,10 +20,71 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 ****************************************************************************/
 
-#include "mediaplayer_dbus.h"
+#ifndef MEDIAPLAYERVLC_H
+#define MEDIAPLAYERVLC_H
 
-MediaPlayerDbus::MediaPlayerDbus(QDeclarativeItem *parent)
-    : AbstractMediaPlayer(parent)
-     , interface(new QDBusInterface(QMH_PLAYER_DBUS_SERVICENAME, "/", QString(), QDBusConnection::sessionBus(), this))
+#include "abstractmediaplayer.h"
+
+#include <vlc/vlc.h>
+
+class QWidget;
+
+class MediaPlayerVLC : public AbstractMediaPlayer
 {
-}
+    Q_OBJECT
+public:
+    explicit MediaPlayerVLC(QDeclarativeItem *parent = 0);
+    ~MediaPlayerVLC();
+
+    virtual QString source() const;
+
+    virtual bool hasVideo() const;
+    virtual bool hasAudio() const;
+
+    virtual bool playing() const;
+    virtual qreal volume() const;
+    virtual int position() const;
+    virtual bool seekable() const;
+    virtual bool paused() const;
+    virtual qreal playbackRate() const;
+    virtual int duration() const;
+
+public slots:
+    virtual void setSource(const QString &source);
+    virtual void play();
+    virtual void stop();
+    virtual void pause();
+    virtual void resume();
+    virtual void mute(bool on = true);
+    virtual void setPosition(int position);
+    virtual void setPositionPercent(qreal position);
+    virtual void setVolumePercent(qreal volume);
+    virtual void setVolume(qreal volume);
+    virtual void setPlaybackRate(qreal rate);
+
+protected:
+    void timerEvent(QTimerEvent *);
+    virtual void geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry);
+
+private:
+    void setHasAudio(bool a);
+    void setHasVideo(bool v);
+
+    libvlc_instance_t * m_instance;
+    libvlc_media_player_t *m_mediaPlayer;
+    libvlc_media_t *m_media;
+    QWidget *m_surface;
+
+    QString m_source;
+    bool m_hasVideo;
+    bool m_hasAudio;
+    bool m_playing;
+    qreal m_volume;
+    qreal m_position;
+    bool m_seekable;
+    bool m_paused;
+    qreal m_playbackRate;
+    int m_duration;
+};
+
+#endif // MEDIAPLAYERVLC_H

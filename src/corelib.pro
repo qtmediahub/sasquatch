@@ -64,7 +64,13 @@ qt5 {
         declarativeview.cpp
 }
 
-!no-dbus {
+vlc {
+    DEFINES += MEDIAPLAYER_VLC
+    HEADERS += mediaplayervlc.h
+    SOURCES += mediaplayervlc.cpp
+    LIBS += -lvlc
+} else:contains(QT_CONFIG, dbus) {
+    DEFINES += MEDIAPLAYER_DBUS
     HEADERS += mediaplayer_dbus.h
     SOURCES += mediaplayer_dbus.cpp
 }
@@ -91,7 +97,6 @@ contains(QT_CONFIG, dbus) {
     SOURCES += devicemanagerdbus.cpp
     HEADERS += devicemanagerdbus.h
 }
-
 
 target.path = $${PREFIX}/lib/
 INSTALLS += target

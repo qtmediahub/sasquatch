@@ -14,3 +14,5 @@ SOURCES += $$PWD/mediascanner.cpp \
 
 RESOURCES += $$PWD/media.qrc
 
+
+
