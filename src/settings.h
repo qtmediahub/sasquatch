@@ -47,6 +47,11 @@ public:
         ApplicationsPath,
         FullScreen,
         OverlayMode,
+        Headless,
+        Proxy,
+        ProxyHost,
+        ProxyPort,
+        MultiInstance,
 
         OptionLength
     };

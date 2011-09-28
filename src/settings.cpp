@@ -28,14 +28,20 @@ Settings *Settings::m_instance = 0;
 
 void Settings::init(const QStringList &arguments)
 {
-    // annoying but m_table[Settings::Skin] = { Settings::Skin, "confluence", "skin", "specifies the skin" }; only possible in c++0x
-    setOptionEntry(Settings::Skin,              "confluence",   "skin",         "specifies the skin");
-    setOptionEntry(Settings::SkinsPath,         "",             "skins-path",   "adds <path> to skins search paths");
-    setOptionEntry(Settings::Keymap,            "stdkeyboard",  "keymap",       "specifies the keymap");
-    setOptionEntry(Settings::KeymapsPath,       "",             "keymaps-path", "adds <path> to keymaps search paths");
-    setOptionEntry(Settings::ApplicationsPath,  "",             "apps-path",    "adds <path> to skins search paths");
-    setOptionEntry(Settings::FullScreen,        "true",         "fullscreen",   "");
-    setOptionEntry(Settings::OverlayMode,       "false",        "overlay-mode", "toggle overlay mode used for devices with other mediaplayers than QtMultimediaKit");
+// annoying but m_table[Settings::Skin] = { Settings::Skin, "confluence", "skin", "specifies the skin" }; only possible in c++0x
+//                 Settings::Option,    default value,  name,               documentation
+    setOptionEntry(Skin,                "confluence",   "skin",             "<name> specifies the skin");
+    setOptionEntry(SkinsPath,           "",             "skins-path",       "<path> adds path to skins search paths");
+    setOptionEntry(Keymap,              "stdkeyboard",  "keymap",           "<name> specifies the keymap");
+    setOptionEntry(KeymapsPath,         "",             "keymaps-path",     "<path> adds path to keymaps search paths");
+    setOptionEntry(ApplicationsPath,    "",             "apps-path",        "<path> adds path to skins search paths");
+    setOptionEntry(FullScreen,          "true",         "fullscreen",       "<bool> toggle fullscreen");
+    setOptionEntry(OverlayMode,         "false",        "overlay-mode",     "<bool> toggle overlay mode used for devices with other mediaplayers than QtMultimediaKit");
+    setOptionEntry(Headless,            "false",        "headless",         "<bool> toggle running with user interface, usable for streaming server usage");
+    setOptionEntry(Proxy,               "false",        "proxy",            "<bool> use a proxy for network access");
+    setOptionEntry(ProxyHost,           "localhost",    "proxy-host",       "<hostname> set proxy host, only used with -proxy=true");
+    setOptionEntry(ProxyPort,           "8080",         "proxy-port",       "<port> set port number for proxy usage, only used with -proxy=true");
+    setOptionEntry(MultiInstance,       "false",        "multi-instance",   "<bool> allow running multiple instances");
 
     // first load settings from config file
     load();
