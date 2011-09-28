@@ -54,7 +54,10 @@ public:
     explicit Settings(const QStringList &arguments, QObject *parent = 0);
     ~Settings();
 
-    Q_INVOKABLE QVariant value(Settings::Option option);
+    Q_INVOKABLE QVariant value(Settings::Option option) const;
+    Q_INVOKABLE const QString name(Settings::Option option) const;
+    Q_INVOKABLE const QString doc(Settings::Option option) const;
+
     Q_INVOKABLE void setValue(Settings::Option option, const QVariant &value);
 
     Q_INVOKABLE bool save();

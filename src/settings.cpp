@@ -45,9 +45,19 @@ Settings::~Settings()
 {
 }
 
-QVariant Settings::value(Settings::Option option)
+QVariant Settings::value(Settings::Option option) const
 {
     return m_table[option].value;
+}
+
+const QString Settings::name(Settings::Option option) const
+{
+    return m_table[option].name;
+}
+
+const QString Settings::doc(Settings::Option option) const
+{
+    return m_table[option].doc;
 }
 
 void Settings::setValue(Settings::Option option, const QVariant &value)
@@ -119,4 +129,5 @@ void Settings::setOptionEntry(Settings::Option option, const QVariant &value, co
     m_table[option].name = name;
     m_table[option].doc = doc;
 }
+
 
