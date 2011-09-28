@@ -28,7 +28,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QSettings>
 #include <QStringList>
 
-class Settings : public QObject
+#include "global.h"
+
+class QMH_EXPORT Settings : public QObject
 {
     Q_OBJECT
     Q_ENUMS(Option)
@@ -42,6 +44,7 @@ public:
         ApplicationsPath,
         FullScreen,
         OverlayMode,
+
         OptionLength
     };
 
