@@ -24,17 +24,19 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <QtDebug>
 
-struct OptionEntry { Settings::Option e; QVariant value; QString name; QString doc; };
-
-static struct OptionEntry table[] = {
-    { Settings::Skin, "confluence", "skin", "specifies the skin" },
-    { Settings::OverlayMode, "false", "overlay-mode", "toggle overlay mode used for devices with other mediaplayers than QtMultimediaKit" }
-};
-
 Settings::Settings(const QStringList &arguments, QObject *parent)
     : QObject(parent),
       m_arguments(arguments)
 {
+    // annoying but m_table[Settings::Skin] = { Settings::Skin, "confluence", "skin", "specifies the skin" }; only possible in c++0x
+    setOptionEntry(Settings::Skin,              "confluence",   "skin",         "specifies the skin");
+    setOptionEntry(Settings::SkinsPath,         "",             "skins-path",   "adds <path> to skins search paths");
+    setOptionEntry(Settings::Keymap,            "stdkeyboard",  "keymap",       "specifies the keymap");
+    setOptionEntry(Settings::KeymapsPath,       "",             "keymaps-path", "adds <path> to keymaps search paths");
+    setOptionEntry(Settings::ApplicationsPath,  "",             "apps-path",    "adds <path> to skins search paths");
+    setOptionEntry(Settings::FullScreen,        "true",         "fullscreen",   "");
+    setOptionEntry(Settings::OverlayMode,       "false",        "overlay-mode", "toggle overlay mode used for devices with other mediaplayers than QtMultimediaKit");
+
     load();
     parseArguments();
 }
@@ -45,12 +47,12 @@ Settings::~Settings()
 
 QVariant Settings::value(Settings::Option option)
 {
-    return table[option].value;
+    return m_table[option].value;
 }
 
-void Settings::setValue(Settings::Option option, QVariant value)
+void Settings::setValue(Settings::Option option, const QVariant &value)
 {
-    table[option].value = value;
+    m_table[option].value = value;
 }
 
 bool Settings::save()
@@ -60,13 +62,10 @@ bool Settings::save()
         return false;
     }
 
-    m_settings.beginGroup("General");
-
     for (int i = 0; i < OptionLength; ++i) {
-        m_settings.setValue(table[i].name, table[i].value);
+        m_settings.setValue(m_table[i].name, m_table[i].value);
     }
 
-    m_settings.endGroup();
     m_settings.sync();
 
     return true;
@@ -74,26 +73,22 @@ bool Settings::save()
 
 void Settings::load()
 {
-    m_settings.beginGroup("General");
-
     foreach (QString key, m_settings.allKeys()) {
         for (int i = 0; i < OptionLength; ++i) {
-            if (key == table[i].name) {
-                table[i].value = m_settings.value(key, table[i].value);
+            if (key == m_table[i].name) {
+                m_table[i].value = m_settings.value(key, m_table[i].value);
                 break;
             }
         }
     }
-
-    m_settings.endGroup();
 }
 
 void Settings::parseArguments()
 {
     for (int i = 0; i < OptionLength; ++i) {
-        QVariant v = valueFromCommandLine(table[i].name);
+        QVariant v = valueFromCommandLine(m_table[i].name);
         if (v.isValid()) {
-            table[i].value = v;
+            m_table[i].value = v;
         }
     }
 }
@@ -113,7 +108,15 @@ QVariant Settings::valueFromCommandLine(const QString &key)
             value = m_arguments.value(arg + 1);
         }
     }
-    qDebug() << "found value" << key << value;
+
     return value;
+}
+
+void Settings::setOptionEntry(Settings::Option option, const QVariant &value, const QString &name, const QString &doc)
+{
+    m_table[option].option = option;
+    m_table[option].value = value;
+    m_table[option].name = name;
+    m_table[option].doc = doc;
 }
 

@@ -30,6 +30,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "global.h"
 
+
+// TODO make it threadsafe
+
 class QMH_EXPORT Settings : public QObject
 {
     Q_OBJECT
@@ -52,7 +55,7 @@ public:
     ~Settings();
 
     Q_INVOKABLE QVariant value(Settings::Option option);
-    Q_INVOKABLE void setValue(Settings::Option option, QVariant value);
+    Q_INVOKABLE void setValue(Settings::Option option, const QVariant &value);
 
     Q_INVOKABLE bool save();
 
@@ -60,9 +63,13 @@ private:
     void load();
     void parseArguments();
     QVariant valueFromCommandLine(const QString &key);
+    void setOptionEntry(Settings::Option option, const QVariant &value, const QString &name, const QString &doc);
+
+    struct OptionEntry { Settings::Option option; QVariant value; QString name; QString doc; };
 
     QSettings m_settings;
     const QStringList m_arguments;
+    struct OptionEntry m_table[Settings::OptionLength];
 
 };
 
