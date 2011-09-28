@@ -41,9 +41,9 @@ static QNetworkSession *g_networkSession = 0;
 static void setupNetwork()
 {
     QNetworkProxy proxy;
-    if (Config::isEnabled("proxy", false)) {
-        QString proxyHost(Config::value("proxy-host", "localhost").toString());
-        int proxyPort = Config::value("proxy-port", 8080);
+    if (Settings::isEnabled(Settings::Proxy)) {
+        QString proxyHost(Settings::value(Settings::ProxyHost).toString());
+        int proxyPort = Settings::value(Settings::ProxyPort).toInt();
         proxy.setType(QNetworkProxy::HttpProxy);
         proxy.setHostName(proxyHost);
         proxy.setPort(proxyPort);
@@ -114,7 +114,7 @@ int main(int argc, char** argv)
 
 #ifndef SCENEGRAPH
     bool primarySession = !app.isRunning();
-    if (!(Config::isEnabled("multi-instance", false) || primarySession)) {
+    if (!(Settings::isEnabled(Settings::MultiInstance) || primarySession)) {
         qWarning() << app.applicationName() << "is already running, aborting";
         return false;
     }
@@ -125,9 +125,9 @@ int main(int argc, char** argv)
     MainWindow *mainWindow = 0;
     MediaServer *mediaServer = 0;
 
-    if (!Config::isEnabled("headless", false)) {
+    if (!Settings::isEnabled(Settings::Headless)) {
         mainWindow = new MainWindow;
-        mainWindow->setSkin(Config::value("skin", "").toString());
+        mainWindow->setSkin(Settings::value(Settings::Skin).toString());
         mainWindow->show();
     } else {
         mediaServer = new MediaServer;
