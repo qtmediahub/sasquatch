@@ -56,7 +56,9 @@ public:
 
     static Settings* instance();
 
-    Q_INVOKABLE QVariant value(Settings::Option option) const;
+    Q_INVOKABLE static bool isEnabled(Settings::Option option);
+    Q_INVOKABLE static QVariant value(Settings::Option option);
+
     Q_INVOKABLE const QString name(Settings::Option option) const;
     Q_INVOKABLE const QString doc(Settings::Option option) const;
 

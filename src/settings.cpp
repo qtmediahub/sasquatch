@@ -52,9 +52,14 @@ Settings* Settings::instance()
     return m_instance;
 }
 
-QVariant Settings::value(Settings::Option option) const
+QVariant Settings::value(Settings::Option option)
 {
-    return m_table[option].value;
+    return Settings::instance()->m_table[option].value;
+}
+
+bool Settings::isEnabled(Settings::Option option)
+{
+    return Settings::instance()->m_table[option].value.toBool();
 }
 
 const QString Settings::name(Settings::Option option) const
@@ -136,6 +141,7 @@ void Settings::setOptionEntry(Settings::Option option, const QVariant &value, co
     m_table[option].name = name;
     m_table[option].doc = doc;
 }
+
 
 
 
