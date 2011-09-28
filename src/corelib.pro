@@ -30,7 +30,8 @@ SOURCES += qmh-config.cpp \
     tarfileengine.cpp \
     processmanager.cpp \
     skinmanager.cpp \
-    inputcontext.cpp
+    inputcontext.cpp \
+    settings.cpp
 
 HEADERS += qmh-config.h \
     global.h \
@@ -54,7 +55,8 @@ HEADERS += qmh-config.h \
     processmanager.h \
     skinmanager.h \
     declarativeview.h \
-    inputcontext.h
+    inputcontext.h \
+    settings.h
 
 qt5 {
     SOURCES += \
@@ -100,6 +102,8 @@ contains(QT_CONFIG, dbus) {
 
 target.path = $${PREFIX}/lib/
 INSTALLS += target
+
+
 
 
 
