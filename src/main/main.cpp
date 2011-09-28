@@ -93,14 +93,14 @@ int main(int argc, char** argv)
     app.setOrganizationName("MediaTrolls");
     app.setOrganizationDomain("qtmediahub.com");
 
-    Settings *settings = new Settings(app.arguments());
+    Settings::instance()->init(app.arguments());
     if (app.arguments().contains("--help") ||app.arguments().contains("-help") || app.arguments().contains("-h")) {
         printf("Usage: qtmediahub [-option value] [-option=value]\n"
                "\n"
                "Options:\n");
 
         for (int i = 0; i < Settings::OptionLength; ++i) {
-            printf("  -%-20s %s\n", qPrintable(settings->name((Settings::Option)i)), qPrintable(settings->doc((Settings::Option)i)));
+            printf("  -%-20s %s\n", qPrintable(Settings::instance()->name((Settings::Option)i)), qPrintable(Settings::instance()->doc((Settings::Option)i)));
         }
         return 0;
     }

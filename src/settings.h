@@ -51,8 +51,10 @@ public:
         OptionLength
     };
 
-    explicit Settings(const QStringList &arguments, QObject *parent = 0);
-    ~Settings();
+    // run Settings::instance()->init() before any other access to Settings
+    void init(const QStringList &arguments);
+
+    static Settings* instance();
 
     Q_INVOKABLE QVariant value(Settings::Option option) const;
     Q_INVOKABLE const QString name(Settings::Option option) const;
@@ -62,18 +64,23 @@ public:
 
     Q_INVOKABLE bool save();
 
+
 private:
+    Settings(QObject *parent = 0)
+        : QObject(parent)
+    {
+    }
+
     void load();
-    void parseArguments();
-    QVariant valueFromCommandLine(const QString &key);
+    void parseArguments(const QStringList &arguments);
+    QVariant valueFromCommandLine(const QString &key, const QStringList &arguments);
     void setOptionEntry(Settings::Option option, const QVariant &value, const QString &name, const QString &doc);
 
     struct OptionEntry { Settings::Option option; QVariant value; QString name; QString doc; };
 
     QSettings m_settings;
-    const QStringList m_arguments;
     struct OptionEntry m_table[Settings::OptionLength];
-
+    static Settings *m_instance;
 };
 
 #endif // SETTINGS_H

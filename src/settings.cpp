@@ -24,9 +24,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <QtDebug>
 
-Settings::Settings(const QStringList &arguments, QObject *parent)
-    : QObject(parent),
-      m_arguments(arguments)
+Settings *Settings::m_instance = 0;
+
+void Settings::init(const QStringList &arguments)
 {
     // annoying but m_table[Settings::Skin] = { Settings::Skin, "confluence", "skin", "specifies the skin" }; only possible in c++0x
     setOptionEntry(Settings::Skin,              "confluence",   "skin",         "specifies the skin");
@@ -37,12 +37,19 @@ Settings::Settings(const QStringList &arguments, QObject *parent)
     setOptionEntry(Settings::FullScreen,        "true",         "fullscreen",   "");
     setOptionEntry(Settings::OverlayMode,       "false",        "overlay-mode", "toggle overlay mode used for devices with other mediaplayers than QtMultimediaKit");
 
+    // first load settings from config file
     load();
-    parseArguments();
+
+    // then load arguments as they overrule config file
+    parseArguments(arguments);
 }
 
-Settings::~Settings()
+Settings* Settings::instance()
 {
+    if(!m_instance) {
+        m_instance = new Settings();
+    }
+    return m_instance;
 }
 
 QVariant Settings::value(Settings::Option option) const
@@ -93,29 +100,29 @@ void Settings::load()
     }
 }
 
-void Settings::parseArguments()
+void Settings::parseArguments(const QStringList &arguments)
 {
     for (int i = 0; i < OptionLength; ++i) {
-        QVariant v = valueFromCommandLine(m_table[i].name);
+        QVariant v = valueFromCommandLine(m_table[i].name, arguments);
         if (v.isValid()) {
             m_table[i].value = v;
         }
     }
 }
 
-QVariant Settings::valueFromCommandLine(const QString &key)
+QVariant Settings::valueFromCommandLine(const QString &key, const QStringList &arguments)
 {
     QRegExp rx(QString("--?%1=(.*)").arg(key));
     rx.setCaseSensitivity(Qt::CaseInsensitive);
     QVariant value;
-    int arg = m_arguments.indexOf(rx);
+    int arg = arguments.indexOf(rx);
     if (arg != -1) {
         value = rx.cap(1);
     } else {
         rx.setPattern(QString("--?%1$").arg(key));
-        arg = m_arguments.indexOf(rx);
-        if (arg != -1 && arg + 1 < m_arguments.size()) {
-            value = m_arguments.value(arg + 1);
+        arg = arguments.indexOf(rx);
+        if (arg != -1 && arg + 1 < arguments.size()) {
+            value = arguments.value(arg + 1);
         }
     }
 
@@ -129,5 +136,6 @@ void Settings::setOptionEntry(Settings::Option option, const QVariant &value, co
     m_table[option].name = name;
     m_table[option].doc = doc;
 }
+
 
 
