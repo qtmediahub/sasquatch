@@ -93,17 +93,22 @@ int main(int argc, char** argv)
     app.setOrganizationName("MediaTrolls");
     app.setOrganizationDomain("qtmediahub.com");
 
-    Settings::instance()->init(app.arguments());
-    if (app.arguments().contains("--help") ||app.arguments().contains("-help") || app.arguments().contains("-h")) {
+    if (app.arguments().contains("--help") || app.arguments().contains("-help") || app.arguments().contains("-h")) {
+        Settings::instance()->init(QStringList());
         printf("Usage: qtmediahub [-option value] [-option=value]\n"
                "\n"
-               "Options:\n");
+               "Options (default):\n");
 
         for (int i = 0; i < Settings::OptionLength; ++i) {
-            printf("  -%-20s %s\n", qPrintable(Settings::instance()->name((Settings::Option)i)), qPrintable(Settings::instance()->doc((Settings::Option)i)));
+            printf("  -%-20s %s \t (%s)\n",
+                   qPrintable(Settings::instance()->name((Settings::Option)i)),
+                   qPrintable(Settings::instance()->doc((Settings::Option)i)),
+                   qPrintable(Settings::instance()->value((Settings::Option)i).toString()));
         }
         return 0;
     }
+
+    Settings::instance()->init(app.arguments());
 
     setupNetwork();
 
