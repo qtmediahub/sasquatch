@@ -23,6 +23,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "mainwindow.h"
 #include "mediaserver.h"
 #include "qmh-config.h"
+#include "settings.h"
 
 #include <QApplication>
 #include <QNetworkProxy>
@@ -74,6 +75,7 @@ int main(int argc, char** argv)
 #ifdef SCENEGRAPH
     QApplication app(argc, argv);
 #else
+
     bool overrideGraphicsSystem = false;
     for(int i = 0; i < argc; ++i) {
         if (qstrcmp(argv[i], "-graphicssystem") == 0) {
@@ -90,6 +92,18 @@ int main(int argc, char** argv)
     app.setApplicationName("qtmediahub");
     app.setOrganizationName("MediaTrolls");
     app.setOrganizationDomain("qtmediahub.com");
+
+    Settings *settings = new Settings(app.arguments());
+    if (app.arguments().contains("--help") ||app.arguments().contains("-help") || app.arguments().contains("-h")) {
+        printf("Usage: qtmediahub [-option value] [-option=value]\n"
+               "\n"
+               "Options:\n");
+
+        for (int i = 0; i < Settings::OptionLength; ++i) {
+            printf("  -%-20s %s\n", qPrintable(settings->name((Settings::Option)i)), qPrintable(settings->doc((Settings::Option)i)));
+        }
+        return 0;
+    }
 
     setupNetwork();
 
