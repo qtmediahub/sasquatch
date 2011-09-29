@@ -75,7 +75,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "abstractmediaplayer.h"
 
 #ifdef MEDIAPLAYER_DBUS
-#include "mediaplayer_dbus.h"
+#include "mediaplayerdbus.h"
 #elif defined(MEDIAPLAYER_VLC)
 #include "mediaplayervlc.h"
 #endif

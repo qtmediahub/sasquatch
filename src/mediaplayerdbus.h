@@ -32,10 +32,14 @@ class MediaPlayerDbus : public AbstractMediaPlayer
     Q_OBJECT
 public:
 #ifdef SCENEGRAPH
-    explicit MediaPlayerDbus(QSGItem *parent = 0);
+    explicit MediaPlayerDbus(QSGItem *parent = 0)
 #else
-    explicit MediaPlayerDbus(QDeclarativeItem *parent = 0);
+    explicit MediaPlayerDbus(QDeclarativeItem *parent = 0)
 #endif
+    : AbstractMediaPlayer(parent)
+     , interface(new QDBusInterface(QMH_PLAYER_DBUS_SERVICENAME, "/", QString(), QDBusConnection::sessionBus(), this))
+{
+}
 
 signals:
 

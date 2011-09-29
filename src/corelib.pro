@@ -71,8 +71,7 @@ vlc {
     LIBS += -lvlc
 } else:contains(QT_CONFIG, dbus) {
     DEFINES += MEDIAPLAYER_DBUS
-    HEADERS += mediaplayer_dbus.h
-    SOURCES += mediaplayer_dbus.cpp
+    HEADERS += mediaplayerdbus.h
 }
 
 include(rpc/rpc.pri)
