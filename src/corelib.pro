@@ -54,7 +54,8 @@ HEADERS += qmh-config.h \
     processmanager.h \
     skinmanager.h \
     declarativeview.h \
-    inputcontext.h
+    inputcontext.h \
+    mediaplayerdummy.h
 
 qt5 {
     SOURCES += \
