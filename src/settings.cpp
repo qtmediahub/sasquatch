@@ -31,17 +31,17 @@ void Settings::init(const QStringList &arguments)
 // annoying but m_table[Settings::Skin] = { Settings::Skin, "confluence", "skin", "specifies the skin" }; only possible in c++0x
 //                 Settings::Option,    default value,  name,               documentation
     setOptionEntry(Skin,                "confluence",   "skin",             "<name> specifies the skin");
-    setOptionEntry(SkinsPath,           "",             "skins-path",       "<path> adds path to skins search paths");
+    setOptionEntry(SkinsPath,           "",             "skinsPath",        "<path> adds path to skins search paths");
     setOptionEntry(Keymap,              "stdkeyboard",  "keymap",           "<name> specifies the keymap");
-    setOptionEntry(KeymapsPath,         "",             "keymaps-path",     "<path> adds path to keymaps search paths");
-    setOptionEntry(ApplicationsPath,    "",             "apps-path",        "<path> adds path to skins search paths");
+    setOptionEntry(KeymapsPath,         "",             "keymapsPath",      "<path> adds path to keymaps search paths");
+    setOptionEntry(ApplicationsPath,    "",             "appsPath",         "<path> adds path to skins search paths");
     setOptionEntry(FullScreen,          "true",         "fullscreen",       "<bool> toggle fullscreen");
-    setOptionEntry(OverlayMode,         "false",        "overlay-mode",     "<bool> toggle overlay mode used for devices with other mediaplayers than QtMultimediaKit");
+    setOptionEntry(OverlayMode,         "false",        "overlayMode",      "<bool> toggle overlay mode used for devices with other mediaplayers than QtMultimediaKit");
     setOptionEntry(Headless,            "false",        "headless",         "<bool> toggle running with user interface, usable for streaming server usage");
     setOptionEntry(Proxy,               "false",        "proxy",            "<bool> use a proxy for network access");
-    setOptionEntry(ProxyHost,           "localhost",    "proxy-host",       "<hostname> set proxy host, only used with -proxy=true");
-    setOptionEntry(ProxyPort,           "8080",         "proxy-port",       "<port> set port number for proxy usage, only used with -proxy=true");
-    setOptionEntry(MultiInstance,       "false",        "multi-instance",   "<bool> allow running multiple instances");
+    setOptionEntry(ProxyHost,           "localhost",    "proxyHost",        "<hostname> set proxy host, only used with -proxy=true");
+    setOptionEntry(ProxyPort,           "8080",         "proxyPort",        "<port> set port number for proxy usage, only used with -proxy=true");
+    setOptionEntry(MultiInstance,       "false",        "multiInstance",    "<bool> allow running multiple instances");
 
     // first load settings from config file
     load();
@@ -81,6 +81,8 @@ const QString Settings::doc(Settings::Option option) const
 void Settings::setValue(Settings::Option option, const QVariant &value)
 {
     m_table[option].value = value;
+    insert(m_table[option].name, value);
+    emit valueChanged(m_table[option].name, value);
 }
 
 bool Settings::save()
@@ -104,7 +106,7 @@ void Settings::load()
     foreach (QString key, m_settings.allKeys()) {
         for (int i = 0; i < OptionLength; ++i) {
             if (key == m_table[i].name) {
-                m_table[i].value = m_settings.value(key, m_table[i].value);
+                setValue(m_table[i].option, m_settings.value(key, m_table[i].value));
                 break;
             }
         }
@@ -116,7 +118,7 @@ void Settings::parseArguments(const QStringList &arguments)
     for (int i = 0; i < OptionLength; ++i) {
         QVariant v = valueFromCommandLine(m_table[i].name, arguments);
         if (v.isValid()) {
-            m_table[i].value = v;
+            setValue(m_table[i].option, v);
         }
     }
 }
@@ -143,9 +145,10 @@ QVariant Settings::valueFromCommandLine(const QString &key, const QStringList &a
 void Settings::setOptionEntry(Settings::Option option, const QVariant &value, const QString &name, const QString &doc)
 {
     m_table[option].option = option;
-    m_table[option].value = value;
-    m_table[option].name = name;
     m_table[option].doc = doc;
+    m_table[option].name = name;
+
+    setValue(option, value);
 }
 
 

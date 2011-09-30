@@ -27,13 +27,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QVariant>
 #include <QSettings>
 #include <QStringList>
+#include <QDeclarativePropertyMap>
 
 #include "global.h"
 
 
 // TODO make it threadsafe
 
-class QMH_EXPORT Settings : public QObject
+class QMH_EXPORT Settings : public QDeclarativePropertyMap
 {
     Q_OBJECT
     Q_ENUMS(Option)
@@ -74,7 +75,7 @@ public:
 
 private:
     Settings(QObject *parent = 0)
-        : QObject(parent)
+        : QDeclarativePropertyMap(parent)
     {
     }
 
