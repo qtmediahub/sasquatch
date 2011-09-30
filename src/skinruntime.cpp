@@ -73,6 +73,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "powermanager.h"
 #include "rpc/mediaplayerrpc.h"
 #include "abstractmediaplayer.h"
+#include "settings.h"
 
 #ifdef MEDIAPLAYER_DBUS
 #include "mediaplayer_dbus.h"
@@ -289,6 +290,7 @@ QObject *SkinRuntimePrivate::loadQmlSkin(const QUrl &targetUrl, QObject *window)
         runtime->insert("deviceManager", qVariantFromValue(static_cast<QObject *>(deviceManager)));
         runtime->insert("powerManager", qVariantFromValue(static_cast<QObject *>(powerManager)));
     }
+    runtime->insert("settings", qVariantFromValue(static_cast<QObject *>(Settings::instance())));
     runtime->insert("config", qVariantFromValue(static_cast<QObject *>(Config::instance())));
     runtime->insert("window", qVariantFromValue(static_cast<QObject *>(window)));
     runtime->insert("view", qVariantFromValue(static_cast<QObject *>(declarativeWidget)));
