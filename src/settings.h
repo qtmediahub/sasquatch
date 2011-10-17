@@ -72,6 +72,8 @@ public:
 
     Q_INVOKABLE bool save();
 
+    Q_INVOKABLE void insertValue(const QString &name, const QVariant &var);
+
 
 private:
     Settings(QObject *parent = 0)
