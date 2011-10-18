@@ -27,6 +27,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QMetaType>
 #include <QUrl>
 #include "global.h"
+#include "globalsettings.h"
 
 class QMH_EXPORT Skin : public QObject
 {
@@ -44,6 +45,7 @@ public:
     QString name() const;
     QString path() const;
     QString config() const;
+    const Settings *settings() const;
 
     Type type(const QUrl &url) const; // ## remove the url argument
 
@@ -57,6 +59,7 @@ private:
     QString m_path;
     QString m_name;
     QString m_config;
+    Settings m_settings;
 };
 
 Q_DECLARE_METATYPE(Skin *)

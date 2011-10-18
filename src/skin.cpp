@@ -80,22 +80,33 @@ QUrl Skin::urlForResolution(const QString &nativeResolutionString, const QString
         qWarning() << "Can't read " << m_config << " of skin " << m_name;
         return QUrl();
     }
-	JsonReader reader;
-	if (!reader.parse(skinConfig.readAll())) {
-		qWarning() << "Failed to parse config file " << m_config << reader.errorString();
-		return QUrl();
-	}
-	QHash<QString, QString> resolutionToFile;
 
-	const QVariantMap root = reader.result().toMap();
-	const QVariantMap resolutions = root["resolutions"].toMap();
-	foreach(const QVariant &v, resolutions) {
-		QString name = v.toString();
-		QString resolutionSize = resolutionHash.contains(name) ? resolutionHash[name] : name;
-		QVariantMap resolution = v.toMap();
-		resolutionToFile[resolutionSize] = resolutions[name].toMap()["file"].toString();
-	}
-	resolutionToFile["default"] = resolutions[root["default_resolution"].toString()].toMap()["file"].toString();
+    JsonReader reader;
+    if (!reader.parse(skinConfig.readAll())) {
+        qWarning() << "Failed to parse config file " << m_config << reader.errorString();
+        return QUrl();
+    }
+    QHash<QString, QString> resolutionToFile;
+
+    const QVariantMap root = reader.result().toMap();
+    const QVariantMap resolutions = root["resolutions"].toMap();
+    foreach (const QVariant &v, resolutions) {
+        QString name = v.toString();
+        QString resolutionSize = resolutionHash.contains(name) ? resolutionHash[name] : name;
+        QVariantMap resolution = v.toMap();
+        resolutionToFile[resolutionSize] = resolutions[name].toMap()["file"].toString();
+    }
+    resolutionToFile["default"] = resolutions[root["default_resolution"].toString()].toMap()["file"].toString();
+
+    // load default settings
+    const QVariantList settings = root["settings"].toList();
+    foreach (const QVariant &s, settings) {
+        const QVariantMap entry = s.toMap();
+        m_settings.addOptionEntry(entry.value("name").toString(), entry.value("value").toString(), entry.value("doc").toString());
+    }
+    const QString configFilePath = QFileInfo(QSettings().fileName()).absolutePath() + QLatin1String("/") + name() + QLatin1String(".ini");
+    m_settings.loadConfigFile(configFilePath);
+    m_settings.parseArguments(QApplication::arguments(), name());
 
     QString urlPath =
             resolutionToFile.contains(nativeResolutionString)
@@ -116,5 +127,10 @@ Skin::Type Skin::type(const QUrl &url) const
         return Qml;
     }
     return Invalid;
+}
+
+const Settings * Skin::settings() const
+{
+    return &m_settings;
 }
 

@@ -48,6 +48,8 @@ public:
     void loadConfigFile(const QString &fileName = "");
     void parseArguments(const QStringList &arguments, const QString &prefix = QString());
 
+    const QString configFile() const { return m_settings.fileName(); }
+
 private:
     QVariant valueFromCommandLine(const QString &key, const QStringList &arguments);
 
