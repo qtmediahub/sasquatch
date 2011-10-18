@@ -28,7 +28,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QtDebug>
 
 Skin::Skin(QObject *parent)
-    : QObject(parent)
+    : QObject(parent),
+      m_settings(new Settings(this))
 {
 }
 
@@ -102,11 +103,11 @@ QUrl Skin::urlForResolution(const QString &nativeResolutionString, const QString
     const QVariantList settings = root["settings"].toList();
     foreach (const QVariant &s, settings) {
         const QVariantMap entry = s.toMap();
-        m_settings.addOptionEntry(entry.value("name").toString(), entry.value("value").toString(), entry.value("doc").toString());
+        m_settings->addOptionEntry(entry.value("name").toString(), entry.value("value").toString(), entry.value("doc").toString());
     }
     const QString configFilePath = QFileInfo(QSettings().fileName()).absolutePath() + QLatin1String("/") + name() + QLatin1String(".ini");
-    m_settings.loadConfigFile(configFilePath);
-    m_settings.parseArguments(QApplication::arguments(), name());
+    m_settings->loadConfigFile(configFilePath);
+    m_settings->parseArguments(QApplication::arguments(), name());
 
     QString urlPath =
             resolutionToFile.contains(nativeResolutionString)
@@ -129,8 +130,8 @@ Skin::Type Skin::type(const QUrl &url) const
     return Invalid;
 }
 
-const Settings * Skin::settings() const
+Settings *Skin::settings() const
 {
-    return &m_settings;
+    return m_settings;
 }
 

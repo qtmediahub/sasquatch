@@ -198,6 +198,7 @@ SkinRuntimePrivate::SkinRuntimePrivate(GlobalSettings *s, SkinRuntime *p)
     qmlRegisterType<Playlist>("Playlist", 1, 0, "Playlist");
     qmlRegisterType<MediaModel>("MediaModel", 1, 0, "MediaModel");
     qmlRegisterType<RpcConnection>("RpcConnection", 1, 0, "RpcConnection");
+    qmlRegisterType<Settings>("Settings", 1, 0, "Settings");
 
     if (Config::value("overlay-mode", false)) {
 #ifdef MEDIAPLAYER_DBUS

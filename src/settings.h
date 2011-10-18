@@ -32,7 +32,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "global.h"
 
 // TODO make it threadsafe
-
 class QMH_EXPORT Settings : public QDeclarativePropertyMap
 {
     Q_OBJECT
@@ -56,5 +55,7 @@ private:
     QSettings m_settings;
     QMap<QString, QString> m_docs;
 };
+
+Q_DECLARE_METATYPE(Settings *)
 
 #endif // SETTINGS_H

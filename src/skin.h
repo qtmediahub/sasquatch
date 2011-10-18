@@ -35,6 +35,7 @@ class QMH_EXPORT Skin : public QObject
     Q_PROPERTY(QString name READ name CONSTANT)
     Q_PROPERTY(QString path READ path CONSTANT)
     Q_PROPERTY(QString config READ config CONSTANT)
+    Q_PROPERTY(Settings *settings READ settings CONSTANT)
 
 public:
     enum Type { Invalid, Qml };
@@ -45,7 +46,7 @@ public:
     QString name() const;
     QString path() const;
     QString config() const;
-    const Settings *settings() const;
+    Settings *settings() const;
 
     Type type(const QUrl &url) const; // ## remove the url argument
 
@@ -59,7 +60,7 @@ private:
     QString m_path;
     QString m_name;
     QString m_config;
-    Settings m_settings;
+    Settings *m_settings;
 };
 
 Q_DECLARE_METATYPE(Skin *)
