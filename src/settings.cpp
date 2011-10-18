@@ -92,8 +92,8 @@ bool Settings::save()
         return false;
     }
 
-    foreach (QString key, keys()) {
-        m_settings.setValue(key, QDeclarativePropertyMap::value(key));
+    for (int i = 0; i < OptionLength; ++i) {
+        m_settings.setValue(m_table[i].name, m_table[i].value);
     }
 
     m_settings.sync();
@@ -104,14 +104,9 @@ bool Settings::save()
 void Settings::load()
 {
     foreach (QString key, m_settings.allKeys()) {
-
-        insert(key, m_settings.value(key, m_settings.value(key)));
-        emit valueChanged(key, m_settings.value(key, m_settings.value(key)));
-
-        // TODO do we need that loop?
         for (int i = 0; i < OptionLength; ++i) {
             if (key == m_table[i].name) {
-                m_table[i].value = m_settings.value(key, m_table[i].value);
+                setValue(m_table[i].option, m_settings.value(key, m_table[i].value));
                 break;
             }
         }
@@ -156,11 +151,6 @@ void Settings::setOptionEntry(Settings::Option option, const QVariant &value, co
     setValue(option, value);
 }
 
-void Settings::insertValue(const QString &name, const QVariant &var)
-{
-    insert(name, var);
-    emit valueChanged(name, var);
-}
 
 
 
