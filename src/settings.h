@@ -31,64 +31,28 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "global.h"
 
-
 // TODO make it threadsafe
 
 class QMH_EXPORT Settings : public QDeclarativePropertyMap
 {
     Q_OBJECT
-    Q_ENUMS(Option)
 
 public:
-    enum Option {
-        Skin = 0,
-        SkinsPath,
-        Keymap,
-        KeymapsPath,
-        ApplicationsPath,
-        FullScreen,
-        OverlayMode,
-        Headless,
-        Proxy,
-        ProxyHost,
-        ProxyPort,
-        MultiInstance,
+    Settings(QObject *parent = 0);
 
-        OptionLength
-    };
-
-    // run Settings::instance()->init() before any other access to Settings
-    void init(const QStringList &arguments);
-
-    static Settings* instance();
-
-    Q_INVOKABLE static bool isEnabled(Settings::Option option);
-    Q_INVOKABLE static QVariant value(Settings::Option option);
-
-    Q_INVOKABLE const QString name(Settings::Option option) const;
-    Q_INVOKABLE const QString doc(Settings::Option option) const;
-
-    Q_INVOKABLE void setValue(Settings::Option option, const QVariant &value);
-
+    Q_INVOKABLE bool isEnabled(const QString &name) const;
+    Q_INVOKABLE const QString doc(const QString &name) const;
     Q_INVOKABLE bool save();
 
+    void addOptionEntry(const QString &name, const QVariant &value, const QString &doc);
+    void loadConfigFile(const QString &fileName = "");
+    void parseArguments(const QStringList &arguments, const QString &prefix = QString());
 
 private:
-    Settings(QObject *parent = 0)
-        : QDeclarativePropertyMap(parent)
-    {
-    }
-
-    void load();
-    void parseArguments(const QStringList &arguments);
     QVariant valueFromCommandLine(const QString &key, const QStringList &arguments);
-    void setOptionEntry(Settings::Option option, const QVariant &value, const QString &name, const QString &doc);
-
-    struct OptionEntry { Settings::Option option; QVariant value; QString name; QString doc; };
 
     QSettings m_settings;
-    struct OptionEntry m_table[Settings::OptionLength];
-    static Settings *m_instance;
+    QMap<QString, QString> m_docs;
 };
 
 #endif // SETTINGS_H

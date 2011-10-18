@@ -23,7 +23,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "mainwindow.h"
 #include "mediaserver.h"
 #include "qmh-config.h"
-#include "settings.h"
+#include "globalsettings.h"
 
 #include <QApplication>
 #include <QNetworkProxy>
@@ -38,12 +38,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 static QNetworkSession *g_networkSession = 0;
 
-static void setupNetwork()
+static void setupNetwork(GlobalSettings *settings)
 {
     QNetworkProxy proxy;
-    if (Settings::isEnabled(Settings::Proxy)) {
-        QString proxyHost(Settings::value(Settings::ProxyHost).toString());
-        int proxyPort = Settings::value(Settings::ProxyPort).toInt();
+    if (settings->isEnabled(GlobalSettings::Proxy)) {
+        QString proxyHost(settings->value(GlobalSettings::ProxyHost).toString());
+        int proxyPort = settings->value(GlobalSettings::ProxyPort).toInt();
         proxy.setType(QNetworkProxy::HttpProxy);
         proxy.setHostName(proxyHost);
         proxy.setPort(proxyPort);
@@ -93,28 +93,31 @@ int main(int argc, char** argv)
     app.setOrganizationName("MediaTrolls");
     app.setOrganizationDomain("qtmediahub.com");
 
+    GlobalSettings *settings = new GlobalSettings();
+
     if (app.arguments().contains("--help") || app.arguments().contains("-help") || app.arguments().contains("-h")) {
-        Settings::instance()->init(QStringList());
         printf("Usage: qtmediahub [-option value] [-option=value]\n"
                "\n"
                "Options (default):\n");
 
-        for (int i = 0; i < Settings::OptionLength; ++i) {
+        for (int i = 0; i < GlobalSettings::OptionLength; ++i) {
             printf("  -%-20s %s \t (%s)\n",
-                   qPrintable(Settings::instance()->name((Settings::Option)i)),
-                   qPrintable(Settings::instance()->doc((Settings::Option)i)),
-                   qPrintable(Settings::instance()->value((Settings::Option)i).toString()));
+                   qPrintable(settings->name((GlobalSettings::Option)i)),
+                   qPrintable(settings->doc((GlobalSettings::Option)i)),
+                   qPrintable(settings->value((GlobalSettings::Option)i).toString()));
         }
         return 0;
     }
 
-    Settings::instance()->init(app.arguments());
+    // settings store order, commandline arguments rule
+    settings->loadConfigFile();
+    settings->parseArguments(app.arguments());
 
-    setupNetwork();
+    setupNetwork(settings);
 
 #ifndef SCENEGRAPH
     bool primarySession = !app.isRunning();
-    if (!(Settings::isEnabled(Settings::MultiInstance) || primarySession)) {
+    if (!(settings->isEnabled(GlobalSettings::MultiInstance) || primarySession)) {
         qWarning() << app.applicationName() << "is already running, aborting";
         return false;
     }
@@ -125,9 +128,9 @@ int main(int argc, char** argv)
     MainWindow *mainWindow = 0;
     MediaServer *mediaServer = 0;
 
-    if (!Settings::isEnabled(Settings::Headless)) {
-        mainWindow = new MainWindow;
-        mainWindow->setSkin(Settings::value(Settings::Skin).toString());
+    if (!settings->isEnabled(GlobalSettings::Headless)) {
+        mainWindow = new MainWindow(settings);
+        mainWindow->setSkin(settings->value(GlobalSettings::Skin).toString());
         mainWindow->show();
     } else {
         mediaServer = new MediaServer;

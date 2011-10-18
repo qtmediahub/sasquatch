@@ -24,65 +24,19 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <QtDebug>
 
-Settings *Settings::m_instance = 0;
-
-void Settings::init(const QStringList &arguments)
+Settings::Settings(QObject *parent) :
+    QDeclarativePropertyMap(parent)
 {
-// annoying but m_table[Settings::Skin] = { Settings::Skin, "confluence", "skin", "specifies the skin" }; only possible in c++0x
-//                 Settings::Option,    default value,  name,               documentation
-    setOptionEntry(Skin,                "confluence",   "skin",             "<name> specifies the skin");
-    setOptionEntry(SkinsPath,           "",             "skinsPath",        "<path> adds path to skins search paths");
-    setOptionEntry(Keymap,              "stdkeyboard",  "keymap",           "<name> specifies the keymap");
-    setOptionEntry(KeymapsPath,         "",             "keymapsPath",      "<path> adds path to keymaps search paths");
-    setOptionEntry(ApplicationsPath,    "",             "appsPath",         "<path> adds path to skins search paths");
-    setOptionEntry(FullScreen,          "true",         "fullscreen",       "<bool> toggle fullscreen");
-    setOptionEntry(OverlayMode,         "false",        "overlayMode",      "<bool> toggle overlay mode used for devices with other mediaplayers than QtMultimediaKit");
-    setOptionEntry(Headless,            "false",        "headless",         "<bool> toggle running with user interface, usable for streaming server usage");
-    setOptionEntry(Proxy,               "false",        "proxy",            "<bool> use a proxy for network access");
-    setOptionEntry(ProxyHost,           "localhost",    "proxyHost",        "<hostname> set proxy host, only used with -proxy=true");
-    setOptionEntry(ProxyPort,           "8080",         "proxyPort",        "<port> set port number for proxy usage, only used with -proxy=true");
-    setOptionEntry(MultiInstance,       "false",        "multiInstance",    "<bool> allow running multiple instances");
-
-    // first load settings from config file
-    load();
-
-    // then load arguments as they overrule config file
-    parseArguments(arguments);
 }
 
-Settings* Settings::instance()
+bool Settings::isEnabled(const QString &name) const
 {
-    if(!m_instance) {
-        m_instance = new Settings();
-    }
-    return m_instance;
+    return value(name).toBool();
 }
 
-QVariant Settings::value(Settings::Option option)
+const QString Settings::doc(const QString &name) const
 {
-    return Settings::instance()->m_table[option].value;
-}
-
-bool Settings::isEnabled(Settings::Option option)
-{
-    return Settings::instance()->m_table[option].value.toBool();
-}
-
-const QString Settings::name(Settings::Option option) const
-{
-    return m_table[option].name;
-}
-
-const QString Settings::doc(Settings::Option option) const
-{
-    return m_table[option].doc;
-}
-
-void Settings::setValue(Settings::Option option, const QVariant &value)
-{
-    m_table[option].value = value;
-    insert(m_table[option].name, value);
-    emit valueChanged(m_table[option].name, value);
+    return m_docs.value(name);
 }
 
 bool Settings::save()
@@ -92,8 +46,8 @@ bool Settings::save()
         return false;
     }
 
-    for (int i = 0; i < OptionLength; ++i) {
-        m_settings.setValue(m_table[i].name, m_table[i].value);
+    foreach (const QString &key, keys()) {
+        m_settings.setValue(key, value(key));
     }
 
     m_settings.sync();
@@ -101,24 +55,35 @@ bool Settings::save()
     return true;
 }
 
-void Settings::load()
+void Settings::loadConfigFile(const QString &fileName)
 {
-    foreach (QString key, m_settings.allKeys()) {
-        for (int i = 0; i < OptionLength; ++i) {
-            if (key == m_table[i].name) {
-                setValue(m_table[i].option, m_settings.value(key, m_table[i].value));
-                break;
-            }
+    if (keys().isEmpty()) {
+        return;
+    }
+
+    if (!fileName.isEmpty())
+        m_settings.setPath(QSettings::IniFormat, QSettings::UserScope, fileName);
+
+    foreach (const QString &key, m_settings.allKeys()) {
+        if (keys().contains(key)) {
+            insert(key, m_settings.value(key));
+            emit valueChanged(key, m_settings.value(key));
         }
     }
 }
 
-void Settings::parseArguments(const QStringList &arguments)
+void Settings::parseArguments(const QStringList &arguments, const QString &prefix)
 {
-    for (int i = 0; i < OptionLength; ++i) {
-        QVariant v = valueFromCommandLine(m_table[i].name, arguments);
+    if (keys().isEmpty()) {
+        return;
+    }
+
+    // TODO use prefix to separate skin specific with global options
+    foreach (const QString &key, keys()) {
+        QVariant v = valueFromCommandLine(key, arguments);
         if (v.isValid()) {
-            setValue(m_table[i].option, v);
+            insert(key, v);
+            emit valueChanged(key, v);
         }
     }
 }
@@ -142,14 +107,13 @@ QVariant Settings::valueFromCommandLine(const QString &key, const QStringList &a
     return value;
 }
 
-void Settings::setOptionEntry(Settings::Option option, const QVariant &value, const QString &name, const QString &doc)
+void Settings::addOptionEntry(const QString &name, const QVariant &value, const QString &doc)
 {
-    m_table[option].option = option;
-    m_table[option].doc = doc;
-    m_table[option].name = name;
-
-    setValue(option, value);
+    m_docs.insert(name, doc);
+    insert(name, value);
+    emit valueChanged(name, value);
 }
+
 
 
 

@@ -20,30 +20,48 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 ****************************************************************************/
 
-#ifndef SKINRUNTIME_H
-#define SKINRUNTIME_H
+#ifndef GLOBALSETTINGS_H
+#define GLOBALSETTINGS_H
 
-#include <QObject>
-#include <QStringList>
-#include "skin.h"
+#include "settings.h"
 #include "global.h"
 
-class SkinRuntimePrivate;
-class MainWindow;
-class GlobalSettings;
-
-// SkinRuntime is the common code used by all types of skins (QML, HTML).
-class QMH_EXPORT SkinRuntime : public QObject
+class QMH_EXPORT GlobalSettings : public Settings
 {
     Q_OBJECT
+    Q_ENUMS(Option)
 
 public:
-    SkinRuntime(GlobalSettings *settings, QObject *p = 0);
-    ~SkinRuntime();
+    enum Option {
+        Skin = 0,
+        SkinsPath,
+        Keymap,
+        KeymapsPath,
+        ApplicationsPath,
+        FullScreen,
+        OverlayMode,
+        Headless,
+        Proxy,
+        ProxyHost,
+        ProxyPort,
+        MultiInstance,
 
-    QObject *create(Skin *skin, QObject *window);
+        OptionLength
+    };
+
+    GlobalSettings(QObject *parent = 0);
+
+    Q_INVOKABLE bool isEnabled(GlobalSettings::Option option) const;
+    Q_INVOKABLE QVariant value(GlobalSettings::Option option) const;
+    Q_INVOKABLE const QString name(GlobalSettings::Option option) const;
+    Q_INVOKABLE const QString doc(GlobalSettings::Option option) const;
+
+    Q_INVOKABLE void setValue(GlobalSettings::Option option, const QVariant &value);
+
+    void addOptionEntry(GlobalSettings::Option option, const QVariant &value, const QString &name, const QString &doc);
+
 private:
-    SkinRuntimePrivate *d;
+    QString m_table[GlobalSettings::OptionLength];
 };
 
-#endif // SKINRUNTIME_H 
+#endif // GLOBALSETTINGS_H

@@ -25,6 +25,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "skinmanager.h"
 #include "skinselector.h"
 #include "skinruntime.h"
+#include "globalsettings.h"
 
 #include <QGraphicsView>
 #include <QShortcut>
@@ -36,17 +37,18 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QDeclarativeView>
 #endif
 
-MainWindow::MainWindow(QWidget *parent)
+MainWindow::MainWindow(GlobalSettings *settings, QWidget *parent)
     : QWidget(parent),
       m_centralWidget(0),
       m_defaultGeometry(0, 0, 1080, 720),
       m_overscanWorkAround(Config::isEnabled("overscan", false)),
-      m_attemptingFullScreen(Config::isEnabled("fullscreen", true))
+      m_attemptingFullScreen(Config::isEnabled("fullscreen", true)),
+      m_settings(settings)
 {
     const bool isOverlay = Config::isEnabled("overlay-mode", false);
     setAttribute(isOverlay ? Qt::WA_TranslucentBackground : Qt::WA_NoSystemBackground);
 
-    m_skinRuntime = new SkinRuntime(this);
+    m_skinRuntime = new SkinRuntime(m_settings, this);
 
     setOrientation(Config::value("orientation", ScreenOrientationAuto));
 

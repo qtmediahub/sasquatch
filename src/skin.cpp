@@ -62,6 +62,7 @@ Skin *Skin::createSkin(const QString &skinPath, QObject *parent)
     skin->m_name = fileInfo.fileName();
     skin->m_path = skinPath; // fileInfo.canonicalFilePath() doesn't work for qar files
     skin->m_config = mapFile;
+
     return skin;
 }
 

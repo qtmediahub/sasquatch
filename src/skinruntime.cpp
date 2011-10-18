@@ -73,7 +73,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "powermanager.h"
 #include "rpc/mediaplayerrpc.h"
 #include "abstractmediaplayer.h"
-#include "settings.h"
+#include "globalsettings.h"
 
 #ifdef MEDIAPLAYER_DBUS
 #include "mediaplayer_dbus.h"
@@ -100,7 +100,7 @@ class SkinRuntimePrivate : public QObject
 {
     Q_OBJECT
 public:
-    SkinRuntimePrivate(SkinRuntime *p);
+    SkinRuntimePrivate(GlobalSettings *s, SkinRuntime *p);
     ~SkinRuntimePrivate();
 
 public slots:
@@ -127,10 +127,11 @@ public:
     Skin *currentSkin;
     QAbstractItemModel *remoteSessionsModel;
     InputContext *inputContext;
+    GlobalSettings *settings;
     SkinRuntime *q;
 };
 
-SkinRuntimePrivate::SkinRuntimePrivate(SkinRuntime *p)
+SkinRuntimePrivate::SkinRuntimePrivate(GlobalSettings *s, SkinRuntime *p)
     : QObject(p),
       dbusRegistration(false),
       remoteControlMode(true),
@@ -143,6 +144,7 @@ SkinRuntimePrivate::SkinRuntimePrivate(SkinRuntime *p)
       trackpad(0),
       remoteSessionsModel(0),
       inputContext(0),
+      settings(s),
       q(p)
 {
 #ifndef NO_DBUS
@@ -290,7 +292,7 @@ QObject *SkinRuntimePrivate::loadQmlSkin(const QUrl &targetUrl, QObject *window)
         runtime->insert("deviceManager", qVariantFromValue(static_cast<QObject *>(deviceManager)));
         runtime->insert("powerManager", qVariantFromValue(static_cast<QObject *>(powerManager)));
     }
-    runtime->insert("settings", qVariantFromValue(static_cast<QObject *>(Settings::instance())));
+    runtime->insert("settings", qVariantFromValue(static_cast<QObject *>(settings)));
     runtime->insert("config", qVariantFromValue(static_cast<QObject *>(Config::instance())));
     runtime->insert("window", qVariantFromValue(static_cast<QObject *>(window)));
     runtime->insert("view", qVariantFromValue(static_cast<QObject *>(declarativeWidget)));
@@ -313,9 +315,9 @@ QObject *SkinRuntimePrivate::loadQmlSkin(const QUrl &targetUrl, QObject *window)
     return declarativeWidget;
 }
 
-SkinRuntime::SkinRuntime(QObject *p)
+SkinRuntime::SkinRuntime(GlobalSettings *settings, QObject *p)
     : QObject(p),
-      d(new SkinRuntimePrivate(this))
+      d(new SkinRuntimePrivate(settings, this))
 {
 }
 
