@@ -24,6 +24,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "mediaserver.h"
 #include "qmh-config.h"
 #include "globalsettings.h"
+#include "skin.h"
+#include "skinmanager.h"
 
 #include <QApplication>
 #include <QNetworkProxy>
@@ -106,6 +108,29 @@ int main(int argc, char** argv)
                    qPrintable(settings->doc((GlobalSettings::Option)i)),
                    qPrintable(settings->value((GlobalSettings::Option)i).toString()));
         }
+
+        // try to print skin specific settings
+        settings->parseArguments(app.arguments());
+
+        printf("\n"
+               "Skin Options (default):\n");
+
+        SkinManager *skinManager = new SkinManager();
+        if (skinManager->skins().contains(settings->value(GlobalSettings::Skin).toString())) {
+            Skin *skin = skinManager->skins().value(settings->value(GlobalSettings::Skin).toString());
+
+            // TODO Ugly workaround to parse manifest and thus get configs
+            skin->urlForResolution("", "");
+
+            Settings *skinSettings = skin->settings();
+            foreach (const QString &key, skinSettings->keys()) {
+                printf("  -%-20s %s \t (%s)\n",
+                       qPrintable(key),
+                       qPrintable(skinSettings->doc(key)),
+                       qPrintable(skinSettings->value(key).toString()));
+            }
+        }
+
         return 0;
     }
 
