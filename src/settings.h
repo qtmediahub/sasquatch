@@ -38,6 +38,7 @@ class QMH_EXPORT Settings : public QDeclarativePropertyMap
 
 public:
     Settings(QObject *parent = 0);
+    ~Settings();
 
     Q_INVOKABLE bool isEnabled(const QString &name) const;
     Q_INVOKABLE const QString doc(const QString &name) const;
@@ -47,12 +48,10 @@ public:
     void loadConfigFile(const QString &fileName = "");
     void parseArguments(const QStringList &arguments, const QString &prefix = QString());
 
-    const QString configFile() const { return m_settings.fileName(); }
-
 private:
     QVariant valueFromCommandLine(const QString &key, const QStringList &arguments);
 
-    QSettings m_settings;
+    QSettings *m_settings;
     QMap<QString, QString> m_docs;
 };
 

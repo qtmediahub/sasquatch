@@ -25,8 +25,16 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QtDebug>
 
 Settings::Settings(QObject *parent) :
-    QDeclarativePropertyMap(parent)
+    QDeclarativePropertyMap(parent),
+    m_settings(0)
 {
+}
+
+Settings::~Settings()
+{
+    if (m_settings) {
+        delete m_settings;
+    }
 }
 
 bool Settings::isEnabled(const QString &name) const
@@ -41,16 +49,19 @@ const QString Settings::doc(const QString &name) const
 
 bool Settings::save()
 {
-    if (!m_settings.isWritable()) {
-        qWarning() << "settings file is not writeable" << m_settings.fileName();
+    if (!m_settings)
+        return false;
+
+    if (!m_settings->isWritable()) {
+        qWarning() << "settings file is not writeable" << m_settings->fileName();
         return false;
     }
 
     foreach (const QString &key, keys()) {
-        m_settings.setValue(key, value(key));
+        m_settings->setValue(key, value(key));
     }
 
-    m_settings.sync();
+    m_settings->sync();
 
     return true;
 }
@@ -61,13 +72,19 @@ void Settings::loadConfigFile(const QString &fileName)
         return;
     }
 
-    if (!fileName.isEmpty())
-        m_settings.setPath(QSettings::IniFormat, QSettings::UserScope, fileName);
+    if (m_settings)
+        delete m_settings;
 
-    foreach (const QString &key, m_settings.allKeys()) {
+    if (!fileName.isEmpty()) {
+        m_settings = new QSettings(fileName, QSettings::IniFormat);
+    } else {
+        m_settings = new QSettings();
+    }
+
+    foreach (const QString &key, m_settings->allKeys()) {
         if (keys().contains(key)) {
-            insert(key, m_settings.value(key));
-            emit valueChanged(key, m_settings.value(key));
+            insert(key, m_settings->value(key));
+            emit valueChanged(key, m_settings->value(key));
         }
     }
 }

@@ -35,6 +35,7 @@ Skin::Skin(QObject *parent)
 
 Skin::~Skin()
 {
+    m_settings->save();
 }
 
 QString Skin::name() const
