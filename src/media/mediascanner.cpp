@@ -112,6 +112,8 @@ void MediaScanner::ensureDatabase()
         return;
     }
 
+    qDebug() << "Using DB:" << LibraryInfo::databaseFilePath();
+
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE", DEFAULT_DATABASE_CONNECTION_NAME);
     db.setDatabaseName(LibraryInfo::databaseFilePath());
 
