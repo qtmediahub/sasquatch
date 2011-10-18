@@ -31,12 +31,19 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 static QStringList standardResourcePaths(const QString &suffix)
 {
+    static const QString platformBinOffset
+        #ifdef Q_OS_MAC
+            = "/../../../";
+        #else
+            = "";
+        #endif
+
     QStringList paths;
 
     // The order of the added paths is relevant!
 
     // TODO should only be there for development
-    paths <<  QCoreApplication::applicationDirPath() % QString::fromLatin1("/../../") % suffix; // submodule repo
+    paths <<  QCoreApplication::applicationDirPath() % QString::fromLatin1("/../../") % platformBinOffset % suffix; // submodule repo
 
     // allows changing resource paths with eg. -skins-path on runtime
     QString configPath = Config::value(suffix % "-path", QString());
