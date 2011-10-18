@@ -157,15 +157,15 @@ SkinRuntimePrivate::SkinRuntimePrivate(SkinRuntime *p)
 
 #ifdef GL
     //Can't fool with the default format when dealing with the Tegra for some reason
-    if (Config::isEnabled("adjust-gl-format", true)) {
+    if (Config::isEnabled("use-gl", true) && Config::isEnabled("adjust-gl-format", true)) {
         QGLFormat format = QGLFormat::defaultFormat();
         //explicitly set options
         //format.setDoubleBuffer(true);
         //Doc: Text antialiasing in Qt 4 OpenGL engine?
-        format.setSampleBuffers(false);
+        format.setSampleBuffers(true);
         //format.setAlpha(true);
         //Doc: Will screw with Quick 3D?
-        format.setDepth(false);
+        //format.setDepth(false);
         //Doc: To what extent does this work prior to Qt 5?
         //format.setSwapInterval(1);
         QGLFormat::setDefaultFormat(format);
