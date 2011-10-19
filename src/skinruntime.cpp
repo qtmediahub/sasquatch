@@ -333,6 +333,8 @@ QObject *SkinRuntime::create(Skin *skin, QObject *window)
     QSize nativeResolution = qApp->desktop()->screenGeometry().size();
     QString nativeResolutionString = Config::value("native-res-override", QString("%1x%2").arg(nativeResolution.width()).arg(nativeResolution.height()));
 
+    skin->parseManifest();
+
     QUrl url = skin->urlForResolution(nativeResolutionString, Config::value("fallback-resolution", "default").toString());
     if (!url.isValid()) {
         qWarning() << "Error loading skin " << skin->name();

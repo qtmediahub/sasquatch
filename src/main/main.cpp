@@ -112,13 +112,11 @@ int main(int argc, char** argv)
         // try to print skin specific settings
         settings->parseArguments(app.arguments());
 
-
         SkinManager *skinManager = new SkinManager();
         if (skinManager->skins().contains(settings->value(GlobalSettings::Skin).toString())) {
             Skin *skin = skinManager->skins().value(settings->value(GlobalSettings::Skin).toString());
-
-            // TODO Ugly workaround to parse manifest and thus get configs
-            skin->urlForResolution("", "");
+            if (!skin->parseManifest())
+                return 1;
 
             printf("\n"
                    "Skin Options (default):\n");

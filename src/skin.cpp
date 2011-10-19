@@ -108,8 +108,6 @@ QUrl Skin::urlForResolution(const QString &nativeResolutionString, const QString
     resolutionHash["1080p"] = "1920x1080";
     resolutionHash["720p"] = "1280x720";
 
-    parseManifest();
-
     QHash<QString, QString> resolutionToFile;
 
     foreach (const QVariant &v, m_resolutions) {
