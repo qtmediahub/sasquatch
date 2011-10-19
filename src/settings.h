@@ -38,7 +38,6 @@ class QMH_EXPORT Settings : public QDeclarativePropertyMap
 
 public:
     Settings(QObject *parent = 0);
-    ~Settings();
 
     Q_INVOKABLE bool isEnabled(const QString &name) const;
     Q_INVOKABLE const QString doc(const QString &name) const;

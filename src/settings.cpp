@@ -30,13 +30,6 @@ Settings::Settings(QObject *parent) :
 {
 }
 
-Settings::~Settings()
-{
-    if (m_settings) {
-        delete m_settings;
-    }
-}
-
 bool Settings::isEnabled(const QString &name) const
 {
     return value(name).toBool();
@@ -76,9 +69,9 @@ void Settings::loadConfigFile(const QString &fileName)
         delete m_settings;
 
     if (!fileName.isEmpty()) {
-        m_settings = new QSettings(fileName, QSettings::IniFormat);
+        m_settings = new QSettings(fileName, QSettings::IniFormat, this);
     } else {
-        m_settings = new QSettings();
+        m_settings = new QSettings(this);
     }
 
     foreach (const QString &key, m_settings->allKeys()) {
