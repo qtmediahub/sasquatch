@@ -38,20 +38,51 @@ Skin::~Skin()
     m_settings->save();
 }
 
-QString Skin::name() const
+const QString &Skin::name() const
 {
     return m_name;
 }
 
-QString Skin::path() const
+const QString &Skin::path() const
 {
     return m_path;
 }
 
-QString Skin::config() const
+const QString &Skin::config() const
 {
     return m_config;
 }
+
+const QString &Skin::version() const
+{
+    return m_version;
+}
+
+const QString & Skin::screenshot() const
+{
+    return m_screenshot;
+}
+
+const QString & Skin::website() const
+{
+    return m_website;
+}
+
+const QVariantMap &Skin::authors() const
+{
+    return m_authors;
+}
+
+const QVariantMap &Skin::resolutions() const
+{
+    return m_resolutions;
+}
+
+Settings *Skin::settings() const
+{
+    return m_settings;
+}
+
 
 Skin *Skin::createSkin(const QString &skinPath, QObject *parent)
 {
@@ -77,38 +108,16 @@ QUrl Skin::urlForResolution(const QString &nativeResolutionString, const QString
     resolutionHash["1080p"] = "1920x1080";
     resolutionHash["720p"] = "1280x720";
 
-    QFile skinConfig(m_config);
-    if (!skinConfig.open(QIODevice::ReadOnly)) {
-        qWarning() << "Can't read " << m_config << " of skin " << m_name;
-        return QUrl();
-    }
+    parseManifest();
 
-    JsonReader reader;
-    if (!reader.parse(skinConfig.readAll())) {
-        qWarning() << "Failed to parse config file " << m_config << reader.errorString();
-        return QUrl();
-    }
     QHash<QString, QString> resolutionToFile;
 
-    const QVariantMap root = reader.result().toMap();
-    const QVariantMap resolutions = root["resolutions"].toMap();
-    foreach (const QVariant &v, resolutions) {
+    foreach (const QVariant &v, m_resolutions) {
         QString name = v.toString();
         QString resolutionSize = resolutionHash.contains(name) ? resolutionHash[name] : name;
-        QVariantMap resolution = v.toMap();
-        resolutionToFile[resolutionSize] = resolutions[name].toMap()["file"].toString();
+        resolutionToFile[resolutionSize] = m_resolutions[name].toMap()["file"].toString();
     }
-    resolutionToFile["default"] = resolutions[root["default_resolution"].toString()].toMap()["file"].toString();
-
-    // load default settings
-    const QVariantList settings = root["settings"].toList();
-    foreach (const QVariant &s, settings) {
-        const QVariantMap entry = s.toMap();
-        m_settings->addOptionEntry(entry.value("name").toString(), entry.value("default_value").toString(), entry.value("doc").toString());
-    }
-    const QString configFilePath = QFileInfo(QSettings().fileName()).absolutePath() + QLatin1String("/") + name() + QLatin1String(".ini");
-    m_settings->loadConfigFile(configFilePath);
-    m_settings->parseArguments(QApplication::arguments(), name());
+    resolutionToFile["default"] = m_resolutions[m_defaultResolution].toMap()["file"].toString();
 
     QString urlPath =
             resolutionToFile.contains(nativeResolutionString)
@@ -131,8 +140,53 @@ Skin::Type Skin::type(const QUrl &url) const
     return Invalid;
 }
 
-Settings *Skin::settings() const
+bool Skin::parseManifest()
 {
-    return m_settings;
+    QFile skinConfig(m_config);
+    if (!skinConfig.open(QIODevice::ReadOnly)) {
+        qWarning() << "Can't read " << m_config << " of skin " << m_name;
+        return false;
+    }
+
+    JsonReader reader;
+    if (!reader.parse(skinConfig.readAll())) {
+        qWarning() << "Failed to parse config file " << m_config << reader.errorString();
+        return false;
+    }
+
+    const QVariantMap root = reader.result().toMap();
+
+    m_version = root["version"].toString();
+    if (m_version.isEmpty())
+        qWarning() << "Skin has no version";
+
+    m_defaultResolution = root["default_resolution"].toString();
+    if (m_defaultResolution.isEmpty())
+        qWarning() << "Skin has no default resolution";
+
+    m_resolutions = root["resolutions"].toMap();
+    if (m_resolutions.isEmpty())
+        qWarning() << "Skin does not declare any supported resolutions";
+
+    m_screenshot = root["screenshot"].toString();
+    if (m_screenshot.isEmpty())
+        qWarning() << "Skin does not have any screenshot";
+
+    m_website = root["website"].toString();
+    if (m_website.isEmpty())
+        qWarning() << "Skin does not have any website";
+
+    // load default settings
+    const QVariantList settings = root["settings"].toList();
+    foreach (const QVariant &s, settings) {
+        const QVariantMap entry = s.toMap();
+        m_settings->addOptionEntry(entry.value("name").toString(), entry.value("default_value").toString(), entry.value("doc").toString());
+    }
+    const QString configFilePath = QFileInfo(QSettings().fileName()).absolutePath() + QLatin1String("/") + name() + QLatin1String(".ini");
+    m_settings->loadConfigFile(configFilePath);
+    m_settings->parseArguments(QApplication::arguments(), name());
+
+    return true;
 }
+
 
