@@ -95,7 +95,7 @@ int main(int argc, char** argv)
     app.setOrganizationName("MediaTrolls");
     app.setOrganizationDomain("qtmediahub.com");
 
-    GlobalSettings *settings = new GlobalSettings();
+    GlobalSettings *settings = new GlobalSettings(&app);
 
     if (app.arguments().contains("--help") || app.arguments().contains("-help") || app.arguments().contains("-h")) {
         printf("Usage: qtmediahub [-option value] [-option=value]\n"
