@@ -104,7 +104,7 @@ QUrl Skin::urlForResolution(const QString &nativeResolutionString, const QString
     const QVariantList settings = root["settings"].toList();
     foreach (const QVariant &s, settings) {
         const QVariantMap entry = s.toMap();
-        m_settings->addOptionEntry(entry.value("name").toString(), entry.value("value").toString(), entry.value("doc").toString());
+        m_settings->addOptionEntry(entry.value("name").toString(), entry.value("default_value").toString(), entry.value("doc").toString());
     }
     const QString configFilePath = QFileInfo(QSettings().fileName()).absolutePath() + QLatin1String("/") + name() + QLatin1String(".ini");
     m_settings->loadConfigFile(configFilePath);
