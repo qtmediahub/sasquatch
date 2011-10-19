@@ -22,6 +22,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "settings.h"
 
+#include <QSettings>
 #include <QtDebug>
 
 Settings::Settings(QObject *parent) :
