@@ -50,6 +50,8 @@ public:
         DrivenFPS,
         StreamingAddress,
         StreamingPort,
+        Avahi,
+        AvahiAdvertize,
 
         OptionLength
     };

@@ -42,6 +42,8 @@ GlobalSettings::GlobalSettings(QObject *parent) :
     addOptionEntry(GlobalSettings::DrivenFPS,           "false",        "drivenFPS",        "<bool> toggle fps counter");
     addOptionEntry(GlobalSettings::StreamingAddress,    "",             "streamingAddress", "<string> specifies the streaming address");
     addOptionEntry(GlobalSettings::StreamingPort,       "1337",         "streamingPort",    "<int> specifies the streaming port");
+    addOptionEntry(GlobalSettings::Avahi,               "true",         "avahi",            "<bool> toggle avahi usage");
+    addOptionEntry(GlobalSettings::AvahiAdvertize,      "true",         "avahiAdvertize",   "<bool> toggle avahi advertizing");
 }
 
 bool GlobalSettings::isEnabled(GlobalSettings::Option option) const

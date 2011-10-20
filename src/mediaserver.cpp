@@ -39,7 +39,7 @@ MediaServer::MediaServer(GlobalSettings *settings, QObject *parent) :
     m_settings(settings)
 {
 #ifdef QMH_AVAHI
-    if (Config::isEnabled("avahi", true) && Config::isEnabled("avahi-advertize", true)) {
+    if (m_settings->isEnabled(GlobalSettings::Avahi) && m_settings->isEnabled(GlobalSettings::AvahiAdvertize)) {
         QAvahiServicePublisher *publisher = new QAvahiServicePublisher(this);
         publisher->publish(QHostInfo::localHostName(), "_qtmediahub._tcp", 1234, "Qt Media Hub JSON-RPCv2 interface");
         qDebug() << "Advertizing session via zeroconf";
