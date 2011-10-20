@@ -157,7 +157,7 @@ int main(int argc, char** argv)
         mainWindow->setSkin(settings->value(GlobalSettings::Skin).toString());
         mainWindow->show();
     } else {
-        mediaServer = new MediaServer;
+        mediaServer = new MediaServer(settings);
     }
 
     int ret = app.exec();

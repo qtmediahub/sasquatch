@@ -40,6 +40,8 @@ GlobalSettings::GlobalSettings(QObject *parent) :
     addOptionEntry(GlobalSettings::Mouse,               "true",         "mouse",            "<bool> toggle mouse cursor");
     addOptionEntry(GlobalSettings::MouseTimeout,        "2",            "mouseTimeout",     "<int> hide idle mouse cursor timeout in seconds");
     addOptionEntry(GlobalSettings::DrivenFPS,           "false",        "drivenFPS",        "<bool> toggle fps counter");
+    addOptionEntry(GlobalSettings::StreamingAddress,    "",             "streamingAddress", "<string> specifies the streaming address");
+    addOptionEntry(GlobalSettings::StreamingPort,       "1337",         "streamingPort",    "<int> specifies the streaming port");
 }
 
 bool GlobalSettings::isEnabled(GlobalSettings::Option option) const

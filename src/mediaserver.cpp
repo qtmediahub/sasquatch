@@ -34,8 +34,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "libraryinfo.h"
 
-MediaServer::MediaServer(QObject *parent)
-    : QObject(parent)
+MediaServer::MediaServer(GlobalSettings *settings, QObject *parent) :
+    QObject(parent),
+    m_settings(settings)
 {
 #ifdef QMH_AVAHI
     if (Config::isEnabled("avahi", true) && Config::isEnabled("avahi-advertize", true)) {
@@ -48,7 +49,7 @@ MediaServer::MediaServer(QObject *parent)
 #endif
 
     ensureStandardPaths();
-    m_httpServer = new HttpServer(Config::value("stream-port", "1337").toInt(), this);
+    m_httpServer = new HttpServer(m_settings, m_settings->value(GlobalSettings::StreamingPort).toInt(), this);
     MediaScanner::instance();
 }
 

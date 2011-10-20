@@ -23,15 +23,16 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "httpserver.h"
 
 #include "httpclient.h"
-#include "qmh-config.h"
+#include "globalsettings.h"
 
-HttpServer::HttpServer(quint16 port, QObject *parent) :
-    QTcpServer(parent)
+HttpServer::HttpServer(GlobalSettings *settings, quint16 port, QObject *parent) :
+    QTcpServer(parent),
+    m_settings(settings)
 {
     listen(QHostAddress::Any, port);
 
     // FIXME whole address thing should be improved
-    m_address = Config::value("stream-address", "").toString();
+    m_address = m_settings->value(GlobalSettings::StreamingAddress).toString();
     if (m_address == "")
         m_address = getAddress();
 

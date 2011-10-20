@@ -389,7 +389,7 @@ void SkinRuntimePrivate::enableRemoteControlMode(bool enable)
         return;
     }
 
-    mediaServer = new MediaServer(this);
+    mediaServer = new MediaServer(settings, this);
     rpcConnection = new RpcConnection(RpcConnection::Server, QHostAddress::Any, 1234, this);
     mediaPlayerRpc = new MediaPlayerRpc(this);
     mediaPlayerRpc->setObjectName("qmhmediaplayer");

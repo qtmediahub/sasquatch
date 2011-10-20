@@ -26,6 +26,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QtCore>
 #include <QtNetwork>
 
+class GlobalSettings;
+
 class HttpServer : public QTcpServer
 {
     Q_OBJECT
@@ -33,7 +35,7 @@ class HttpServer : public QTcpServer
     Q_PROPERTY(int port READ port NOTIFY portChanged)
 
 public:
-    HttpServer(quint16 port, QObject* parent = 0);
+    HttpServer(GlobalSettings *settings, quint16 port, QObject* parent = 0);
 
     void incomingConnection(int socket);
 
@@ -47,6 +49,7 @@ signals:
 private:
     QString getAddress();
 
+    GlobalSettings *m_settings;
     QString m_base;
     QString m_address;
 };

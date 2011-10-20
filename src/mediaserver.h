@@ -30,13 +30,14 @@ class HttpServer;
 class MediaScanner;
 
 #include "global.h"
+#include "globalsettings.h"
 
 class QMH_EXPORT MediaServer : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit MediaServer(QObject *parent = 0);
+    explicit MediaServer(GlobalSettings *settings, QObject *parent = 0);
     ~MediaServer();
 
     HttpServer *httpServer() const;
@@ -45,6 +46,7 @@ public:
 private:
     void ensureStandardPaths();
 
+    GlobalSettings *m_settings;
     HttpServer *m_httpServer;
 };
 

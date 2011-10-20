@@ -48,6 +48,8 @@ public:
         Mouse,
         MouseTimeout,
         DrivenFPS,
+        StreamingAddress,
+        StreamingPort,
 
         OptionLength
     };
