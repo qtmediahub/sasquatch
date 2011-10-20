@@ -119,7 +119,7 @@ int main(int argc, char** argv)
                 return 1;
 
             printf("\n"
-                   "Skin Options (default):\n");
+                   "Skin '%s' Options (default):\n", qPrintable(skin->name()));
 
             Settings *skinSettings = skin->settings();
             foreach (const QString &key, skinSettings->keys()) {
