@@ -23,6 +23,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "mainwindow.h"
 #include "mediaserver.h"
 #include "qmh-config.h"
+#include "globalsettings.h"
+#include "skin.h"
+#include "skinmanager.h"
 
 #include <QApplication>
 #include <QNetworkProxy>
@@ -37,12 +40,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 static QNetworkSession *g_networkSession = 0;
 
-static void setupNetwork()
+static void setupNetwork(GlobalSettings *settings)
 {
     QNetworkProxy proxy;
-    if (Config::isEnabled("proxy", false)) {
-        QString proxyHost(Config::value("proxy-host", "localhost").toString());
-        int proxyPort = Config::value("proxy-port", 8080);
+    if (settings->isEnabled(GlobalSettings::Proxy)) {
+        QString proxyHost(settings->value(GlobalSettings::ProxyHost).toString());
+        int proxyPort = settings->value(GlobalSettings::ProxyPort).toInt();
         proxy.setType(QNetworkProxy::HttpProxy);
         proxy.setHostName(proxyHost);
         proxy.setPort(proxyPort);
@@ -74,6 +77,7 @@ int main(int argc, char** argv)
 #ifdef SCENEGRAPH
     QApplication app(argc, argv);
 #else
+
     bool overrideGraphicsSystem = false;
     for(int i = 0; i < argc; ++i) {
         if (qstrcmp(argv[i], "-graphicssystem") == 0) {
@@ -91,11 +95,53 @@ int main(int argc, char** argv)
     app.setOrganizationName("MediaTrolls");
     app.setOrganizationDomain("qtmediahub.com");
 
-    setupNetwork();
+    GlobalSettings *settings = new GlobalSettings(&app);
+
+    if (app.arguments().contains("--help") || app.arguments().contains("-help") || app.arguments().contains("-h")) {
+        printf("Usage: qtmediahub [-option value] [-option=value]\n"
+               "\n"
+               "Options (default):\n");
+
+        for (int i = 0; i < GlobalSettings::OptionLength; ++i) {
+            printf("  -%-20s %s \t (%s)\n",
+                   qPrintable(settings->name((GlobalSettings::Option)i)),
+                   qPrintable(settings->doc((GlobalSettings::Option)i)),
+                   qPrintable(settings->value((GlobalSettings::Option)i).toString()));
+        }
+
+        // try to print skin specific settings
+        settings->parseArguments(app.arguments());
+
+        SkinManager *skinManager = new SkinManager();
+        if (skinManager->skins().contains(settings->value(GlobalSettings::Skin).toString())) {
+            Skin *skin = skinManager->skins().value(settings->value(GlobalSettings::Skin).toString());
+            if (!skin->parseManifest())
+                return 1;
+
+            printf("\n"
+                   "Skin Options (default):\n");
+
+            Settings *skinSettings = skin->settings();
+            foreach (const QString &key, skinSettings->keys()) {
+                printf("  -%-20s %s \t (%s)\n",
+                       qPrintable(key),
+                       qPrintable(skinSettings->doc(key)),
+                       qPrintable(skinSettings->value(key).toString()));
+            }
+        }
+
+        return 0;
+    }
+
+    // settings store order, commandline arguments rule
+    settings->loadConfigFile();
+    settings->parseArguments(app.arguments());
+
+    setupNetwork(settings);
 
 #ifndef SCENEGRAPH
     bool primarySession = !app.isRunning();
-    if (!(Config::isEnabled("multi-instance", false) || primarySession)) {
+    if (!(settings->isEnabled(GlobalSettings::MultiInstance) || primarySession)) {
         qWarning() << app.applicationName() << "is already running, aborting";
         return false;
     }
@@ -106,9 +152,9 @@ int main(int argc, char** argv)
     MainWindow *mainWindow = 0;
     MediaServer *mediaServer = 0;
 
-    if (!Config::isEnabled("headless", false)) {
-        mainWindow = new MainWindow;
-        mainWindow->setSkin(Config::value("skin", "").toString());
+    if (!settings->isEnabled(GlobalSettings::Headless)) {
+        mainWindow = new MainWindow(settings);
+        mainWindow->setSkin(settings->value(GlobalSettings::Skin).toString());
         mainWindow->show();
     } else {
         mediaServer = new MediaServer;

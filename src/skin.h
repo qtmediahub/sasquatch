@@ -26,7 +26,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QObject>
 #include <QMetaType>
 #include <QUrl>
+
 #include "global.h"
+#include "globalsettings.h"
 
 class QMH_EXPORT Skin : public QObject
 {
@@ -34,29 +36,49 @@ class QMH_EXPORT Skin : public QObject
     Q_PROPERTY(QString name READ name CONSTANT)
     Q_PROPERTY(QString path READ path CONSTANT)
     Q_PROPERTY(QString config READ config CONSTANT)
+    Q_PROPERTY(QString version READ version CONSTANT)
+    Q_PROPERTY(QString screenshot READ screenshot CONSTANT)
+    Q_PROPERTY(QString website READ website CONSTANT)
+    Q_PROPERTY(QVariantMap authors READ authors CONSTANT)
+    Q_PROPERTY(QVariantMap resolutions READ resolutions CONSTANT)
+    Q_PROPERTY(Settings *settings READ settings CONSTANT)
 
 public:
     enum Type { Invalid, Qml };
     static Skin *createSkin(const QString &skinPath, QObject *parent);
-
     ~Skin();
 
-    QString name() const;
-    QString path() const;
-    QString config() const;
+    // call before call any getters
+    bool parseManifest();
 
+    const QString &name() const;
+    const QString &path() const;
+    const QString &config() const;
+    const QString &version() const;
+    const QString &screenshot() const;
+    const QString &website() const;
+    const QVariantMap &authors() const;
+    const QVariantMap &resolutions() const;
+
+    Settings *settings() const;
     Type type(const QUrl &url) const; // ## remove the url argument
-
     bool isRemoteControl() const;
-
     QUrl urlForResolution(const QString &nativeResolution, const QString &fallbackResolution);
 
 private:
     explicit Skin(QObject *parent = 0);
 
+
     QString m_path;
     QString m_name;
     QString m_config;
+    QString m_version;
+    QString m_screenshot;
+    QString m_website;
+    QVariantMap m_authors;
+    QVariantMap m_resolutions;
+    QString m_defaultResolution;
+    Settings *m_settings;
 };
 
 Q_DECLARE_METATYPE(Skin *)

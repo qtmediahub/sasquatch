@@ -29,6 +29,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 class SkinRuntime;
 class SkinManager;
 class Skin;
+class GlobalSettings;
 
 class MainWindow : public QWidget
 {
@@ -39,7 +40,7 @@ public:
         ScreenOrientationLockLandscape,
         ScreenOrientationAuto
     };
-    MainWindow(QWidget *parent = 0);
+    MainWindow(GlobalSettings *m_settings, QWidget *parent = 0);
     ~MainWindow();
 
     void setCentralWidget(QWidget *cw);
@@ -86,6 +87,7 @@ private:
     const QRect m_defaultGeometry;
     bool m_overscanWorkAround;
     bool m_attemptingFullScreen;
+    GlobalSettings *m_settings;
 };
 
 #endif // MAINWINDOW_H

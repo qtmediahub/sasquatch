@@ -20,30 +20,38 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 ****************************************************************************/
 
-#ifndef SKINRUNTIME_H
-#define SKINRUNTIME_H
+#ifndef SETTINGS_H
+#define SETTINGS_H
 
-#include <QObject>
-#include <QStringList>
-#include "skin.h"
+#include <QDeclarativePropertyMap>
+
 #include "global.h"
 
-class SkinRuntimePrivate;
-class MainWindow;
-class GlobalSettings;
+class QSettings;
 
-// SkinRuntime is the common code used by all types of skins (QML, HTML).
-class QMH_EXPORT SkinRuntime : public QObject
+// TODO make it threadsafe
+class QMH_EXPORT Settings : public QDeclarativePropertyMap
 {
     Q_OBJECT
 
 public:
-    SkinRuntime(GlobalSettings *settings, QObject *p = 0);
-    ~SkinRuntime();
+    Settings(QObject *parent = 0);
 
-    QObject *create(Skin *skin, QObject *window);
+    Q_INVOKABLE bool isEnabled(const QString &name) const;
+    Q_INVOKABLE const QString doc(const QString &name) const;
+    Q_INVOKABLE bool save();
+
+    void addOptionEntry(const QString &name, const QVariant &value, const QString &doc);
+    void loadConfigFile(const QString &fileName = "");
+    void parseArguments(const QStringList &arguments, const QString &prefix = QString());
+
 private:
-    SkinRuntimePrivate *d;
+    QVariant valueFromCommandLine(const QString &key, const QStringList &arguments);
+
+    QSettings *m_settings;
+    QMap<QString, QString> m_docs;
 };
 
-#endif // SKINRUNTIME_H 
+Q_DECLARE_METATYPE(Settings *)
+
+#endif // SETTINGS_H
