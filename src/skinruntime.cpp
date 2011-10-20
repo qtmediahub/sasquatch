@@ -395,7 +395,7 @@ void SkinRuntimePrivate::enableRemoteControlMode(bool enable)
     mediaPlayerRpc->setObjectName("qmhmediaplayer");
     trackpad = new Trackpad(this);
     trackpad->setObjectName("trackpad");
-    actionMapper = new ActionMapper(this);
+    actionMapper = new ActionMapper(settings, this);
     actionMapper->setObjectName("qmhrpc");
 
     rpcConnection->registerObject(actionMapper);

@@ -28,6 +28,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QDebug>
 #include <QWeakPointer>
 
+class GlobalSettings;
+
 class ActionMapper : public QObject
 {
     Q_OBJECT
@@ -54,7 +56,7 @@ public:
         VolumeDown
     };
 
-    ActionMapper(QObject *parent = 0);
+    ActionMapper(GlobalSettings *settings, QObject *parent = 0);
 
     Q_INVOKABLE QStringList availableMaps() const;
     QString map() const { return m_mapName; }
@@ -81,6 +83,7 @@ private:
     QString m_mapName;
     QString m_mapPath;
     QHash<int, Action> m_actionMap;
+    GlobalSettings *m_settings;
 };
 
 QML_DECLARE_TYPE(ActionMapper)

@@ -30,16 +30,19 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <QKeyEvent>
 
-#include "qmh-config.h"
+#include "globalsettings.h"
 
-ActionMapper::ActionMapper(QObject *parent)
-    : QObject(parent)
+ActionMapper::ActionMapper(GlobalSettings *settings, QObject *parent) :
+    QObject(parent),
+    m_settings(settings)
 {
     setupQtKeyMap();
 
+    m_mapName = m_settings->value(GlobalSettings::Keymap).toString();
+
     qDebug() << "Available maps " << availableMaps();
-    m_mapName = Config::value("keymap", "stdkeyboard").toString();
     qDebug() << "used keymap" << m_mapName;
+
     populateMap();
 }
 
