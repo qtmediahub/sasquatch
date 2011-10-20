@@ -27,17 +27,18 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QCursor>
 #include <QTimer>
 
+class GlobalSettings;
+
 class CustomCursor : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString defaultCursorPath READ defaultCursorPath WRITE setDefaultCursorPath)
     Q_PROPERTY(QString clickedCursorPath READ clickedCursorPath WRITE setClickedCursorPath)
-    Q_PROPERTY(int idleTimeout READ idleTimeout WRITE setIdleTimeout)
 
 public:
     enum Behavior { Default, Clicked, Blank, BehaviorCount };
 
-    explicit CustomCursor(QObject *parent = 0);
+    explicit CustomCursor(GlobalSettings *settings, QObject *parent = 0);
 
     Q_INVOKABLE void enableCursor(bool enable = true, bool temporary = true);
     Q_INVOKABLE void moveBy(int dx, int dy);
@@ -47,9 +48,6 @@ public:
 
     QString clickedCursorPath() const;
     void setClickedCursorPath(const QString &path);
-
-    int idleTimeout() const;
-    void setIdleTimeout(int secs);
 
     void setCursor(Behavior current);
 
@@ -72,6 +70,7 @@ private:
     QCursor m_blankCursor;
 
     QObject *m_eventSink;
+    GlobalSettings *m_settings;
 };
 
 #endif // CUSTOMCURSOR_H

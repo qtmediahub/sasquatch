@@ -25,7 +25,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QPixmap>
 #include <QApplication>
 #include <QDebug>
-#include "qmh-config.h"
+
+#include "globalsettings.h"
 
 class MouseEventHorizon : public QObject
 {
@@ -40,15 +41,17 @@ public:
     }
 };
 
-CustomCursor::CustomCursor(QObject *parent) :
+CustomCursor::CustomCursor(GlobalSettings *settings, QObject *parent) :
     QObject(parent),
-    m_timer(0),
+    m_timer(new QTimer(this)),
     m_clickedTimer(0),
     m_currentBehavior(Blank),
     m_blankCursor(Qt::BlankCursor),
-    m_eventSink(new MouseEventHorizon(this))
+    m_eventSink(new MouseEventHorizon(this)),
+    m_settings(settings)
 {
-    enableCursor(Config::isEnabled("mouse", true));
+    connect(m_timer, SIGNAL(timeout()), this, SLOT(handleIdleTimeout()));
+    enableCursor(m_settings->isEnabled(GlobalSettings::Mouse));
 }
 
 void CustomCursor::enableCursor(bool enable, bool temporary)
@@ -62,13 +65,12 @@ void CustomCursor::enableCursor(bool enable, bool temporary)
         connect(m_clickedTimer, SIGNAL(timeout()), this, SLOT(handleClickedTimeout()));
 
         qApp->installEventFilter(this);
-        setIdleTimeout(Config::value("hideIdleCursorTimeout", 2));
+        m_timer->setInterval(m_settings->value(GlobalSettings::MouseTimeout).toInt() * 1000);
     } else {
-        if (!Config::isEnabled("touch", false))
-            qApp->installEventFilter(m_eventSink);
+        qApp->installEventFilter(m_eventSink);
     }
     if (!temporary)
-        Config::setEnabled("mouse", enable);
+        m_settings->setValue(GlobalSettings::Mouse, enable);
 }
 
 void CustomCursor::moveBy(int dx, int dy)
@@ -97,27 +99,6 @@ void CustomCursor::setClickedCursorPath(const QString &path)
 {
     m_clickedCursorPath = path;
     m_clickedCursor = QCursor(QPixmap(m_clickedCursorPath), 0, 0);
-}
-
-int CustomCursor::idleTimeout() const
-{
-    if (m_timer)
-        return m_timer->interval();
-    return 0;
-}
-
-void CustomCursor::setIdleTimeout(int secs)
-{
-    if (secs == 0) {
-        delete m_timer;
-        m_timer = 0;
-        return;
-    }
-    if (!m_timer) {
-        m_timer = new QTimer(this);
-        connect(m_timer, SIGNAL(timeout()), this, SLOT(handleIdleTimeout()));
-    }
-    m_timer->setInterval(secs*1000);
 }
 
 void CustomCursor::setCursor(Behavior current)

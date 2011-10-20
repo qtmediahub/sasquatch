@@ -45,6 +45,8 @@ public:
         ProxyHost,
         ProxyPort,
         MultiInstance,
+        Mouse,
+        MouseTimeout,
 
         OptionLength
     };

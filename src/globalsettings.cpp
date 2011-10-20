@@ -37,6 +37,8 @@ GlobalSettings::GlobalSettings(QObject *parent) :
     addOptionEntry(GlobalSettings::ProxyHost,           "localhost",    "proxyHost",        "<hostname> set proxy host, only used with -proxy=true");
     addOptionEntry(GlobalSettings::ProxyPort,           "8080",         "proxyPort",        "<port> set port number for proxy usage, only used with -proxy=true");
     addOptionEntry(GlobalSettings::MultiInstance,       "false",        "multiInstance",    "<bool> allow running multiple instances");
+    addOptionEntry(GlobalSettings::Mouse,               "true",         "mouse",            "<bool> toggle mouse cursor");
+    addOptionEntry(GlobalSettings::MouseTimeout,        "2",             "mouseTimeout",    "<int> hide idle mouse cursor timeout in seconds");
 }
 
 bool GlobalSettings::isEnabled(GlobalSettings::Option option) const

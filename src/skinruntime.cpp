@@ -301,7 +301,7 @@ QObject *SkinRuntimePrivate::loadQmlSkin(const QUrl &targetUrl, QObject *window)
     runtime->insert("config", qVariantFromValue(static_cast<QObject *>(Config::instance())));
     runtime->insert("window", qVariantFromValue(static_cast<QObject *>(window)));
     runtime->insert("view", qVariantFromValue(static_cast<QObject *>(declarativeWidget)));
-    runtime->insert("cursor", qVariantFromValue(static_cast<QObject *>(new CustomCursor(declarativeWidget))));
+    runtime->insert("cursor", qVariantFromValue(static_cast<QObject *>(new CustomCursor(settings, declarativeWidget))));
     runtime->insert("skin", qVariantFromValue(static_cast<QObject *>(currentSkin)));
     runtime->insert("file", qVariantFromValue(static_cast<QObject *>(new File(this))));
     runtime->insert("remoteSessionsModel", qVariantFromValue(static_cast<QObject *>(remoteSessionsModel)));
