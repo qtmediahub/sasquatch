@@ -28,7 +28,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "globalsettings.h"
 
-DeclarativeView::DeclarativeView(GlobalSettings *settingsQWindow *parent)
+DeclarativeView::DeclarativeView(GlobalSettings *settings, QWindow *parent)
     : QSGView(parent),
       m_settings(settings),
       m_glViewport(false),
