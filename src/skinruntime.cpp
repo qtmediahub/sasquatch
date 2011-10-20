@@ -253,7 +253,7 @@ QObject *SkinRuntimePrivate::loadQmlSkin(const QUrl &targetUrl, QObject *window)
 {
     QPixmapCache::clear();
 
-    DeclarativeView *declarativeWidget = new DeclarativeView;
+    DeclarativeView *declarativeWidget = new DeclarativeView(settings);
 
 #ifdef SCENEGRAPH
     declarativeWidget->setResizeMode(QSGView::SizeRootObjectToView);

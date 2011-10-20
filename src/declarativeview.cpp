@@ -25,21 +25,24 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QDeclarativeEngine>
 #include <QDebug>
 #include <QPaintEvent>
-#include "qmh-config.h"
 
 #ifdef GL
 #include <QGLWidget>
 #endif
 
-DeclarativeView::DeclarativeView(QWidget *parent)
+#include "globalsettings.h"
+
+DeclarativeView::DeclarativeView(GlobalSettings *settings, QWidget *parent)
     : QDeclarativeView(parent),
-      m_drivenFPS(Config::isEnabled("driven-fps", false)),
-      m_overlayMode(Config::isEnabled("overlay-mode", false)),
+      m_settings(settings),
       m_glViewport(false),
       m_frameCount(0),
       m_timeSigma(0),
       m_fps(0)
 {
+    m_drivenFPS = m_settings->value(GlobalSettings::DrivenFPS).toBool();
+    m_overlayMode = m_settings->value(GlobalSettings::OverlayMode).toBool();
+
     startTimer(1000);
     connect(this, SIGNAL(statusChanged(QDeclarativeView::Status)), this, SLOT(handleStatusChanged(QDeclarativeView::Status)));
 }

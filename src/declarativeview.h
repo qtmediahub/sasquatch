@@ -31,6 +31,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QDeclarativeView>
 #endif
 
+class GlobalSettings;
+
 #ifdef SCENEGRAPH
 class DeclarativeView : public QSGView
 #else
@@ -42,9 +44,9 @@ class DeclarativeView : public QDeclarativeView
 
 public:
 #ifdef SCENEGRAPH
-    DeclarativeView(QWindow *parent = 0);
+    DeclarativeView(GlobalSettings *settings, QWindow *parent = 0);
 #else
-    DeclarativeView(QWidget *parent = 0);
+    DeclarativeView(GlobalSettings *settings, QWidget *parent = 0);
 #endif
     void setSource(const QUrl &url);
 
@@ -75,6 +77,7 @@ signals:
     void fpsChanged();
 
 private:
+    GlobalSettings *m_settings;
     bool m_drivenFPS;
     bool m_overlayMode;
     bool m_glViewport;

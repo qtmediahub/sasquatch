@@ -21,21 +21,26 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 ****************************************************************************/
 
 #include "declarativeview.h"
+
 #include <QSGItem>
 #include <QDeclarativeEngine>
 #include <QDebug>
-#include "qmh-config.h"
 
-DeclarativeView::DeclarativeView(QWindow *parent)
+#include "globalsettings.h"
+
+DeclarativeView::DeclarativeView(GlobalSettings *settingsQWindow *parent)
     : QSGView(parent),
-      m_drivenFPS(Config::isEnabled("driven-fps", false)),
-      m_overlayMode(Config::isEnabled("overlay-mode", false)),
+      m_settings(settings),
       m_glViewport(false),
       m_frameCount(0),
       m_timeSigma(0),
       m_fps(0)
 {
-    if (Config::isEnabled("vsync-anim", false))
+    m_drivenFPS = m_settings->isEnabled(GlobalSettings::DrivenFPS);
+    m_overlayMode = m_settings->isEnabled(GlobalSettings::OverlayMode);
+
+    // TODO
+//    if (Config::isEnabled("vsync-anim", false))
             setVSyncAnimations(true);
 
     connect(this, SIGNAL(statusChanged(QSGView::Status)), this, SLOT(handleStatusChanged(QSGView::Status)));

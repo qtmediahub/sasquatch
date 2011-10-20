@@ -47,6 +47,7 @@ public:
         MultiInstance,
         Mouse,
         MouseTimeout,
+        DrivenFPS,
 
         OptionLength
     };
