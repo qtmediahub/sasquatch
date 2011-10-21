@@ -47,6 +47,7 @@ GlobalSettings::GlobalSettings(QObject *parent) :
     addOptionEntry(GlobalSettings::Overscan,            "false",        "overscan",         "<bool> use overscan mode, use also overscanGeometry");
     addOptionEntry(GlobalSettings::OverscanGeometry,    "true",         "overscanGeometry", "<int>x<int> set the overscan dimension");   // TODO test this!!!
     addOptionEntry(GlobalSettings::IdleTimeout,         "120",          "idleTimeout",      "<int> idle timeout in seconds");
+    addOptionEntry(GlobalSettings::SystemTray,          "true",         "systemTray",       "<bool> toggle system tray icon");
 }
 
 bool GlobalSettings::isEnabled(GlobalSettings::Option option) const

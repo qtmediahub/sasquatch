@@ -82,7 +82,7 @@ MainWindow::MainWindow(GlobalSettings *settings, QWidget *parent)
     actions.append(selectSkinAction);
     actions.append(quitAction);
 
-    if (Config::isEnabled("systray", true)) {
+    if (m_settings->isEnabled(GlobalSettings::SystemTray)) {
         QSystemTrayIcon *systray = new QSystemTrayIcon(QIcon(":/images/petite-ganesh-22x22.jpg"), this);
         systray->setVisible(true);
         QMenu *contextMenu = new QMenu;

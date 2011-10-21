@@ -55,6 +55,7 @@ public:
         Overscan,
         OverscanGeometry,
         IdleTimeout,
+        SystemTray,
 
         OptionLength
     };
