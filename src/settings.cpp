@@ -24,6 +24,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <QSettings>
 #include <QtDebug>
+#include <QRect>
 
 Settings::Settings(QObject *parent) :
     QDeclarativePropertyMap(parent),
@@ -111,7 +112,17 @@ QVariant Settings::valueFromCommandLine(const QString &key, const QStringList &a
         rx.setPattern(QString("--?%1$").arg(key));
         arg = arguments.indexOf(rx);
         if (arg != -1 && arg + 1 < arguments.size()) {
-            value = arguments.value(arg + 1);
+            const QString tmp = arguments.value(arg + 1);
+
+            // handle rect input
+            QRegExp regexp("\\d*x\\d*");
+            regexp.setCaseSensitivity(Qt::CaseInsensitive);
+            if (regexp.exactMatch(tmp)) {
+                const QStringList stringList = tmp.split('x', QString::KeepEmptyParts, Qt::CaseInsensitive);
+                value = QRect(0, 0, stringList[0].toInt(), stringList[1].toInt());
+            } else {
+                value = tmp;
+            }
         }
     }
 

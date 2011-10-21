@@ -41,11 +41,12 @@ MainWindow::MainWindow(GlobalSettings *settings, QWidget *parent)
     : QWidget(parent),
       m_centralWidget(0),
       m_defaultGeometry(0, 0, 1080, 720),
-      m_overscanWorkAround(Config::isEnabled("overscan", false)),
-      m_attemptingFullScreen(Config::isEnabled("fullscreen", true)),
       m_settings(settings)
 {
-    const bool isOverlay = Config::isEnabled("overlay-mode", false);
+    m_overscanWorkAround = m_settings->isEnabled(GlobalSettings::Overscan);
+    m_attemptingFullScreen = m_settings->isEnabled(GlobalSettings::FullScreen);
+
+    const bool isOverlay = m_settings->isEnabled(GlobalSettings::OverlayMode);
     setAttribute(isOverlay ? Qt::WA_TranslucentBackground : Qt::WA_NoSystemBackground);
 
     m_skinRuntime = new SkinRuntime(m_settings, this);
@@ -68,7 +69,7 @@ MainWindow::MainWindow(GlobalSettings *settings, QWidget *parent)
 
     connect(&m_resizeSettleTimer, SIGNAL(timeout()), this, SLOT(handleResize()));
 
-    m_inputIdleTimer.setInterval(Config::value("idle-timeout", 120)*1000);
+    m_inputIdleTimer.setInterval(m_settings->value(GlobalSettings::IdleTimeout).toInt() * 1000);
     m_inputIdleTimer.setSingleShot(true);
     m_inputIdleTimer.start();
     connect(&m_inputIdleTimer, SIGNAL(timeout()), this, SIGNAL(inputIdle()));
@@ -94,13 +95,13 @@ MainWindow::MainWindow(GlobalSettings *settings, QWidget *parent)
 
 MainWindow::~MainWindow()
 {
-    Config::setEnabled("overscan", m_overscanWorkAround);
+    m_settings->setValue(GlobalSettings::Overscan, m_overscanWorkAround);
     Config::setValue("desktop-id", qApp->desktop()->screenNumber(this));
     Config::setEnabled("fullscreen", m_attemptingFullScreen);
     if (!m_attemptingFullScreen)
         Config::setValue("window-geometry", geometry());
     else if (m_overscanWorkAround)
-        Config::setValue("overscan-geometry", geometry());
+        m_settings->setValue(GlobalSettings::OverscanGeometry, geometry());
 }
 
 QWidget *MainWindow::centralWidget() const
@@ -177,7 +178,7 @@ void MainWindow::increaseHeight()
     const QSize desktopSize = qApp->desktop()->screenGeometry(this).size();
     if ((newGeometry.width() > desktopSize.width())
             || (newGeometry.height() > desktopSize.height())) {
-        Config::setEnabled("overscan", false);
+        m_settings->setValue(GlobalSettings::Overscan, false);
         showFullScreen();
     } else {
         setGeometry(newGeometry);
@@ -194,7 +195,7 @@ void MainWindow::increaseWidth()
     const QSize desktopSize = qApp->desktop()->screenGeometry(this).size();
     if ((newGeometry.width() > desktopSize.width())
             || (newGeometry.height() > desktopSize.height())) {
-        Config::setEnabled("overscan", false);
+        m_settings->setValue(GlobalSettings::Overscan, false);
         showFullScreen();
     } else {
         setGeometry(newGeometry);
@@ -208,7 +209,7 @@ void MainWindow::decreaseHeight()
         return;
 
     if (!m_overscanWorkAround) {
-        Config::setEnabled("overscan");
+        m_settings->setValue(GlobalSettings::Overscan, true);
         showFullScreen();
     }
     setGeometry(geometry().adjusted(0,1,0,-1));
@@ -220,7 +221,7 @@ void MainWindow::decreaseWidth()
         return;
 
     if (!m_overscanWorkAround) {
-        Config::setEnabled("overscan");
+        m_settings->setValue(GlobalSettings::Overscan, true);
         showFullScreen();
     }
     setGeometry(geometry().adjusted(1,0,-1,0));
@@ -256,11 +257,10 @@ void MainWindow::moveUp()
 
 void MainWindow::toggleFullScreen()
 {
+    m_settings->setValue(GlobalSettings::OverscanGeometry, geometry());
     if (m_attemptingFullScreen) {
-        Config::setValue("overscan-geometry", geometry());
         showNormal();
     } else {
-        Config::setValue("window-geometry", geometry());
         showFullScreen();
     }
 }
@@ -268,10 +268,10 @@ void MainWindow::toggleFullScreen()
 void MainWindow::showFullScreen()
 {
     m_attemptingFullScreen = true;
-    m_overscanWorkAround = Config::isEnabled("overscan", false);
+    m_overscanWorkAround = m_settings->isEnabled(GlobalSettings::Overscan);
 
     if (m_overscanWorkAround) {
-        QRect geometry = Config::value("overscan-geometry", m_defaultGeometry);
+        QRect geometry = m_settings->value(GlobalSettings::OverscanGeometry).toRect();
         geometry.moveCenter(qApp->desktop()->availableGeometry().center());
 
         setGeometry(geometry);

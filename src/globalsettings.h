@@ -52,6 +52,9 @@ public:
         StreamingPort,
         Avahi,
         AvahiAdvertize,
+        Overscan,
+        OverscanGeometry,
+        IdleTimeout,
 
         OptionLength
     };
