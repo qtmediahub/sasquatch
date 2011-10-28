@@ -46,7 +46,8 @@ public:
     void parseArguments(const QStringList &arguments, const QString &prefix = QString());
 
 private:
-    QVariant valueFromCommandLine(const QString &key, const QStringList &arguments);
+    const QVariant valueFromCommandLine(const QString &key, const QStringList &arguments);
+    const QVariant checkSpecialArgumentTypes(const QString &argument);
 
     QSettings *m_settings;
     QMap<QString, QString> m_docs;

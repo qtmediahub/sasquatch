@@ -45,9 +45,10 @@ GlobalSettings::GlobalSettings(QObject *parent) :
     addOptionEntry(GlobalSettings::Avahi,               "true",         "avahi",            "<bool> toggle avahi usage");
     addOptionEntry(GlobalSettings::AvahiAdvertize,      "true",         "avahiAdvertize",   "<bool> toggle avahi advertizing");
     addOptionEntry(GlobalSettings::Overscan,            "false",        "overscan",         "<bool> use overscan mode, use also overscanGeometry");
-    addOptionEntry(GlobalSettings::OverscanGeometry,    "true",         "overscanGeometry", "<int>x<int> set the overscan dimension");   // TODO test this!!!
+    addOptionEntry(GlobalSettings::OverscanGeometry,    "",             "overscanGeometry", "<int>x<int> set the overscan dimension");   // TODO test this!!!
     addOptionEntry(GlobalSettings::IdleTimeout,         "120",          "idleTimeout",      "<int> idle timeout in seconds");
     addOptionEntry(GlobalSettings::SystemTray,          "true",         "systemTray",       "<bool> toggle system tray icon");
+    addOptionEntry(GlobalSettings::WindowGeometry,      "1080x720",     "windowGeometry",   "<int>x<int> set the window dimension");   // TODO test this!!!
 }
 
 bool GlobalSettings::isEnabled(GlobalSettings::Option option) const

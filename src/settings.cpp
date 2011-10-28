@@ -100,7 +100,7 @@ void Settings::parseArguments(const QStringList &arguments, const QString &prefi
     }
 }
 
-QVariant Settings::valueFromCommandLine(const QString &key, const QStringList &arguments)
+const QVariant Settings::valueFromCommandLine(const QString &key, const QStringList &arguments)
 {
     QRegExp rx(QString("--?%1=(.*)").arg(key));
     rx.setCaseSensitivity(Qt::CaseInsensitive);
@@ -112,17 +112,7 @@ QVariant Settings::valueFromCommandLine(const QString &key, const QStringList &a
         rx.setPattern(QString("--?%1$").arg(key));
         arg = arguments.indexOf(rx);
         if (arg != -1 && arg + 1 < arguments.size()) {
-            const QString tmp = arguments.value(arg + 1);
-
-            // handle rect input
-            QRegExp regexp("\\d*x\\d*");
-            regexp.setCaseSensitivity(Qt::CaseInsensitive);
-            if (regexp.exactMatch(tmp)) {
-                const QStringList stringList = tmp.split('x', QString::KeepEmptyParts, Qt::CaseInsensitive);
-                value = QRect(0, 0, stringList[0].toInt(), stringList[1].toInt());
-            } else {
-                value = tmp;
-            }
+            value = checkSpecialArgumentTypes(arguments.value(arg + 1));
         }
     }
 
@@ -131,9 +121,24 @@ QVariant Settings::valueFromCommandLine(const QString &key, const QStringList &a
 
 void Settings::addOptionEntry(const QString &name, const QVariant &value, const QString &doc)
 {
+    const QVariant var = checkSpecialArgumentTypes(value.toString());
+
     m_docs.insert(name, doc);
-    insert(name, value);
-    emit valueChanged(name, value);
+    insert(name, var);
+    emit valueChanged(name, var);
+}
+
+const QVariant Settings::checkSpecialArgumentTypes(const QString &argument)
+{
+    // handle rect input
+    QRegExp regexp("\\d*x\\d*");
+    regexp.setCaseSensitivity(Qt::CaseInsensitive);
+    if (regexp.exactMatch(argument)) {
+        const QStringList stringList = argument.split('x', QString::KeepEmptyParts, Qt::CaseInsensitive);
+        return QRect(0, 0, stringList[0].toInt(), stringList[1].toInt());
+    }
+
+    return argument;
 }
 
 

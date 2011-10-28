@@ -40,7 +40,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 MainWindow::MainWindow(GlobalSettings *settings, QWidget *parent)
     : QWidget(parent),
       m_centralWidget(0),
-      m_defaultGeometry(0, 0, 1080, 720),
       m_settings(settings)
 {
     m_overscanWorkAround = m_settings->isEnabled(GlobalSettings::Overscan);
@@ -96,9 +95,10 @@ MainWindow::MainWindow(GlobalSettings *settings, QWidget *parent)
 MainWindow::~MainWindow()
 {
     m_settings->setValue(GlobalSettings::Overscan, m_overscanWorkAround);
-    Config::setEnabled("fullscreen", m_attemptingFullScreen);
+    m_settings->setValue(GlobalSettings::FullScreen, m_attemptingFullScreen);
+
     if (!m_attemptingFullScreen)
-        Config::setValue("window-geometry", geometry());
+        m_settings->setValue(GlobalSettings::WindowGeometry, geometry());
     else if (m_overscanWorkAround)
         m_settings->setValue(GlobalSettings::OverscanGeometry, geometry());
 }
@@ -289,7 +289,7 @@ void MainWindow::showNormal()
     m_attemptingFullScreen = m_overscanWorkAround = false;
 
     setWindowFlags(Qt::Window);
-    setGeometry(Config::value("window-geometry", m_defaultGeometry));
+    setGeometry(m_settings->value(GlobalSettings::WindowGeometry).toRect());
     QWidget::showNormal();
 
     activateWindow();

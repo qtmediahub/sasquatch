@@ -84,7 +84,6 @@ private:
 	SkinManager *m_skinManager;
     SkinRuntime *m_skinRuntime;
     QWidget *m_centralWidget;
-    const QRect m_defaultGeometry;
     bool m_overscanWorkAround;
     bool m_attemptingFullScreen;
     GlobalSettings *m_settings;

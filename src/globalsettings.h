@@ -56,6 +56,7 @@ public:
         OverscanGeometry,
         IdleTimeout,
         SystemTray,
+        WindowGeometry,
 
         OptionLength
     };
