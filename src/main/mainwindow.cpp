@@ -96,7 +96,6 @@ MainWindow::MainWindow(GlobalSettings *settings, QWidget *parent)
 MainWindow::~MainWindow()
 {
     m_settings->setValue(GlobalSettings::Overscan, m_overscanWorkAround);
-    Config::setValue("desktop-id", qApp->desktop()->screenNumber(this));
     Config::setEnabled("fullscreen", m_attemptingFullScreen);
     if (!m_attemptingFullScreen)
         Config::setValue("window-geometry", geometry());
