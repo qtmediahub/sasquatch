@@ -320,7 +320,7 @@ bool MainWindow::setSkin(const QString &name)
     QHash<QString, Skin *> skins = m_skinManager->skins();
     Skin *newSkin = skins.value(name);
     if (!newSkin && skins.size() > 0) {
-        newSkin = skins.value(Config::value("default-skin", "confluence").toString());
+        newSkin = skins.value(m_settings->value(GlobalSettings::Skin).toString());
     }
 
     if (!newSkin && skins.size() > 0) {
