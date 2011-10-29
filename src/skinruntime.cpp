@@ -231,7 +231,7 @@ SkinRuntimePrivate::SkinRuntimePrivate(GlobalSettings *s, SkinRuntime *p)
 
 SkinRuntimePrivate::~SkinRuntimePrivate()
 {
-    Config::setValue("skin", currentSkin->name());
+    settings->setValue(GlobalSettings::Skin, currentSkin->name());
 }
 
 #ifndef SCENEGRAPH
