@@ -57,6 +57,9 @@ public:
         IdleTimeout,
         SystemTray,
         WindowGeometry,
+        OpenGLUsage,
+        OpenGLFormatHack,
+        OpenGLViewport,
 
         OptionLength
     };

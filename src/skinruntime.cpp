@@ -160,7 +160,7 @@ SkinRuntimePrivate::SkinRuntimePrivate(GlobalSettings *s, SkinRuntime *p)
 
 #ifdef GL
     //Can't fool with the default format when dealing with the Tegra for some reason
-    if (Config::isEnabled("use-gl", true) && Config::isEnabled("adjust-gl-format", true)) {
+    if (settings->isEnabled(GlobalSettings::OpenGLUsage) && settings->isEnabled(GlobalSettings::OpenGLFormatHack)) {
         QGLFormat format = QGLFormat::defaultFormat();
         //explicitly set options
         //format.setDoubleBuffer(true);
@@ -261,9 +261,9 @@ QObject *SkinRuntimePrivate::loadQmlSkin(const QUrl &targetUrl, QObject *window)
     optimizeGraphicsViewAttributes(declarativeWidget);
     declarativeWidget->setResizeMode(QDeclarativeView::SizeRootObjectToView);
 
-    if (Config::isEnabled("use-gl", true)) {
+    if (settings->isEnabled(GlobalSettings::OpenGLUsage)) {
 #ifdef GLVIEWPORT
-        if (Config::isEnabled("use-glviewport", true)) {
+        if (settings->isEnabled(GlobalSettings::OpenGLViewport)) {
             QGLWidget *viewport = new QGLWidget();
             if (Config::isEnabled("overlay-mode", false)) {
                 viewport->setAttribute(Qt::WA_TranslucentBackground);
