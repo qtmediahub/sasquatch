@@ -52,6 +52,7 @@ GlobalSettings::GlobalSettings(QObject *parent) :
     addOptionEntry(GlobalSettings::OpenGLUsage,         "true",         "opengl-usage",     "<bool> enable OpenGL if built with OpenGL");   // TODO test this!!!
     addOptionEntry(GlobalSettings::OpenGLFormatHack,    "true",         "opengl-format-hack","<bool> use special OpenGL format hacks");   // TODO test this!!!
     addOptionEntry(GlobalSettings::OpenGLViewport,      "true",         "opengl-viewport",  "<bool> use special OpenGL viewport");   // TODO test this!!!
+    addOptionEntry(GlobalSettings::SmoothScaling,       "true",         "smooth-scaling",   "<bool> toggle smooth scaling");
 }
 
 bool GlobalSettings::isEnabled(GlobalSettings::Option option) const

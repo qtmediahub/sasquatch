@@ -60,6 +60,7 @@ public:
         OpenGLUsage,
         OpenGLFormatHack,
         OpenGLViewport,
+        SmoothScaling,
 
         OptionLength
     };

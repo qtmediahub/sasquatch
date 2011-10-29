@@ -235,9 +235,9 @@ SkinRuntimePrivate::~SkinRuntimePrivate()
 }
 
 #ifndef SCENEGRAPH
-static void optimizeGraphicsViewAttributes(QGraphicsView *view)
+static void optimizeGraphicsViewAttributes(GlobalSettings *settings, QGraphicsView *view)
 {
-    if (Config::isEnabled("smooth-scaling", true))
+    if (settings->isEnabled(GlobalSettings::SmoothScaling))
         view->setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing);
 
     view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -258,7 +258,7 @@ QObject *SkinRuntimePrivate::loadQmlSkin(const QUrl &targetUrl, QObject *window)
 #ifdef SCENEGRAPH
     declarativeWidget->setResizeMode(QSGView::SizeRootObjectToView);
 #else
-    optimizeGraphicsViewAttributes(declarativeWidget);
+    optimizeGraphicsViewAttributes(settings, declarativeWidget);
     declarativeWidget->setResizeMode(QDeclarativeView::SizeRootObjectToView);
 
     if (settings->isEnabled(GlobalSettings::OpenGLUsage)) {
