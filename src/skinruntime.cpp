@@ -202,7 +202,7 @@ SkinRuntimePrivate::SkinRuntimePrivate(GlobalSettings *s, SkinRuntime *p)
     qmlRegisterType<RpcConnection>("RpcConnection", 1, 0, "RpcConnection");
     qmlRegisterType<Settings>("Settings", 1, 0, "Settings");
 
-    if (Config::value("overlay-mode", false)) {
+    if (settings->isEnabled(GlobalSettings::OverlayMode)) {
 #ifdef MEDIAPLAYER_DBUS
     qmlRegisterType<MediaPlayerDbus>("OverlayModeMediaPlayer", 1, 0, "OverlayModeMediaPlayer");
 #elif defined(MEDIAPLAYER_VLC)
@@ -265,7 +265,7 @@ QObject *SkinRuntimePrivate::loadQmlSkin(const QUrl &targetUrl, QObject *window)
 #ifdef GLVIEWPORT
         if (settings->isEnabled(GlobalSettings::OpenGLViewport)) {
             QGLWidget *viewport = new QGLWidget();
-            if (Config::isEnabled("overlay-mode", false)) {
+            if (settings->isEnabled(GlobalSettings::OverlayMode)) {
                 viewport->setAttribute(Qt::WA_TranslucentBackground);
             }
             viewport->qglClearColor(Qt::transparent);
@@ -308,7 +308,7 @@ QObject *SkinRuntimePrivate::loadQmlSkin(const QUrl &targetUrl, QObject *window)
 
     declarativeWidget->rootContext()->setContextProperty("runtime", runtime);
 
-    const QString mediaPlayer = Config::value("overlay-mode", false) ? "overlaymode" : "mobility";
+    const QString mediaPlayer = settings->isEnabled(GlobalSettings::OverlayMode) ? "overlaymode" : "mobility";
     foreach (const QString &qmlImportPath, LibraryInfo::qmlImportPaths()) {
         engine->addImportPath(qmlImportPath);
         engine->addImportPath(qmlImportPath % "/QtMediaHub/components/media/" % mediaPlayer); // ## is this correct?
