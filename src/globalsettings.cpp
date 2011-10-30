@@ -55,6 +55,7 @@ GlobalSettings::GlobalSettings(QObject *parent) :
     addOptionEntry(GlobalSettings::AvahiAdvertize,      "true",         "avahiAdvertize",   "<bool> toggle avahi advertizing");
     addOptionEntry(GlobalSettings::AvahiHideIPv6,       "true",         "avahiHideIPv6",    "<bool> hide IPv6 addresses");
     addOptionEntry(GlobalSettings::AvahiHideLocal,      "true",         "avahiHideLocal",   "<bool> hide local address");
+    addOptionEntry(GlobalSettings::ResizeDelay,         "25",           "resizeDelay",      "<int> wait n milliseconds to do actual resize");
 }
 
 bool GlobalSettings::isEnabled(GlobalSettings::Option option) const

@@ -63,6 +63,7 @@ public:
         AvahiAdvertize,
         AvahiHideIPv6,
         AvahiHideLocal,
+        ResizeDelay,
 
         OptionLength
     };

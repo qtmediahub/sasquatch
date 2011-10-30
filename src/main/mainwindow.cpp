@@ -125,8 +125,12 @@ void MainWindow::setCentralWidget(QWidget *centralWidget)
 void MainWindow::resizeEvent(QResizeEvent *e)
 {
     Q_UNUSED(e);
-    static int staggerResizingDelay = Config::value("resize-delay", 25);
-    m_resizeSettleTimer.start(staggerResizingDelay);
+
+    static int staggerResizingDelay = m_settings->value(GlobalSettings::ResizeDelay).toInt();
+    if (staggerResizingDelay == 0)
+        handleResize();
+    else
+        m_resizeSettleTimer.start(staggerResizingDelay);
 }
 
 void MainWindow::setOrientation(ScreenOrientation orientation)
