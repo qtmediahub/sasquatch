@@ -156,8 +156,6 @@ SkinRuntimePrivate::SkinRuntimePrivate(GlobalSettings *s, SkinRuntime *p)
     }
 #endif
 
-    QPixmapCache::setCacheLimit(Config::value("cacheSize", 0)*1024);
-
 #ifdef GL
     //Can't fool with the default format when dealing with the Tegra for some reason
     if (settings->isEnabled(GlobalSettings::OpenGLUsage) && settings->isEnabled(GlobalSettings::OpenGLFormatHack)) {
@@ -251,8 +249,6 @@ static void optimizeGraphicsViewAttributes(GlobalSettings *settings, QGraphicsVi
 
 QObject *SkinRuntimePrivate::loadQmlSkin(const QUrl &targetUrl, QObject *window)
 {
-    QPixmapCache::clear();
-
     DeclarativeView *declarativeWidget = new DeclarativeView(settings);
 
 #ifdef SCENEGRAPH
