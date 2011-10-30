@@ -42,8 +42,6 @@ GlobalSettings::GlobalSettings(QObject *parent) :
     addOptionEntry(GlobalSettings::DrivenFPS,           "false",        "drivenFPS",        "<bool> toggle fps counter");
     addOptionEntry(GlobalSettings::StreamingAddress,    "",             "streamingAddress", "<string> specifies the streaming address");
     addOptionEntry(GlobalSettings::StreamingPort,       "1337",         "streamingPort",    "<int> specifies the streaming port");
-    addOptionEntry(GlobalSettings::Avahi,               "true",         "avahi",            "<bool> toggle avahi usage");
-    addOptionEntry(GlobalSettings::AvahiAdvertize,      "true",         "avahiAdvertize",   "<bool> toggle avahi advertizing");
     addOptionEntry(GlobalSettings::Overscan,            "false",        "overscan",         "<bool> use overscan mode, use also overscanGeometry");
     addOptionEntry(GlobalSettings::OverscanGeometry,    "",             "overscanGeometry", "<int>x<int> set the overscan dimension");   // TODO test this!!!
     addOptionEntry(GlobalSettings::IdleTimeout,         "120",          "idleTimeout",      "<int> idle timeout in seconds");
@@ -53,6 +51,10 @@ GlobalSettings::GlobalSettings(QObject *parent) :
     addOptionEntry(GlobalSettings::OpenGLFormatHack,    "true",         "opengl-format-hack","<bool> use special OpenGL format hacks");   // TODO test this!!!
     addOptionEntry(GlobalSettings::OpenGLViewport,      "true",         "opengl-viewport",  "<bool> use special OpenGL viewport");   // TODO test this!!!
     addOptionEntry(GlobalSettings::SmoothScaling,       "true",         "smooth-scaling",   "<bool> toggle smooth scaling");
+    addOptionEntry(GlobalSettings::Avahi,               "true",         "avahi",            "<bool> toggle avahi usage");
+    addOptionEntry(GlobalSettings::AvahiAdvertize,      "true",         "avahiAdvertize",   "<bool> toggle avahi advertizing");
+    addOptionEntry(GlobalSettings::AvahiHideIPv6,       "true",         "avahiHideIPv6",    "<bool> hide IPv6 addresses");
+    addOptionEntry(GlobalSettings::AvahiHideLocal,      "true",         "avahiHideLocal",   "<bool> hide local address");
 }
 
 bool GlobalSettings::isEnabled(GlobalSettings::Option option) const

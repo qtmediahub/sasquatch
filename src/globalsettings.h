@@ -50,8 +50,6 @@ public:
         DrivenFPS,
         StreamingAddress,
         StreamingPort,
-        Avahi,
-        AvahiAdvertize,
         Overscan,
         OverscanGeometry,
         IdleTimeout,
@@ -61,6 +59,10 @@ public:
         OpenGLFormatHack,
         OpenGLViewport,
         SmoothScaling,
+        Avahi,
+        AvahiAdvertize,
+        AvahiHideIPv6,
+        AvahiHideLocal,
 
         OptionLength
     };

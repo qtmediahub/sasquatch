@@ -211,13 +211,13 @@ SkinRuntimePrivate::SkinRuntimePrivate(GlobalSettings *s, SkinRuntime *p)
     }
 
 #ifdef QMH_AVAHI
-    if (Config::isEnabled("avahi", true)) {
+    if (settings->isEnabled(GlobalSettings::Avahi)) {
         QAvahiServiceBrowserModel *model = new QAvahiServiceBrowserModel(this);
         model->setAutoResolve(true);
         QAvahiServiceBrowserModel::Options options = QAvahiServiceBrowserModel::NoOptions;
-        if (Config::isEnabled("avahi-hide-ipv6"), true)
+        if (settings->isEnabled(GlobalSettings::AvahiHideIPv6))
             options |= QAvahiServiceBrowserModel::HideIPv6;
-        if (Config::isEnabled("avahi-hide-local", true) && !Config::isEnabled("testing", false))
+        if (settings->isEnabled(GlobalSettings::AvahiHideLocal))
             options |= QAvahiServiceBrowserModel::HideLocal;
         model->browse("_qtmediahub._tcp", options);
         remoteSessionsModel = model;
