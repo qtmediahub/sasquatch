@@ -35,6 +35,7 @@ public:
     enum Option {
         Skin = 0,
         SkinsPath,
+        SkinResolution,
         Keymap,
         KeymapsPath,
         ApplicationsPath,

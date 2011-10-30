@@ -99,30 +99,18 @@ Skin *Skin::createSkin(const QString &skinPath, QObject *parent)
     return skin;
 }
 
-QUrl Skin::urlForResolution(const QString &nativeResolutionString, const QString &fallbackResolution)
+QUrl Skin::urlForResolution(const QSize &preferredSize)
 {
-    //http://en.wikipedia.org/wiki/720p
-    //1440, 1080, 720, 576, 480, 360, 240
-    QHash<QString, QString> resolutionHash;
-    resolutionHash["1440p"] = "2560x1440";
-    resolutionHash["1080p"] = "1920x1080";
-    resolutionHash["720p"] = "1280x720";
+    const QString resolutionString = QString("%1x%2").arg(preferredSize.width()).arg(preferredSize.height());
 
-    QHash<QString, QString> resolutionToFile;
-
-    foreach (const QVariant &v, m_resolutions) {
-        QString name = v.toString();
-        QString resolutionSize = resolutionHash.contains(name) ? resolutionHash[name] : name;
-        resolutionToFile[resolutionSize] = m_resolutions[name].toMap()["file"].toString();
+    foreach (const QString &name, m_resolutions.keys()) {
+        if (name == resolutionString) {
+            return QUrl::fromLocalFile(m_path % "/" % m_resolutions.value(name).toMap()["file"].toString());
+        }
     }
-    resolutionToFile["default"] = m_resolutions[m_defaultResolution].toMap()["file"].toString();
 
-    QString urlPath =
-            resolutionToFile.contains(nativeResolutionString)
-            ? resolutionToFile[nativeResolutionString]
-            : resolutionToFile[fallbackResolution];
-
-    return QUrl::fromLocalFile(m_path % "/" % urlPath);
+    const QString defaultResolutionString = m_resolutions.value(m_defaultResolution).toMap()["file"].toString();
+    return QUrl::fromLocalFile(m_path % "/" % defaultResolutionString);
 }
 
 bool Skin::isRemoteControl() const

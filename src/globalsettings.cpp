@@ -27,6 +27,7 @@ GlobalSettings::GlobalSettings(QObject *parent) :
 {
     addOptionEntry(GlobalSettings::Skin,                "confluence",   "skin",             "<name> specifies the skin");
     addOptionEntry(GlobalSettings::SkinsPath,           "",             "skinsPath",        "<path> adds path to skins search paths");
+    addOptionEntry(GlobalSettings::SkinResolution,      "",             "skinResolution",   "<string> resolution name from skin manifest");
     addOptionEntry(GlobalSettings::Keymap,              "stdkeyboard",  "keymap",           "<name> specifies the keymap");
     addOptionEntry(GlobalSettings::KeymapsPath,         "",             "keymapsPath",      "<path> adds path to keymaps search paths");
     addOptionEntry(GlobalSettings::ApplicationsPath,    "",             "appsPath",         "<path> adds path to skins search paths");
