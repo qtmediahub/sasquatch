@@ -46,7 +46,10 @@ MediaServer::MediaServer(GlobalSettings *settings, QObject *parent) :
     }
 #endif
 
-    ensureStandardPaths();
+    QDir dir;
+    dir.mkpath(LibraryInfo::thumbnailPath());
+    dir.mkpath(LibraryInfo::dataPath());
+
     m_httpServer = new HttpServer(m_settings, m_settings->value(GlobalSettings::StreamingPort).toInt(), this);
     MediaScanner::instance();
 }
@@ -54,13 +57,6 @@ MediaServer::MediaServer(GlobalSettings *settings, QObject *parent) :
 MediaServer::~MediaServer()
 {
     MediaScanner::destroy();
-}
-
-void MediaServer::ensureStandardPaths()
-{
-    QDir dir;
-    dir.mkpath(LibraryInfo::thumbnailPath());
-    dir.mkpath(LibraryInfo::dataPath());
 }
 
 HttpServer *MediaServer::httpServer() const

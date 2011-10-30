@@ -44,8 +44,6 @@ public:
     MediaScanner *mediaScanner() const;
 
 private:
-    void ensureStandardPaths();
-
     GlobalSettings *m_settings;
     HttpServer *m_httpServer;
 };
