@@ -50,7 +50,8 @@ MainWindow::MainWindow(GlobalSettings *settings, QWidget *parent)
 
     m_skinRuntime = new SkinRuntime(m_settings, this);
 
-    setOrientation(Config::value("orientation", ScreenOrientationAuto));
+    // TODO Orientation needs to be changeable from skin during runtime
+    setOrientation(ScreenOrientationAuto);
 
     new QShortcut(QKeySequence(Qt::ALT + Qt::Key_Backspace), this, SIGNAL(resetUI()));
     new QShortcut(QKeySequence(Qt::ALT + Qt::Key_Down), this, SLOT(decreaseHeight()));
