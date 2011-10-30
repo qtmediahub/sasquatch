@@ -43,8 +43,6 @@ MediaServer::MediaServer(GlobalSettings *settings, QObject *parent) :
         QAvahiServicePublisher *publisher = new QAvahiServicePublisher(this);
         publisher->publish(QHostInfo::localHostName(), "_qtmediahub._tcp", 1234, "Qt Media Hub JSON-RPCv2 interface");
         qDebug() << "Advertizing session via zeroconf";
-    } else {
-        qDebug() << "Failing to advertize session via zeroconf";
     }
 #endif
 
