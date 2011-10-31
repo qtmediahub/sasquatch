@@ -1,7 +1,8 @@
 include($$PROJECTROOT/src/core-common.pri)
 
 TEMPLATE = app
-TARGET = ../../bin/qtmediahub
+TARGETDIR = $$PROJECTROOT/qtmediahub-core/bin
+TARGET=qtmediahub
 DEPENDPATH += .
 INCLUDEPATH += $${PROJECTROOT}/src/
 

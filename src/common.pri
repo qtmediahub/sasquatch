@@ -16,11 +16,16 @@ MOC_DIR = $$TEMP_DIR/.moc
 
 isEmpty(PREFIX) {
     #Use our fuzzy heuristic logic for prefix setting
+    mac {
+        PREFIX=$$PROJECTROOT
+    }
     maemo5 {
         PREFIX=/opt/usr/
-    } harmattan {
+    }
+    harmattan {
         PREFIX=/opt/qtmediahub/
-    } else {
+    }
+    isEmpty(PREFIX) {
         PREFIX=/usr/local/
     }
 }
@@ -58,12 +63,14 @@ gl {
 }
 
 mac {
-    QT += webkit multimedia
-    CONFIG += mobility no-dbus
-    MOBILITY += multimedia systeminfo
+    # QT += webkit multimedia
+    CONFIG += no-dbus
+    #CONFIG += mobility
+    #MOBILITY += multimedia systeminfo
 }
 
 !contains(QT_CONFIG, dbus) {
+    #This catches dbus free Qt builds
     CONFIG += no-dbus
 }
 

@@ -1,5 +1,9 @@
 include(.cache-cow.pri)
 
+#Used for mac app-bundle deployment
+TARGETDIR = $$PROJECTROOT/qtmediahub-core/bin
+TARGET=qtmediahub
+
 !isEmpty(PROJECTROOT) {
 
     include(src/common.pri)
@@ -9,21 +13,13 @@ include(.cache-cow.pri)
     TEMPLATE = subdirs
 
     # add additional folders for keymaps, qml imports and resources to install step
-    folder_01.source =  share/qtmediahub/keymaps \
-                        share/qtmediahub/imports \
-                        share/qtmediahub/resources
-    DEPLOYMENTFOLDERS = folder_01
+    folder_01.source=share/qtmediahub/keymaps
+    folder_02.source=share/qtmediahub/imports
+    folder_03.source=share/qtmediahub/resources
+    DEPLOYMENTFOLDERS=folder_01 folder_02 folder_03
 
-    for(deploymentfolder, DEPLOYMENTFOLDERS) {
-        item = item$${deploymentfolder}
-        itemfiles = $${item}.files
-        $$itemfiles = $$eval($${deploymentfolder}.source)
-        itempath = $${item}.path
-        $$itempath = $${PREFIX}/share/qtmediahub/$$eval($${deploymentfolder}.target)
-        export($$itemfiles)
-        export($$itempath)
-        INSTALLS += $$item
-    }
+    include(generated-deployment.pri)
+    qtcAddDeployment()
 
     message()
     message("If you want to set an explicit deployment (make install) PREFIX please add it to .qmake.cache or use PREFIX=$PWD as recursive qmake argument")
