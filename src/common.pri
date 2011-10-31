@@ -16,11 +16,16 @@ MOC_DIR = $$TEMP_DIR/.moc
 
 isEmpty(PREFIX) {
     #Use our fuzzy heuristic logic for prefix setting
+    mac {
+        PREFIX=./foobar
+    }
     maemo5 {
         PREFIX=/opt/usr/
-    } harmattan {
+    }
+    harmattan {
         PREFIX=/opt/qtmediahub/
-    } else {
+    }
+    isEmpty(PREFIX) {
         PREFIX=/usr/local/
     }
 }
