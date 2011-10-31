@@ -17,7 +17,7 @@ MOC_DIR = $$TEMP_DIR/.moc
 isEmpty(PREFIX) {
     #Use our fuzzy heuristic logic for prefix setting
     mac {
-        PREFIX=./foobar
+        PREFIX=./
     }
     maemo5 {
         PREFIX=/opt/usr/
