@@ -58,12 +58,14 @@ gl {
 }
 
 mac {
-    QT += webkit multimedia
-    CONFIG += mobility no-dbus
-    MOBILITY += multimedia systeminfo
+    # QT += webkit multimedia
+    CONFIG += no-dbus
+    #CONFIG += mobility
+    #MOBILITY += multimedia systeminfo
 }
 
 !contains(QT_CONFIG, dbus) {
+    #This catches dbus free Qt builds
     CONFIG += no-dbus
 }
 
