@@ -36,7 +36,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "declarativeview.h"
 
 #ifdef SCENEGRAPH
-#include <QQuickItem>
 #include <QApplication>
 #include <QDesktopWidget>
 #else
@@ -232,49 +231,10 @@ SkinRuntimePrivate::~SkinRuntimePrivate()
     settings->setValue(GlobalSettings::Skin, currentSkin->name());
 }
 
-#ifndef SCENEGRAPH
-static void optimizeGraphicsViewAttributes(GlobalSettings *settings, QGraphicsView *view)
-{
-    if (settings->isEnabled(GlobalSettings::SmoothScaling))
-        view->setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing);
-
-    view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    view->setFrameStyle(0);
-    view->setOptimizationFlags(QGraphicsView::DontSavePainterState);
-    view->scene()->setItemIndexMethod(QGraphicsScene::NoIndex);
-    view->setCacheMode(QGraphicsView::CacheNone);
-}
-#endif
-
 QObject *SkinRuntimePrivate::loadQmlSkin(const QUrl &targetUrl, QObject *window)
 {
     DeclarativeView *declarativeWidget = new DeclarativeView(settings);
 
-#ifdef SCENEGRAPH
-    declarativeWidget->setResizeMode(QQuickView::SizeRootObjectToView);
-#else
-    optimizeGraphicsViewAttributes(settings, declarativeWidget);
-    declarativeWidget->setResizeMode(QDeclarativeView::SizeRootObjectToView);
-
-    if (settings->isEnabled(GlobalSettings::OpenGLUsage)) {
-#ifdef GLVIEWPORT
-        if (settings->isEnabled(GlobalSettings::OpenGLViewport)) {
-            QGLWidget *viewport = new QGLWidget();
-            if (settings->isEnabled(GlobalSettings::OverlayMode)) {
-                viewport->setAttribute(Qt::WA_TranslucentBackground);
-            }
-            viewport->qglClearColor(Qt::transparent);
-            declarativeWidget->setViewport(viewport);
-        }
-#endif //GLVIEWPORT
-        declarativeWidget->setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
-    } else {
-        declarativeWidget->viewport()->setAutoFillBackground(false);
-        declarativeWidget->setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
-    }
-    declarativeWidget->viewport()->setAttribute(Qt::WA_OpaquePaintEvent);
-#endif //SCENEGRAPH
     QDeclarativeEngine *engine = declarativeWidget->engine();
     QObject::connect(engine, SIGNAL(quit()), qApp, SLOT(quit()));
 

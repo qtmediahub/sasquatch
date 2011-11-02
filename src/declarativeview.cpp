@@ -32,6 +32,19 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "globalsettings.h"
 
+static void optimizeGraphicsViewAttributes(GlobalSettings *settings, QGraphicsView *view)
+{
+    if (settings->isEnabled(GlobalSettings::SmoothScaling))
+        view->setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing);
+
+    view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    view->setFrameStyle(0);
+    view->setOptimizationFlags(QGraphicsView::DontSavePainterState);
+    view->scene()->setItemIndexMethod(QGraphicsScene::NoIndex);
+    view->setCacheMode(QGraphicsView::CacheNone);
+}
+
 DeclarativeView::DeclarativeView(GlobalSettings *settings, QWidget *parent)
     : QDeclarativeView(parent),
       m_settings(settings),
@@ -40,6 +53,27 @@ DeclarativeView::DeclarativeView(GlobalSettings *settings, QWidget *parent)
       m_timeSigma(0),
       m_fps(0)
 {
+    optimizeGraphicsViewAttributes(settings, declarativeWidget);
+    setResizeMode(QDeclarativeView::SizeRootObjectToView);
+
+    if (settings->isEnabled(GlobalSettings::OpenGLUsage)) {
+#ifdef GLVIEWPORT
+        if (settings->isEnabled(GlobalSettings::OpenGLViewport)) {
+            QGLWidget *viewport = new QGLWidget();
+            if (settings->isEnabled(GlobalSettings::OverlayMode)) {
+                viewport->setAttribute(Qt::WA_TranslucentBackground);
+            }
+            viewport->qglClearColor(Qt::transparent);
+            setViewport(viewport);
+        }
+#endif //GLVIEWPORT
+        setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
+    } else {
+        viewport()->setAutoFillBackground(false);
+        setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
+    }
+    viewport()->setAttribute(Qt::WA_OpaquePaintEvent);
+
     m_drivenFPS = m_settings->value(GlobalSettings::DrivenFPS).toBool();
     m_overlayMode = m_settings->value(GlobalSettings::OverlayMode).toBool();
 
