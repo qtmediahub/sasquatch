@@ -26,7 +26,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QElapsedTimer>
 
 #ifdef SCENEGRAPH
-#include <QSGView>
+#include <QQuickView>
 #else
 #include <QDeclarativeView>
 #endif
@@ -34,7 +34,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 class GlobalSettings;
 
 #ifdef SCENEGRAPH
-class DeclarativeView : public QSGView
+class DeclarativeView : public QQuickView
 #else
 class DeclarativeView : public QDeclarativeView
 #endif
@@ -68,7 +68,7 @@ protected slots:
 public slots:
     void handleSourceChanged();
 #ifdef SCENEGRAPH
-    void handleStatusChanged(QSGView::Status status);
+    void handleStatusChanged(QQuickView::Status status);
 #else
     void handleStatusChanged(QDeclarativeView::Status status);
 #endif

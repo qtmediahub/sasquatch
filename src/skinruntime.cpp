@@ -36,7 +36,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "declarativeview.h"
 
 #ifdef SCENEGRAPH
-#include <QSGItem>
+#include <QQuickItem>
 #include <QApplication>
 #include <QDesktopWidget>
 #else
@@ -252,7 +252,7 @@ QObject *SkinRuntimePrivate::loadQmlSkin(const QUrl &targetUrl, QObject *window)
     DeclarativeView *declarativeWidget = new DeclarativeView(settings);
 
 #ifdef SCENEGRAPH
-    declarativeWidget->setResizeMode(QSGView::SizeRootObjectToView);
+    declarativeWidget->setResizeMode(QQuickView::SizeRootObjectToView);
 #else
     optimizeGraphicsViewAttributes(settings, declarativeWidget);
     declarativeWidget->setResizeMode(QDeclarativeView::SizeRootObjectToView);

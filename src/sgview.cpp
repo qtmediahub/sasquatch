@@ -22,14 +22,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "declarativeview.h"
 
-#include <QSGItem>
+#include <QQuickItem>
 #include <QDeclarativeEngine>
 #include <QDebug>
 
 #include "globalsettings.h"
 
 DeclarativeView::DeclarativeView(GlobalSettings *settings, QWindow *parent)
-    : QSGView(parent),
+    : QQuickView(parent),
       m_settings(settings),
       m_glViewport(false),
       m_frameCount(0),
@@ -43,7 +43,7 @@ DeclarativeView::DeclarativeView(GlobalSettings *settings, QWindow *parent)
 //    if (Config::isEnabled("vsync-anim", false))
             setVSyncAnimations(true);
 
-    connect(this, SIGNAL(statusChanged(QSGView::Status)), this, SLOT(handleStatusChanged(QSGView::Status)));
+    connect(this, SIGNAL(statusChanged(QQuickView::Status)), this, SLOT(handleStatusChanged(QQuickView::Status)));
 }
 
 void DeclarativeView::setSource(const QUrl &url)
@@ -54,13 +54,13 @@ void DeclarativeView::setSource(const QUrl &url)
 
 void DeclarativeView::handleSourceChanged()
 {
-    QSGView::setSource(m_url);
+    QQuickView::setSource(m_url);
 }
 
-void DeclarativeView::handleStatusChanged(QSGView::Status status)
+void DeclarativeView::handleStatusChanged(QQuickView::Status status)
 {
     //Dodgy work around for gnome focus issues?
-    if (status == QSGView::Ready) {
+    if (status == QQuickView::Ready) {
         requestActivateWindow();
     }
 }

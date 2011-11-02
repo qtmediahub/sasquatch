@@ -23,8 +23,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "abstractmediaplayer.h"
 
 #ifdef SCENEGRAPH
-AbstractMediaPlayer::AbstractMediaPlayer(QSGItem *parent)
-    : QSGItem(parent),
+AbstractMediaPlayer::AbstractMediaPlayer(QQuickItem *parent)
+    : QQuickItem(parent),
 #else
 AbstractMediaPlayer::AbstractMediaPlayer(QDeclarativeItem *parent)
     : QDeclarativeItem(parent),
