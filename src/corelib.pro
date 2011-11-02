@@ -63,10 +63,12 @@ HEADERS += qmh-config.h \
 
 qt5 {
     SOURCES += \
-        sgview.cpp
+        sgview.cpp \
+        libraryinfo_qt5.cpp
 } else {
     SOURCES += \
-        declarativeview.cpp
+        declarativeview.cpp \
+        libraryinfo_qt4.cpp
 }
 
 vlc {

@@ -31,7 +31,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QShortcut>
 
 #ifdef SCENEGRAPH
-#include <QSGView>
+#include <QQuickView>
 #include <QtWidgets>
 #else
 #include <QDeclarativeView>

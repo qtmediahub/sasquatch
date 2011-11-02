@@ -23,8 +23,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "libraryinfo.h"
 #include "qmh-config.h"
 
-#include <QDesktopServices>
-
 #ifdef SCENEGRAPH
 #include <QtWidgets>
 #endif
@@ -60,27 +58,6 @@ static QStringList standardResourcePaths(const QString &suffix)
     paths << QMH_PREFIX % QString::fromLatin1("/share/qtmediahub/") % suffix % QString::fromLatin1("/");
 
     return paths;
-}
-
-static QString storageLocation(QDesktopServices::StandardLocation type)
-{
-    QString location = QDesktopServices::storageLocation(type);
-    return location.isEmpty() ? QString("/tmp") : location;
-}
-
-QString LibraryInfo::dataPath()
-{
-    return storageLocation(QDesktopServices::DataLocation);
-}
-
-QString LibraryInfo::tempPath()
-{
-    return storageLocation(QDesktopServices::TempLocation);
-}
-
-QString LibraryInfo::logPath()
-{
-    return storageLocation(QDesktopServices::TempLocation);
 }
 
 QStringList LibraryInfo::translationPaths()

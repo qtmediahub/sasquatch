@@ -28,7 +28,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #ifdef SCENEGRAPH
 #include <QtWidgets>
-#include <QSGView>
+#include <QQuickView>
 #include <QDeclarativeContext>
 #else
 #include <QtDeclarative>
@@ -42,8 +42,8 @@ SkinSelector::SkinSelector(SkinManager *skinManager, QWidget *parent)
     QVBoxLayout *vbox = new QVBoxLayout(this);
     vbox->setContentsMargins(0, 0, 0, 0);
 #ifdef SCENEGRAPH
-    QSGView *skinsView = new QSGView;
-    skinsView->setResizeMode(QSGView::SizeRootObjectToView);
+    QQuickView *skinsView = new QQuickView;
+    skinsView->setResizeMode(QQuickView::SizeRootObjectToView);
     skinsView->show();
 #else
     QDeclarativeView *skinsView = new QDeclarativeView;
