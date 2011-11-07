@@ -208,6 +208,7 @@ void MediaScanner::loadParserPlugins()
                 addParser(parser);
             }
             loaded << fileName;
+            qDebug() << "Using parser plugin:" << fileName;
         }
     }
 }
