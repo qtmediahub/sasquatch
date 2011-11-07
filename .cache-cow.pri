@@ -22,6 +22,7 @@ isEmpty(PROJECTROOT) {
     message()
     system(echo "PROJECTROOT=$$BASE_NAME" > $$QMAKE_CACHE)
     system(echo "CONFIG-=qt_framework" >> $$QMAKE_CACHE)
+    system(echo "CONFIG+=cache-exists" >> $$QMAKE_CACHE)
     message(Cache created)
     message(Please rerun qmake)
     system(echo "equals\\(QT_MAJOR_VERSION, \\\"5\\\"\\) CONFIG+=qt5" >> $$QMAKE_CACHE)

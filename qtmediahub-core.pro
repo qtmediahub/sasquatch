@@ -1,7 +1,7 @@
 include(.cache-cow.pri)
 
 #Used for mac app-bundle deployment
-DESTDIR = $$PROJECTROOT/qtmediahub-core/bin
+DESTDIR = $$PROJECTROOT/bin
 TARGET=qtmediahub
 
 !isEmpty(PROJECTROOT) {
