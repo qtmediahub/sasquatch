@@ -53,7 +53,7 @@ DeclarativeView::DeclarativeView(GlobalSettings *settings, QWidget *parent)
       m_timeSigma(0),
       m_fps(0)
 {
-    optimizeGraphicsViewAttributes(settings, declarativeWidget);
+    optimizeGraphicsViewAttributes(settings, this);
     setResizeMode(QDeclarativeView::SizeRootObjectToView);
 
     if (settings->isEnabled(GlobalSettings::OpenGLUsage)) {
