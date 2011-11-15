@@ -20,6 +20,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 ****************************************************************************/
 
+#include <unistd.h>
+
 #include "mediascanner.h"
 #include "scopedtransaction.h"
 #include "mediaparser.h"

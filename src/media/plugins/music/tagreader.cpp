@@ -52,6 +52,7 @@ bool TagReader::hasAudioProperties() const
 
 static inline QString fromTagString(const TagLib::String &string)
 {
+    //We require STL support for this method to exist!
     return QString::fromStdWString(string.toWString());
 }
 
