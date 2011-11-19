@@ -2,7 +2,13 @@ TEMPLATE = subdirs
 
 SUBDIRS = music \
           video \
-          picture \
-          radio \
-          snes
+          picture
+
+radio-plugin {
+    SUBDIRS += radio
+}
+
+snes-plugin {
+    SUBDIRS += snes
+}
 
