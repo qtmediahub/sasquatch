@@ -16,16 +16,26 @@ signals:
     void allRequestsFinished();
 
 private slots:
-    void handleReply();
+    void handleTitleReply();
+    void handleArtistReply();
+    void updateDatabase();
     void requestNext();
     void handleError(QNetworkReply::NetworkError code);
 
 private:
+    void requestTitleInformation();
+    void requestArtistInformation();
+
     QNetworkAccessManager *m_networkAccessManager;
     QNetworkReply* m_reply;
     QSqlDatabase m_db;
     QSqlQuery *m_query;
     QString m_currentId;
+    QString m_currentArtist;
+    QString m_currentTitle;
+    QString m_currentAlbum;
+    QString m_currentThumbnail;
+    int m_currentTrack;
 };
 
 #endif // LASTFMPROVIDER_H
