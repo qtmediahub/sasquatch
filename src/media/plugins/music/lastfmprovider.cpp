@@ -84,6 +84,8 @@ void LastFMProvider::handleReply()
     if (!query.exec())
         qWarning() << query.lastError().text();
 
+    m_reply->deleteLater();
+
     emit replyFinished();
 }
 
@@ -107,7 +109,16 @@ void LastFMProvider::requestNext()
 
         m_reply = m_networkAccessManager->get(QNetworkRequest(QUrl(requestString)));
         connect(m_reply, SIGNAL(readyRead()), this, SLOT(handleReply()));
+        connect(m_reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(handleError(QNetworkReply::NetworkError)));
     } else {
         emit allRequestsFinished();
     }
+}
+
+void LastFMProvider::handleError(QNetworkReply::NetworkError code)
+{
+    qWarning() << "cannot fetch lastFM data" << m_reply->errorString();
+    m_reply->deleteLater();
+
+    emit replyFinished();
 }
