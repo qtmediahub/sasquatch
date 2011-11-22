@@ -13,6 +13,7 @@ public:
 
 signals:
     void replyFinished();
+    void allRequestsFinished();
 
 private slots:
     void handleReply();

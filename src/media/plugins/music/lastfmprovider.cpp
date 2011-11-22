@@ -97,7 +97,7 @@ void LastFMProvider::requestNext()
 
         DEBUG << "empty thumbnail for" << id << artist << title << album;
 
-        static const QString apiUri = QString::fromLatin1("http://ws.audioscrobbler.com/2.0/?method=track.getinfo&api_key=b25b959554ed76058ac220b7b2e0a026&");
+        static const QString apiUri = QString::fromLatin1("http://ws.audioscrobbler.com/2.0/?method=track.getinfo&api_key=e7e3601ddce49a72b56c758d29af4a3f&");
 
         QString requestString = apiUri + "artist=" + artist + "&track=" + title;
 
@@ -107,5 +107,7 @@ void LastFMProvider::requestNext()
 
         m_reply = m_networkAccessManager->get(QNetworkRequest(QUrl(requestString)));
         connect(m_reply, SIGNAL(readyRead()), this, SLOT(handleReply()));
+    } else {
+        emit allRequestsFinished();
     }
 }
