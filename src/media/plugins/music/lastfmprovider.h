@@ -18,6 +18,7 @@ signals:
 private slots:
     void handleReply();
     void requestNext();
+    void handleError(QNetworkReply::NetworkError code);
 
 private:
     QNetworkAccessManager *m_networkAccessManager;
