@@ -19,7 +19,7 @@ LastFMProvider::LastFMProvider(QSqlDatabase db, QObject *parent) :
 
 void LastFMProvider::handleTitleReply()
 {
-    qDebug() << "handle TITLE reply";
+    DEBUG << "handle TITLE reply";
 
     QXmlStreamReader reader(m_reply);
 
@@ -63,21 +63,18 @@ void LastFMProvider::handleTitleReply()
 
 void LastFMProvider::handleArtistReply()
 {
-    qDebug() << "handle ARTIST reply";
+    DEBUG << "handle ARTIST reply";
 
     QXmlStreamReader reader(m_reply);
 
     bool artistTagFound = false;
 
     while (reader.readNext() && !reader.isEndDocument()) {
-        qDebug() << reader.name();
         if (reader.name() == "artist") {
-            qDebug() << "============== artist found";
             artistTagFound = true;
         }
 
         if (artistTagFound && reader.name() == "image" && reader.attributes().value("size") == "large") {
-            qDebug() << "==============";
             if (reader.readNext() && reader.isCharacters())
                 m_currentThumbnail = reader.text().toString();
             break;
