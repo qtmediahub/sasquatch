@@ -24,7 +24,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "tagreader.h"
 #include "scopedtransaction.h"
 #include "libraryinfo.h"
+#include "lastfmprovider.h"
+
 #include <QtSql>
+#include <QtNetwork>
 
 #define DEBUG if (0) qDebug() << __PRETTY_FUNCTION__
 
@@ -192,6 +195,12 @@ QList<QSqlRecord> MusicParser::updateMediaInfos(const QList<QFileInfo> &fis, con
 
     emit databaseUpdated(records);
     return records;
+}
+
+void MusicParser::runExtraMetaDataProvider(QSqlDatabase db)
+{
+    qDebug() << "run extra meta data provider for music";
+    LastFMProvider *lastFmProvider = new LastFMProvider(db, this);
 }
 
 

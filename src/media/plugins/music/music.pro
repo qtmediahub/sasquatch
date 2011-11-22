@@ -21,8 +21,12 @@ QT += sql
 
 HEADERS += musicplugin.h \
            musicparser.h \
-           tagreader.h
+           tagreader.h \
+    lastfmprovider.h
 
 SOURCES += musicplugin.cpp \
            musicparser.cpp \
-           tagreader.cpp
+           tagreader.cpp \
+    lastfmprovider.cpp
+
+

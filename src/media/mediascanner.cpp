@@ -381,14 +381,18 @@ void MediaScannerWorker::refresh(const QString &type)
         const bool typeChanged = lastType != type;
 
         if (typeChanged) {
-            if (!lastType.isEmpty())
-                emit m_scanner->scanFinished(lastType);
-
             parser = m_parsers.value(type);
+
             if (!parser) {
                 WARNING << "No parser found for type '" << type << "'";
                 continue;
             }
+
+            if (!lastType.isEmpty()) {
+                emit m_scanner->scanFinished(lastType);
+                parser->runExtraMetaDataProvider(m_db);
+            }
+
             emit m_scanner->scanStarted(type);
             lastType = type;
         }
@@ -396,8 +400,12 @@ void MediaScannerWorker::refresh(const QString &type)
         scan(parser, path);
     }
 
-    if (!lastType.isEmpty())
+    if (!lastType.isEmpty()) {
         emit m_scanner->scanFinished(lastType);
+        parser = m_parsers.value(lastType);
+        if (parser)
+            parser->runExtraMetaDataProvider(m_db);
+    }
 }
 
 #include "mediascanner.moc"
