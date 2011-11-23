@@ -351,9 +351,16 @@ QMap<int, QVariant> MediaModel::dataFromRecord(const QSqlRecord &record) const
 
 void MediaModel::handleDataReady(DbReader *reader, const QList<QSqlRecord> &records, void *node)
 {
-    Q_ASSERT(reader == m_reader);
     Q_UNUSED(reader);
     Q_UNUSED(node);
+
+    // Someone please check why we need an assert here...this let us bail out often on startup
+    // the simple return works as far as I've tested
+    //    Q_ASSERT(reader == m_reader);
+    if (reader != m_reader) {
+        DEBUG << "Received data ready from wrong DbReader instance";
+        return;
+    }
 
     DEBUG << "Received response from db of size " << records.size();
 
