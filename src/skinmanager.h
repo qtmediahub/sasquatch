@@ -28,6 +28,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "global.h"
 #include "skin.h"
 
+class GlobalSettings;
 class TarFileEngineHandler;
 
 class QMH_EXPORT SkinManager : public QObject
@@ -36,7 +37,7 @@ class QMH_EXPORT SkinManager : public QObject
     Q_PROPERTY(QList<QObject *> skinsModel READ skinsModel CONSTANT) // ## Make into QDeclarativeListProperty
 
 public:
-    SkinManager(QObject *parent = 0);
+    SkinManager(GlobalSettings *settings, QObject *parent = 0);
     ~SkinManager();
 
     QHash<QString, Skin *> skins() const;
@@ -50,6 +51,7 @@ private:
     QFileSystemWatcher m_pathMonitor;
     TarFileEngineHandler *m_tarFileEngineHandler;
     QHash<QString, Skin *> m_skins;
+    GlobalSettings *m_settings;
 };
 
 #endif // SKINMANAGER_H

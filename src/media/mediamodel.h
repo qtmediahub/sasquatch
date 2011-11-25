@@ -31,6 +31,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 class QThread;
 class MediaScanner;
 class DbReader;
+class GlobalSettings;
 
 class MediaModel : public QAbstractItemModel
 {
@@ -124,6 +125,7 @@ private:
     QMap<int, QVariant> dataFromRecord(const QSqlRecord &record) const;
     QString displayStringFromRecord(const QSqlRecord &record) const;
 
+    GlobalSettings *m_settings;
     QString m_structure;
     QList<QStringList> m_layoutInfo;
     QList<QMap<int, QVariant> > m_data;

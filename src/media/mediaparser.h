@@ -29,12 +29,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "mediascanner.h"
 #include "global.h"
 
+class GlobalSettings;
+
 class QMH_EXPORT MediaParser : public QObject
 {
     Q_OBJECT
 
 public:
-    MediaParser();
+    MediaParser(GlobalSettings *settings, QObject *parent = 0);
     virtual ~MediaParser() { }
 
     virtual QString type() const = 0;
@@ -47,6 +49,9 @@ public:
 
 signals:
     void databaseUpdated(const QList<QSqlRecord> &records);
+
+protected:
+    GlobalSettings *m_settings;
 };
 
 Q_DECLARE_METATYPE(MediaParser *);

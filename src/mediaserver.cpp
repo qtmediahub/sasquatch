@@ -47,11 +47,11 @@ MediaServer::MediaServer(GlobalSettings *settings, QObject *parent) :
 #endif
 
     QDir dir;
-    dir.mkpath(LibraryInfo::thumbnailPath());
+    dir.mkpath(LibraryInfo::thumbnailPath(m_settings));
     dir.mkpath(LibraryInfo::dataPath());
 
     m_httpServer = new HttpServer(m_settings, m_settings->value(GlobalSettings::StreamingPort).toInt(), this);
-    MediaScanner::instance();
+    MediaScanner::instance(m_settings);
 }
 
 MediaServer::~MediaServer()
@@ -66,5 +66,5 @@ HttpServer *MediaServer::httpServer() const
 
 MediaScanner *MediaServer::mediaScanner() const
 {
-    return MediaScanner::instance();
+    return MediaScanner::instance(m_settings);
 }

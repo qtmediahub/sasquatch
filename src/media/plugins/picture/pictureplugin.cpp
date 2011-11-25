@@ -30,10 +30,10 @@ QStringList PicturePlugin::parserKeys() const
     return QStringList() << "picture";
 }
 
-MediaParser *PicturePlugin::createParser(const QString &key)
+MediaParser *PicturePlugin::createParser(GlobalSettings *settings, const QString &key)
 {
     if (key == "picture")
-        return new PictureParser;
+        return new PictureParser(settings);
     return 0;
 }
 

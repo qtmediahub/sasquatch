@@ -34,6 +34,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 class MediaParser;
 class MediaScannerWorker;
 class QThread;
+class GlobalSettings;
 
 class QMH_EXPORT MediaScanner : public QObject
 {
@@ -41,7 +42,7 @@ class QMH_EXPORT MediaScanner : public QObject
     Q_PROPERTY(QString currentScanPath READ currentScanPath NOTIFY currentScanPathChanged)
 
 public:
-    static MediaScanner *instance();
+    static MediaScanner *instance(GlobalSettings *settings);
     static void destroy();
     ~MediaScanner();
 
@@ -79,7 +80,7 @@ private slots:
     void handleScanPathChanged(const QString &scanPath);
 
 private:
-    explicit MediaScanner(QObject *parent = 0);
+    explicit MediaScanner(GlobalSettings *settings, QObject *parent = 0);
     void ensureDatabase();
     void loadParserPlugins();
 
@@ -87,6 +88,7 @@ private:
     MediaScannerWorker *m_worker;
     QString m_currentScanPath;
     QStringList m_parserTypes;
+    GlobalSettings *m_settings;
     
     static MediaScanner *s_instance;
     friend class MediaScannerWorker;

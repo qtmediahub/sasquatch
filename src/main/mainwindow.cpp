@@ -90,7 +90,7 @@ MainWindow::MainWindow(GlobalSettings *settings, QWidget *parent)
         systray->setContextMenu(contextMenu);
     }
 
-	m_skinManager = new SkinManager(this);
+        m_skinManager = new SkinManager(m_settings, this);
 }
 
 MainWindow::~MainWindow()

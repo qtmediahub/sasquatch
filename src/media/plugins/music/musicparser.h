@@ -31,7 +31,9 @@ class MusicParser : public MediaParser
 {
     Q_OBJECT
 public:
-    MusicParser() { }
+    MusicParser(GlobalSettings *settings, QObject *parent = 0) :
+        MediaParser(settings, parent)
+    { }
     ~MusicParser() { }
 
     QString type() const { return "music"; }

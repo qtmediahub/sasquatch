@@ -23,12 +23,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "skinmanager.h"
 #include "libraryinfo.h"
 #include "tarfileengine.h"
+#include "globalsettings.h"
 
-SkinManager::SkinManager(QObject *parent)
-    : QObject(parent)
+SkinManager::SkinManager(GlobalSettings *settings, QObject *parent) :
+    QObject(parent),
+    m_settings(settings)
 {
     connect(&m_pathMonitor, SIGNAL(directoryChanged(QString)), this, SLOT(handleDirChanged(QString)));
-    foreach (const QString &skinPath, LibraryInfo::skinPaths()) {
+    foreach (const QString &skinPath, LibraryInfo::skinPaths(m_settings)) {
         if (QDir(skinPath).exists())
             m_pathMonitor.addPath(skinPath);
     }
@@ -49,7 +51,7 @@ QHash<QString, Skin *> SkinManager::skins() const
 
 void SkinManager::handleDirChanged(const QString &dir)
 {
-    if (LibraryInfo::skinPaths().contains(dir)) {
+    if (LibraryInfo::skinPaths(m_settings).contains(dir)) {
         qWarning() << "Changes in skin path, repopulating skins";
         discoverSkins();
     }
@@ -60,7 +62,7 @@ void SkinManager::discoverSkins()
     qDeleteAll(m_skins.values()); // FIXME: err, skin pointer is help by run-time, this will cause a crash
     m_skins.clear();
 
-    foreach (const QString &skinPath, LibraryInfo::skinPaths()) {
+    foreach (const QString &skinPath, LibraryInfo::skinPaths(m_settings)) {
         QStringList potentialm_skins = QDir(skinPath).entryList(QDir::Dirs | QDir::NoDotAndDotDot);
 
         foreach(const QString &currentPath, potentialm_skins) {

@@ -22,12 +22,16 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "mediaparser.h"
 #include "scopedtransaction.h"
+#include "globalsettings.h"
+
 #include <QtSql>
 
 #define DEBUG if (0) qDebug() << __PRETTY_FUNCTION__
 #define WARNING qDebug() << __PRETTY_FUNCTION__
 
-MediaParser::MediaParser()
+MediaParser::MediaParser(GlobalSettings *settings, QObject *parent) :
+    QObject(parent),
+    m_settings(settings)
 {
 }
 

@@ -112,7 +112,7 @@ int main(int argc, char** argv)
         // try to print skin specific settings
         settings->parseArguments(app.arguments());
 
-        SkinManager *skinManager = new SkinManager();
+        SkinManager *skinManager = new SkinManager(settings);
         if (skinManager->skins().contains(settings->value(GlobalSettings::Skin).toString())) {
             Skin *skin = skinManager->skins().value(settings->value(GlobalSettings::Skin).toString());
             if (!skin->parseManifest())

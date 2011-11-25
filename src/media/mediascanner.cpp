@@ -28,6 +28,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "libraryinfo.h"
 #include "mediaplugin.h"
 #include "mediamodel.h"
+#include "globalsettings.h"
 
 #define DEBUG if (0) qDebug() << __PRETTY_FUNCTION__
 #define WARNING qWarning() << __PRETTY_FUNCTION__
@@ -36,10 +37,10 @@ const int BULK_LIMIT = 100;
 
 MediaScanner *MediaScanner::s_instance = 0;
 
-MediaScanner *MediaScanner::instance()
+MediaScanner *MediaScanner::instance(GlobalSettings *settings)
 {
     if (!s_instance)
-        s_instance = new MediaScanner();
+        s_instance = new MediaScanner(settings);
     return s_instance;
 }
 
@@ -78,8 +79,9 @@ private:
 
 Q_DECLARE_METATYPE(QSqlDatabase) // ## may not be the best place...
 
-MediaScanner::MediaScanner(QObject *parent)
-    : QObject(parent)
+MediaScanner::MediaScanner(GlobalSettings *settings, QObject *parent) :
+    QObject(parent),
+    m_settings(settings)
 {
     qRegisterMetaType<MediaParser *>();
 
@@ -203,7 +205,7 @@ void MediaScanner::loadParserPlugins()
                 continue;
             }
             foreach(const QString &key, plugin->parserKeys()) {
-                MediaParser *parser = plugin->createParser(key);
+                MediaParser *parser = plugin->createParser(m_settings, key);
                 MediaModel::createDynamicRoleNameMapping(parser->type());
                 addParser(parser);
             }

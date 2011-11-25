@@ -21,13 +21,16 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 ****************************************************************************/
 
 #include "libraryinfo.h"
-#include "qmh-config.h"
+#include "globalsettings.h"
+
+#include <QtCore>
+#include <QtGui>
 
 #ifdef SCENEGRAPH
 #include <QtWidgets>
 #endif
 
-static QStringList standardResourcePaths(const QString &suffix)
+static QStringList standardResourcePaths(GlobalSettings *settings, const GlobalSettings::Option option, const QString &suffix)
 {
     static const QString platformBinOffset
         #ifdef Q_OS_MAC
@@ -36,33 +39,57 @@ static QStringList standardResourcePaths(const QString &suffix)
             = "";
         #endif
 
+    // The order of the added paths is relevant!
     QStringList paths;
 
-    // The order of the added paths is relevant!
+    // submodule repo
+    paths <<  QCoreApplication::applicationDirPath() % QString::fromLatin1("/../../") % platformBinOffset % suffix % "/";
 
-    // TODO should only be there for development
-    paths <<  QCoreApplication::applicationDirPath() % QString::fromLatin1("/../../") % platformBinOffset % suffix; // submodule repo
+    // allows changing resource paths with -skinsPath on runtime
+    const QString settingsPath = settings->value(option).toString();
+    if (!settingsPath.isEmpty())
+        paths << QDir(settingsPath).absolutePath();
 
-    // allows changing resource paths with eg. -skins-path on runtime
-    QString configPath = Config::value(suffix % "-path", QString());
-    if (!configPath.isEmpty())
-        paths << QDir(configPath).absolutePath();
+    // allows changing resource paths with exporting with QMH_SKINS_PATH on runtime
+    const QByteArray envPath = qgetenv(QString("QMH_" % suffix.toUpper() % "_PATH").toLatin1());
+    if (!envPath.isEmpty())
+        paths << QDir(envPath).absolutePath();
 
-    // allows changing resource paths with exporting with eg. QMH_SKINS_PATH on runtime
-    QString envVar("QMH_" % suffix.toUpper() % "_PATH");
-    if (!qgetenv(envVar.toLatin1().constData()).isEmpty())
-        paths << QDir(qgetenv(envVar.toLatin1().constData())).absolutePath();
-
-    paths << QMH_PROJECTROOT % QString::fromLatin1("/share/qtmediahub/") % suffix % QString::fromLatin1("/");
-    paths << QDir::homePath() % "/.qtmediahub/" % suffix % QString::fromLatin1("/");
-    paths << QMH_PREFIX % QString::fromLatin1("/share/qtmediahub/") % suffix % QString::fromLatin1("/");
+    paths << QMH_PROJECTROOT % QString::fromLatin1("/share/qtmediahub/") % suffix % "/";
+    paths << QDir::homePath() % QString::fromLatin1("/.qtmediahub/") % suffix % "/";
+    paths << QMH_PREFIX % QString::fromLatin1("/share/qtmediahub/") % suffix % "/";
 
     return paths;
 }
 
-QStringList LibraryInfo::translationPaths()
+QStringList LibraryInfo::translationPaths(GlobalSettings *settings)
 {
-    return standardResourcePaths("translations");
+    return standardResourcePaths(settings, GlobalSettings::TranslationsPath, "translations");
+}
+
+QStringList LibraryInfo::resourcePaths(GlobalSettings *settings)
+{
+    return standardResourcePaths(settings, GlobalSettings::ResourcesPath, "resources");
+}
+
+QStringList LibraryInfo::skinPaths(GlobalSettings *settings)
+{
+    return standardResourcePaths(settings, GlobalSettings::SkinsPath, "skins");
+}
+
+QStringList LibraryInfo::applicationPaths(GlobalSettings *settings)
+{
+    return standardResourcePaths(settings, GlobalSettings::AppsPath, "apps");
+}
+
+QStringList LibraryInfo::keyboardMapPaths(GlobalSettings *settings)
+{
+    return standardResourcePaths(settings, GlobalSettings::KeymapsPath, "keymaps");
+}
+
+QStringList LibraryInfo::qmlImportPaths(GlobalSettings *settings)
+{
+    return standardResourcePaths(settings, GlobalSettings::ImportsPath, "imports");
 }
 
 QStringList LibraryInfo::pluginPaths()
@@ -75,37 +102,16 @@ QStringList LibraryInfo::pluginPaths()
     return ret;
 }
 
-QStringList LibraryInfo::resourcePaths()
+QString LibraryInfo::thumbnailPath(GlobalSettings *settings)
 {
-    return standardResourcePaths("resources");
-}
+    const QString path = settings->value(GlobalSettings::ThumbnailPath).toString();
+    if (!path.isEmpty())
+        return path;
 
-QStringList LibraryInfo::skinPaths()
-{
-    return standardResourcePaths("skins");
-}
-
-QStringList LibraryInfo::applicationPaths()
-{
-    return standardResourcePaths("apps");
-}
-
-QStringList LibraryInfo::keyboardMapPaths()
-{
-    return standardResourcePaths("keymaps");
-}
-
-QStringList LibraryInfo::qmlImportPaths()
-{
-    return standardResourcePaths("imports");
-}
-
-QString LibraryInfo::thumbnailPath()
-{
-    return Config::value("thumbnail-path", QDir::homePath() + "/.thumbnails/" + QApplication::applicationName() + "/");
+    return QDir::homePath() % "/.thumbnails/" % QApplication::applicationName() % "/";
 }
 
 QString LibraryInfo::databaseFilePath()
 {
-    return LibraryInfo::dataPath() + "/media.db";
+    return LibraryInfo::dataPath() % "/media.db";
 }

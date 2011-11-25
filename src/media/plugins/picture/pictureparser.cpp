@@ -50,10 +50,10 @@ static QString determineTitle(const ExifReader &reader, const QFileInfo &fi)
     return title;
 }
 
-static QByteArray determineThumbnail(const ExifReader &reader, const QFileInfo &info)
+static QByteArray determineThumbnail(GlobalSettings *settings, const ExifReader &reader, const QFileInfo &info)
 {
     QByteArray md5 = QCryptographicHash::hash("file://" + QFile::encodeName(info.absoluteFilePath()), QCryptographicHash::Md5).toHex();
-    QFileInfo thumbnailInfo(LibraryInfo::thumbnailPath() + md5 + ".png");
+    QFileInfo thumbnailInfo(LibraryInfo::thumbnailPath(settings) + md5 + ".png");
     if (thumbnailInfo.exists())
         return QUrl::fromLocalFile(thumbnailInfo.absoluteFilePath()).toEncoded();
 
@@ -106,7 +106,7 @@ QList<QSqlRecord> PictureParser::updateMediaInfos(const QList<QFileInfo> &fis, c
 
         query.bindValue(":filepath", fi.absoluteFilePath());
         query.bindValue(":title", determineTitle(reader, fi));
-        query.bindValue(":thumbnail", determineThumbnail(reader, fi));
+        query.bindValue(":thumbnail", determineThumbnail(m_settings, reader, fi));
 
         QDateTime tmp = reader.creationTime();
         query.bindValue(":year", tmp.toString("yyyy").toInt());

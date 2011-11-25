@@ -30,10 +30,10 @@ QStringList VideoPlugin::parserKeys() const
     return QStringList() << "video";
 }
 
-MediaParser *VideoPlugin::createParser(const QString &key)
+MediaParser *VideoPlugin::createParser(GlobalSettings *settings, const QString &key)
 {
     if (key == "video")
-        return new VideoParser;
+        return new VideoParser(settings);
     return 0;
 }
 

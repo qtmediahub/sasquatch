@@ -173,7 +173,7 @@ SkinRuntimePrivate::SkinRuntimePrivate(GlobalSettings *s, SkinRuntime *p)
     }
 #endif //GL
 
-    foreach (const QString &resourcePath, LibraryInfo::resourcePaths()) {
+    foreach (const QString &resourcePath, LibraryInfo::resourcePaths(settings)) {
         QString dejavuPath(resourcePath % "/3rdparty/dejavu-fonts-ttf-2.32/ttf/");
         if (QDir(dejavuPath).exists()) {
             qDebug() << "Using the application specified dejavu font";
@@ -267,7 +267,7 @@ QObject *SkinRuntimePrivate::loadQmlSkin(const QUrl &targetUrl, QObject *window)
     declarativeWidget->rootContext()->setContextProperty("runtime", runtime);
 
     const QString mediaPlayer = settings->isEnabled(GlobalSettings::OverlayMode) ? "overlaymode" : "mobility";
-    foreach (const QString &qmlImportPath, LibraryInfo::qmlImportPaths()) {
+    foreach (const QString &qmlImportPath, LibraryInfo::qmlImportPaths(settings)) {
         engine->addImportPath(qmlImportPath);
         engine->addImportPath(qmlImportPath % "/QtMediaHub/components/media/" % mediaPlayer); // ## is this correct?
     }

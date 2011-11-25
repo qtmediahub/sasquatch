@@ -26,17 +26,19 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QString>
 #include "global.h"
 
+class GlobalSettings;
+
 class QMH_EXPORT LibraryInfo
 {
 public:
-    static QStringList translationPaths();
+    static QStringList translationPaths(GlobalSettings *settings);
+    static QStringList resourcePaths(GlobalSettings *settings);
+    static QStringList skinPaths(GlobalSettings *settings);
+    static QStringList applicationPaths(GlobalSettings *settings);
+    static QStringList keyboardMapPaths(GlobalSettings *settings);
+    static QStringList qmlImportPaths(GlobalSettings *settings);
     static QStringList pluginPaths();
-    static QStringList resourcePaths();
-    static QStringList skinPaths();
-    static QStringList applicationPaths();
-    static QStringList keyboardMapPaths();
-    static QStringList qmlImportPaths();
-    static QString thumbnailPath();
+    static QString thumbnailPath(GlobalSettings *settings);
     static QString dataPath();
     static QString tempPath();
     static QString logPath();

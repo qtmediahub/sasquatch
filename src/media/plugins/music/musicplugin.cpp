@@ -22,6 +22,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "musicplugin.h"
 #include "musicparser.h"
+#include "globalsettings.h"
 
 #include <QtGui>
 #include <QtDeclarative>
@@ -31,10 +32,10 @@ QStringList MusicPlugin::parserKeys() const
     return QStringList() << "music";
 }
 
-MediaParser *MusicPlugin::createParser(const QString &key)
+MediaParser *MusicPlugin::createParser(GlobalSettings *settings, const QString &key)
 {
     if (key == "music")
-        return new MusicParser;
+        return new MusicParser(settings);
     return 0;
 }
 

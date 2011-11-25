@@ -36,7 +36,7 @@ public:
     ~VideoPlugin() { }
 
     QStringList parserKeys() const;
-    MediaParser *createParser(const QString &key);
+    MediaParser *createParser(GlobalSettings *settings, const QString &key);
 };
 
 #endif // VIDEOPLUGIN_H

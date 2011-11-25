@@ -29,7 +29,7 @@ class VideoParser : public MediaParser
 {
     Q_OBJECT
 public:
-    VideoParser();
+    VideoParser(GlobalSettings *settings, QObject *parent = 0);
     ~VideoParser() { }
 
     QString type() const { return "video"; }

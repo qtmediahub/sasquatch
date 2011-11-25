@@ -25,9 +25,11 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <QObject>
 #include <QStringList>
+
 #include "global.h"
 
 class MediaParser;
+class GlobalSettings;
 
 class QMH_EXPORT MediaPlugin : public QObject
 {
@@ -38,7 +40,7 @@ public:
     virtual ~MediaPlugin() { }
 
     virtual QStringList parserKeys() const = 0;
-    virtual MediaParser *createParser(const QString &key) = 0;
+    virtual MediaParser *createParser(GlobalSettings *settings, const QString &key) = 0;
 };
 
 Q_DECLARE_INTERFACE(MediaPlugin, "com.qtmediahub.MediaPlugin/1.0")

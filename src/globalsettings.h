@@ -65,10 +65,17 @@ public:
         AvahiHideIPv6,
         AvahiHideLocal,
         ResizeDelay,
+        TranslationsPath,
+        ResourcesPath,
+        AppsPath,
+        ImportsPath,
+        ThumbnailPath,
 
         OptionLength
     };
 
+    // TODO remove singleton hack only used for MediaModel
+    static GlobalSettings *instance();
     GlobalSettings(QObject *parent = 0);
 
     Q_INVOKABLE bool isEnabled(GlobalSettings::Option option) const;
@@ -82,6 +89,7 @@ public:
 
 private:
     QString m_table[GlobalSettings::OptionLength];
+    static GlobalSettings *m_instance;
 };
 
 #endif // GLOBALSETTINGS_H

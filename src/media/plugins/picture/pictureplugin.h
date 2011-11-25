@@ -37,7 +37,7 @@ public:
     ~PicturePlugin() { }
 
     QStringList parserKeys() const;
-    MediaParser *createParser(const QString &key);
+    MediaParser *createParser(GlobalSettings *settings, const QString &key);
 };
 
 #endif // PICTUREPLUGIN_H

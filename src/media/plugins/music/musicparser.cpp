@@ -79,10 +79,10 @@ QString determineAlbum(const TagReader &reader, const QFileInfo &fi)
     return album;
 }
 
-QByteArray determineThumbnail(const TagReader &reader, const QFileInfo &fi)
+QByteArray determineThumbnail(GlobalSettings *settings, const TagReader &reader, const QFileInfo &fi)
 {
     QByteArray md5 = QCryptographicHash::hash("file://" + QFile::encodeName(fi.absoluteFilePath()), QCryptographicHash::Md5).toHex();
-    QFileInfo thumbnailInfo(LibraryInfo::thumbnailPath() + md5 + ".png");
+    QFileInfo thumbnailInfo(LibraryInfo::thumbnailPath(settings) + md5 + ".png");
     if (thumbnailInfo.exists())
         return QUrl::fromLocalFile(thumbnailInfo.absoluteFilePath()).toEncoded();
 
@@ -163,7 +163,7 @@ QList<QSqlRecord> MusicParser::updateMediaInfos(const QList<QFileInfo> &fis, con
         query.bindValue(":year", reader.year());
         query.bindValue(":genre", reader.genre());
         query.bindValue(":comment", reader.comment());
-        query.bindValue(":thumbnail", determineThumbnail(reader, fi));
+        query.bindValue(":thumbnail", determineThumbnail(m_settings, reader, fi));
         query.bindValue(":uri", QUrl::fromLocalFile(fi.absoluteFilePath()).toEncoded());
 
         query.bindValue(":length", reader.length());

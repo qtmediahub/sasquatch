@@ -31,7 +31,9 @@ class RadioParser : public MediaParser
 {
     Q_OBJECT
 public:
-    RadioParser() { }
+    RadioParser(GlobalSettings *settings, QObject *parent = 0) :
+        MediaParser(settings, parent)
+    { }
     ~RadioParser() { }
 
     QString type() const { return "radio"; }

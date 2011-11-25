@@ -29,7 +29,9 @@ class SnesParser : public MediaParser
 {
     Q_OBJECT
 public:
-    SnesParser();
+    SnesParser(GlobalSettings *settings, QObject *parent = 0) :
+        MediaParser(settings, parent)
+    { }
     ~SnesParser() { }
 
     QString type() const { return "snes"; }

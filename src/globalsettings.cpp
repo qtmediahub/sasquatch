@@ -22,6 +22,16 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "globalsettings.h"
 
+GlobalSettings *GlobalSettings::m_instance = 0;
+
+GlobalSettings * GlobalSettings::instance()
+{
+    if (m_instance)
+        new GlobalSettings();
+
+    return m_instance;
+}
+
 GlobalSettings::GlobalSettings(QObject *parent) :
     Settings(parent)
 {
@@ -57,6 +67,13 @@ GlobalSettings::GlobalSettings(QObject *parent) :
     addOptionEntry(GlobalSettings::AvahiHideIPv6,       "true",         "avahiHideIPv6",    "<bool> hide IPv6 addresses");
     addOptionEntry(GlobalSettings::AvahiHideLocal,      "true",         "avahiHideLocal",   "<bool> hide local address");
     addOptionEntry(GlobalSettings::ResizeDelay,         "25",           "resizeDelay",      "<int> wait n milliseconds to do actual resize");
+    addOptionEntry(GlobalSettings::TranslationsPath,    "",             "translationsPath", "<path> adds path to translations search paths");
+    addOptionEntry(GlobalSettings::ResourcesPath,       "",             "resourcesPath",    "<path> adds path to resources search paths");
+    addOptionEntry(GlobalSettings::AppsPath,            "",             "appsPath",         "<path> adds path to apps search paths");
+    addOptionEntry(GlobalSettings::ImportsPath,         "",             "importsPath",      "<path> adds path to qml imports paths");
+    addOptionEntry(GlobalSettings::ThumbnailPath,       "",             "thumbnailPath",      "<path> set path for thumbnail storage");
+
+    m_instance = this;
 }
 
 bool GlobalSettings::isEnabled(GlobalSettings::Option option) const
@@ -90,3 +107,4 @@ void GlobalSettings::addOptionEntry(GlobalSettings::Option option, const QVarian
     m_table[option] = name;
     Settings::addOptionEntry(name, value, doc);
 }
+

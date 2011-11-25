@@ -24,20 +24,30 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "mediascanner.h"
 #include "dbreader.h"
 #include "qmh-config.h"
+#include "skinruntime.h"
 
 #define DEBUG if (0) qDebug() << this << __PRETTY_FUNCTION__
 #define WARNING if (1) qWarning() << this << __PRETTY_FUNCTION__
 
-MediaModel::MediaModel(QObject *parent)
-    : QAbstractItemModel(parent), m_loading(false), m_loaded(false), m_reader(0), m_readerThread(0), m_autoForward(false),
-      m_dotDotPosition(MediaModel::Beginning)
+MediaModel::MediaModel(QObject *parent):
+    QAbstractItemModel(parent),
+    m_loading(false),
+    m_loaded(false),
+    m_reader(0),
+    m_readerThread(0),
+    m_autoForward(false),
+    m_dotDotPosition(MediaModel::Beginning)
 {
     setRoleNames(MediaModel::roleToNameMapping());
+
+    // TODO this is single point for GlobalSettings singleton usage
+    // we know that we have a instance already
+    m_settings = GlobalSettings::instance();
 
     m_refreshTimer.setInterval(Config::value("mediamodel-refresh-interval", 10000));
     connect(&m_refreshTimer, SIGNAL(timeout()), this, SLOT(refresh()));
 
-    MediaScanner *scanner = MediaScanner::instance();
+    MediaScanner *scanner = MediaScanner::instance(m_settings);
     connect(scanner, SIGNAL(scanStarted(QString)), this, SLOT(handleScanStarted(QString)));
     connect(scanner, SIGNAL(scanFinished(QString)), this, SLOT(handleScanFinished(QString)));
     connect(scanner, SIGNAL(searchPathRemoved(QString, QString)), this, SLOT(handleScanFinished(QString)));

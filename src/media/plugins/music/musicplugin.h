@@ -27,6 +27,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "mediaplugin.h"
 
+class GlobalSettings;
+
 class MusicPlugin : public MediaPlugin
 {
     Q_OBJECT
@@ -37,7 +39,7 @@ public:
     ~MusicPlugin() {}
 
     QStringList parserKeys() const;
-    MediaParser *createParser(const QString &key);
+    MediaParser *createParser(GlobalSettings *settings, const QString &key);
 };
 
 #endif // MUSICPLUGIN_H

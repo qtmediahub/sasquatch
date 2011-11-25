@@ -31,7 +31,9 @@ class PictureParser : public MediaParser
 {
     Q_OBJECT
 public:
-    PictureParser() { }
+    PictureParser(GlobalSettings *settings, QObject *parent = 0) :
+        MediaParser(settings, parent)
+    { }
     ~PictureParser() { }
 
     QString type() const { return "picture"; }

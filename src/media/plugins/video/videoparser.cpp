@@ -30,7 +30,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #define DEBUG if (0) qDebug() << __PRETTY_FUNCTION__
 
 
-VideoParser::VideoParser()
+VideoParser::VideoParser(GlobalSettings *settings, QObject *parent) :
+    MediaParser(settings, parent)
 {
     m_supportedTypes << "avi"
                      << "ogg"
@@ -150,13 +151,13 @@ static QImage generateThumbnailGstreamer(const QFileInfo &fileInfo)
 }
 #endif
 
-static QByteArray generateThumbnail(const QFileInfo &fileInfo)
+static QByteArray generateThumbnail(GlobalSettings *settings, const QFileInfo &fileInfo)
 {
     if (!Config::isEnabled("video-thumbnails", true))
         return QByteArray();
 
     QByteArray md5 = QCryptographicHash::hash("file://" + QFile::encodeName(fileInfo.absoluteFilePath()), QCryptographicHash::Md5).toHex();
-    QFileInfo thumbnailInfo(LibraryInfo::thumbnailPath() + md5 + ".png");
+    QFileInfo thumbnailInfo(LibraryInfo::thumbnailPath(settings) + md5 + ".png");
     if (thumbnailInfo.exists())
         return QUrl::fromLocalFile(thumbnailInfo.absoluteFilePath()).toEncoded();
 
@@ -234,7 +235,7 @@ QList<QSqlRecord> VideoParser::updateMediaInfos(const QList<QFileInfo> &fis, con
 
         query.bindValue(":filepath", fi.absoluteFilePath());
         query.bindValue(":title", determineTitle(fi));
-        query.bindValue(":thumbnail", generateThumbnail(fi));
+        query.bindValue(":thumbnail", generateThumbnail(m_settings, fi));
         query.bindValue(":uri", QUrl::fromLocalFile(fi.absoluteFilePath()).toEncoded());
 
         query.bindValue(":directory", fi.absolutePath() + '/');

@@ -112,7 +112,7 @@ void ActionMapper::processKey(qlonglong key)
 void ActionMapper::populateMap()
 {
     m_actionMap.clear();
-    foreach (const QString &keyboardMapPath, LibraryInfo::keyboardMapPaths()) {
+    foreach (const QString &keyboardMapPath, LibraryInfo::keyboardMapPaths(m_settings)) {
         if (QFile::exists(keyboardMapPath + "/" + m_mapName)
             && loadMapFromDisk(keyboardMapPath + m_mapName)) {
             qDebug() << "Using key map:" << keyboardMapPath + m_mapName;
@@ -164,7 +164,7 @@ bool ActionMapper::loadMapFromDisk(const QString &mapFilePath)
 QStringList ActionMapper::availableMaps() const
 {
     QStringList maps;
-    foreach (const QString &keyboardMapPath, LibraryInfo::keyboardMapPaths()) {
+    foreach (const QString &keyboardMapPath, LibraryInfo::keyboardMapPaths(m_settings)) {
         foreach (const QString &keymap, QDir(keyboardMapPath).entryList(QDir::Files)) {
             if (maps.contains(keymap)) {
                 continue;
