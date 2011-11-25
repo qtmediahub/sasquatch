@@ -138,6 +138,12 @@ const QVariant Settings::checkSpecialArgumentTypes(const QString &argument)
         return QRect(0, 0, stringList[0].toInt(), stringList[1].toInt());
     }
 
+    // handle bool
+    if (argument.compare("false", Qt::CaseInsensitive))
+        return false;
+    if (argument.compare("true", Qt::CaseInsensitive))
+        return true;
+
     return argument;
 }
 
