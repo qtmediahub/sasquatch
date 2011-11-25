@@ -43,7 +43,7 @@ public:
 
     void addOptionEntry(const QString &name, const QVariant &value, const QString &doc);
     void loadConfigFile(const QString &fileName = "");
-    void parseArguments(const QStringList &arguments, const QString &prefix = QString());
+    void parseArguments(const QStringList &arguments);
 
 private:
     const QVariant valueFromCommandLine(const QString &key, const QStringList &arguments);

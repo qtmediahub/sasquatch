@@ -170,7 +170,7 @@ bool Skin::parseManifest()
     }
     const QString configFilePath = QFileInfo(QSettings().fileName()).absolutePath() + QLatin1String("/") + name() + QLatin1String(".ini");
     m_settings->loadConfigFile(configFilePath);
-    m_settings->parseArguments(qApp->arguments(), name());
+    m_settings->parseArguments(qApp->arguments());
 
     return true;
 }

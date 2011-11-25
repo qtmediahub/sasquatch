@@ -84,7 +84,7 @@ void Settings::loadConfigFile(const QString &fileName)
     }
 }
 
-void Settings::parseArguments(const QStringList &arguments, const QString &prefix)
+void Settings::parseArguments(const QStringList &arguments)
 {
     if (keys().isEmpty()) {
         return;
@@ -139,10 +139,10 @@ const QVariant Settings::checkSpecialArgumentTypes(const QString &argument)
     }
 
     // handle bool
-    if (argument.compare("false", Qt::CaseInsensitive))
-        return false;
-    if (argument.compare("true", Qt::CaseInsensitive))
-        return true;
+    if (argument.compare("false", Qt::CaseInsensitive) == 0)
+        return QVariant(false);
+    if (argument.compare("true", Qt::CaseInsensitive) == 0)
+        return QVariant(true);
 
     return argument;
 }
