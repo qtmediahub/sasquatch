@@ -82,7 +82,7 @@ void SkinManager::discoverSkins()
         QStringList sl;
         foreach(Skin *skin, m_skins)
             sl.append(skin->name());
-        qDebug() << "Available m_skins:" << sl.join(",");
+        qDebug() << "Available skins:" << sl.join(",");
     }
 }
 

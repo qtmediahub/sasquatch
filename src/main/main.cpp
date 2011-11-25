@@ -108,6 +108,8 @@ int main(int argc, char** argv)
                    qPrintable(settings->value((GlobalSettings::Option)i).toString()));
         }
 
+        printf("\n");
+
         // try to print skin specific settings
         settings->parseArguments(app.arguments());
 
@@ -128,6 +130,8 @@ int main(int argc, char** argv)
                        qPrintable(skinSettings->value(key).toString()));
             }
         }
+
+        printf("\n");
 
         return 0;
     }
