@@ -154,9 +154,6 @@ static QImage generateThumbnailGstreamer(GlobalSettings *settings, const QFileIn
 
 static QByteArray generateThumbnail(GlobalSettings *settings, const QFileInfo &fileInfo)
 {
-    if (!Config::isEnabled("video-thumbnails", true))
-        return QByteArray();
-
     QByteArray md5 = QCryptographicHash::hash("file://" + QFile::encodeName(fileInfo.absoluteFilePath()), QCryptographicHash::Md5).toHex();
     QFileInfo thumbnailInfo(LibraryInfo::thumbnailPath(settings) + md5 + ".png");
     if (thumbnailInfo.exists())
