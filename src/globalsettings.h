@@ -71,6 +71,7 @@ public:
         ImportsPath,
         ThumbnailPath,
         ThumbnailSize,
+        MediaRefreshInterval,
 
         OptionLength
     };

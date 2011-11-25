@@ -26,6 +26,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QtGui>
 #include <QtSql>
 #include "scopedtransaction.h"
+#include "globalsettings.h"
 
 #define DEBUG if (0) qDebug() << __PRETTY_FUNCTION__
 

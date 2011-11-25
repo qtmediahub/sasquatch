@@ -73,6 +73,7 @@ GlobalSettings::GlobalSettings(QObject *parent) :
     addOptionEntry(GlobalSettings::ImportsPath,         "",             "importsPath",      "<path> adds path to qml imports paths");
     addOptionEntry(GlobalSettings::ThumbnailPath,       "",             "thumbnailPath",    "<path> set path for thumbnail storage");
     addOptionEntry(GlobalSettings::ThumbnailSize,       "256",          "thumbnailSize",    "<int> edge size for thumbnails");
+    addOptionEntry(GlobalSettings::MediaRefreshInterval,"1000",         "mediaRefreshInterval","<int> media model refresh interval");
 
     m_instance = this;
 }

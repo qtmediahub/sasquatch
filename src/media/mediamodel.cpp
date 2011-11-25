@@ -44,7 +44,7 @@ MediaModel::MediaModel(QObject *parent):
     // we know that we have a instance already
     m_settings = GlobalSettings::instance();
 
-    m_refreshTimer.setInterval(Config::value("mediamodel-refresh-interval", 10000));
+    m_refreshTimer.setInterval(m_settings->value(GlobalSettings::MediaRefreshInterval).toInt());
     connect(&m_refreshTimer, SIGNAL(timeout()), this, SLOT(refresh()));
 
     MediaScanner *scanner = MediaScanner::instance(m_settings);
