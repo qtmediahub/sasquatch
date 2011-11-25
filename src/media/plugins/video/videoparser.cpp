@@ -62,7 +62,7 @@ bool VideoParser::canRead(const QFileInfo &info) const
 
 #define CAPS "video/x-raw-rgb,pixel-aspect-ratio=1/1,bpp=(int)24,depth=(int)24,endianness=(int)4321,red_mask=(int)0xff0000, green_mask=(int)0x00ff00, blue_mask=(int)0x0000ff"
 
-static QImage generateThumbnailGstreamer(const QFileInfo &fileInfo)
+static QImage generateThumbnailGstreamer(GlobalSettings *settings, const QFileInfo &fileInfo)
 {
     GstElement *pipeline, *sink;
     gint width, height;
@@ -142,7 +142,7 @@ static QImage generateThumbnailGstreamer(const QFileInfo &fileInfo)
         gst_element_set_state (pipeline, GST_STATE_NULL);
         gst_object_unref (pipeline);
 
-        const int previewWidth = Config::value("thumbnail-size", "256").toInt();
+        const int previewWidth = settings->value(GlobalSettings::ThumbnailSize).toInt();
         return image.width() <= previewWidth ? image: image.scaledToWidth(previewWidth, Qt::SmoothTransformation);
     } else {
         qDebug() << "could not make snapshot";
@@ -162,7 +162,7 @@ static QByteArray generateThumbnail(GlobalSettings *settings, const QFileInfo &f
         return QUrl::fromLocalFile(thumbnailInfo.absoluteFilePath()).toEncoded();
 
 #ifdef THUMBNAIL_GSTREAMER
-    QImage image = generateThumbnailGstreamer(fileInfo);
+    QImage image = generateThumbnailGstreamer(settings, fileInfo);
     if (image.isNull())
         return QByteArray();
 

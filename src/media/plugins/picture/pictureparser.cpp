@@ -25,6 +25,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "scopedtransaction.h"
 #include "qmh-config.h"
 #include "libraryinfo.h"
+#include "globalsettings.h"
 
 #include <QtSql>
 #include <QImageReader>
@@ -57,7 +58,7 @@ static QByteArray determineThumbnail(GlobalSettings *settings, const ExifReader 
     if (thumbnailInfo.exists())
         return QUrl::fromLocalFile(thumbnailInfo.absoluteFilePath()).toEncoded();
 
-    const int previewWidth = Config::value("thumbnail-size", "256").toInt();
+    const int previewWidth = settings->value(GlobalSettings::ThumbnailSize).toInt();
 
     QImageReader imageReader(info.absoluteFilePath());
     QImage image = imageReader.read();

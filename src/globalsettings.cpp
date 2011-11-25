@@ -71,7 +71,8 @@ GlobalSettings::GlobalSettings(QObject *parent) :
     addOptionEntry(GlobalSettings::ResourcesPath,       "",             "resourcesPath",    "<path> adds path to resources search paths");
     addOptionEntry(GlobalSettings::AppsPath,            "",             "appsPath",         "<path> adds path to apps search paths");
     addOptionEntry(GlobalSettings::ImportsPath,         "",             "importsPath",      "<path> adds path to qml imports paths");
-    addOptionEntry(GlobalSettings::ThumbnailPath,       "",             "thumbnailPath",      "<path> set path for thumbnail storage");
+    addOptionEntry(GlobalSettings::ThumbnailPath,       "",             "thumbnailPath",    "<path> set path for thumbnail storage");
+    addOptionEntry(GlobalSettings::ThumbnailSize,       "256",          "thumbnailSize",    "<int> edge size for thumbnails");
 
     m_instance = this;
 }

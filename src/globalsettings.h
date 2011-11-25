@@ -70,6 +70,7 @@ public:
         AppsPath,
         ImportsPath,
         ThumbnailPath,
+        ThumbnailSize,
 
         OptionLength
     };
