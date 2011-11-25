@@ -38,7 +38,6 @@ public:
     explicit File(QObject *parent = 0);
 
     Q_INVOKABLE QStringList readAllLines(const QString &filename);
-    Q_INVOKABLE QStringList findApplications() const;
     Q_INVOKABLE QStringList findFiles(const QString &dir, const QStringList &nameFilters);
 };
 
