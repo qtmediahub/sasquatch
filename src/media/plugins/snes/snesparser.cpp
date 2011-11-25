@@ -23,15 +23,17 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "snesparser.h"
 #include "qmh-config.h"
 #include "libraryinfo.h"
+#include "scopedtransaction.h"
+#include "globalsettings.h"
+
 #include <QtGui>
 #include <QtSql>
-#include "scopedtransaction.h"
 
 #define DEBUG if (0) qDebug() << __PRETTY_FUNCTION__
 
 SnesParser::SnesParser()
 {
-    QStringList additionalExtensions = Config::value("additional-snes-extensions", QString()).split(",", QString::SkipEmptyParts);
+    QStringList additionalExtensions = m_settings->value(GlobalSettings::ExtraSNESExtensions).toString().split(",", QString::SkipEmptyParts);
 
     m_supportedTypes << "smc";
 

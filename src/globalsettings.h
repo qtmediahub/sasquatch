@@ -74,6 +74,8 @@ public:
         MediaRefreshInterval,
         RemoteOverride,
         ScanDelay,
+        ExtraSNESExtensions,
+        ExtraVideoExtensions,
 
         OptionLength
     };

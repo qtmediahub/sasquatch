@@ -45,7 +45,7 @@ VideoParser::VideoParser(GlobalSettings *settings, QObject *parent) :
                      << "mkv"
                      << "ts";
 
-    QStringList additionalExtensions = Config::value("additional-video-extensions", QString()).split(",", QString::SkipEmptyParts);
+    QStringList additionalExtensions = m_settings->value(GlobalSettings::ExtraVideoExtensions).toString().split(",", QString::SkipEmptyParts);
 
     if (!additionalExtensions.isEmpty()) {
         m_supportedTypes << additionalExtensions;

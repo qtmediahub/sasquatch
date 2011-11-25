@@ -76,6 +76,8 @@ GlobalSettings::GlobalSettings(QObject *parent) :
     addOptionEntry(GlobalSettings::MediaRefreshInterval,"1000",         "mediaRefreshInterval","<int> media model refresh interval");
     addOptionEntry(GlobalSettings::RemoteOverride,      "false",        "remoteOverride",   "<bool> force to run as remote control");
     addOptionEntry(GlobalSettings::ScanDelay,           "0",            "scanDelay",        "<int> delay scanner for n ms to keep user interface responsive");
+    addOptionEntry(GlobalSettings::ExtraSNESExtensions, "",             "extraSNESExtensions","<stringlist> comma separated list of additional SNES file extensions");
+    addOptionEntry(GlobalSettings::ExtraVideoExtensions,"",             "extraVideoExtensions","<stringlist> comma separated list of additional video file extensions");
 
     m_instance = this;
 }
