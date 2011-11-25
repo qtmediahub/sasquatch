@@ -73,6 +73,7 @@ public:
         ThumbnailSize,
         MediaRefreshInterval,
         RemoteOverride,
+        ScanDelay,
 
         OptionLength
     };

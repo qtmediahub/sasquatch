@@ -54,7 +54,7 @@ class MediaScannerWorker : public QObject
 {
     Q_OBJECT
 public:
-    MediaScannerWorker(MediaScanner *scanner);
+    MediaScannerWorker(GlobalSettings *settings, MediaScanner *scanner);
     ~MediaScannerWorker();
 
 public slots:
@@ -75,6 +75,7 @@ private:
     QSqlDatabase m_db;
     QHash<QString, MediaParser *> m_parsers;
     volatile bool m_stop;
+    GlobalSettings *m_settings;
 };
 
 Q_DECLARE_METATYPE(QSqlDatabase) // ## may not be the best place...
@@ -89,7 +90,7 @@ MediaScanner::MediaScanner(GlobalSettings *settings, QObject *parent) :
 
     m_workerThread = new QThread(this);
     m_workerThread->start();
-    m_worker = new MediaScannerWorker(this);
+    m_worker = new MediaScannerWorker(settings, this);
     connect(m_workerThread, SIGNAL(finished()), m_worker, SLOT(deleteLater()));
     connect(m_worker, SIGNAL(scanPathChanged(QString)), this, SLOT(handleScanPathChanged(QString)));
     m_worker->moveToThread(m_workerThread);
@@ -220,8 +221,10 @@ QStringList MediaScanner::availableParserPlugins() const
     return m_parserTypes;
 }
 
-MediaScannerWorker::MediaScannerWorker(MediaScanner *scanner)
-    : m_scanner(scanner), m_stop(false)
+MediaScannerWorker::MediaScannerWorker(GlobalSettings *settings, MediaScanner *scanner) :
+    m_scanner(scanner),
+    m_stop(false),
+    m_settings(settings)
 {
 }
 
@@ -347,7 +350,7 @@ void MediaScannerWorker::scan(MediaParser *parser, const QString &searchPath)
         }
 
         if (!m_stop) {
-            usleep(Config::value("scan-delay", 0)); // option to slow things down, because otherwise the disk gets thrashed and the ui becomes laggy
+            usleep(m_settings->value(GlobalSettings::ScanDelay).toInt());
         }
     }
 
