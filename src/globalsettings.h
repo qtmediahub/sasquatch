@@ -72,6 +72,7 @@ public:
         ThumbnailPath,
         ThumbnailSize,
         MediaRefreshInterval,
+        RemoteOverride,
 
         OptionLength
     };

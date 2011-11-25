@@ -307,7 +307,7 @@ QObject *SkinRuntime::create(Skin *skin, QObject *window)
         return 0;
 
     d->currentSkin = skin;
-    d->enableRemoteControlMode(skin->isRemoteControl() || Config::isEnabled("remote-override", false));
+    d->enableRemoteControlMode(skin->isRemoteControl() || d->settings->isEnabled(GlobalSettings::RemoteOverride));
     return d->loadQmlSkin(url, window);
 }
 

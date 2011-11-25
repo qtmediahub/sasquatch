@@ -74,6 +74,7 @@ GlobalSettings::GlobalSettings(QObject *parent) :
     addOptionEntry(GlobalSettings::ThumbnailPath,       "",             "thumbnailPath",    "<path> set path for thumbnail storage");
     addOptionEntry(GlobalSettings::ThumbnailSize,       "256",          "thumbnailSize",    "<int> edge size for thumbnails");
     addOptionEntry(GlobalSettings::MediaRefreshInterval,"1000",         "mediaRefreshInterval","<int> media model refresh interval");
+    addOptionEntry(GlobalSettings::RemoteOverride,      "false",        "remoteOverride",   "<bool> force to run as remote control");
 
     m_instance = this;
 }
