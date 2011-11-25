@@ -21,7 +21,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 ****************************************************************************/
 
 #include "mediaserver.h"
-#include "qmh-config.h"
 #include "media/mediascanner.h"
 #include "httpserver/httpserver.h"
 

@@ -12,7 +12,7 @@ QMAKE_CXXFLAGS += -fvisibility=hidden  -fvisibility-inlines-hidden
 DEFINES += BUILDING_QMH
 
 # Input
-SOURCES += qmh-config.cpp \
+SOURCES += \
     skinruntime.cpp \
     mediaserver.cpp \
     actionmapper.cpp \
@@ -35,7 +35,7 @@ SOURCES += qmh-config.cpp \
     globalsettings.cpp \
     appsmanager.cpp
 
-HEADERS += qmh-config.h \
+HEADERS += \
     global.h \
     skinruntime.h \
     mediaserver.h \

@@ -23,7 +23,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "pictureparser.h"
 #include "exifreader.h"
 #include "scopedtransaction.h"
-#include "qmh-config.h"
 #include "libraryinfo.h"
 #include "globalsettings.h"
 

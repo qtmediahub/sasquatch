@@ -21,7 +21,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 ****************************************************************************/
 
 #include "snesparser.h"
-#include "qmh-config.h"
 #include "libraryinfo.h"
 #include "scopedtransaction.h"
 #include "globalsettings.h"

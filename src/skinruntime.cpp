@@ -55,7 +55,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QGLWidget>
 #endif
 
-#include "qmh-config.h"
 #include "dirmodel.h"
 #include "media/playlist.h"
 #include "file.h"
@@ -255,7 +254,6 @@ QObject *SkinRuntimePrivate::loadQmlSkin(const QUrl &targetUrl, QObject *window)
         runtime->insert("powerManager", qVariantFromValue(static_cast<QObject *>(powerManager)));
     }
     runtime->insert("settings", qVariantFromValue(static_cast<QObject *>(settings)));
-    runtime->insert("config", qVariantFromValue(static_cast<QObject *>(Config::instance())));
     runtime->insert("window", qVariantFromValue(static_cast<QObject *>(window)));
     runtime->insert("view", qVariantFromValue(static_cast<QObject *>(declarativeWidget)));
     runtime->insert("cursor", qVariantFromValue(static_cast<QObject *>(new CustomCursor(settings, declarativeWidget))));

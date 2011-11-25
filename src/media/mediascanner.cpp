@@ -21,14 +21,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 ****************************************************************************/
 
 #include "mediascanner.h"
-#include <QtSql>
 #include "scopedtransaction.h"
 #include "mediaparser.h"
-#include "qmh-config.h"
 #include "libraryinfo.h"
 #include "mediaplugin.h"
 #include "mediamodel.h"
 #include "globalsettings.h"
+
+#include <QtSql>
 
 #define DEBUG if (0) qDebug() << __PRETTY_FUNCTION__
 #define WARNING qWarning() << __PRETTY_FUNCTION__

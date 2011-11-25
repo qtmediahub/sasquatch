@@ -23,7 +23,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "mediamodel.h"
 #include "mediascanner.h"
 #include "dbreader.h"
-#include "qmh-config.h"
 #include "skinruntime.h"
 
 #define DEBUG if (0) qDebug() << this << __PRETTY_FUNCTION__

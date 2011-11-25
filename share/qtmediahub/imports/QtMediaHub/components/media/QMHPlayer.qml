@@ -148,8 +148,8 @@ Item {
     MediaPlayer {
         id: mediaPlayer
 
-        volume: runtime.config.value("media-volume", 0.5)
-        onVolumeChanged: runtime.config.setValue("media-volume", volume)
+        // TODO check if we override this binding
+        volume: runtime.skin.settings.volume
     }
 
     // RPC requests

@@ -21,14 +21,13 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 ****************************************************************************/
 
 #include "mainwindow.h"
-#include "qmh-config.h"
 #include "skinmanager.h"
 #include "skinselector.h"
 #include "skinruntime.h"
 #include "globalsettings.h"
 
-#include <QGraphicsView>
-#include <QShortcut>
+#include <QtCore>
+#include <QtGui>
 
 #ifdef SCENEGRAPH
 #include <QQuickView>

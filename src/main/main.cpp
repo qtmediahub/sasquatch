@@ -22,7 +22,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "mainwindow.h"
 #include "mediaserver.h"
-#include "qmh-config.h"
 #include "globalsettings.h"
 #include "skin.h"
 #include "skinmanager.h"
@@ -146,8 +145,6 @@ int main(int argc, char** argv)
         return false;
     }
 #endif
-
-    Config::init(argc, argv);
 
     MainWindow *mainWindow = 0;
     MediaServer *mediaServer = 0;
