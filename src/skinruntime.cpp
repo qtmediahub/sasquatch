@@ -73,6 +73,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "rpc/mediaplayerrpc.h"
 #include "abstractmediaplayer.h"
 #include "globalsettings.h"
+#include "appsmanager.h"
 
 #ifdef MEDIAPLAYER_DBUS
 #include "mediaplayerdbus.h"
@@ -259,6 +260,7 @@ QObject *SkinRuntimePrivate::loadQmlSkin(const QUrl &targetUrl, QObject *window)
     runtime->insert("view", qVariantFromValue(static_cast<QObject *>(declarativeWidget)));
     runtime->insert("cursor", qVariantFromValue(static_cast<QObject *>(new CustomCursor(settings, declarativeWidget))));
     runtime->insert("skin", qVariantFromValue(static_cast<QObject *>(currentSkin)));
+    runtime->insert("apps", qVariantFromValue(static_cast<QObject *>(new AppsManager(settings, this))));
     runtime->insert("file", qVariantFromValue(static_cast<QObject *>(new File(this))));
     runtime->insert("remoteSessionsModel", qVariantFromValue(static_cast<QObject *>(remoteSessionsModel)));
 

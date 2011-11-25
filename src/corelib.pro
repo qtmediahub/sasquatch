@@ -32,7 +32,8 @@ SOURCES += qmh-config.cpp \
     skinmanager.cpp \
     inputcontext.cpp \
     settings.cpp \
-    globalsettings.cpp
+    globalsettings.cpp \
+    appsmanager.cpp
 
 HEADERS += qmh-config.h \
     global.h \
@@ -59,7 +60,8 @@ HEADERS += qmh-config.h \
     inputcontext.h \
     mediaplayerdummy.h \
     settings.h \
-    globalsettings.h
+    globalsettings.h \
+    appsmanager.h
 
 qt5 {
     SOURCES += \
@@ -106,6 +108,8 @@ contains(QT_CONFIG, dbus) {
 
 target.path = $${PREFIX}/lib/
 INSTALLS += target
+
+
 
 
 

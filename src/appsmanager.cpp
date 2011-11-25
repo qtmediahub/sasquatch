@@ -20,45 +20,31 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 ****************************************************************************/
 
-#include "file.h"
-#include <QtCore>
+#include "appsmanager.h"
 
-File::File(QObject *parent)
-    : QObject(parent)
+#include "libraryinfo.h"
+#include "globalsettings.h"
+
+#include <QDir>
+
+AppsManager::AppsManager(GlobalSettings *settings, QObject *parent) :
+    QObject(parent),
+    m_settings(settings)
 {
 }
 
-QStringList File::readAllLines(const QString &filename)
+QStringList AppsManager::findApplications() const
 {
-    QFile file(filename);
-    file.open(QIODevice::ReadOnly | QIODevice::Text);
-    QTextStream textContent(&file);
-    QStringList lines;
-    int emptyLineCount = 0;
-    while(!(file.isSequential() && textContent.atEnd())
-          && (emptyLineCount < 5))
-    {
-        QString currentLine = textContent.readLine();
-        if(currentLine.isEmpty())
-            emptyLineCount++;
-        else
-            emptyLineCount = 0;
-        lines << currentLine;
+    QStringList apps;
+    foreach(const QString &appSearchPath, LibraryInfo::applicationPaths(m_settings)) {
+        QStringList subdirs = QDir(appSearchPath).entryList(QDir::AllDirs | QDir::NoDotAndDotDot);
+        foreach(const QString &subdir, subdirs)  {
+            QString appPath(appSearchPath + '/' + subdir + '/');
+            QString fileName(appPath + "qmhmanifest.qml"); // look for apps/x/qmhmanifest.qml
+            QFile prospectiveFile(fileName);
+            if (prospectiveFile.exists())
+                apps << (QDir(appPath).absolutePath() + '/');
+        }
     }
-    //Trim, especially important for virtual files
-    for(int i = 0; i < emptyLineCount; i++)
-        lines.removeLast();
-
-    return lines;
+    return apps;
 }
-
-QStringList File::findFiles(const QString &dir, const QStringList &nameFilters)
-{
-    QStringList result;
-    QDirIterator it(dir, nameFilters, QDir::Files, QDirIterator::Subdirectories);
-    while (it.hasNext()) {
-        result << it.next();
-   }
-   return result;
-}
-

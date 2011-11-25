@@ -20,45 +20,23 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 ****************************************************************************/
 
-#include "file.h"
-#include <QtCore>
+#ifndef APPSMANAGER_H
+#define APPSMANAGER_H
 
-File::File(QObject *parent)
-    : QObject(parent)
+#include <QObject>
+#include <QStringList>
+
+class GlobalSettings;
+
+class AppsManager : public QObject
 {
-}
+    Q_OBJECT
+public:
+    explicit AppsManager(GlobalSettings *settings, QObject *parent = 0);
+    Q_INVOKABLE QStringList findApplications() const;
 
-QStringList File::readAllLines(const QString &filename)
-{
-    QFile file(filename);
-    file.open(QIODevice::ReadOnly | QIODevice::Text);
-    QTextStream textContent(&file);
-    QStringList lines;
-    int emptyLineCount = 0;
-    while(!(file.isSequential() && textContent.atEnd())
-          && (emptyLineCount < 5))
-    {
-        QString currentLine = textContent.readLine();
-        if(currentLine.isEmpty())
-            emptyLineCount++;
-        else
-            emptyLineCount = 0;
-        lines << currentLine;
-    }
-    //Trim, especially important for virtual files
-    for(int i = 0; i < emptyLineCount; i++)
-        lines.removeLast();
+private:
+    GlobalSettings *m_settings;
+};
 
-    return lines;
-}
-
-QStringList File::findFiles(const QString &dir, const QStringList &nameFilters)
-{
-    QStringList result;
-    QDirIterator it(dir, nameFilters, QDir::Files, QDirIterator::Subdirectories);
-    while (it.hasNext()) {
-        result << it.next();
-   }
-   return result;
-}
-
+#endif // APPSMANAGER_H
