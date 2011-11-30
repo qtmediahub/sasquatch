@@ -5,7 +5,7 @@ scriptPath=$(cd ${0%/*} && pwd -P)
 HUB_RELATIVE_PATH=$scriptPath/../lib
 if [ `uname` = "Darwin" ]; then
     export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$HUB_RELATIVE_PATH
-    $scriptPath/qtmediahub.app/Contents/MacOS/qtmediahub $@
+    $scriptPath/../qtmediahub.app/Contents/MacOS/qtmediahub $@
 else
     export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HUB_RELATIVE_PATH
     $scriptPath/qtmediahub $@
