@@ -27,7 +27,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 class Device;
 
-#ifndef QT_NO_DBUS
+#ifndef NO_DBUS
 class DeviceManagerDBus;
 #endif
 
@@ -45,7 +45,7 @@ signals:
     void deviceRemoved(QString device);
 
 private:
-#ifndef QT_NO_DBUS
+#ifndef NO_DBUS
     DeviceManagerDBus *m_helper;
 #endif
 };

@@ -25,7 +25,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <QObject>
 
-#ifndef QT_NO_DBUS
+#ifndef NO_DBUS
 
 #include <QDBusAbstractInterface>
 #include <QDBusPendingReply>
@@ -173,7 +173,7 @@ private:
     bool m_isPartition;
     QString m_mountPoint;
 
-#ifndef QT_NO_DBUS
+#ifndef NO_DBUS
     UDisksDeviceInterface *m_deviceInterface;
 #endif
 };

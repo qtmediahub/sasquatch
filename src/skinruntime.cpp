@@ -180,7 +180,11 @@ SkinRuntimePrivate::SkinRuntimePrivate(GlobalSettings *s, SkinRuntime *p)
             QFontDatabase::addApplicationFont(dejavuPath % "DejaVuSans-Bold.ttf");
             QFontDatabase::addApplicationFont(dejavuPath % "DejaVuSans-Oblique.ttf");
             QFontDatabase::addApplicationFont(dejavuPath % "DejaVuSans-BoldOblique.ttf");
+#ifdef SCENEGRAPH
+            QGuiApplication::setFont(QFont("DejaVu Sans"));
+#else
             QApplication::setFont(QFont("DejaVu Sans"));
+#endif
             break;
         }
     }

@@ -3,8 +3,7 @@
 
 qt5 {
     DEFINES += SCENEGRAPH
-    QT += v8 network sql declarative
-    #widgets
+    QT += v8 network sql declarative widgets #QDirModel from widgets!
     #Until we guard linkage of avahi-qt4
     CONFIG += meegoesque
 } else {
