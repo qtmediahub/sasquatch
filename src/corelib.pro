@@ -78,7 +78,7 @@ vlc {
     HEADERS += mediaplayervlc.h
     SOURCES += mediaplayervlc.cpp
     LIBS += -lvlc
-} else:contains(QT_CONFIG, dbus) {
+} else:!no-dbus {
     DEFINES += MEDIAPLAYER_DBUS
     HEADERS += mediaplayerdbus.h
 }
@@ -100,7 +100,7 @@ avahi {
     HEADERS += staticservicebrowsermodel.h
 }
 
-contains(QT_CONFIG, dbus) {
+!no-dbus {
     QT += dbus
     SOURCES += devicemanagerdbus.cpp
     HEADERS += devicemanagerdbus.h
