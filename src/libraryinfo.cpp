@@ -34,7 +34,7 @@ static QStringList standardResourcePaths(GlobalSettings *settings, const GlobalS
 {
     static const QString platformBinOffset
         #ifdef Q_OS_MAC
-            = "/../../../";
+            = settings->value(GlobalSettings::Installed).toBool() ? "/../Resources/" : "/../../../";
         #else
             = "";
         #endif
@@ -92,13 +92,20 @@ QStringList LibraryInfo::qmlImportPaths(GlobalSettings *settings)
     return standardResourcePaths(settings, GlobalSettings::ImportsPath, "imports");
 }
 
-QStringList LibraryInfo::pluginPaths()
+QStringList LibraryInfo::pluginPaths(GlobalSettings *settings)
 {
     QStringList ret;
-
-    ret << QMH_PROJECTROOT % QString::fromLatin1("/lib/qtmediahub/");
-    ret << QMH_PREFIX % QString::fromLatin1("/lib/qtmediahub/");
-
+    if (settings->value(GlobalSettings::Installed).toBool())
+    {
+#ifdef Q_OS_MAC
+        ret << QCoreApplication::applicationDirPath() % QString::fromLatin1("../Resources/qtmediahub");
+#else
+        ret << QMH_PREFIX % QString::fromLatin1("/lib/qtmediahub/");
+#endif
+    } else {
+        ret << QMH_PROJECTROOT % QString::fromLatin1("/lib/qtmediahub/");
+    }
+    ret << QDir::homePath() % QString::fromLatin1("/.qtmediahub/lib");
     return ret;
 }
 

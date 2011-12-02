@@ -37,7 +37,7 @@ public:
     static QStringList applicationPaths(GlobalSettings *settings);
     static QStringList keyboardMapPaths(GlobalSettings *settings);
     static QStringList qmlImportPaths(GlobalSettings *settings);
-    static QStringList pluginPaths();
+    static QStringList pluginPaths(GlobalSettings *settings);
     static QString thumbnailPath(GlobalSettings *settings);
     static QString dataPath();
     static QString tempPath();

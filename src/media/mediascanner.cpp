@@ -185,7 +185,7 @@ void MediaScanner::loadParserPlugins()
     MediaModel::createStaticRoleNameMapping();
 
     QStringList loaded;
-    foreach (const QString &pluginPath, LibraryInfo::pluginPaths()) {
+    foreach (const QString &pluginPath, LibraryInfo::pluginPaths(m_settings)) {
         foreach (const QString &fileName, QDir(pluginPath).entryList(QDir::Files)) {
             QString absoluteFilePath(pluginPath % "/" % fileName);
             if (loaded.contains(fileName)) {

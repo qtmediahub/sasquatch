@@ -76,6 +76,7 @@ public:
         ScanDelay,
         ExtraSNESExtensions,
         ExtraVideoExtensions,
+        Installed,
 
         OptionLength
     };
