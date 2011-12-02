@@ -78,7 +78,7 @@ GlobalSettings::GlobalSettings(QObject *parent) :
     addOptionEntry(GlobalSettings::ScanDelay,           "0",            "scanDelay",        "<int> delay scanner for n ms to keep user interface responsive");
     addOptionEntry(GlobalSettings::ExtraSNESExtensions, "",             "extraSNESExtensions","<stringlist> comma separated list of additional SNES file extensions");
     addOptionEntry(GlobalSettings::ExtraVideoExtensions,"",             "extraVideoExtensions","<stringlist> comma separated list of additional video file extensions");
-    addOptionEntry(GlobalSettings::Installed,           "true",         "installed","<bool> assume installed to correct prefix");
+    addOptionEntry(GlobalSettings::Installed,           "false",         "installed","<bool> assume installed to correct prefix");
 
     m_instance = this;
 }
