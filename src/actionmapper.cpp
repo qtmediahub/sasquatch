@@ -183,14 +183,17 @@ void ActionMapper::setMap(const QString &map)
 
 void ActionMapper::setRecipient(QObject *recipient)
 {
-    recipient->installEventFilter(this);
     QGraphicsView *potentialView = qobject_cast<QGraphicsView*>(recipient);
     if (potentialView) {
+        recipient->installEventFilter(this);
         // directly send to the scene, to avoid loops
         m_recipient = QWeakPointer<QObject>(potentialView->scene());
     } else {
-        m_recipient = QWeakPointer<QObject>(recipient);
+        qDebug() << "Deviation from original filtering";
     }
+    //else {
+    //    m_recipient = QWeakPointer<QObject>(recipient);
+    //}
 }
 
 bool ActionMapper::eventFilter(QObject *obj, QEvent *event)
