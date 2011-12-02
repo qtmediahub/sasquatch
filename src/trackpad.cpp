@@ -36,17 +36,14 @@ Trackpad::~Trackpad()
 {
 }
 
-void Trackpad::setRecipient(QWidget *recipient)
+void Trackpad::setRecipient(QObject *recipient)
 {
 #ifndef SCENEGRAPH
-    QGraphicsView *potentialView = qobject_cast<QGraphicsView*>(recipient);
     QDeclarativeView *potentialDeclarativeView = qobject_cast<QDeclarativeView*>(recipient);
     if (potentialDeclarativeView)
+    {
         m_recipientContext = QWeakPointer<QDeclarativeContext>(potentialDeclarativeView->rootContext());
-    if (potentialView) {
-        m_recipient = QWeakPointer<QWidget>(potentialView->viewport());
-    } else {
-        m_recipient = QWeakPointer<QWidget>(recipient);
+        m_recipient = QWeakPointer<QWidget>(potentialDeclarativeView->viewport());
     }
 #endif
 }

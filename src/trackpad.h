@@ -37,7 +37,7 @@ public:
     ~Trackpad();
 
 public slots:
-    void setRecipient(QWidget *recipient);
+    void setRecipient(QObject *recipient);
     void setEnabled(bool enable);
     void moveBy(qlonglong x, qlonglong y);
     void click();

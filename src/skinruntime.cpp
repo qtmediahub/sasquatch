@@ -246,10 +246,8 @@ QObject *SkinRuntimePrivate::loadQmlSkin(const QUrl &targetUrl, QObject *window)
     if (!remoteControlMode) {
         runtime->insert("mediaScanner", qVariantFromValue(static_cast<QObject *>(mediaServer->mediaScanner())));
         runtime->insert("httpServer", qVariantFromValue(static_cast<QObject *>(mediaServer->httpServer())));
-#ifndef SCENEGRAPH
         actionMapper->setRecipient(declarativeWidget);
         trackpad->setRecipient(declarativeWidget);
-#endif //Fixme: Need to harden code for non-QWidget derived classes
         runtime->insert("actionMapper", qVariantFromValue(static_cast<QObject *>(actionMapper)));
         runtime->insert("trackpad", qVariantFromValue(static_cast<QObject *>(trackpad)));
         runtime->insert("mediaPlayerRpc", qVariantFromValue(static_cast<QObject *>(mediaPlayerRpc)));
