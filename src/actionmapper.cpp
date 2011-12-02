@@ -34,6 +34,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 ActionMapper::ActionMapper(GlobalSettings *settings, QObject *parent) :
     QObject(parent),
+    m_generatedEvent(false),
+    m_skipGeneratedEvent(false),
     m_settings(settings)
 {
     setupQtKeyMap();
@@ -114,7 +116,7 @@ void ActionMapper::populateMap()
     m_actionMap.clear();
     foreach (const QString &keyboardMapPath, LibraryInfo::keyboardMapPaths(m_settings)) {
         if (QFile::exists(keyboardMapPath + "/" + m_mapName)
-            && loadMapFromDisk(keyboardMapPath + m_mapName)) {
+                && loadMapFromDisk(keyboardMapPath + m_mapName)) {
             qDebug() << "Using key map:" << keyboardMapPath + m_mapName;
             break;
         }
@@ -177,39 +179,41 @@ QStringList ActionMapper::availableMaps() const
 
 void ActionMapper::setMap(const QString &map)
 {
-    m_mapName = map; 
+    m_mapName = map;
     populateMap();
 }
 
 void ActionMapper::setRecipient(QObject *recipient)
 {
+    m_skipGeneratedEvent = false;
+    recipient->installEventFilter(this);
     QGraphicsView *potentialView = qobject_cast<QGraphicsView*>(recipient);
     if (potentialView) {
-        recipient->installEventFilter(this);
         // directly send to the scene, to avoid loops
         m_recipient = QWeakPointer<QObject>(potentialView->scene());
     } else {
-        qDebug() << "Deviation from original filtering";
+        //feeding outselves: spare our children!
+        m_skipGeneratedEvent = true;
+        m_recipient = QWeakPointer<QObject>(recipient);
     }
-    //else {
-    //    m_recipient = QWeakPointer<QObject>(recipient);
-    //}
 }
 
 bool ActionMapper::eventFilter(QObject *obj, QEvent *event)
 {
-    if (event->type() == QEvent::KeyPress || event->type() == QEvent::KeyRelease) {
+    if (!(m_skipGeneratedEvent && m_generatedEvent) &&
+            (event->type() == QEvent::KeyPress || event->type() == QEvent::KeyRelease)) {
         QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
         int key = keyEvent->key();
         if (m_actionMap.contains(key)) {
             QKeyEvent *e = new QKeyEvent(keyEvent->type()
-                        , s_actionToQtKeyMap.value(m_actionMap.value(keyEvent->key()))
-                        , keyEvent->modifiers()
-                        , keyEvent->text()
-                        , keyEvent->isAutoRepeat()
-                        , keyEvent->count());
+                                         , s_actionToQtKeyMap.value(m_actionMap.value(keyEvent->key()))
+                                         , keyEvent->modifiers()
+                                         , keyEvent->text()
+                                         , keyEvent->isAutoRepeat()
+                                         , keyEvent->count());
             if (!m_recipient.isNull()) {
                 QApplication::postEvent(m_recipient.data(), e);
+                m_generatedEvent = true;
                 return true;
             } else {
                 qDebug() << "The intended recipient has been forcibly shuffled off this mortal coil";
@@ -217,6 +221,7 @@ bool ActionMapper::eventFilter(QObject *obj, QEvent *event)
         }
     }
 
+    m_generatedEvent = false;
     // standard event processing
     return QObject::eventFilter(obj, event);
 }

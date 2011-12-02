@@ -80,6 +80,8 @@ private:
     static QHash<Action, Qt::Key> s_actionToQtKeyMap;
 
     QWeakPointer<QObject> m_recipient;
+    bool m_generatedEvent;
+    bool m_skipGeneratedEvent;
     QString m_mapName;
     QString m_mapPath;
     QHash<int, Action> m_actionMap;
