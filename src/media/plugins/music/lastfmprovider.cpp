@@ -111,7 +111,7 @@ void LastFMProvider::requestNext()
 
 void LastFMProvider::handleError(QNetworkReply::NetworkError code)
 {
-    qWarning() << "cannot fetch lastFM data" << m_reply->errorString();
+    DEBUG << "cannot fetch lastFM data" << m_reply->errorString();
 
     m_reply->deleteLater();
     m_reply = 0;
