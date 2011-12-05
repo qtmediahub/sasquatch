@@ -39,6 +39,7 @@ public:
     QString type() const { return "music"; }
     bool canRead(const QFileInfo &info) const;
     QList<QSqlRecord> updateMediaInfos(const QList<QFileInfo> &fi, const QString &searchPath, QSqlDatabase db);
+    void runExtraMetaDataProvider(QSqlDatabase db);
 };
 
 #endif // MUSICPARSER_H
