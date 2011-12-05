@@ -199,7 +199,8 @@ QList<QSqlRecord> MusicParser::updateMediaInfos(const QList<QFileInfo> &fis, con
 
 void MusicParser::runExtraMetaDataProvider(QSqlDatabase db)
 {
-    qDebug() << "run extra meta data provider for music";
+    DEBUG << "run extra meta data provider for music";
+
     LastFMProvider *lastFmProvider = new LastFMProvider(db);
     connect(lastFmProvider, SIGNAL(allRequestsFinished()), lastFmProvider, SLOT(deleteLater()));
 }
