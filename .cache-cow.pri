@@ -21,6 +21,8 @@ linux* {
 isEmpty(PROJECTROOT) {
     message()
     system(echo "PROJECTROOT=$$BASE_NAME" > $$QMAKE_CACHE)
+    system(echo "#minimal config useful for bare bones targets" >> $$QMAKE_CACHE)
+    system(echo "#CONFIG+=no-pkg-cfg no-avahi" >> $$QMAKE_CACHE)
     system(echo "CONFIG-=qt_framework" >> $$QMAKE_CACHE)
     system(echo "CONFIG+=cache-exists" >> $$QMAKE_CACHE)
     message(Cache created)
