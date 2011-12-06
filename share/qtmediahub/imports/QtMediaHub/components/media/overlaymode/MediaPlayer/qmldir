@@ -1,1 +1,2 @@
-MediaPlayer 1.0 MediaPlayer.qml
+MediaPlayer 1.0 MediaPlayer-qt4.qml
+MediaPlayer 2.0 MediaPlayer-qt5.qml
