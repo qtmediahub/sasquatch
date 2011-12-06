@@ -28,15 +28,16 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 HttpServer::HttpServer(GlobalSettings *settings, quint16 port, QObject *parent) :
     QTcpServer(parent),
     m_settings(settings)
-{
-    listen(QHostAddress::Any, port);
-
+{    
     // FIXME whole address thing should be improved
     m_address = m_settings->value(GlobalSettings::StreamingAddress).toString();
     if (m_address == "")
         m_address = getAddress();
 
-    qDebug() << "Streaming server listening" << m_address << "on" << serverPort();
+    if (listen(QHostAddress::Any, port))
+        qDebug() << "Streaming server listening" << m_address << "on" << serverPort();
+    else
+        qDebug() << "Streaming server failed to listen on" << m_address << "on" << serverPort();
 }
 
 void HttpServer::incomingConnection(int socket)

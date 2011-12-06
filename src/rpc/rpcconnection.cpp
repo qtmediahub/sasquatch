@@ -35,7 +35,10 @@ RpcConnection::RpcConnection(RpcConnection::Mode mode, const QHostAddress &addre
 {
     init();
     if (m_mode == Server) {
-        listen(address, port);
+        if (listen(address, port))
+            qDebug() << "RPC server listening:" << address << "on" << port;
+        else
+            qDebug() << "RPC server failed to listen:" << address << "on" << port;
     } else if (m_mode == Client) {
         connectToHost(address, port);
     }
