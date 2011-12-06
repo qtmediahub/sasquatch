@@ -15,11 +15,14 @@ OBJECTS_DIR = $$TEMP_DIR/.obj
 MOC_DIR = $$TEMP_DIR/.moc
 RCC_DIR = $$TEMP_DIR/.rcc
 
-!qt5 {
+Qt += gui
+
+qt5 {
+    Qt += quick
+} else {
+    Qt += declarative
     include($${PROJECTROOT}/src/3rdparty/qtsingleapplication/qtsingleapplication.pri)
 }
-
-Qt += gui declarative
 
 # Input
 SOURCES += main.cpp \

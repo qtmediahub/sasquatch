@@ -60,7 +60,7 @@ public:
                 = QHostAddress::AnyIPv4,
             #else
                 = QHostAddress::Any,
-            #endif,
+            #endif
                 quint16 port = 0);
     void connectToHost(const QHostAddress &address, quint16 port);
     bool waitForConnected(int msecs = 5000);

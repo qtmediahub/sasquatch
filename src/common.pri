@@ -3,7 +3,7 @@
 
 qt5 {
     DEFINES += SCENEGRAPH
-    QT += v8 network sql declarative widgets #QDirModel from widgets!
+    QT += v8 network sql quick widgets #QDirModel from widgets!
     #Until we guard linkage of avahi-qt4
     CONFIG += meegoesque
 } else {
@@ -85,7 +85,7 @@ maemo5 {
     QT += dbus
 }
 
-CONFIG(debug, debug|release):CONFIG += declarative_debug
+CONFIG(debug, debug|release):!qt5:CONFIG += declarative_debug
 
 # Include JS debugger library if QMLJSDEBUGGER_PATH is set
 !isEmpty(QMLJSDEBUGGER_PATH) {
