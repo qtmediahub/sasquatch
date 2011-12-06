@@ -348,7 +348,14 @@ void SkinRuntimePrivate::enableRemoteControlMode(bool enable)
     }
 
     mediaServer = new MediaServer(settings, this);
-    rpcConnection = new RpcConnection(RpcConnection::Server, QHostAddress::Any, 1234, this);
+    rpcConnection = new RpcConnection(RpcConnection::Server,
+                                  #ifdef SCENEGRAPH
+                                      QHostAddress::AnyIPv4,
+                                  #else
+                                      QHostAddress::Any,
+                                  #endif
+                                      1234,
+                                      this);
     mediaPlayerRpc = new MediaPlayerRpc(this);
     mediaPlayerRpc->setObjectName("qmhmediaplayer");
     trackpad = new Trackpad(this);

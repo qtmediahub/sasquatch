@@ -55,7 +55,13 @@ public:
     void registerObject(QObject *object);
     void unregisterObject(QObject *object);
 
-    bool listen(const QHostAddress &address = QHostAddress::Any, quint16 port = 0);
+    bool listen(const QHostAddress &address
+            #ifdef SCENEGRAPH
+                = QHostAddress::AnyIPv4,
+            #else
+                = QHostAddress::Any,
+            #endif,
+                quint16 port = 0);
     void connectToHost(const QHostAddress &address, quint16 port);
     bool waitForConnected(int msecs = 5000);
 

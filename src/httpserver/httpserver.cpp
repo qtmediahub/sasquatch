@@ -34,7 +34,13 @@ HttpServer::HttpServer(GlobalSettings *settings, quint16 port, QObject *parent) 
     if (m_address == "")
         m_address = getAddress();
 
-    if (listen(QHostAddress::Any, port))
+    if (listen(
+            #ifdef SCENEGRAPH
+                QHostAddress::AnyIPv4,
+            #else
+                QHostAddress::Any,
+            #endif
+                port))
         qDebug() << "Streaming server listening" << m_address << "on" << serverPort();
     else
         qDebug() << "Streaming server failed to listen on"
