@@ -37,7 +37,12 @@ HttpServer::HttpServer(GlobalSettings *settings, quint16 port, QObject *parent) 
     if (listen(QHostAddress::Any, port))
         qDebug() << "Streaming server listening" << m_address << "on" << serverPort();
     else
-        qDebug() << "Streaming server failed to listen on" << m_address << "on" << serverPort();
+        qDebug() << "Streaming server failed to listen on"
+                 << m_address
+                 << "on"
+                 << serverPort()
+                 << "with the following error"
+                 << errorString();
 }
 
 void HttpServer::incomingConnection(int socket)
