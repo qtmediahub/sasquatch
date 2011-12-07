@@ -22,9 +22,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 import QtQuick 2.0
 import QtMediaHub.components 2.0
+import MediaPlayer 2.0
+
 import Playlist 1.0
 import MediaModel 1.0
-import MediaPlayer 1.0
 
 Item {
     id: root
