@@ -29,6 +29,10 @@ TARGET=qtmediahub
 
     SUBDIRS += src
 
+    qt5|media-backend {
+        SUBDIRS += mediaplayer
+    }
+
     OTHER_FILES += \
         qtc_packaging/debian_harmattan/rules \
         qtc_packaging/debian_harmattan/README \
@@ -37,3 +41,4 @@ TARGET=qtmediahub
         qtc_packaging/debian_harmattan/compat \
         qtc_packaging/debian_harmattan/changelog
 }
+

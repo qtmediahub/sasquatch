@@ -10,7 +10,11 @@ OBJECTS_DIR = $$TEMP_DIR/.obj
 MOC_DIR = $$TEMP_DIR/.moc
 RCC_DIR = $$TEMP_DIR/.rcc
 
-include($${PROJECTROOT}/src/3rdparty/qtsingleapplication/qtsingleapplication.pri)
+qt5 {
+    QT += quick
+} else {
+    include($${PROJECTROOT}/src/3rdparty/qtsingleapplication/qtsingleapplication.pri)
+}
 
 QT -= gui
 QT += dbus

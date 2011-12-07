@@ -25,21 +25,32 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "xineplayer.h"
 #endif
 
-#include "qtsingleapplication.h"
 #include <QDebug>
 #include <QtDBus>
 
+#ifdef SCENEGRAPH
+#include <QCoreApplication>
+#else
+#include "qtsingleapplication.h"
+#endif
+
 int main(int argc, char** argv)
 {
+#ifdef SCENEGRAPH
+    QCoreApplication app(argc, argv);
+#else
     QtSingleApplication app(argc, argv);
+#endif
     app.setApplicationName("mediahelper");
     app.setOrganizationName("Nokia");
     app.setOrganizationDomain("nokia.com");
 
+#ifndef SCENEGRAPH
     if (app.isRunning()) {
         qWarning() << app.applicationName() << "is already running, aborting";
         return false;
     }
+#endif
 
     bool dbusRegistration = QDBusConnection::sessionBus().registerService(QMH_PLAYER_DBUS_SERVICENAME);
     if (!dbusRegistration) {

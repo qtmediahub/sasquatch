@@ -30,7 +30,10 @@ class TestingPlayer : public AbstractMediaPlayer
     Q_OBJECT
 public:
     explicit TestingPlayer(QObject *parent = 0) :
-        AbstractMediaPlayer(parent) { /**/ }
+        AbstractMediaPlayer()
+    {
+        setParent(parent);
+    }
 
 signals:
 

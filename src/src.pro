@@ -7,6 +7,3 @@ SUBDIRS += \
            media/plugins \
            main/main.pro
 
-media-backend {
-    SUBDIRS += mediabackend
-}
