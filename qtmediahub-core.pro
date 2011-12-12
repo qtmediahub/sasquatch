@@ -30,7 +30,11 @@ TARGET=qtmediahub
     SUBDIRS += src
 
     qt5|media-backend {
-        SUBDIRS += mediaplayer
+        !no-dbus {
+            SUBDIRS += mediaplayer
+        } else {
+            message("mediaplayer not building due to missing dbus")
+        }
     }
 
     OTHER_FILES += \
