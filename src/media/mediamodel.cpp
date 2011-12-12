@@ -424,6 +424,12 @@ void MediaModel::insertAll(const QList<QSqlRecord> &records)
 
 int MediaModel::compareData(int idx, const QSqlRecord &record) const
 {
+    // TODO girish please confirm
+    if (idx >= m_data.size()) {
+        DEBUG << "index out of data list size";
+        return 0;
+    }
+
     const QMap<int, QVariant> &curData = m_data[idx];
     QStringList cols = m_layoutInfo.value(m_cursor.count());
     foreach(const QString &col, cols) {
