@@ -4,3 +4,9 @@ GrayscaleEffect 1.0 GrayscaleEffect.qml
 ImageMaskEffect 1.0 ImageMaskEffect.qml
 RadialWaveEffect 1.0 RadialWaveEffect.qml
 WaterEffect 1.0 WaterEffect.qml
+CurtainEffect 2.0 2.0/CurtainEffect.qml
+DropShadowEffect 2.0 2.0/DropShadowEffect.qml
+GrayscaleEffect 2.0 2.0/GrayscaleEffect.qml
+ImageMaskEffect 2.0 2.0/ImageMaskEffect.qml
+RadialWaveEffect 2.0 2.0/RadialWaveEffect.qml
+WaterEffect 2.0 2.0/WaterEffect.qml
