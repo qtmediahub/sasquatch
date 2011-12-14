@@ -28,10 +28,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QVariant>
 #include <QWeakPointer>
 
+#include "global.h"
+
 class QTcpServer;
 class QTcpSocket;
 
-class RpcConnection : public QObject
+class QMH_EXPORT RpcConnection : public QObject
 {
     Q_OBJECT
 public:

@@ -33,7 +33,8 @@ SOURCES += \
     inputcontext.cpp \
     settings.cpp \
     globalsettings.cpp \
-    appsmanager.cpp
+    appsmanager.cpp \
+    pushqml.cpp
 
 HEADERS += \
     global.h \
@@ -61,7 +62,8 @@ HEADERS += \
     mediaplayerdummy.h \
     settings.h \
     globalsettings.h \
-    appsmanager.h
+    appsmanager.h \
+    pushqml.h
 
 qt5 {
     SOURCES += \
@@ -108,6 +110,8 @@ avahi {
 
 target.path = $${PREFIX}/lib/
 INSTALLS += target
+
+
 
 
 
