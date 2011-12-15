@@ -34,7 +34,8 @@ SOURCES += \
     settings.cpp \
     globalsettings.cpp \
     appsmanager.cpp \
-    pushqml.cpp
+    pushqml.cpp \
+    ipaddressfinder.cpp
 
 HEADERS += \
     global.h \
@@ -63,7 +64,8 @@ HEADERS += \
     settings.h \
     globalsettings.h \
     appsmanager.h \
-    pushqml.h
+    pushqml.h \
+    ipaddressfinder.h
 
 qt5 {
     SOURCES += \

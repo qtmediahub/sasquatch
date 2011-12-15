@@ -74,6 +74,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "globalsettings.h"
 #include "appsmanager.h"
 #include "pushqml.h"
+#include "ipaddressfinder.h"
 
 #ifdef MEDIAPLAYER_DBUS
 #include "mediaplayerdbus.h"
@@ -204,6 +205,7 @@ SkinRuntimePrivate::SkinRuntimePrivate(GlobalSettings *s, SkinRuntime *p)
     qmlRegisterType<RpcConnection>("RpcConnection", 1, 0, "RpcConnection");
     qmlRegisterType<Settings>("Settings", 1, 0, "Settings");
     qmlRegisterType<PushQML>("PushQML", 1, 0, "PushQML");
+    qmlRegisterType<IpAddressFinder>("IpAddressFinder", 1, 0, "IpAddressFinder");
 
     if (settings->isEnabled(GlobalSettings::OverlayMode)) {
 #ifdef MEDIAPLAYER_DBUS
