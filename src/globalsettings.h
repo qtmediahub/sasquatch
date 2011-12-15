@@ -77,6 +77,7 @@ public:
         ExtraSNESExtensions,
         ExtraVideoExtensions,
         Installed,
+        MemoryConscious,
 
         OptionLength
     };

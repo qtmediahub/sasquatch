@@ -248,14 +248,15 @@ QObject *SkinRuntimePrivate::loadQmlSkin(const QUrl &targetUrl, QObject *window)
     if (!remoteControlMode) {
         runtime->insert("mediaScanner", qVariantFromValue(static_cast<QObject *>(mediaServer->mediaScanner())));
         runtime->insert("httpServer", qVariantFromValue(static_cast<QObject *>(mediaServer->httpServer())));
-        actionMapper->setRecipient(declarativeWidget);
-        trackpad->setRecipient(declarativeWidget);
         runtime->insert("actionMapper", qVariantFromValue(static_cast<QObject *>(actionMapper)));
         runtime->insert("trackpad", qVariantFromValue(static_cast<QObject *>(trackpad)));
         runtime->insert("mediaPlayerRpc", qVariantFromValue(static_cast<QObject *>(mediaPlayerRpc)));
         runtime->insert("processManager", qVariantFromValue(static_cast<QObject *>(processManager)));
         runtime->insert("deviceManager", qVariantFromValue(static_cast<QObject *>(deviceManager)));
         runtime->insert("powerManager", qVariantFromValue(static_cast<QObject *>(powerManager)));
+
+        actionMapper->setRecipient(declarativeWidget);
+        trackpad->setRecipient(declarativeWidget);
     }
     runtime->insert("settings", qVariantFromValue(static_cast<QObject *>(settings)));
     runtime->insert("window", qVariantFromValue(static_cast<QObject *>(window)));

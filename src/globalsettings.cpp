@@ -83,6 +83,7 @@ GlobalSettings::GlobalSettings(QObject *parent) :
     addOptionEntry(GlobalSettings::ExtraSNESExtensions, "",             "extraSNESExtensions","<stringlist> comma separated list of additional SNES file extensions");
     addOptionEntry(GlobalSettings::ExtraVideoExtensions,"",             "extraVideoExtensions","<stringlist> comma separated list of additional video file extensions");
     addOptionEntry(GlobalSettings::Installed,           "false",         "installed","<bool> assume installed to correct prefix");
+    addOptionEntry(GlobalSettings::MemoryConscious,     "false",         "memoryConscious","<bool> constrain footprint");
 
     m_instance = this;
 }

@@ -331,7 +331,9 @@ bool MainWindow::setSkin(const QString &name)
         newSkin = skins.value(skins.keys().at(0));
     }
 
-    if (!newSkin) {
+    if (newSkin) {
+        qDebug() << "Attempting to use:" << name << "skin";
+    } else {
         qDebug() << "Failed to set skin:" << name;
         return false;
     }
