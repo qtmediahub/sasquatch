@@ -135,6 +135,9 @@ void MainWindow::resizeEvent(QResizeEvent *e)
 
 void MainWindow::setOrientation(ScreenOrientation orientation)
 {
+#ifdef SCENEGRAPH
+    qWarning("set orientation is not supported, yet");
+#else
     Qt::WidgetAttribute attribute;
     switch (orientation) {
     case ScreenOrientationLockPortrait:
@@ -149,6 +152,7 @@ void MainWindow::setOrientation(ScreenOrientation orientation)
         break;
     };
     setAttribute(attribute, true);
+#endif
 }
 
 void MainWindow::handleResize()
