@@ -56,14 +56,16 @@ static RadioInfo *readPLS(QFileInfo fileInfo)
     QSettings settings(fileInfo.filePath(), QSettings::IniFormat);
     QStringList keys = settings.allKeys();
 
-    if (!keys.contains("playlist/NumberOfEntries"))
+    if (!keys.contains("playlist/NumberOfEntries", Qt::CaseInsensitive))
         return 0;
 
     if (settings.value("playlist/NumberOfEntries", 0).toInt() <= 0)
         return 0;
 
     // currently only choose first title
-    if (!keys.contains("playlist/File1") || !keys.contains("playlist/Title1") || !keys.contains("playlist/Length1") )
+    if (    !keys.contains("playlist/File1", Qt::CaseInsensitive) ||
+            !keys.contains("playlist/Title1", Qt::CaseInsensitive) ||
+            !keys.contains("playlist/Length1", Qt::CaseInsensitive) )
         return 0;
 
     QString file = settings.value("playlist/File1", "").toString();

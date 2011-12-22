@@ -29,10 +29,10 @@ QStringList RadioPlugin::parserKeys() const
     return QStringList() << "radio";
 }
 
-MediaParser *RadioPlugin::createParser(const QString &key)
+MediaParser *RadioPlugin::createParser(GlobalSettings *settings, const QString &key)
 {
     if (key == "radio")
-        return new RadioParser;
+        return new RadioParser(settings);
     return 0;
 }
 
