@@ -278,6 +278,8 @@ QObject *SkinRuntimePrivate::loadQmlSkin(const QUrl &targetUrl, QObject *window)
     }
     engine->addImportPath(currentSkin->path());
 
+    //Would be nice to have error handling here for broken QML skins
+    //Can't detect QML1/QDeclarativeView collision
     declarativeWidget->setSource(targetUrl);
 
     return declarativeWidget;
