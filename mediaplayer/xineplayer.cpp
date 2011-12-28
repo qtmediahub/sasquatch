@@ -68,8 +68,11 @@ XinePlayer::Private::~Private()
 }
 
 XinePlayer::XinePlayer(QObject *parent) :
-    AbstractMediaPlayer(parent),
-    d(new Private()) { /**/ }
+    AbstractMediaPlayer(),
+    d(new Private())
+{
+    setParent(parent);
+}
 
 XinePlayer::~XinePlayer()
 {
