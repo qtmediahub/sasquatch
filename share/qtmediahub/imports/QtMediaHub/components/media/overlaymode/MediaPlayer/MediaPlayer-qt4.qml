@@ -21,8 +21,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 ****************************************************************************/
 
 import QtQuick 1.0
-import AbstractMediaPlayer 1.0
 import QtMediaHub.components 1.0
+
 import OverlayModeMediaPlayer 1.0
 
 Item {
