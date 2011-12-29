@@ -186,6 +186,7 @@ void MediaScanner::loadParserPlugins()
 
     QStringList loaded;
     foreach (const QString &pluginPath, LibraryInfo::pluginPaths(m_settings)) {
+        qDebug() << "Starting to scan for parser plugins in:" << pluginPath;
         foreach (const QString &fileName, QDir(pluginPath).entryList(QDir::Files)) {
             QString absoluteFilePath(pluginPath % "/" % fileName);
             if (loaded.contains(fileName)) {
@@ -214,6 +215,7 @@ void MediaScanner::loadParserPlugins()
             qDebug() << "Using parser plugin:" << fileName;
         }
     }
+    qDebug() << "Finished scanning for parser plugins";
 }
 
 QStringList MediaScanner::availableParserPlugins() const
