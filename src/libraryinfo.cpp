@@ -42,7 +42,7 @@ static QStringList standardResourcePaths(GlobalSettings *settings, const GlobalS
     // The order of the added paths is relevant!
     QStringList paths;
 
-    // submodule repo
+    // submodule repo: pops you out at the peer level of qtmediahub-core
     paths <<  QCoreApplication::applicationDirPath() % QString::fromLatin1("/../../") % platformBinOffset % suffix % "/";
 
     // allows changing resource paths with -skinsPath on runtime
@@ -103,7 +103,7 @@ QStringList LibraryInfo::pluginPaths(GlobalSettings *settings)
         ret << QMH_PREFIX % QString::fromLatin1("/lib/qtmediahub/");
 #endif
     } else {
-        ret << QMH_PROJECTROOT % QString::fromLatin1("/lib/qtmediahub/");
+        ret << QCoreApplication::applicationDirPath() % QString::fromLatin1("/../lib/qtmediahub/");
     }
     ret << QDir::homePath() % QString::fromLatin1("/.qtmediahub/lib");
     return ret;
