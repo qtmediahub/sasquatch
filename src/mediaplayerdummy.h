@@ -37,9 +37,10 @@ public:
     : AbstractMediaPlayer(parent) { /**/ }
 
     virtual bool playing() const { return m_playing; }
+    virtual QString source() const { return m_sourceUrl; }
 
 public slots:
-    void setSource(const QString &source) { setStatus(Buffered); AbstractMediaPlayer::setSource(source); qDebug() << "unimplemented media handling: " <<__LINE__; }
+    void setSource(const QString &source) { m_sourceUrl = source; setStatus(Buffered); emit sourceChanged(); qDebug() << "unimplemented media handling: " <<__LINE__; }
     void play() { m_playing = true; emit playingChanged(); qDebug() << "unimplemented media handling: " <<__LINE__;  }
     void stop() { m_playing = false; emit playingChanged(); qDebug() << "unimplemented media handling: " <<__LINE__; }
     void pause() { qDebug() << "unimplemented media handling: " <<__LINE__; }
@@ -51,6 +52,7 @@ public slots:
 
 private:
     bool m_playing;
+    QString m_sourceUrl;
 };
 
 #endif // MEDIAPLAYER_DUMMY_H
