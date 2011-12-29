@@ -159,6 +159,7 @@ void MainWindow::handleResize()
 {
     if (m_centralWidget)
         m_centralWidget->setFixedSize(size());
+    qDebug() << "Resizing widget to:" << size();
 }
 
 bool MainWindow::eventFilter(QObject *obj, QEvent *event)
