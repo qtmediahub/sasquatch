@@ -30,7 +30,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QtWidgets>
 #endif
 
-static QStringList standardResourcePaths(GlobalSettings *settings, const GlobalSettings::Option option, const QString &suffix)
+static QStringList standardResourcePaths(GlobalSettings *settings, const GlobalSettings::Option option, const QString &suffix, const QString &relativeOffset = QString("/../"))
 {
     static const QString platformBinOffset
         #ifdef Q_OS_MAC
@@ -42,8 +42,8 @@ static QStringList standardResourcePaths(GlobalSettings *settings, const GlobalS
     // The order of the added paths is relevant!
     QStringList paths;
 
-    // submodule repo: pops you out at the peer level of qtmediahub-core
-    paths <<  QCoreApplication::applicationDirPath() % QString::fromLatin1("/../../") % platformBinOffset % suffix % "/";
+    // Relative paths
+    paths <<  QCoreApplication::applicationDirPath() % relativeOffset % platformBinOffset % suffix % "/";
 
     // allows changing resource paths with -skinsPath on runtime
     const QString settingsPath = settings->value(option).toString();
@@ -56,10 +56,21 @@ static QStringList standardResourcePaths(GlobalSettings *settings, const GlobalS
         paths << QDir(envPath).absolutePath();
 
     paths << QMH_PROJECTROOT % QString::fromLatin1("/share/qtmediahub/") % suffix % "/";
-    paths << QDir::homePath() % QString::fromLatin1("/.qtmediahub/") % suffix % "/";
     paths << QMH_PREFIX % QString::fromLatin1("/share/qtmediahub/") % suffix % "/";
 
+    paths << QDir::homePath() % QString::fromLatin1("/.qtmediahub/") % suffix % "/";
+
     return paths;
+}
+
+QStringList LibraryInfo::skinPaths(GlobalSettings *settings)
+{
+    return standardResourcePaths(settings, GlobalSettings::SkinsPath, "skins", "/../../");
+}
+
+QStringList LibraryInfo::applicationPaths(GlobalSettings *settings)
+{
+    return standardResourcePaths(settings, GlobalSettings::AppsPath, "apps", "/../../");
 }
 
 QStringList LibraryInfo::translationPaths(GlobalSettings *settings)
@@ -70,16 +81,6 @@ QStringList LibraryInfo::translationPaths(GlobalSettings *settings)
 QStringList LibraryInfo::resourcePaths(GlobalSettings *settings)
 {
     return standardResourcePaths(settings, GlobalSettings::ResourcesPath, "resources");
-}
-
-QStringList LibraryInfo::skinPaths(GlobalSettings *settings)
-{
-    return standardResourcePaths(settings, GlobalSettings::SkinsPath, "skins");
-}
-
-QStringList LibraryInfo::applicationPaths(GlobalSettings *settings)
-{
-    return standardResourcePaths(settings, GlobalSettings::AppsPath, "apps");
 }
 
 QStringList LibraryInfo::keyboardMapPaths(GlobalSettings *settings)
