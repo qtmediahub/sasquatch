@@ -39,12 +39,14 @@ void IpAddressFinder::updateIpAddresses()
 
     foreach (const QString &str, sl) {
 
-        if (ha.setAddress(str) && !ipAddressesList.contains(str)
-                && (!restricted || lastOneWas_addr_or_inet)) {
-
+        if (ha.setAddress(str)
+                && !ipAddressesList.contains(str)
+                && (!restricted || lastOneWas_addr_or_inet)
+                && !str.startsWith("127"))
+        {
             foundNew = true;
             ipAddressesList.append(str);
-            qDebug() << "New ip address fround:" << str;
+            qDebug() << "New ip address found:" << str;
 
             lastOneWas_addr_or_inet = false;
         } else {
