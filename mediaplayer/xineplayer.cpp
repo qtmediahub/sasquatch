@@ -32,6 +32,8 @@ public:
     ~Private();
 
     QString mediaPath;
+    bool playing;
+
     xine_t              *xine;
     xine_stream_t       *stream;
     xine_audio_port_t   *ao_port;
@@ -39,6 +41,7 @@ public:
 };
 
 XinePlayer::Private::Private()
+    : playing(false)
 {
     char configfile[2048];
 
@@ -88,7 +91,9 @@ void XinePlayer::setSource(const QString &source)
 }
 
 void XinePlayer::stop() {
+    d->playing = false;
     xine_close(d->stream);
+    emit playingChanged();
 }
 
 void XinePlayer::pause() {
@@ -101,10 +106,12 @@ void XinePlayer::resume() {
 
 void XinePlayer::play()
 {
+    d->playing = true;
     if ((!xine_open(d->stream, d->mediaPath.toAscii().constData()))
             || (!xine_play(d->stream, 0, 0))) {
         printf("Unable to open mrl '%s'\n", d->mediaPath.toAscii().constData());
     }
+    emit playingChanged();
 }
 
 void XinePlayer::mute(bool on)

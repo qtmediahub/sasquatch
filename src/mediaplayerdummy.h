@@ -36,16 +36,21 @@ public:
 #endif
     : AbstractMediaPlayer(parent) { /**/ }
 
+    virtual bool playing() const { return m_playing; }
+
 public slots:
-    void setSource(const QString &source) { AbstractMediaPlayer::setSource(source); qDebug() << "unimplemented media handling: " <<__LINE__; }
-    void play() { qDebug() << "unimplemented media handling: " <<__LINE__;  }
-    void stop() { qDebug() << "unimplemented media handling: " <<__LINE__; }
+    void setSource(const QString &source) { setStatus(Buffered); AbstractMediaPlayer::setSource(source); qDebug() << "unimplemented media handling: " <<__LINE__; }
+    void play() { m_playing = true; emit playingChanged(); qDebug() << "unimplemented media handling: " <<__LINE__;  }
+    void stop() { m_playing = false; emit playingChanged(); qDebug() << "unimplemented media handling: " <<__LINE__; }
     void pause() { qDebug() << "unimplemented media handling: " <<__LINE__; }
     void resume() { qDebug() << "unimplemented media handling: " <<__LINE__; }
     void mute(bool on = true) { Q_UNUSED(on); qDebug() << "unimplemented media handling: " <<__LINE__; }
     void setPosition(int position) { Q_UNUSED(position); qDebug() << "unimplemented media handling: " <<__LINE__; }
     void setPositionPercent(qreal position) { Q_UNUSED(position); qDebug() << "unimplemented media handling: " <<__LINE__; }
     void setVolumePercent(qreal volume)  { Q_UNUSED(volume); qDebug() << "unimplemented media handling: " <<__LINE__; }
+
+private:
+    bool m_playing;
 };
 
 #endif // MEDIAPLAYER_DUMMY_H

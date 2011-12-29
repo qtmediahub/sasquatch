@@ -22,7 +22,7 @@ isEmpty(PROJECTROOT) {
     message()
     system(echo "PROJECTROOT=$$BASE_NAME" > $$QMAKE_CACHE)
 #$$LITERAL_HASH is not jiving in system( calls fine in echo(
-    system(echo "false: CONFIG+=no-pkg-cfg no-avahi" >> $$QMAKE_CACHE)
+    system(echo "false: CONFIG+=no-pkg-cfg no-avahi no-dbus" >> $$QMAKE_CACHE)
     system(echo "CONFIG-=qt_framework" >> $$QMAKE_CACHE)
     system(echo "CONFIG+=cache-exists" >> $$QMAKE_CACHE)
     message(Cache created)
