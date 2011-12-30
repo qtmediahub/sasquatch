@@ -131,6 +131,8 @@ void MainWindow::resizeEvent(QResizeEvent *e)
         handleResize();
     else
         m_resizeSettleTimer.start(staggerResizingDelay);
+
+    QWidget::resizeEvent(e);
 }
 
 void MainWindow::setOrientation(ScreenOrientation orientation)
@@ -279,7 +281,10 @@ void MainWindow::showFullScreen()
     m_overscanWorkAround = m_settings->isEnabled(GlobalSettings::Overscan);
 
     if (m_overscanWorkAround) {
+        QRect oldGeometry = geometry();
         QRect geometry = m_settings->value(GlobalSettings::OverscanGeometry).toRect();
+        if (geometry.isNull()) geometry = oldGeometry;
+
         geometry.moveCenter(qApp->desktop()->availableGeometry().center());
 
         setGeometry(geometry);
