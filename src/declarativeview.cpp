@@ -25,6 +25,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QDeclarativeEngine>
 #include <QDebug>
 #include <QPaintEvent>
+#include <QShortcut>
 
 #ifdef GL
 #include <QGLWidget>
@@ -53,6 +54,8 @@ DeclarativeView::DeclarativeView(GlobalSettings *settings, QWidget *parent)
       m_timeSigma(0),
       m_fps(0)
 {
+    new QShortcut(QKeySequence(Qt::ALT + Qt::Key_Semicolon), this, SLOT(printFocusItem()));
+
     optimizeGraphicsViewAttributes(settings, this);
     setResizeMode(QDeclarativeView::SizeRootObjectToView);
 
