@@ -18,8 +18,20 @@ TARGET=qtmediahub
     folder_03.source=share/qtmediahub/resources
     DEPLOYMENTFOLDERS=folder_01 folder_02 folder_03
 
-    include(generated-deployment.pri)
-    qtcAddDeployment()
+    installPrefix = $$PREFIX/share/qtmediahub/
+    for(deploymentfolder, DEPLOYMENTFOLDERS) {
+        item = item$${deploymentfolder}
+        itemfiles = $${item}.files
+        $$itemfiles = $$eval($${deploymentfolder}.source)
+        itempath = $${item}.path
+        $$itempath = $${installPrefix}/$$eval($${deploymentfolder}.target)
+        export($$itemfiles)
+        export($$itempath)
+        INSTALLS += $$item
+    }
+
+#    include(generated-deployment.pri)
+#    qtcAddDeployment()
 
     message()
     message("If you want to set an explicit deployment (make install) PREFIX please add it to .qmake.cache or use PREFIX=$PWD as recursive qmake argument")
