@@ -77,6 +77,13 @@ static RadioInfo *readPLS(QFileInfo fileInfo)
     info->title = title;
     info->length = length;
 
+    QRegExp e("\\(#[0-9]+ - [0-9]+/[0-9]+\\) ");
+    int regExpIndex = e.indexIn(title);
+    int regExpLenght = e.matchedLength();
+
+    if(regExpIndex == 0)
+        info->title = title.right(title.length() - regExpLenght);
+
     return info;
 }
 
