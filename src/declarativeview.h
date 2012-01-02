@@ -31,6 +31,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QDeclarativeView>
 #endif
 
+#include <QDebug>
+
 class GlobalSettings;
 
 #ifdef SCENEGRAPH
@@ -67,6 +69,7 @@ protected slots:
 
 public slots:
     void handleSourceChanged();
+    void printFocusItem() { qDebug() << "Focus is held by:" << focusItem(); }
 #ifdef SCENEGRAPH
     void handleStatusChanged(QQuickView::Status status);
 #else

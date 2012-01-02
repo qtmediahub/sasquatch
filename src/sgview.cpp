@@ -25,6 +25,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QQuickItem>
 #include <QDeclarativeEngine>
 #include <QDebug>
+#include <QShortcut>
 
 #include "globalsettings.h"
 

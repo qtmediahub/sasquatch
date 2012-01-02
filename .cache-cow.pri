@@ -12,7 +12,7 @@ linux* {
     message(that qmake ascends to in perpetuity)
     message()
     message(Linux specific options: ('*' indicates that option is enabled by default))
-    message(Use CONFIG+=<option> to enable and CONFIG-=<option> to disable)
+    message(Use '-config no-<option>' to disable or '-config <option>' to enable)
     message(avahi* - Enabled Avahi support)
     message(glviewport* - Render using a GL Viewport)
     message(glgs - Render using GL graphics system (Avoid like the plague!))
