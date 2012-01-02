@@ -332,19 +332,26 @@ void MainWindow::selectSkin()
 bool MainWindow::setSkin(const QString &name)
 {
     QHash<QString, Skin *> skins = m_skinManager->skins();
+
+    if (skins.size() == 0)
+        return false;
+
     Skin *newSkin = skins.value(name);
     if (!newSkin && skins.size() > 0) {
+        qWarning() << "Skin" << name << "not found, falling back to skin" << m_settings->value(GlobalSettings::Skin).toString() << "specified in settings";
         newSkin = skins.value(m_settings->value(GlobalSettings::Skin).toString());
     }
 
     if (!newSkin && skins.size() > 0) {
+        qWarning() << "Skin" << m_settings->value(GlobalSettings::Skin).toString() << "not found, falling back to" <<  skins.keys().at(0);
         newSkin = skins.value(skins.keys().at(0));
     }
 
     if (newSkin) {
-        qDebug() << "Attempting to use:" << name << "skin";
+        qWarning() << "Attempting to use:" << name << "skin";
     } else {
-        qDebug() << "Failed to set skin:" << name;
+        qWarning() << "No skin" << name << "found.";
+        qWarning() << "Please specify the '-skinsPath <path>' startup argument.";
         return false;
     }
     setSkin(newSkin);

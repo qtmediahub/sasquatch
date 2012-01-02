@@ -73,11 +73,11 @@ void SkinManager::discoverSkins()
     }
 
     if (m_skins.isEmpty()) {
-        qWarning() << "No m_skins are found in your skin paths"<< endl \
-                   << "If you don't intend to run this without m_skins"<< endl \
-                   << "Please read the INSTALL doc available here:" \
-                   << "http://gitorious.org/qtmediahub/qtmediahub-core/blobs/master/INSTALL" \
-                   << "for further details";
+        qWarning() << "No skins are found in your skin paths:";
+        foreach (const QString &skinPath, LibraryInfo::skinPaths(m_settings)) {
+            qWarning() << skinPath;
+        }
+        qWarning() << "Please specify the '-skinsPath <path>' startup argument.";
     } else {
         QStringList sl;
         foreach(Skin *skin, m_skins)
