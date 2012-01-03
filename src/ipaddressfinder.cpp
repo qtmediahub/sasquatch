@@ -1,64 +1,44 @@
-#include "ipaddressfinder.h"
+/****************************************************************************
 
-#include <QProcess>
-#include <QDebug>
-#include <QHostAddress>
+This file is part of the QtMediaHub project on http://www.qtmediahub.com
+
+Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).*
+All rights reserved.
+
+Contact:  Girish Ramakrishnan girish@forwardbias.in
+Contact:  Nokia Corporation donald.carr@nokia.com
+Contact:  Nokia Corporation johannes.zellner@nokia.com
+
+You may use this file under the terms of the BSD license as follows:
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+* Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+* Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+* Neither the name of Nokia Corporation and its Subsidiary(-ies) nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+****************************************************************************/
+
+#include "ipaddressfinder.h"
 
 IpAddressFinder::IpAddressFinder(QObject *parent)
     : QObject(parent)
 {
-    restricted = true;
-
-    p = new QProcess(this);
-    connect(p, SIGNAL(readyReadStandardOutput()), this, SLOT(updateIpAddresses()));
-    startProcess();
-
-    QTimer* t = new QTimer(this);
-    connect(t, SIGNAL(timeout()), this, SLOT(startProcess()));
-    t->setInterval(5000);
-    t->start();
+    QTimer::singleShot(0, this, SLOT(updateAdressList()));
 }
 
-void IpAddressFinder::startProcess()
+void IpAddressFinder::updateAdressList()
 {
-    if(p->state() == QProcess::NotRunning)
-        p->start("/sbin/ifconfig");
-    else
-        qWarning() << "WARNING: IpAddressFinder::startProcess() was still running ... something is wrong on you system!";
-}
-
-
-void IpAddressFinder::updateIpAddresses()
-{
-    QString pResults(p->readAll());
-    QStringList sl = pResults.split(QRegExp("\\s|:|\\n|\\t"));
-
-    QHostAddress ha;
-    bool foundNew = false;
-    bool lastOneWas_addr_or_inet = false;
-
-    foreach (const QString &str, sl) {
-
-        if (ha.setAddress(str)
-                && !ipAddressesList.contains(str)
-                && (!restricted || lastOneWas_addr_or_inet)
-                && !str.startsWith("127"))
-        {
-            foundNew = true;
-            ipAddressesList.append(str);
-            qDebug() << "New ip address found:" << str;
-
-            lastOneWas_addr_or_inet = false;
-        } else {
-
-            if (str.compare("inet", Qt::CaseInsensitive)==0 || str.compare("addr", Qt::CaseInsensitive)==0)
-                lastOneWas_addr_or_inet = true;
-            else
-                lastOneWas_addr_or_inet = false;
+    foreach (QNetworkInterface i, QNetworkInterface::allInterfaces()) {
+        if (!(i.flags() & QNetworkInterface::IsLoopBack) && (i.flags() & QNetworkInterface::IsUp)) {
+            foreach (QNetworkAddressEntry a,  i.addressEntries()) {
+                if (a.ip().protocol() == QAbstractSocket::IPv4Protocol) {
+                    ipAddressesList << a.ip().toString();
+                }
+            }
         }
     }
 
-    if (foundNew)
-        emit ipAddressesChanged();
+    emit ipAddressesChanged();
 }
-
