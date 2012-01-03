@@ -85,6 +85,11 @@ void Playlist::add(MediaModel *mediaModel, int row)
 
     DEBUG << "add item" << mediaModel << row;
 
+    if (mediaModel->rowCount() == 0) {
+        DEBUG << "empty model";
+        return;
+    }
+
     if (mediaModel->isLeafLevel()) { 
         QModelIndex index = mediaModel->index(row, 0, QModelIndex());
         if (index.isValid()) { // add only one itemData
