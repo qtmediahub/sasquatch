@@ -21,7 +21,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 ****************************************************************************/
 
 import QtQuick 2.0
-import QtMultimediaKit 2.0
+import QtMultimedia 4.0
 
 Item {
     property alias source: video.source
@@ -43,24 +43,34 @@ Item {
     function pause() { video.pause() }
     function resume() { video.resume() }
 
-    Video {
-        id: video
-        anchors.fill: parent
+    VideoOutput {
+        source: video
 
-        //Work around VideoItem shortcomings
-        property int _seekPos : -1
-
-        onSeekableChanged : {
-            if (seekable && _seekPos != -1) {
-                position = _seekPos
-                _seekPos = -1
-            }
-        }
-
-        function seek(pos) {
-            //This works? what happens when already seekable?
-            _seekPos = pos
+        MediaPlayer {
+            id: video
+            playing: true
+            volume: 0.5
         }
     }
+
+//    Video {
+//        id: video
+//        anchors.fill: parent
+
+//        //Work around VideoItem shortcomings
+//        property int _seekPos : -1
+
+//        onSeekableChanged : {
+//            if (seekable && _seekPos != -1) {
+//                position = _seekPos
+//                _seekPos = -1
+//            }
+//        }
+
+//        function seek(pos) {
+//            //This works? what happens when already seekable?
+//            _seekPos = pos
+//        }
+//    }
 }
 
