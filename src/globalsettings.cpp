@@ -84,6 +84,7 @@ GlobalSettings::GlobalSettings(QObject *parent) :
     addOptionEntry(GlobalSettings::ExtraVideoExtensions,"",             "extraVideoExtensions","<stringlist> comma separated list of additional video file extensions");
     addOptionEntry(GlobalSettings::Installed,           "false",         "installed","<bool> assume installed to correct prefix");
     addOptionEntry(GlobalSettings::MemoryConscious,     "false",         "memoryConscious","<bool> constrain footprint");
+    addOptionEntry(GlobalSettings::VSyncAnim,           "false",         "vsync","<bool> sync animations to refresh rate!");
 
     m_instance = this;
 }

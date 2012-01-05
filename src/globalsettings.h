@@ -78,6 +78,7 @@ public:
         ExtraVideoExtensions,
         Installed,
         MemoryConscious,
+        VSyncAnim,
 
         OptionLength
     };

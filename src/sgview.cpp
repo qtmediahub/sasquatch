@@ -42,10 +42,6 @@ DeclarativeView::DeclarativeView(GlobalSettings *settings, QWindow *parent)
     m_drivenFPS = m_settings->isEnabled(GlobalSettings::DrivenFPS);
     m_overlayMode = m_settings->isEnabled(GlobalSettings::OverlayMode);
 
-    // TODO
-//    if (Config::isEnabled("vsync-anim", false))
-//            setVSyncAnimations(true);
-
     connect(this, SIGNAL(statusChanged(QQuickView::Status)), this, SLOT(handleStatusChanged(QQuickView::Status)));
 }
 
