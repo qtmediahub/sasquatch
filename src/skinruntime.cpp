@@ -306,12 +306,14 @@ QObject *SkinRuntime::create(Skin *skin, QObject *window)
 
     QUrl url = skin->urlForResolution(preferredResolution);
     if (!url.isValid()) {
-        qWarning() << "Error loading skin " << skin->name();
+        qWarning() << "Malformed URL " << url;
         return 0;
     }
 
-    if (skin->type(url) != Skin::Qml)
+    if (skin->type(url) != Skin::Qml) {
+        qWarning() << "Error loading skin " << skin->name();
         return 0;
+    }
 
     d->currentSkin = skin;
     d->enableRemoteControlMode(skin->isRemoteControl() || d->settings->isEnabled(GlobalSettings::RemoteOverride));
