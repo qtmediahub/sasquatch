@@ -63,7 +63,7 @@ GlobalSettings::GlobalSettings(QObject *parent) :
     addOptionEntry(GlobalSettings::SystemTray,          "true",         "systemTray",       "<bool> toggle system tray icon");
     addOptionEntry(GlobalSettings::WindowGeometry,      "1080x720",     "windowGeometry",   "<int>x<int> set the window dimension");   // TODO test this!!!
     addOptionEntry(GlobalSettings::OpenGLUsage,         "true",         "opengl-usage",     "<bool> enable OpenGL if built with OpenGL");   // TODO test this!!!
-    addOptionEntry(GlobalSettings::OpenGLFormatHack,    "true",         "opengl-format-hack","<bool> use special OpenGL format hacks");   // TODO test this!!!
+    addOptionEntry(GlobalSettings::OpenGLFormatHack,    "false",         "opengl-format-hack","<bool> use special OpenGL format hacks");   // TODO test this!!!
     addOptionEntry(GlobalSettings::OpenGLViewport,      "true",         "opengl-viewport",  "<bool> use special OpenGL viewport");   // TODO test this!!!
     addOptionEntry(GlobalSettings::SmoothScaling,       "true",         "smooth-scaling",   "<bool> toggle smooth scaling");
     addOptionEntry(GlobalSettings::Avahi,               "true",         "avahi",            "<bool> toggle avahi usage");
