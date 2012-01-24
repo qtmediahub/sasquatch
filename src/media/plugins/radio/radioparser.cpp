@@ -165,7 +165,7 @@ QList<QSqlRecord> RadioParser::updateMediaInfos(const QList<QFileInfo> &fis, con
         if (!info)
             continue;
 
-        query.prepare("DELETE FROM music WHERE filepath=:filepath");
+        query.prepare("DELETE FROM radio WHERE filepath=:filepath");
         query.bindValue(":filepath", fi.absoluteFilePath());
         if (!query.exec())
             qWarning() << query.lastError().text();
