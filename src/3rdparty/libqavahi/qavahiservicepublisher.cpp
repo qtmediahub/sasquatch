@@ -27,13 +27,21 @@ static void QAPDEBUG(const char *fmt, ...)
 // http://avahi.sourcearchive.com/documentation/0.6.25-1ubuntu2/main.html
 
 QAvahiServicePublisher::QAvahiServicePublisher(QObject *parent)
-    : QObject(parent), m_client(0), m_group(0)
+    : QThread(parent), m_client(0), m_group(0)
 {
-    initialize();
+    start();
 }
 
 QAvahiServicePublisher::~QAvahiServicePublisher()
 {
+    uninitialize();
+}
+
+void QAvahiServicePublisher::run()
+{
+    moveToThread(this);
+    initialize();
+    exec();
     uninitialize();
 }
 
@@ -60,7 +68,23 @@ void QAvahiServicePublisher::uninitialize()
     }
 }
 
-void QAvahiServicePublisher::publish(const QString &name, const QString &type, qint32 port, const QString &txtRecord)
+void QAvahiServicePublisher::publish(const QAvahiServicePublisher::Service &service)
+{
+    QMetaObject::invokeMethod(this, SLOT(privatePublish(Service)), Qt::QueuedConnection,
+                              Q_ARG(QAvahiServicePublisher::Service, service));
+}
+
+void QAvahiServicePublisher::publish(const QString &serviceName, const QString &serviceType, qint32 port, const QString &txtRecord)
+{
+    QMetaObject::invokeMethod(this, SLOT(privatePublish(QString,QString,qint32,QString)), Qt::QueuedConnection,
+                              Q_ARG(QString, serviceName),
+                              Q_ARG(QString, serviceType),
+                              Q_ARG(qint32, port),
+                              Q_ARG(QString, txtRecord) );
+}
+
+
+void QAvahiServicePublisher::privatePublish(const QString &name, const QString &type, qint32 port, const QString &txtRecord)
 {
     Service service;
     service.name = name;
@@ -71,7 +95,7 @@ void QAvahiServicePublisher::publish(const QString &name, const QString &type, q
     publish(service);
 }
 
-void QAvahiServicePublisher::publish(const Service &service)
+void QAvahiServicePublisher::privatePublish(const Service &service)
 {
     m_services.append(service);
 

@@ -17,9 +17,9 @@
 #include <avahi-client/publish.h>
 #include <avahi-qt4/qt-watch.h>
 
-#include <QObject>
+#include <QThread>
 
-class QAvahiServicePublisher : public QObject
+class QAvahiServicePublisher : public QThread
 {
     Q_OBJECT
 public:
@@ -36,8 +36,10 @@ public:
     void publish(const Service &service);
     void publish(const QString &serviceName, const QString &serviceType, qint32 port, const QString &txtRecord);
 
-    int error() const { return m_error; }
-    QString errorString() const { return m_errorString; }
+
+// Not implemented because of change from QObject to QThread. If needed be carefull, most of the class is living in it's own QThread!
+//    int error() const { return m_error; }
+//    QString errorString() const { return m_errorString; }
 
     enum Notification {
         Error,
@@ -52,8 +54,15 @@ public:
         ServerNameCollision
     };
 
+protected:
+    void run();
+
 signals:
     void changeNotification(Notification notification);
+
+private slots:
+    void privatePublish(const Service &service);
+    void privatePublish(const QString &serviceName, const QString &serviceType, qint32 port, const QString &txtRecord);
 
 private:
     static void client_callback(AvahiClient *client, AvahiClientState state, void *userdata);
