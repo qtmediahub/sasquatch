@@ -210,6 +210,10 @@ void MediaScanner::loadParserPlugins()
             }
             foreach(const QString &key, plugin->parserKeys()) {
                 MediaParser *parser = plugin->createParser(m_settings, key);
+                if(!parser) {
+                    qWarning() << "Problem with creating parser. key used: " << key << " ... check your plugin";
+                    continue;
+                }
                 MediaModel::createDynamicRoleNameMapping(parser->type());
                 addParser(parser);
             }
