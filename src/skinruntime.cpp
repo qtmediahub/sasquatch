@@ -39,6 +39,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QApplication>
 #include <QDesktopWidget>
 #else
+#include "inputcontext.h"
 #include <QtDeclarative>
 #endif
 
@@ -86,7 +87,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "customcursor.h"
 #include "httpserver/httpserver.h"
-#include "inputcontext.h"
 
 #ifndef NO_DBUS
 static void registerObjectWithDbus(const QString &path, QObject *object)
@@ -129,7 +129,9 @@ public:
     Trackpad *trackpad;
     Skin *currentSkin;
     QAbstractItemModel *remoteSessionsModel;
+#ifndef SCENEGRAPH
     InputContext *inputContext;
+#endif
     GlobalSettings *settings;
     SkinRuntime *q;
 };
@@ -146,7 +148,9 @@ SkinRuntimePrivate::SkinRuntimePrivate(GlobalSettings *s, SkinRuntime *p)
       rpcConnection(0),
       trackpad(0),
       remoteSessionsModel(0),
+#ifndef SCENEGRAPH
       inputContext(0),
+#endif
       settings(s),
       q(p)
 {
@@ -376,9 +380,11 @@ void SkinRuntimePrivate::enableRemoteControlMode(bool enable)
     rpcConnection->registerObject(mediaPlayerRpc);
     rpcConnection->registerObject(trackpad);
 
+#ifndef SCENEGRAPH
     inputContext = new InputContext(this);
     connect(inputContext, SIGNAL(inputMethodStartRequested()), this, SLOT(rpcSendInputMethodStart()));
     connect(inputContext, SIGNAL(inputMethodStopRequested()), this, SLOT(rpcSendInputMethodStop()));
+#endif
 
     processManager = new ProcessManager(this);
 

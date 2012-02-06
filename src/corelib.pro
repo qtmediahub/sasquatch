@@ -30,12 +30,18 @@ SOURCES += \
     tarfileengine.cpp \
     processmanager.cpp \
     skinmanager.cpp \
-    inputcontext.cpp \
     settings.cpp \
     globalsettings.cpp \
     appsmanager.cpp \
     pushqml.cpp \
     ipaddressfinder.cpp
+
+!qt5 {
+    SOURCES += \
+        inputcontext.cpp
+    HEADERS += \
+        inputcontext.h
+}
 
 HEADERS += \
     global.h \
@@ -59,7 +65,6 @@ HEADERS += \
     processmanager.h \
     skinmanager.h \
     declarativeview.h \
-    inputcontext.h \
     mediaplayerdummy.h \
     settings.h \
     globalsettings.h \
