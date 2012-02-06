@@ -35,7 +35,7 @@ HttpServer::HttpServer(GlobalSettings *settings, quint16 port, QObject *parent) 
         m_address = getAddress();
 
     if (listen(
-            #ifdef SCENEGRAPH
+            #ifdef QT5
                 QHostAddress::AnyIPv4,
             #else
                 QHostAddress::Any,

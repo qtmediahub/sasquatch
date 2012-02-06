@@ -23,7 +23,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "trackpad.h"
 #include <QtGui>
 #include <QtDeclarative>
-#ifdef SCENEGRAPH
+#ifdef QT5
 #include <QtWidgets>
 #endif
 
@@ -38,7 +38,7 @@ Trackpad::~Trackpad()
 
 void Trackpad::setRecipient(QObject *recipient)
 {
-#ifndef SCENEGRAPH
+#ifndef QT5
     QDeclarativeView *potentialDeclarativeView = qobject_cast<QDeclarativeView*>(recipient);
     if (potentialDeclarativeView)
     {

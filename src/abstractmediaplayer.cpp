@@ -22,7 +22,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "abstractmediaplayer.h"
 
-#ifdef SCENEGRAPH
+#ifdef QT5
 AbstractMediaPlayer::AbstractMediaPlayer(QQuickItem *parent)
     : QQuickItem(parent),
 #else

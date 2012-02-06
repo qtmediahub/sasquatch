@@ -28,7 +28,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QDebug>
 #include <QtDBus>
 
-#ifdef SCENEGRAPH
+#ifdef QT5
 #include <QCoreApplication>
 #else
 #include "qtsingleapplication.h"
@@ -36,7 +36,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 int main(int argc, char** argv)
 {
-#ifdef SCENEGRAPH
+#ifdef QT5
     QCoreApplication app(argc, argv);
 #else
     QtSingleApplication app(argc, argv);
@@ -45,7 +45,7 @@ int main(int argc, char** argv)
     app.setOrganizationName("Nokia");
     app.setOrganizationDomain("nokia.com");
 
-#ifndef SCENEGRAPH
+#ifndef QT5
     if (app.isRunning()) {
         qWarning() << app.applicationName() << "is already running, aborting";
         return false;

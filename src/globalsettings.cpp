@@ -42,7 +42,7 @@ GlobalSettings::GlobalSettings(QObject *parent) :
     addOptionEntry(GlobalSettings::KeymapsPath,         "",             "keymapsPath",      "<path> adds path to keymaps search paths");
     addOptionEntry(GlobalSettings::ApplicationsPath,    "",             "appsPath",         "<path> adds path to skins search paths");
     addOptionEntry(GlobalSettings::FullScreen,          "true",         "fullscreen",       "<bool> toggle fullscreen");
-#ifdef SCENEGRAPH
+#ifdef QT5
     addOptionEntry(GlobalSettings::OverlayMode,         "true",        "overlayMode",      "<bool> toggle overlay mode used for devices with other mediaplayers than QtMultimediaKit");
 #else
     addOptionEntry(GlobalSettings::OverlayMode,         "false",        "overlayMode",      "<bool> toggle overlay mode used for devices with other mediaplayers than QtMultimediaKit");

@@ -35,7 +35,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "declarativeview.h"
 
-#ifdef SCENEGRAPH
+#ifdef QT5
 #include <QApplication>
 #include <QDesktopWidget>
 #else
@@ -129,7 +129,7 @@ public:
     Trackpad *trackpad;
     Skin *currentSkin;
     QAbstractItemModel *remoteSessionsModel;
-#ifndef SCENEGRAPH
+#ifndef QT5
     InputContext *inputContext;
 #endif
     GlobalSettings *settings;
@@ -148,7 +148,7 @@ SkinRuntimePrivate::SkinRuntimePrivate(GlobalSettings *s, SkinRuntime *p)
       rpcConnection(0),
       trackpad(0),
       remoteSessionsModel(0),
-#ifndef SCENEGRAPH
+#ifndef QT5
       inputContext(0),
 #endif
       settings(s),
@@ -186,7 +186,7 @@ SkinRuntimePrivate::SkinRuntimePrivate(GlobalSettings *s, SkinRuntime *p)
             QFontDatabase::addApplicationFont(dejavuPath % "DejaVuSans-Bold.ttf");
             QFontDatabase::addApplicationFont(dejavuPath % "DejaVuSans-Oblique.ttf");
             QFontDatabase::addApplicationFont(dejavuPath % "DejaVuSans-BoldOblique.ttf");
-#ifdef SCENEGRAPH
+#ifdef QT5
             QGuiApplication::setFont(QFont("DejaVu Sans"));
 #else
             QApplication::setFont(QFont("DejaVu Sans"));
@@ -362,7 +362,7 @@ void SkinRuntimePrivate::enableRemoteControlMode(bool enable)
 
     mediaServer = new MediaServer(settings, this);
     rpcConnection = new RpcConnection(RpcConnection::Server,
-                                  #ifdef SCENEGRAPH
+                                  #ifdef QT5
                                       QHostAddress::AnyIPv4,
                                   #else
                                       QHostAddress::Any,
@@ -380,7 +380,7 @@ void SkinRuntimePrivate::enableRemoteControlMode(bool enable)
     rpcConnection->registerObject(mediaPlayerRpc);
     rpcConnection->registerObject(trackpad);
 
-#ifndef SCENEGRAPH
+#ifndef QT5
     inputContext = new InputContext(this);
     connect(inputContext, SIGNAL(inputMethodStartRequested()), this, SLOT(rpcSendInputMethodStart()));
     connect(inputContext, SIGNAL(inputMethodStopRequested()), this, SLOT(rpcSendInputMethodStop()));

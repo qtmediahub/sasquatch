@@ -29,7 +29,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QtCore>
 #include <QtGui>
 
-#ifdef SCENEGRAPH
+#ifdef QT5
 #include <QQuickView>
 #include <QtWidgets>
 #else
@@ -137,7 +137,7 @@ void MainWindow::resizeEvent(QResizeEvent *e)
 
 void MainWindow::setOrientation(ScreenOrientation orientation)
 {
-#ifdef SCENEGRAPH
+#ifdef QT5
     qWarning("set orientation is not supported, yet");
 #else
     Qt::WidgetAttribute attribute;
@@ -312,7 +312,7 @@ void MainWindow::showNormal()
 void MainWindow::show()
 {
     //FIXME: QML 2 related hackery
-#ifndef SCENEGRAPH
+#ifndef QT5
     if (m_attemptingFullScreen) {
         showFullScreen();
     } else {
@@ -370,7 +370,7 @@ bool MainWindow::setSkin(Skin *newSkin)
     if (widget) {
         setCentralWidget(widget);
     }
-#ifdef SCENEGRAPH
+#ifdef QT5
     else {
         //FIXME: We clearly need parity window state management in the long run
         (qobject_cast<QWindow*>(skinWidget))->show();

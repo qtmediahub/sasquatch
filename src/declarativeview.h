@@ -25,7 +25,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <QElapsedTimer>
 
-#ifdef SCENEGRAPH
+#ifdef QT5
 #include <QQuickView>
 #else
 #include <QDeclarativeView>
@@ -35,7 +35,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 class GlobalSettings;
 
-#ifdef SCENEGRAPH
+#ifdef QT5
 class DeclarativeView : public QQuickView
 #else
 class DeclarativeView : public QDeclarativeView
@@ -45,7 +45,7 @@ class DeclarativeView : public QDeclarativeView
     Q_PROPERTY(int fps READ fps NOTIFY fpsChanged)
 
 public:
-#ifdef SCENEGRAPH
+#ifdef QT5
     DeclarativeView(GlobalSettings *settings, QWindow *parent = 0);
 #else
     DeclarativeView(GlobalSettings *settings, QWidget *parent = 0);
@@ -58,7 +58,7 @@ public:
 
     int fps() const;
 
-#ifndef SCENEGRAPH
+#ifndef QT5
 protected:
     void paintEvent(QPaintEvent *event);
     void timerEvent(QTimerEvent *event);
@@ -70,7 +70,7 @@ protected slots:
 public slots:
     void handleSourceChanged();
     void printFocusItem() { qDebug() << "Focus is held by:" << focusItem(); }
-#ifdef SCENEGRAPH
+#ifdef QT5
     void handleStatusChanged(QQuickView::Status status);
 #else
     void handleStatusChanged(QDeclarativeView::Status status);

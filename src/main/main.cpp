@@ -31,7 +31,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QNetworkConfigurationManager>
 #include <QNetworkSession>
 
-#ifdef SCENEGRAPH
+#ifdef QT5
 #include <QApplication>
 #else
 #include "qtsingleapplication.h"
@@ -73,7 +73,7 @@ static void setupNetwork(GlobalSettings *settings)
 
 int main(int argc, char** argv)
 {
-#ifdef SCENEGRAPH
+#ifdef QT5
     QApplication app(argc, argv);
 #else
 
@@ -142,7 +142,7 @@ int main(int argc, char** argv)
 
     setupNetwork(settings);
 
-#ifndef SCENEGRAPH
+#ifndef QT5
     bool primarySession = !app.isRunning();
     if (!(settings->isEnabled(GlobalSettings::MultiInstance) || primarySession)) {
         qWarning() << app.applicationName() << "is already running, aborting";

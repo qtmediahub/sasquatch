@@ -23,7 +23,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #ifndef ABSTRACTMEDIAPLAYER_H
 #define ABSTRACTMEDIAPLAYER_H
 
-#ifdef SCENEGRAPH
+#ifdef QT5
 #include <QQuickItem>
 #else
 #include <QDeclarativeItem>
@@ -34,7 +34,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "global.h"
 
 // Media Player API used by the "non-mobility" QML Video element
-#ifdef SCENEGRAPH
+#ifdef QT5
 class QMH_EXPORT AbstractMediaPlayer : public QQuickItem
 #else
 class QMH_EXPORT AbstractMediaPlayer : public QDeclarativeItem
@@ -68,7 +68,7 @@ public:
     };
     Q_ENUMS(Status)
 
-#ifdef SCENEGRAPH
+#ifdef QT5
     explicit AbstractMediaPlayer(QQuickItem *parent = 0);
 #else
     explicit AbstractMediaPlayer(QDeclarativeItem *parent = 0);

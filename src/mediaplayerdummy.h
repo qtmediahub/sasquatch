@@ -29,7 +29,7 @@ class MediaPlayerDummy : public AbstractMediaPlayer
 {
     Q_OBJECT
 public:
-#ifdef SCENEGRAPH
+#ifdef QT5
     explicit MediaPlayerDummy(QQuickItem *parent = 0)
 #else
     explicit MediaPlayerDummy(QDeclarativeItem *parent = 0)

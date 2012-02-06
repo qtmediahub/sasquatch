@@ -31,7 +31,7 @@ class MediaPlayerDbus : public AbstractMediaPlayer
 {
     Q_OBJECT
 public:
-#ifdef SCENEGRAPH
+#ifdef QT5
     explicit MediaPlayerDbus(QQuickItem *parent = 0)
 #else
     explicit MediaPlayerDbus(QDeclarativeItem *parent = 0)

@@ -33,7 +33,7 @@ class MediaPlayerVLC : public AbstractMediaPlayer
 {
     Q_OBJECT
 public:
-#ifdef SCENEGRAPH
+#ifdef QT5
     explicit MediaPlayerVLC(QQuickItem *parent = 0);
 #else
     explicit MediaPlayerVLC(QDeclarativeItem *parent = 0);

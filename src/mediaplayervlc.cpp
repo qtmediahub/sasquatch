@@ -25,7 +25,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QWidget>
 #include <QApplication>
 
-#ifdef SCENEGRAPH
+#ifdef QT5
 MediaPlayerVLC::MediaPlayerVLC(QQuickItem *parent) :
 #else
 MediaPlayerVLC::MediaPlayerVLC(QDeclarativeItem *parent) :

@@ -31,7 +31,7 @@ InputContext::InputContext(QObject *parent) :
     QInputContext(parent),
     m_composing(false)
 {
-#ifndef SCENEGRAPH
+#ifndef QT5
     //FIXME: oh so bad
     //This looks very Nokia device specific
     qApp->setInputContext(this);

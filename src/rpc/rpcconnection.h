@@ -58,7 +58,7 @@ public:
     void unregisterObject(QObject *object);
 
     bool listen(const QHostAddress &address
-            #ifdef SCENEGRAPH
+            #ifdef QT5
                 = QHostAddress::AnyIPv4,
             #else
                 = QHostAddress::Any,
