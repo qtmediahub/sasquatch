@@ -99,7 +99,7 @@ Skin *Skin::createSkin(const QString &skinPath, QObject *parent)
     return skin;
 }
 
-QUrl Skin::urlForResolution(const QSize &preferredSize)
+QUrl Skin::urlForResolution(const QSize &preferredSize) const
 {
     const QString resolutionString = QString("%1x%2").arg(preferredSize.width()).arg(preferredSize.height());
 

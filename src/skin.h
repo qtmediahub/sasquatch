@@ -63,7 +63,7 @@ public:
     Settings *settings() const;
     Type type(const QUrl &url) const; // ## remove the url argument
     bool isRemoteControl() const;
-    QUrl urlForResolution(const QSize &preferredSize);
+    QUrl urlForResolution(const QSize &preferredSize) const;
 
 private:
     explicit Skin(QObject *parent = 0);
