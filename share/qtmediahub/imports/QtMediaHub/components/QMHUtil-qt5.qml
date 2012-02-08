@@ -23,6 +23,11 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 import QtQuick 2.0
 
 QtObject {
+    function pathFromUrl(url) {
+        url += ""
+        return url.substr(0,url.lastIndexOf("/")+1)
+    }
+
     function createQmlObjectFromFile(file, properties, parent) {
         var qmlComponent = Qt.createComponent(file)
         if (qmlComponent.status == Component.Ready) {
