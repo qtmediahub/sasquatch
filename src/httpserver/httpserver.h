@@ -37,7 +37,11 @@ class HttpServer : public QTcpServer
 public:
     HttpServer(GlobalSettings *settings, quint16 port, QObject* parent = 0);
 
+#ifdef QT5
+    void incomingConnection(qintptr socket);
+#else
     void incomingConnection(int socket);
+#endif
 
     QString address() const { return m_address; }
     int port() const { return serverPort(); }

@@ -51,7 +51,11 @@ HttpServer::HttpServer(GlobalSettings *settings, quint16 port, QObject *parent) 
                  << errorString();
 }
 
+#ifdef QT5
+void HttpServer::incomingConnection(qintptr socket)
+#else
 void HttpServer::incomingConnection(int socket)
+#endif
 {
     QThread *thread = new QThread(this);
     HttpClient *client = new HttpClient(socket, this);
