@@ -122,6 +122,9 @@ public:
 
     bool dbusRegistration;
     bool remoteControlMode;
+
+    QObject *skinUI;
+
     MediaServer *mediaServer;
     ProcessManager *processManager;
     DeviceManager *deviceManager;
@@ -144,6 +147,7 @@ SkinRuntimePrivate::SkinRuntimePrivate(GlobalSettings *s, SkinRuntime *p)
     : QObject(p),
       dbusRegistration(false),
       remoteControlMode(true),
+      skinUI(0),
       mediaServer(0),
       processManager(0),
       deviceManager(0),
@@ -249,10 +253,15 @@ SkinRuntimePrivate::~SkinRuntimePrivate()
 
 DeclarativeView *SkinRuntimePrivate::declarativeView()
 {
+    if (skinUI)
+        skinUI->deleteLater();
+
     DeclarativeView *declarativeWidget = new DeclarativeView(settings);
 
     QDeclarativeEngine *engine = declarativeWidget->engine();
     QObject::connect(engine, SIGNAL(quit()), qApp, SLOT(quit()));
+
+    skinUI = declarativeWidget;
 
     return declarativeWidget;
 }

@@ -60,6 +60,7 @@ MainWindow::MainWindow(GlobalSettings *settings, QWidget *parent)
     new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_Left), this, SLOT(moveLeft()));
     new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_Up), this, SLOT(moveUp()));
     new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_Down), this, SLOT(moveDown()));
+    new QShortcut(QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_S), this, SLOT(selectSkin()));
 
     new QShortcut(QKeySequence(Qt::ALT + Qt::Key_Return), this, SLOT(toggleFullScreen()));
 
@@ -323,6 +324,7 @@ void MainWindow::show()
 
 void MainWindow::selectSkin()
 {
+    qDebug() << "Explicitly selecting a new skin";
     setSkin(0);
 }
 
