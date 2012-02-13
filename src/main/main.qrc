@@ -1,6 +1,5 @@
 <RCC>
 <qresource prefix="/">
     <file>images/petite-ganesh-22x22.jpg</file>
-    <file>skinselector.qml</file>
 </qresource>
 </RCC>

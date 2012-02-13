@@ -19,8 +19,10 @@ Qt += gui
 
 qt5 {
     Qt += quick
+    RESOURCES = main-qt5.qrc
 } else {
     Qt += declarative
+    RESOURCES = main-qt4.qrc
     include($${PROJECTROOT}/src/3rdparty/qtsingleapplication/qtsingleapplication.pri)
 }
 
@@ -30,7 +32,7 @@ SOURCES += main.cpp \
 
 HEADERS += mainwindow.h
 
-RESOURCES = main.qrc
+RESOURCES += main.qrc
 
 target.path = $$PREFIX/bin
 INSTALLS += target
