@@ -22,7 +22,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "mainwindow.h"
 #include "skinmanager.h"
-#include "skinselector.h"
 #include "skinruntime.h"
 #include "globalsettings.h"
 
@@ -74,12 +73,13 @@ MainWindow::MainWindow(GlobalSettings *settings, QWidget *parent)
     connect(&m_inputIdleTimer, SIGNAL(timeout()), this, SIGNAL(inputIdle()));
 
     QList<QAction*> actions;
-    QAction *selectSkinAction = new QAction(tr("Select skin"), this);
     QAction *quitAction = new QAction(tr("Quit"), this);
-    connect(selectSkinAction, SIGNAL(triggered()), this, SLOT(selectSkin()));
     connect(quitAction, SIGNAL(triggered()), this, SLOT(close()));
-    actions.append(selectSkinAction);
     actions.append(quitAction);
+
+    QAction *selectSkinAction = new QAction(tr("Select skin"), this);
+    connect(selectSkinAction, SIGNAL(triggered()), this, SLOT(selectSkin()));
+    actions.append(selectSkinAction);
 
     if (m_settings->isEnabled(GlobalSettings::SystemTray)) {
         QSystemTrayIcon *systray = new QSystemTrayIcon(QIcon(":/images/petite-ganesh-22x22.jpg"), this);
@@ -89,7 +89,7 @@ MainWindow::MainWindow(GlobalSettings *settings, QWidget *parent)
         systray->setContextMenu(contextMenu);
     }
 
-        m_skinManager = new SkinManager(m_settings, this);
+    m_skinManager = new SkinManager(m_settings, this);
 }
 
 MainWindow::~MainWindow()
@@ -323,46 +323,29 @@ void MainWindow::show()
 
 void MainWindow::selectSkin()
 {
-    SkinSelector *skinSelector = new SkinSelector(m_skinManager, this);
-    skinSelector->setAttribute(Qt::WA_DeleteOnClose);
-    connect(skinSelector, SIGNAL(skinSelected(Skin *)), this, SLOT(setSkin(Skin *)));
-    skinSelector->exec();
+    setSkin(0);
 }
 
 bool MainWindow::setSkin(const QString &name)
 {
     QHash<QString, Skin *> skins = m_skinManager->skins();
 
-    if (skins.size() == 0)
-        return false;
-
     Skin *newSkin = skins.value(name);
-    if (!newSkin && skins.size() > 0) {
-        qWarning() << "Skin" << name << "not found, falling back to skin" << m_settings->value(GlobalSettings::Skin).toString() << "specified in settings";
-        newSkin = skins.value(m_settings->value(GlobalSettings::Skin).toString());
-    }
-
-    if (!newSkin && skins.size() > 0) {
-        qWarning() << "Skin" << m_settings->value(GlobalSettings::Skin).toString() << "not found, falling back to" <<  skins.keys().at(0);
-        newSkin = skins.value(skins.keys().at(0));
-    }
 
     if (newSkin) {
         qWarning() << "Attempting to use:" << name << "skin";
     } else {
         qWarning() << "No skin" << name << "found.";
-        qWarning() << "Please specify the '-skinsPath <path>' startup argument.";
-        return false;
     }
-    setSkin(newSkin);
-    return true;
+
+    return setSkin(newSkin);
 }
 
 bool MainWindow::setSkin(Skin *newSkin)
 {
     QObject *skinWidget = m_skinRuntime->create(newSkin, this);
     if (!skinWidget) {
-        qDebug() << "Failed to load skin:" << newSkin->name();
+        qDebug() << "Failed to load skin or fallback to skin selector";
         return false;
     }
 

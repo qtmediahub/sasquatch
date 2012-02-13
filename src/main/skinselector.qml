@@ -1,4 +1,4 @@
-import QtQuick 1.1
+import QtQuick 2.0
 
 ListView {
     id: root
@@ -9,10 +9,13 @@ ListView {
         colorGroup: SystemPalette.Active 
     }
 
-    anchors.fill: parent
-    model: skinManager.skinsModel
+    width: 400
+    height: 800
 
-    delegate: Rectangle {
+    model: runtime.skinManager.skinsModel
+
+    delegate:
+        Rectangle {
         id: delegate
         width: ListView.view.width
         height: Math.max(column.height, screenshot.height)
@@ -57,28 +60,28 @@ ListView {
             anchors.fill: parent
 
             onClicked: delegate.ListView.view.currentIndex = index
-            onDoubleClicked: window.setSkin(model.modelData.name)
+            onDoubleClicked: runtime.window.setSkin(model.modelData.name)
         }
 
-        Keys.onEnterPressed: window.setSkin(model.modelData.name)
-        Keys.onReturnPressed: window.setSkin(model.modelData.name)
+        Keys.onEnterPressed: runtime.window.setSkin(model.modelData.name)
+        Keys.onReturnPressed: runtime.window.setSkin(model.modelData.name)
 
         Component.onCompleted: {
             var doc = new XMLHttpRequest()
             doc.onreadystatechange = function() {
-                if (doc.readyState == XMLHttpRequest.DONE && doc.responseText) {
-                    var manifest = eval('(' + doc.responseText + ')')
-                    skinName.text = manifest.name + " (v" + manifest.version + ")"
-                    if (manifest.screenshot)
-                        screenshot.source = "file://" + model.modelData.path + "/" + manifest.screenshot
-                    var authors = []
-                    for (var i = 0; i < manifest.authors.length; i++) {
-                        authors.push(manifest.authors[i].name)
+                        if (doc.readyState == XMLHttpRequest.DONE && doc.responseText) {
+                            var manifest = eval('(' + doc.responseText + ')')
+                            skinName.text = manifest.name + " (v" + manifest.version + ")"
+                            if (manifest.screenshot)
+                                screenshot.source = "file://" + model.modelData.path + "/" + manifest.screenshot
+                            var authors = []
+                            for (var i = 0; i < manifest.authors.length; i++) {
+                                authors.push(manifest.authors[i].name)
+                            }
+                            skinAuthors.text = "By " + authors.join(", ")
+                            website.text = manifest.website
+                        }
                     }
-                    skinAuthors.text = "By " + authors.join(", ")
-                    website.text = manifest.website
-                }
-            }
             doc.open("GET", "file://" + model.modelData.path + "/skin.manifest")
             doc.send()
         }

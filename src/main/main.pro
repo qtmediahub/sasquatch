@@ -26,11 +26,9 @@ qt5 {
 
 # Input
 SOURCES += main.cpp \
-           mainwindow.cpp \
-           skinselector.cpp
+           mainwindow.cpp
 
-HEADERS += mainwindow.h \
-           skinselector.h
+HEADERS += mainwindow.h
 
 RESOURCES = main.qrc
 

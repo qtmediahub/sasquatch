@@ -20,6 +20,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 ****************************************************************************/
 
+#include "skinmanager.h"
 #include "skinruntime.h"
 #include "mediaserver.h"
 #include "tarfileengine.h"
@@ -107,7 +108,10 @@ public:
     ~SkinRuntimePrivate();
 
 public slots:
+    DeclarativeView *declarativeView();
+
     QObject *loadQmlSkin(const QUrl &url, QObject *window);
+    QObject *loadSkinSelector(QObject *window);
 
     // TODO check if there is some better place
     void rpcSendInputMethodStart();
@@ -243,12 +247,21 @@ SkinRuntimePrivate::~SkinRuntimePrivate()
     settings->setValue(GlobalSettings::Skin, currentSkin->name());
 }
 
-QObject *SkinRuntimePrivate::loadQmlSkin(const QUrl &targetUrl, QObject *window)
+DeclarativeView *SkinRuntimePrivate::declarativeView()
 {
     DeclarativeView *declarativeWidget = new DeclarativeView(settings);
 
     QDeclarativeEngine *engine = declarativeWidget->engine();
     QObject::connect(engine, SIGNAL(quit()), qApp, SLOT(quit()));
+
+    return declarativeWidget;
+}
+
+QObject *SkinRuntimePrivate::loadQmlSkin(const QUrl &targetUrl, QObject *window)
+{
+    DeclarativeView *declarativeWidget = declarativeView();
+
+    QDeclarativeEngine *engine = declarativeWidget->engine();
 
     QDeclarativePropertyMap *runtime = new QDeclarativePropertyMap(declarativeWidget);
     if (!remoteControlMode) {
@@ -267,7 +280,7 @@ QObject *SkinRuntimePrivate::loadQmlSkin(const QUrl &targetUrl, QObject *window)
     runtime->insert("settings", qVariantFromValue(static_cast<QObject *>(settings)));
     runtime->insert("window", qVariantFromValue(static_cast<QObject *>(window)));
     runtime->insert("view", qVariantFromValue(static_cast<QObject *>(declarativeWidget)));
-    runtime->insert("cursor", qVariantFromValue(static_cast<QObject *>(new CustomCursor(settings, declarativeWidget))));
+    runtime->insert("cursor", qVariantFromValue(static_cast<QObject *>(new CustomCursor(settings, runtime))));
     runtime->insert("skin", qVariantFromValue(static_cast<QObject *>(currentSkin)));
     runtime->insert("apps", qVariantFromValue(static_cast<QObject *>(new AppsManager(settings, this))));
     runtime->insert("file", qVariantFromValue(static_cast<QObject *>(new File(this))));
@@ -289,6 +302,21 @@ QObject *SkinRuntimePrivate::loadQmlSkin(const QUrl &targetUrl, QObject *window)
     return declarativeWidget;
 }
 
+QObject *SkinRuntimePrivate::loadSkinSelector(QObject *window)
+{
+    DeclarativeView *declarativeWidget = declarativeView();
+
+    QDeclarativePropertyMap *runtime = new QDeclarativePropertyMap(declarativeWidget);
+    runtime->insert("skinManager", qVariantFromValue(static_cast<QObject *>(new SkinManager(settings, declarativeWidget))));
+    runtime->insert("window", qVariantFromValue(static_cast<QObject *>(window)));
+
+    declarativeWidget->rootContext()->setContextProperty("runtime", runtime);
+
+    declarativeWidget->setSource(QUrl("qrc:///skinselector.qml"));
+
+    return declarativeWidget;
+}
+
 SkinRuntime::SkinRuntime(GlobalSettings *settings, QObject *p)
     : QObject(p),
       d(new SkinRuntimePrivate(settings, this))
@@ -306,22 +334,38 @@ QObject *SkinRuntime::create(Skin *skin, QObject *window)
     const QSize res = d->settings->value(GlobalSettings::SkinResolution).toRect().size(); // TODO provide a toSize for Settings
     const QSize preferredResolution = res.isEmpty() ? qApp->desktop()->screenGeometry().size() : res;
 
-    skin->parseManifest();
+    QObject *interface = 0;
 
-    QUrl url = skin->urlForResolution(preferredResolution);
-    if (!url.isValid()) {
-        qWarning() << "Malformed URL " << url;
-        return 0;
+    if (skin)
+    {
+        bool fallback = false;
+
+        skin->parseManifest();
+
+        QUrl url = skin->urlForResolution(preferredResolution);
+        if (!url.isValid()) {
+            qWarning() << "Malformed URL " << url;
+            fallback = true;
+        }
+
+        if (skin->type(url) != Skin::Qml) {
+            qWarning() << "Only QML skins supported at present: Error loading skin " << skin->name();
+            fallback = true;
+        }
+
+        if (!fallback) {
+            d->currentSkin = skin;
+            d->enableRemoteControlMode(skin->isRemoteControl() || d->settings->isEnabled(GlobalSettings::RemoteOverride));
+            interface = d->loadQmlSkin(url, window);
+        }
     }
 
-    if (skin->type(url) != Skin::Qml) {
-        qWarning() << "Error loading skin " << skin->name();
-        return 0;
+    if (!interface) {
+        d->enableRemoteControlMode(false);
+        interface = d->loadSkinSelector(window);
     }
 
-    d->currentSkin = skin;
-    d->enableRemoteControlMode(skin->isRemoteControl() || d->settings->isEnabled(GlobalSettings::RemoteOverride));
-    return d->loadQmlSkin(url, window);
+    return interface;
 }
 
 void SkinRuntimePrivate::enableRemoteControlMode(bool enable)
