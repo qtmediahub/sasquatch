@@ -38,10 +38,10 @@ class QMH_EXPORT SkinRuntime : public QObject
     Q_OBJECT
 
 public:
-    SkinRuntime(GlobalSettings *settings, QObject *p = 0);
+    SkinRuntime(GlobalSettings *settings, MainWindow *p = 0);
     ~SkinRuntime();
 
-    QObject *create(Skin *skin, QObject *window);
+    QObject *create(Skin *skin);
 private:
     SkinRuntimePrivate *d;
 };

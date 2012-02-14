@@ -57,6 +57,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QGLWidget>
 #endif
 
+#include "mainwindow.h"
 #include "dirmodel.h"
 #include "media/playlist.h"
 #include "file.h"
@@ -110,12 +111,13 @@ public:
 public slots:
     DeclarativeView *declarativeView();
 
-    QObject *loadQmlSkin(const QUrl &url, QObject *window);
-    QObject *loadSkinSelector(QObject *window);
+    QObject *loadQmlSkin(const QUrl &url);
+    QObject *loadSkinSelector();
 
     // TODO check if there is some better place
     void rpcSendInputMethodStart();
     void rpcSendInputMethodStop();
+    void checkStatus();
 
 public:
     void enableRemoteControlMode(bool enable);
@@ -125,6 +127,7 @@ public:
 
     QObject *skinUI;
 
+    MainWindow *mainWindow;
     MediaServer *mediaServer;
     ProcessManager *processManager;
     DeviceManager *deviceManager;
@@ -266,7 +269,7 @@ DeclarativeView *SkinRuntimePrivate::declarativeView()
     return declarativeWidget;
 }
 
-QObject *SkinRuntimePrivate::loadQmlSkin(const QUrl &targetUrl, QObject *window)
+QObject *SkinRuntimePrivate::loadQmlSkin(const QUrl &targetUrl)
 {
     DeclarativeView *declarativeWidget = declarativeView();
 
@@ -287,7 +290,7 @@ QObject *SkinRuntimePrivate::loadQmlSkin(const QUrl &targetUrl, QObject *window)
         trackpad->setRecipient(declarativeWidget);
     }
     runtime->insert("settings", qVariantFromValue(static_cast<QObject *>(settings)));
-    runtime->insert("window", qVariantFromValue(static_cast<QObject *>(window)));
+    runtime->insert("window", qVariantFromValue(static_cast<QObject *>(mainWindow)));
     runtime->insert("view", qVariantFromValue(static_cast<QObject *>(declarativeWidget)));
     runtime->insert("cursor", qVariantFromValue(static_cast<QObject *>(new CustomCursor(settings, runtime))));
     runtime->insert("skin", qVariantFromValue(static_cast<QObject *>(currentSkin)));
@@ -308,6 +311,13 @@ QObject *SkinRuntimePrivate::loadQmlSkin(const QUrl &targetUrl, QObject *window)
     //Can't detect QML1/QDeclarativeView collision
     declarativeWidget->setSource(targetUrl);
 
+    QTimer *deadmansTimer = new QTimer(declarativeWidget);
+    //Give the device 5 seconds to get this parsed
+    deadmansTimer->setInterval(5000);
+    deadmansTimer->setSingleShot(true);
+    QObject::connect(deadmansTimer, SIGNAL(timeout()), this, SLOT(checkStatus()));
+    deadmansTimer->start();
+
 #ifndef QT5
     //I am a bad bad man
     QApplication::processEvents();
@@ -322,13 +332,22 @@ QObject *SkinRuntimePrivate::loadQmlSkin(const QUrl &targetUrl, QObject *window)
     return declarativeWidget;
 }
 
-QObject *SkinRuntimePrivate::loadSkinSelector(QObject *window)
+void SkinRuntimePrivate::checkStatus()
+{
+    DeclarativeView *declarativeWidget = qobject_cast<DeclarativeView*>(skinUI);
+    QVariant rationalSkin(declarativeWidget->rootObject()->property("rational"));
+    if (!rationalSkin.isNull() && !rationalSkin.toBool()) {
+        mainWindow->setSkin(0);
+    }
+}
+
+QObject *SkinRuntimePrivate::loadSkinSelector()
 {
     DeclarativeView *declarativeWidget = declarativeView();
 
     QDeclarativePropertyMap *runtime = new QDeclarativePropertyMap(declarativeWidget);
     runtime->insert("skinManager", qVariantFromValue(static_cast<QObject *>(new SkinManager(settings, declarativeWidget))));
-    runtime->insert("window", qVariantFromValue(static_cast<QObject *>(window)));
+    runtime->insert("window", qVariantFromValue(static_cast<QObject *>(mainWindow)));
 
     declarativeWidget->rootContext()->setContextProperty("runtime", runtime);
 
@@ -337,10 +356,11 @@ QObject *SkinRuntimePrivate::loadSkinSelector(QObject *window)
     return declarativeWidget;
 }
 
-SkinRuntime::SkinRuntime(GlobalSettings *settings, QObject *p)
+SkinRuntime::SkinRuntime(GlobalSettings *settings, MainWindow *p)
     : QObject(p),
       d(new SkinRuntimePrivate(settings, this))
 {
+    d->mainWindow = p;
 }
 
 SkinRuntime::~SkinRuntime()
@@ -349,7 +369,7 @@ SkinRuntime::~SkinRuntime()
     d = 0;
 }
 
-QObject *SkinRuntime::create(Skin *skin, QObject *window)
+QObject *SkinRuntime::create(Skin *skin)
 {
     const QSize res = d->settings->value(GlobalSettings::SkinResolution).toRect().size(); // TODO provide a toSize for Settings
     const QSize preferredResolution = res.isEmpty() ? qApp->desktop()->screenGeometry().size() : res;
@@ -376,13 +396,13 @@ QObject *SkinRuntime::create(Skin *skin, QObject *window)
         if (!fallback) {
             d->currentSkin = skin;
             d->enableRemoteControlMode(skin->isRemoteControl() || d->settings->isEnabled(GlobalSettings::RemoteOverride));
-            interface = d->loadQmlSkin(url, window);
+            interface = d->loadQmlSkin(url);
         }
     }
 
     if (!interface) {
         d->enableRemoteControlMode(false);
-        interface = d->loadSkinSelector(window);
+        interface = d->loadSkinSelector();
     }
 
     return interface;

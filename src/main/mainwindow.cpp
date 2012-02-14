@@ -345,7 +345,7 @@ bool MainWindow::setSkin(const QString &name)
 
 bool MainWindow::setSkin(Skin *newSkin)
 {
-    QObject *skinWidget = m_skinRuntime->create(newSkin, this);
+    QObject *skinWidget = m_skinRuntime->create(newSkin);
     if (!skinWidget) {
         qDebug() << "Failed to load skin or fallback to skin selector";
         return false;

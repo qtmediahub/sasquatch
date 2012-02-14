@@ -115,6 +115,8 @@ avahi {
     HEADERS += devicemanagerdbus.h
 }
 
+INCLUDEPATH += main
+
 target.path = $${PREFIX}/lib/
 INSTALLS += target
 
