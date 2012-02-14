@@ -86,7 +86,9 @@ GlobalSettings::GlobalSettings(QObject *parent) :
     addOptionEntry(GlobalSettings::Installed,           "false",         "installed","<bool> assume installed to correct prefix");
     addOptionEntry(GlobalSettings::MemoryConscious,     "false",         "memoryConscious","<bool> constrain footprint");
     addOptionEntry(GlobalSettings::VSyncAnim,           "false",         "vsync","<bool> sync animations to refresh rate!");
-    addOptionEntry(GlobalSettings::RedirectDebugOutput,   "true",         "log","<bool> log debug messenging to file!");
+    addOptionEntry(GlobalSettings::RedirectDebugOutput, "true",          "log","<bool> log debug messenging to file!");
+    addOptionEntry(GlobalSettings::SwapLogPollInterval, "1000",          "swaplogInterval","<int> Interval at which to sample the swap log!");
+    addOptionEntry(GlobalSettings::FPS,                 "false",         "fps","<bool> show fps counter!");
 
     m_instance = this;
 }

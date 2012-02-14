@@ -58,10 +58,12 @@ public:
 
     int fps() const;
 
+protected:
+    void timerEvent(QTimerEvent *event);
+
 #ifndef QT5
 protected:
     void paintEvent(QPaintEvent *event);
-    void timerEvent(QTimerEvent *event);
 
 protected slots:
     void setupViewport(QWidget *viewport);

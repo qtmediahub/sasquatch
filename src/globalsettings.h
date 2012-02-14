@@ -80,6 +80,8 @@ public:
         MemoryConscious,
         VSyncAnim,
         RedirectDebugOutput,
+        SwapLogPollInterval,
+        FPS,
 
         OptionLength
     };
