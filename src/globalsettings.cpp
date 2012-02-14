@@ -35,7 +35,6 @@ GlobalSettings * GlobalSettings::instance()
 GlobalSettings::GlobalSettings(QObject *parent) :
     Settings(parent)
 {
-    addOptionEntry(GlobalSettings::Skin,                "confluence",   "skin",             "<name> specifies the skin");
     addOptionEntry(GlobalSettings::SkinsPath,           "",             "skinsPath",        "<path> adds path to skins search paths");
     addOptionEntry(GlobalSettings::SkinResolution,      "",             "skinResolution",   "<string> resolution name from skin manifest");
     addOptionEntry(GlobalSettings::Keymap,              "stdkeyboard",  "keymap",           "<name> specifies the keymap");
@@ -43,8 +42,10 @@ GlobalSettings::GlobalSettings(QObject *parent) :
     addOptionEntry(GlobalSettings::ApplicationsPath,    "",             "appsPath",         "<path> adds path to skins search paths");
     addOptionEntry(GlobalSettings::FullScreen,          "true",         "fullscreen",       "<bool> toggle fullscreen");
 #ifdef QT5
+    addOptionEntry(GlobalSettings::Skin,                "shroomfluence",   "skin",             "<name> specifies the skin");
     addOptionEntry(GlobalSettings::OverlayMode,         "true",        "overlayMode",      "<bool> toggle overlay mode used for devices with other mediaplayers than QtMultimediaKit");
 #else
+    addOptionEntry(GlobalSettings::Skin,                "confluence",   "skin",             "<name> specifies the skin");
     addOptionEntry(GlobalSettings::OverlayMode,         "false",        "overlayMode",      "<bool> toggle overlay mode used for devices with other mediaplayers than QtMultimediaKit");
 #endif
     addOptionEntry(GlobalSettings::Headless,            "false",        "headless",         "<bool> toggle running with user interface, usable for streaming server usage");
