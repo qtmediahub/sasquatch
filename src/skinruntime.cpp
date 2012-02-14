@@ -117,7 +117,7 @@ public slots:
     // TODO check if there is some better place
     void rpcSendInputMethodStart();
     void rpcSendInputMethodStop();
-    void checkStatus();
+    void deadmanStatusCheck();
 
 public:
     void enableRemoteControlMode(bool enable);
@@ -312,10 +312,12 @@ QObject *SkinRuntimePrivate::loadQmlSkin(const QUrl &targetUrl)
     declarativeWidget->setSource(targetUrl);
 
     QTimer *deadmansTimer = new QTimer(declarativeWidget);
-    //Give the device 5 seconds to get this parsed
-    deadmansTimer->setInterval(5000);
+    //Give the device 2.5 seconds:
+    //1) splash to complete
+    //2) to get this parsed
+    deadmansTimer->setInterval(2500);
     deadmansTimer->setSingleShot(true);
-    QObject::connect(deadmansTimer, SIGNAL(timeout()), this, SLOT(checkStatus()));
+    QObject::connect(deadmansTimer, SIGNAL(timeout()), this, SLOT(deadmanStatusCheck()));
     deadmansTimer->start();
 
 #ifndef QT5
@@ -332,11 +334,12 @@ QObject *SkinRuntimePrivate::loadQmlSkin(const QUrl &targetUrl)
     return declarativeWidget;
 }
 
-void SkinRuntimePrivate::checkStatus()
+void SkinRuntimePrivate::deadmanStatusCheck()
 {
     DeclarativeView *declarativeWidget = qobject_cast<DeclarativeView*>(skinUI);
     QVariant rationalSkin(declarativeWidget->rootObject()->property("rational"));
     if (!rationalSkin.isNull() && !rationalSkin.toBool()) {
+        qDebug() << "Skin siezed; failing rationality test";
         mainWindow->setSkin(0);
     }
 }
