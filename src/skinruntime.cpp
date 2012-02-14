@@ -308,8 +308,13 @@ QObject *SkinRuntimePrivate::loadQmlSkin(const QUrl &targetUrl, QObject *window)
     //Can't detect QML1/QDeclarativeView collision
     declarativeWidget->setSource(targetUrl);
 
+#ifndef QT5
+    //I am a bad bad man
+    QApplication::processEvents();
+#endif
     //Will need to be a little more cunning if this is/becomes async
     if (declarativeWidget->status() != 1) {
+        qDebug() << "Abandoning skin due to errors; time to fallback baby";
         declarativeWidget->deleteLater();
         declarativeWidget = 0;
     }
