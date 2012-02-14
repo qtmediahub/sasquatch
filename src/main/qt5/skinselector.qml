@@ -70,6 +70,7 @@ ListView {
             var doc = new XMLHttpRequest()
             doc.onreadystatechange = function() {
                         if (doc.readyState == XMLHttpRequest.DONE && doc.responseText) {
+                            var hidden = false
                             var manifest = eval('(' + doc.responseText + ')')
                             skinName.text = manifest.name + " (v" + manifest.version + ")"
                             if (manifest.screenshot)
@@ -78,10 +79,17 @@ ListView {
                             for (var i = 0; i < manifest.authors.length; i++) {
                                 authors.push(manifest.authors[i].name)
                             }
-                            if (!!manifest.visible && (manifest.visible == "false")) {
-                                delegate.height = delegate.opacity = 0
-                            }
                             skinAuthors.text = "By " + authors.join(", ")
+
+                            hidden = hidden || (!!manifest.visible && (manifest.visible == "false"))
+                            hidden = hidden || (/*!!manifest.qmlVersion &&*/ (manifest.qmlVersion != "2"))
+
+                            if (hidden) {
+                                //FIXME: still selectable
+                                delegate.height = delegate.opacity = delegate.visible = 0
+                                delegate.enabled = false
+                            }
+
                             website.text = manifest.website
                         }
                     }
