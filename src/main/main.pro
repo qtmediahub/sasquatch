@@ -27,12 +27,11 @@ qt5 {
 }
 
 # Input
-SOURCES += main.cpp \
-           mainwindow.cpp
-
-HEADERS += mainwindow.h
+SOURCES += main.cpp
 
 RESOURCES += main.qrc
+
+INCLUDEPATH += ../
 
 target.path = $$PREFIX/bin
 INSTALLS += target

@@ -9,7 +9,7 @@ QMAKE_CFLAGS_RELEASE += -fvisibility=hidden -fvisibility-inlines-hidden
 QMAKE_CFLAGS_DEBUG += -fvisibility=hidden -fvisibility-inlines-hidden
 QMAKE_CXXFLAGS += -fvisibility=hidden  -fvisibility-inlines-hidden
 
-DEFINES += BUILDING_QMH
+DEFINES += BUILDING_QMH QMH_LIB
 
 # Input
 SOURCES += \
@@ -34,7 +34,8 @@ SOURCES += \
     globalsettings.cpp \
     appsmanager.cpp \
     pushqml.cpp \
-    ipaddressfinder.cpp
+    ipaddressfinder.cpp \
+    mainwindow.cpp
 
 !qt5 {
     SOURCES += \
@@ -70,7 +71,8 @@ HEADERS += \
     globalsettings.h \
     appsmanager.h \
     pushqml.h \
-    ipaddressfinder.h
+    ipaddressfinder.h \
+    mainwindow.h
 
 qt5 {
     SOURCES += \
@@ -114,8 +116,6 @@ avahi {
     SOURCES += devicemanagerdbus.cpp
     HEADERS += devicemanagerdbus.h
 }
-
-INCLUDEPATH += main
 
 target.path = $${PREFIX}/lib/
 INSTALLS += target

@@ -31,6 +31,12 @@ class SkinManager;
 class Skin;
 class GlobalSettings;
 
+#if defined(QMH_LIB)
+#  define EXPORT_SYM Q_DECL_EXPORT
+#else
+#  define EXPORT_SYM Q_DECL_IMPORT
+#endif
+
 class MainWindow : public QWidget
 {
     Q_OBJECT
@@ -40,7 +46,7 @@ public:
         ScreenOrientationLockLandscape,
         ScreenOrientationAuto
     };
-    MainWindow(GlobalSettings *m_settings, QWidget *parent = 0);
+    EXPORT_SYM MainWindow(GlobalSettings *m_settings, QWidget *parent = 0);
     ~MainWindow();
 
     void setCentralWidget(QWidget *cw);
@@ -48,10 +54,10 @@ public:
 
 public slots:
     // ## These are a bit evil, since they shadow QWidget
-    void show();
+    EXPORT_SYM void show();
     void showFullScreen();
     void showNormal();
-    bool setSkin(const QString &name);
+    EXPORT_SYM bool setSkin(const QString &name);
     bool setSkin(Skin *skin);
 
 signals:
@@ -81,7 +87,7 @@ private slots:
 private:
     QTimer m_resizeSettleTimer;
     QTimer m_inputIdleTimer;
-	SkinManager *m_skinManager;
+    SkinManager *m_skinManager;
     SkinRuntime *m_skinRuntime;
     QWidget *m_centralWidget;
     bool m_overscanWorkAround;
