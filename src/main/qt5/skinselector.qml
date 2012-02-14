@@ -78,6 +78,9 @@ ListView {
                             for (var i = 0; i < manifest.authors.length; i++) {
                                 authors.push(manifest.authors[i].name)
                             }
+                            if (!!manifest.visible && (manifest.visible == "false")) {
+                                delegate.height = delegate.opacity = 0
+                            }
                             skinAuthors.text = "By " + authors.join(", ")
                             website.text = manifest.website
                         }
