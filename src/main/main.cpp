@@ -25,6 +25,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "globalsettings.h"
 #include "skin.h"
 #include "skinmanager.h"
+#include "libraryinfo.h"
 
 #include <QApplication>
 #include <QNetworkProxy>
@@ -69,6 +70,31 @@ static void setupNetwork(GlobalSettings *settings)
     g_networkSession = new QNetworkSession(cfg);
     g_networkSession->open();
     g_networkSession->waitForOpened(-1);
+}
+
+static void logMessageHandler(QtMsgType type,
+                              #ifdef QT5
+                              const QMessageLogContext &,
+                              #endif
+                              const char *msg)
+{
+    QString logPath(LibraryInfo::logPath() + "/qmh-log");
+
+    switch(type)
+    {
+        case QtDebugMsg:
+        case QtWarningMsg:
+            logPath += "-debug.log";
+            break;
+        default:
+            logPath += "-error.log";
+            break;
+    }
+
+    QFile logFile(logPath);
+    logFile.open(QIODevice::WriteOnly);
+    logFile.write(msg, qstrlen(msg));
+    logFile.close();
 }
 
 int main(int argc, char** argv)
@@ -142,12 +168,16 @@ int main(int argc, char** argv)
 
     setupNetwork(settings);
 
-#ifndef QT5
+    bool redirectDebugging = settings->isEnabled(GlobalSettings::RedirectDebugOutput);
+#ifdef QT5
+    if (redirectDebugging) qInstallMessageHandler(logMessageHandler);
+#else
     bool primarySession = !app.isRunning();
     if (!(settings->isEnabled(GlobalSettings::MultiInstance) || primarySession)) {
         qWarning() << app.applicationName() << "is already running, aborting";
         return false;
     }
+    if (redirectDebugging) qInstallMsgHandler(logMessageHandler);
 #endif
 
     MainWindow *mainWindow = 0;

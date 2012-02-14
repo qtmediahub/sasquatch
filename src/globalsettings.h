@@ -79,6 +79,7 @@ public:
         Installed,
         MemoryConscious,
         VSyncAnim,
+        RedirectDebugOutput,
 
         OptionLength
     };
