@@ -117,6 +117,7 @@ public slots:
     // TODO check if there is some better place
     void rpcSendInputMethodStart();
     void rpcSendInputMethodStop();
+    void initialStatusCheck();
     void deadmanStatusCheck();
 
 public:
@@ -320,18 +321,18 @@ QObject *SkinRuntimePrivate::loadQmlSkin(const QUrl &targetUrl)
     QObject::connect(deadmansTimer, SIGNAL(timeout()), this, SLOT(deadmanStatusCheck()));
     deadmansTimer->start();
 
-#ifndef QT5
-    //I am a bad bad man
-    QApplication::processEvents();
-#endif
-    //Will need to be a little more cunning if this is/becomes async
-    if (declarativeWidget->status() != 1) {
-        qDebug() << "Abandoning skin due to errors; time to fallback baby";
-        declarativeWidget->deleteLater();
-        declarativeWidget = 0;
-    }
+    QMetaObject::invokeMethod(this, "initialStatusCheck", Qt::QueuedConnection);
 
     return declarativeWidget;
+}
+
+void SkinRuntimePrivate::initialStatusCheck()
+{
+    DeclarativeView *declarativeWidget = qobject_cast<DeclarativeView*>(skinUI);
+    if (declarativeWidget->status() != 1) {
+        qDebug() << "Abandoning skin due to errors; time to fallback baby";
+        mainWindow->setSkin(0);
+    }
 }
 
 void SkinRuntimePrivate::deadmanStatusCheck()

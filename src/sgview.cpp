@@ -59,9 +59,7 @@ void DeclarativeView::timerEvent(QTimerEvent *event)
 void DeclarativeView::setSource(const QUrl &url)
 {
     m_url = url;
-//  This staggering is breaking SG usage on mac for some reason
-//  QMetaObject::invokeMethod(this, "handleSourceChanged", Qt::QueuedConnection);
-    QQuickView::setSource(url);
+    QMetaObject::invokeMethod(this, "handleSourceChanged", Qt::QueuedConnection);
 }
 
 void DeclarativeView::handleSourceChanged()
