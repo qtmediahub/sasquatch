@@ -1,13 +1,49 @@
+#include <qdeclarative.h>
 #include <QFile>
+#include <QStringList>
+#ifdef QT5
+#include <QGuiApplication>
+#else
+#include <QApplication>
+#endif
 
-namespace Metrics
+class Metrics : public QObject
 {
-    static int swaplogFPS()
+    Q_OBJECT
+    Q_ENUMS(ProcStatMetric)
+
+public:
+    enum ProcStatMetric {
+        Utime = 14,
+        Stime = 15,
+        ThreadCount = 20,
+        Vsize = 23,
+        Rss = 24,
+        StatCount
+    };
+
+private:
+    int procPIDstat(ProcStatMetric metric)
+    {
+        int ret = -1;
+        QFile logFile("/proc/" + QVariant(qApp->applicationPid()).toString() + "/stat");
+        if (!logFile.open(QFile::ReadOnly))
+            return -1;
+
+        QStringList entries = QString(logFile.readLine()).split(' ');
+
+        if (entries.length() < metric)
+            ret = entries.at(metric).toInt();
+
+        return ret;
+    }
+public:
+    Q_INVOKABLE static int swaplogFPS()
     {
         int fps;
         QFile logFile("/tmp/swaplog");
         if (!logFile.open(QFile::ReadOnly))
-            return;
+            return -1;
 
         int lineCount = 0;
 
@@ -38,3 +74,5 @@ namespace Metrics
         return fps;
     }
 };
+
+QML_DECLARE_TYPE(Metrics)

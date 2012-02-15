@@ -20,6 +20,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 ****************************************************************************/
 
+#include "metrics.h"
+
 #include "skinmanager.h"
 #include "skinruntime.h"
 #include "mediaserver.h"
@@ -215,6 +217,7 @@ SkinRuntimePrivate::SkinRuntimePrivate(GlobalSettings *s, SkinRuntime *p)
     // register dataproviders to QML
     qmlRegisterUncreatableType<ActionMapper>("ActionMapper", 1, 0, "ActionMapper", "For enums. For methods use actionmap global variable");
     qmlRegisterUncreatableType<AbstractMediaPlayer>("AbstractMediaPlayer", 1, 0, "AbstractMediaPlayer", "For enums. For methods use actionmap global variable");
+    qmlRegisterType<Metrics>("Metrics", 1, 0, "Metrics");
     qmlRegisterType<DirModel>("DirModel", 1, 0, "DirModel");
     qmlRegisterType<Playlist>("Playlist", 1, 0, "Playlist");
     qmlRegisterType<MediaModel>("MediaModel", 1, 0, "MediaModel");
