@@ -72,7 +72,8 @@ HEADERS += \
     appsmanager.h \
     pushqml.h \
     ipaddressfinder.h \
-    mainwindow.h
+    mainwindow.h \
+    metrics.h
 
 qt5 {
     SOURCES += \

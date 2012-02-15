@@ -29,6 +29,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "globalsettings.h"
 
+#include "metrics.h"
+
 DeclarativeView::DeclarativeView(GlobalSettings *settings, QWindow *parent)
     : QQuickView(parent),
       m_settings(settings),
@@ -50,37 +52,8 @@ DeclarativeView::DeclarativeView(GlobalSettings *settings, QWindow *parent)
 
 void DeclarativeView::timerEvent(QTimerEvent *event)
 {
-    QFile logFile("/tmp/swaplog");
-    if (!logFile.open(QFile::ReadOnly))
-        return;
-
-    int lineCount = 0;
-
-    char line[1000];
-    int offset = sizeof(line);
-    uchar* map = logFile.map(0, logFile.size());
-    for (int i = logFile.size() - 1; i >= 0; i--) {
-        if (map[i] == '\n') {
-            ++lineCount;
-            if (lineCount == 3) {
-                break;
-            }
-            offset = sizeof(line);
-        } else if (offset) {
-            line[--offset] = map[i];
-        }
-    }
-
-    QByteArray rawData = QByteArray::fromRawData(line + offset, sizeof(line) - offset);
-
-    offset = rawData.indexOf("apfs_64:");
-    if (offset != -1) {
-        m_fps = atoi(rawData.constData() + offset + sizeof("apfs_64:") - 1);
-        emit fpsChanged();
-    }
-
-    logFile.unmap(map);
-    logFile.close();
+    m_fps = Metrics::swaplogFPS();
+    emit fpsChanged();
 }
 
 void DeclarativeView::setSource(const QUrl &url)
