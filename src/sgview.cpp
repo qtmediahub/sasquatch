@@ -37,7 +37,7 @@ DeclarativeView::DeclarativeView(GlobalSettings *settings, QWindow *parent)
       m_glViewport(false),
       m_frameCount(0),
       m_timeSigma(0),
-      m_fps(0)
+      m_fps(-1)
 {
     setResizeMode(QQuickView::SizeRootObjectToView);
 
@@ -46,14 +46,10 @@ DeclarativeView::DeclarativeView(GlobalSettings *settings, QWindow *parent)
     m_overlayMode = false;
 
     connect(this, SIGNAL(statusChanged(QQuickView::Status)), this, SLOT(handleStatusChanged(QQuickView::Status)));
-
-    startTimer(m_settings->value(GlobalSettings::SwapLogPollInterval).toInt());
 }
 
 void DeclarativeView::timerEvent(QTimerEvent *event)
 {
-    m_fps = Metrics::swaplogFPS();
-    emit fpsChanged();
 }
 
 void DeclarativeView::setSource(const QUrl &url)
