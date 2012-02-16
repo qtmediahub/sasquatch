@@ -1,3 +1,4 @@
+#include <qdebug.h>
 #include <qdeclarative.h>
 #include <QFile>
 #include <QStringList>
@@ -10,20 +11,18 @@
 class Metrics : public QObject
 {
     Q_OBJECT
-    Q_ENUMS(ProcStatMetric)
 
-public:
+private:
     enum ProcStatMetric {
-        Utime = 14,
-        Stime = 15,
-        ThreadCount = 20,
-        Vsize = 23,
-        Rss = 24,
+        Utime = 13,
+        Stime = 14,
+        ThreadCount = 19,
+        Vsize = 22,
+        Rss = 23,
         StatCount
     };
 
-private:
-    int procPIDstat(ProcStatMetric metric)
+    static int procPIDstat(ProcStatMetric metric)
     {
         int ret = -1;
         QFile logFile("/proc/" + QVariant(qApp->applicationPid()).toString() + "/stat");
@@ -32,12 +31,16 @@ private:
 
         QStringList entries = QString(logFile.readLine()).split(' ');
 
-        if (entries.length() < metric)
+        if (metric < entries.length())
             ret = entries.at(metric).toInt();
 
         return ret;
     }
 public:
+    Q_INVOKABLE static int threadCount() {
+        return procPIDstat(ThreadCount);
+    }
+
     Q_INVOKABLE static int swaplogFPS()
     {
         int fps;
