@@ -27,7 +27,6 @@
 #include <QAbstractFileEngine>
 #include <QAbstractFileEngineHandler>
 
-
 struct TarFile
 {
     struct Entry

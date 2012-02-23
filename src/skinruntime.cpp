@@ -25,7 +25,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "skinmanager.h"
 #include "skinruntime.h"
 #include "mediaserver.h"
-#include "tarfileengine.h"
 
 #include <QtGui>
 #include <QDebug>

@@ -27,7 +27,6 @@ SOURCES += \
     libraryinfo.cpp \
     file.cpp \
     abstractmediaplayer.cpp \
-    tarfileengine.cpp \
     processmanager.cpp \
     skinmanager.cpp \
     settings.cpp \
@@ -39,8 +38,10 @@ SOURCES += \
 
 !qt5 {
     SOURCES += \
+        tarfileengine.cpp \
         inputcontext.cpp
     HEADERS += \
+        tarfileengine.h \
         inputcontext.h
 }
 
@@ -61,7 +62,6 @@ HEADERS += \
     customcursor.h \
     libraryinfo.h \
     abstractmediaplayer.h \
-    tarfileengine.h \
     refcountcache.h \
     processmanager.h \
     skinmanager.h \
