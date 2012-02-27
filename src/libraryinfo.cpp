@@ -42,13 +42,13 @@ static QStringList standardResourcePaths(GlobalSettings *settings, const GlobalS
     // The order of the added paths is relevant!
     QStringList paths;
 
-    // Relative paths
-    paths <<  QCoreApplication::applicationDirPath() % relativeOffset % platformBinOffset % suffix % "/";
-
     // allows changing resource paths with -skinsPath on runtime
     const QString settingsPath = settings->value(option).toString();
     if (!settingsPath.isEmpty())
         paths << QDir(settingsPath).absolutePath();
+
+    // Relative paths
+    paths <<  QCoreApplication::applicationDirPath() % relativeOffset % platformBinOffset % suffix % "/";
 
     // allows changing resource paths with exporting with QMH_SKINS_PATH on runtime
     const QByteArray envPath = qgetenv(QString("QMH_" % suffix.toUpper() % "_PATH").toLatin1());

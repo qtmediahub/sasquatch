@@ -43,7 +43,6 @@ ActionMapper::ActionMapper(GlobalSettings *settings, QObject *parent) :
     m_mapName = m_settings->value(GlobalSettings::Keymap).toString();
 
     qDebug() << "Available maps " << availableMaps();
-    qDebug() << "used keymap" << m_mapName;
 
     populateMap();
 }
@@ -115,9 +114,10 @@ void ActionMapper::populateMap()
 {
     m_actionMap.clear();
     foreach (const QString &keyboardMapPath, LibraryInfo::keyboardMapPaths(m_settings)) {
-        if (QFile::exists(keyboardMapPath + "/" + m_mapName)
-                && loadMapFromDisk(keyboardMapPath + m_mapName)) {
-            qDebug() << "Using key map:" << keyboardMapPath + m_mapName;
+        QString keymap = keyboardMapPath + QString::fromLatin1("/") + m_mapName;
+        qDebug() << "Try to load keymap" << m_mapName << "from keymap path" << keyboardMapPath;
+        if (loadMapFromDisk(keymap)) {
+            qDebug() << "Using keymap" << keymap;
             break;
         }
     }
