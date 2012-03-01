@@ -43,11 +43,10 @@ GlobalSettings::GlobalSettings(QObject *parent) :
     addOptionEntry(GlobalSettings::FullScreen,          "true",         "fullscreen",       "<bool> toggle fullscreen");
 #ifdef QT5
     addOptionEntry(GlobalSettings::Skin,                "shroomfluence",   "skin",             "<name> specifies the skin");
-    addOptionEntry(GlobalSettings::OverlayMode,         "true",        "overlayMode",      "<bool> toggle overlay mode used for devices with other mediaplayers than QtMultimediaKit");
 #else
     addOptionEntry(GlobalSettings::Skin,                "confluence",   "skin",             "<name> specifies the skin");
-    addOptionEntry(GlobalSettings::OverlayMode,         "false",        "overlayMode",      "<bool> toggle overlay mode used for devices with other mediaplayers than QtMultimediaKit");
 #endif
+    addOptionEntry(GlobalSettings::OverlayMode,         "false",        "overlayMode",      "<bool> toggle overlay mode used for devices with other mediaplayers than QtMultimediaKit");
     addOptionEntry(GlobalSettings::Headless,            "false",        "headless",         "<bool> toggle running with user interface, usable for streaming server usage");
     addOptionEntry(GlobalSettings::Proxy,               "false",        "proxy",            "<bool> use a proxy for network access");
     addOptionEntry(GlobalSettings::ProxyHost,           "localhost",    "proxyHost",        "<hostname> set proxy host, only used with -proxy=true");
