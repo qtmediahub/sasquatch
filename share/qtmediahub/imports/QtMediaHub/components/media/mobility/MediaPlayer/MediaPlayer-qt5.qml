@@ -43,34 +43,15 @@ Item {
     function pause() { video.pause() }
     function resume() { video.resume() }
 
-    VideoOutput {
-        source: video
-
-        MediaPlayer {
-            id: video
-            playing: true
-            volume: 0.5
-        }
+    MediaPlayer {
+        id: video
+        playing: true
     }
 
-//    Video {
-//        id: video
-//        anchors.fill: parent
-
-//        //Work around VideoItem shortcomings
-//        property int _seekPos : -1
-
-//        onSeekableChanged : {
-//            if (seekable && _seekPos != -1) {
-//                position = _seekPos
-//                _seekPos = -1
-//            }
-//        }
-
-//        function seek(pos) {
-//            //This works? what happens when already seekable?
-//            _seekPos = pos
-//        }
-//    }
+    VideoOutput {
+        source: video
+        anchors.fill: parent
+        fillMode: VideoOutput.PreserveAspectFit
+    }
 }
 
