@@ -29,7 +29,7 @@ MediaPlayerRpc::MediaPlayerRpc(QObject *parent) :
 {
 }
 
-void MediaPlayerRpc::playRemoteSource(const QString &uri, int position)
+void MediaPlayerRpc::playRemoteSource(const QString &uri, qlonglong position)
 {
     qDebug() << "play remote source" << uri << position;
     emit playRemoteSourceRequested(uri, position);

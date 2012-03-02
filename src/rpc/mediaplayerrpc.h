@@ -41,10 +41,10 @@ signals:
     Q_SCRIPTABLE void volumeUpRequested();
     Q_SCRIPTABLE void volumeDownRequested();
 
-    Q_SCRIPTABLE void playRemoteSourceRequested(const QString &uri, int position);
+    Q_SCRIPTABLE void playRemoteSourceRequested(const QString &uri, qlonglong position);
 
 public slots:
-    Q_SCRIPTABLE void playRemoteSource(const QString &uri, int position);
+    Q_SCRIPTABLE void playRemoteSource(const QString &uri, qlonglong position);
     Q_SCRIPTABLE void stop() { emit stopRequested(); }
     Q_SCRIPTABLE void pause() { emit pauseRequested(); }
     Q_SCRIPTABLE void resume() { emit resumeRequested(); }

@@ -43,7 +43,7 @@ public:
     };
 
     int rowCount(const QModelIndex &/*parent*/) const { return m_model.count(); }
-    int count() const { return rowCount(QModelIndex()); }
+    Q_INVOKABLE int count() const { return rowCount(QModelIndex()); }
     Q_INVOKABLE QVariant data(const QModelIndex &index, int role) const;
     bool editable() const { return true; }
 
