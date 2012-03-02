@@ -168,7 +168,7 @@ bool Skin::parseManifest()
         const QVariantMap entry = s.toMap();
         m_settings->addOptionEntry(entry.value("name").toString(), entry.value("default_value").toString(), entry.value("doc").toString());
     }
-    const QString configFilePath = QFileInfo(QSettings().fileName()).absolutePath() + QLatin1String("/") + name() + QLatin1String(".ini");
+    const QString configFilePath = QFileInfo(QSettings().fileName()).absolutePath() + QLatin1String("/") + name() + QLatin1String(".conf");
     m_settings->loadConfigFile(configFilePath);
     m_settings->parseArguments(qApp->arguments());
 
