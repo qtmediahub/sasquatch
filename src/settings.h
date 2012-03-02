@@ -48,6 +48,9 @@ public:
 private:
     const QVariant valueFromCommandLine(const QString &key, const QStringList &arguments);
     const QVariant checkSpecialArgumentTypes(const QString &argument);
+    const QVariant checkSpecialArgumentTypes(const QVariant &argument);
+
+    void print();
 
     QSettings *m_settings;
     QMap<QString, QString> m_docs;

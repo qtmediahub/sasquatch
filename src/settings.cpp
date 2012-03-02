@@ -26,6 +26,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QtDebug>
 #include <QRect>
 
+//#define QMH_SETTINGS_DEBUG
+
 Settings::Settings(QObject *parent) :
     QDeclarativePropertyMap(parent),
     m_settings(0)
@@ -58,6 +60,10 @@ bool Settings::save()
 
     m_settings->sync();
 
+#ifdef QMH_SETTINGS_DEBUG
+    qWarning() << "saving settings to file" << m_settings->fileName();
+#endif
+
     return true;
 }
 
@@ -78,10 +84,15 @@ void Settings::loadConfigFile(const QString &fileName)
 
     foreach (const QString &key, m_settings->allKeys()) {
         if (keys().contains(key)) {
-            insert(key, m_settings->value(key));
-            emit valueChanged(key, m_settings->value(key));
+            insert(key, checkSpecialArgumentTypes(m_settings->value(key)));
+            emit valueChanged(key, value(key));
         }
     }
+
+#ifdef QMH_SETTINGS_DEBUG
+    qWarning() << "settings after parsing config file";
+    print();
+#endif
 }
 
 void Settings::parseArguments(const QStringList &arguments)
@@ -98,6 +109,21 @@ void Settings::parseArguments(const QStringList &arguments)
             emit valueChanged(key, v);
         }
     }
+
+#ifdef QMH_SETTINGS_DEBUG
+    qWarning() << "settings after parsing arguments";
+    print();
+#endif
+}
+
+void Settings::print()
+{
+    qWarning() << "Settings";
+    foreach (const QString &key, keys()) {
+        qWarning() << "\t" << key << "\t" << value(key);
+    }
+    if (m_settings)
+        qWarning() << "settings file" << m_settings->fileName();
 }
 
 const QVariant Settings::valueFromCommandLine(const QString &key, const QStringList &arguments)
@@ -147,7 +173,7 @@ const QVariant Settings::checkSpecialArgumentTypes(const QString &argument)
     return argument;
 }
 
-
-
-
-
+const QVariant Settings::checkSpecialArgumentTypes(const QVariant &argument)
+{
+    return checkSpecialArgumentTypes(argument.toString());
+}
