@@ -36,12 +36,14 @@ class GlobalSettings;
 class QMH_EXPORT SkinRuntime : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(QString errorMsg READ errorMsg CONSTANT)
 
 public:
     SkinRuntime(GlobalSettings *settings, MainWindow *p = 0);
     ~SkinRuntime();
-
+    QString errorMsg() const;
     QObject *create(Skin *skin);
+
 private:
     SkinRuntimePrivate *d;
 };

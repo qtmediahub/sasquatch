@@ -55,5 +55,3 @@ private:
 };
 
 #endif // SKINMANAGER_H
-
-
