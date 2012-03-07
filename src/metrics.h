@@ -1,5 +1,5 @@
 #include <qdebug.h>
-#include <qdeclarative.h>
+#include <qqml.h>
 #include <QFile>
 #include <QStringList>
 #ifdef QT5

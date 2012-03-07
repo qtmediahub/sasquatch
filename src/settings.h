@@ -23,14 +23,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #ifndef SETTINGS_H
 #define SETTINGS_H
 
-#include <QDeclarativePropertyMap>
+#include <QQmlPropertyMap>
 
 #include "global.h"
 
 class QSettings;
 
 // TODO make it threadsafe
-class QMH_EXPORT Settings : public QDeclarativePropertyMap
+class QMH_EXPORT Settings : public QQmlPropertyMap
 {
     Q_OBJECT
 

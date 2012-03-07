@@ -23,7 +23,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "declarativeview.h"
 
 #include <QQuickItem>
-#include <QDeclarativeEngine>
+#include <QQmlEngine>
 #include <QDebug>
 #include <QShortcut>
 
