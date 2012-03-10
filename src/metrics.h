@@ -1,8 +1,8 @@
 #include <qdebug.h>
-#include <qqml.h>
 #include <QFile>
 #include <QStringList>
 #ifdef QT5
+#include <qqml.h>
 #include <QGuiApplication>
 #else
 #include <QApplication>
