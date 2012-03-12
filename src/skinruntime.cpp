@@ -79,6 +79,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "appsmanager.h"
 #include "pushqml.h"
 #include "ipaddressfinder.h"
+#include "deviceexposure.h"
 
 #ifdef MEDIAPLAYER_DBUS
 #include "mediaplayerdbus.h"
@@ -138,6 +139,7 @@ public:
     PowerManager *powerManager;
     MediaPlayerRpc *mediaPlayerRpc;
     RpcConnection *rpcConnection;
+    DeviceExposure *deviceExposure;
 
     ActionMapper *actionMapper;
     Trackpad *trackpad;
@@ -252,6 +254,8 @@ SkinRuntimePrivate::SkinRuntimePrivate(GlobalSettings *s, SkinRuntime *p)
 #else
     remoteSessionsModel = new StaticServiceBrowserModel(this);
 #endif
+
+    deviceExposure = new DeviceExposure(this);
 }
 
 SkinRuntimePrivate::~SkinRuntimePrivate()

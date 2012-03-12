@@ -34,7 +34,8 @@ SOURCES += \
     appsmanager.cpp \
     pushqml.cpp \
     ipaddressfinder.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    deviceexposure.cpp
 
 !qt5 {
     SOURCES += \
@@ -73,7 +74,8 @@ HEADERS += \
     pushqml.h \
     ipaddressfinder.h \
     mainwindow.h \
-    metrics.h
+    metrics.h \
+    deviceexposure.h
 
 qt5 {
     SOURCES += \
