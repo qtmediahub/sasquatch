@@ -29,7 +29,11 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 //#define QMH_SETTINGS_DEBUG
 
 Settings::Settings(QObject *parent) :
+#ifdef QT5
     QQmlPropertyMap(parent),
+#else
+    QDeclarativePropertyMap(parent),
+#endif
     m_settings(0)
 {
 }

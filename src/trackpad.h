@@ -25,8 +25,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <QObject>
 #include <QCoreApplication>
-#include <QtQml/QQmlContext>
 #include <QWeakPointer>
+#ifdef QT5
+#include <QQmlContext>
+#else
+#include <QDeclarativeContext>
+#endif
 
 class Trackpad : public QObject
 {
@@ -44,7 +48,11 @@ public slots:
 
 private:
     QWeakPointer<QWidget> m_recipient;
+#ifdef QT5
     QWeakPointer<QQmlContext> m_recipientContext;
+#else
+    QWeakPointer<QDeclarativeContext> m_recipientContext;
+#endif
     QObject *parent;
 };
 
