@@ -44,7 +44,6 @@ mac:isEmpty(PKG_CONFIG_PATH) {
 # default options
 linux* {
     !no-gl:CONFIG += glviewport
-    !no-avahi: CONFIG += avahi
 }
 
 glgs {

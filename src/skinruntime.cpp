@@ -31,8 +31,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #ifdef QMH_AVAHI
 #include "qavahiservicebrowsermodel.h"
-#else
+#elif defined(QMH_STATIC_SERVICE_BROWSER)
 #include "staticservicebrowsermodel.h"
+#else
+#include "simpleservicebrowsermodel.h"
 #endif
 
 #include "declarativeview.h"
@@ -231,7 +233,7 @@ SkinRuntimePrivate::SkinRuntimePrivate(GlobalSettings *s, SkinRuntime *p)
 
     if (settings->isEnabled(GlobalSettings::OverlayMode)) {
 #ifdef MEDIAPLAYER_DBUS
-    qmlRegisterType<MediaPlayerDbus>("OverlayModeMediaPlayer", 1, 0, "OverlayModeMediaPlayer");
+        qmlRegisterType<MediaPlayerDbus>("OverlayModeMediaPlayer", 1, 0, "OverlayModeMediaPlayer");
 #elif defined(MEDIAPLAYER_VLC)
         qmlRegisterType<MediaPlayerVLC>("OverlayModeMediaPlayer", 1, 0, "OverlayModeMediaPlayer");
 #else
@@ -251,8 +253,10 @@ SkinRuntimePrivate::SkinRuntimePrivate(GlobalSettings *s, SkinRuntime *p)
         model->browse("_qtmediahub._tcp", options);
         remoteSessionsModel = model;
     }
-#else
+#elif defined(QMH_STATIC_SERVICE_BROWSER)
     remoteSessionsModel = new StaticServiceBrowserModel(this);
+#else
+    remoteSessionsModel = new SimpleServiceBrowserModel(this);
 #endif
 
     deviceExposure = new DeviceExposure(this);
