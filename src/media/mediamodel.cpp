@@ -190,7 +190,7 @@ MediaModel::DotDotPosition MediaModel::dotDotPosition() const
 
 void MediaModel::enter(int index)
 {
-    if (m_data.size() >= index || (m_cursor.count() + 1 == m_layoutInfo.count() && !m_data.at(index)[DotDotRole].toBool()) /* up on leaf node is OK */) {
+    if (m_data.size() <= index || (m_cursor.count() + 1 == m_layoutInfo.count() && !m_data.at(index)[DotDotRole].toBool()) /* up on leaf node is OK */) {
         WARNING << "Refusing to enter leaf node";
         return;
     }
