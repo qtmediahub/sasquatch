@@ -91,6 +91,11 @@ vlc {
     HEADERS += mediaplayervlc.h
     SOURCES += mediaplayervlc.cpp
     LIBS += -lvlc
+} else: 7425 {
+message("7425 mediaplayer integrated")
+    DEFINES += MEDIAPLAYER_7425
+    HEADERS += mediaplayer7425.h
+    SOURCES += mediaplayer7425.cpp
 } else:!no-dbus {
     DEFINES += MEDIAPLAYER_DBUS
     HEADERS += mediaplayerdbus.h
