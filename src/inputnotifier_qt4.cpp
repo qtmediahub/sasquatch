@@ -20,25 +20,23 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 ****************************************************************************/
 
-#include "inputcontext.h"
+#include "inputnotifier.h"
 
 #include <QApplication>
 #include <QtDebug>
 
 #define DEBUG if (0) qDebug() << __PRETTY_FUNCTION__
 
-InputContext::InputContext(QObject *parent) :
+InputNotifier::InputNotifier(QObject *parent) :
     QInputContext(parent),
     m_composing(false)
 {
-#ifndef QT5
     //FIXME: oh so bad
     //This looks very Nokia device specific
     qApp->setInputContext(this);
-#endif
 }
 
-bool InputContext::filterEvent(const QEvent *event)
+bool InputNotifier::filterEvent(const QEvent *event)
 {
     if (event->type() == QEvent::RequestSoftwareInputPanel) {
         m_composing = true;
@@ -57,7 +55,7 @@ bool InputContext::filterEvent(const QEvent *event)
     return false;
 }
 
-void InputContext::reset()
+void InputNotifier::reset()
 {
     DEBUG;
     m_composing = false;

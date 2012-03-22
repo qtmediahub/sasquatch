@@ -43,7 +43,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QApplication>
 #include <QDesktopWidget>
 #else
-#include "inputcontext.h"
 #include <QtDeclarative>
 #endif
 
@@ -82,6 +81,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "pushqml.h"
 #include "ipaddressfinder.h"
 #include "deviceexposure.h"
+#include "inputnotifier.h"
 
 #ifdef MEDIAPLAYER_DBUS
 #include "mediaplayerdbus.h"
@@ -147,9 +147,7 @@ public:
     Trackpad *trackpad;
     Skin *currentSkin;
     QAbstractItemModel *remoteSessionsModel;
-#ifndef QT5
-    InputContext *inputContext;
-#endif
+    InputNotifier *inputNotifier;
     GlobalSettings *settings;
     SkinRuntime *q;
 };
@@ -167,9 +165,7 @@ SkinRuntimePrivate::SkinRuntimePrivate(GlobalSettings *s, SkinRuntime *p)
       rpcConnection(0),
       trackpad(0),
       remoteSessionsModel(0),
-#ifndef QT5
-      inputContext(0),
-#endif
+      inputNotifier(0),
       settings(s),
       q(p)
 {
@@ -439,11 +435,9 @@ void SkinRuntimePrivate::enableRemoteControlMode(bool enable)
     rpcConnection->registerObject(mediaPlayerRpc);
     rpcConnection->registerObject(trackpad);
 
-#ifndef QT5
-    inputContext = new InputContext(this);
-    connect(inputContext, SIGNAL(inputMethodStartRequested()), this, SLOT(rpcSendInputMethodStart()));
-    connect(inputContext, SIGNAL(inputMethodStopRequested()), this, SLOT(rpcSendInputMethodStop()));
-#endif
+    inputNotifier = new InputNotifier(this);
+    connect(inputNotifier, SIGNAL(inputMethodStartRequested()), this, SLOT(rpcSendInputMethodStart()));
+    connect(inputNotifier, SIGNAL(inputMethodStopRequested()), this, SLOT(rpcSendInputMethodStop()));
 
     processManager = new ProcessManager(this);
 

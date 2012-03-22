@@ -20,29 +20,25 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 ****************************************************************************/
 
-#ifndef INPUTCONTEXTRPC_H
-#define INPUTCONTEXTRPC_H
+#include "inputnotifier.h"
 
-#include <QInputContext>
+#include <QApplication>
+#include <QtDebug>
 
-class InputContext : public QInputContext
+#define DEBUG if (0) qDebug() << __PRETTY_FUNCTION__
+
+InputNotifier::InputNotifier(QObject *parent) :
+    QObject(parent)
 {
-    Q_OBJECT
-public:
-    explicit InputContext(QObject *parent = 0);
+    m_inputMethod = qApp->inputMethod();
+    connect(m_inputMethod, SIGNAL(inputItemChanged()), this, SLOT(inputItemChanged()));
+}
 
-    virtual bool filterEvent(const QEvent *event);
-    virtual QString identifierName() { return QString::fromLatin1("QtMediaHubInputContext"); }
-    virtual QString language() { return QString::fromLatin1("en"); }
-    virtual void reset();
-    virtual bool isComposing() const { return m_composing; }
-
-signals:
-    Q_SCRIPTABLE void inputMethodStartRequested();
-    Q_SCRIPTABLE void inputMethodStopRequested();
-
-private:
-    bool m_composing;
-};
-
-#endif // INPUTCONTEXTRPC_H
+void InputNotifier::inputItemChanged()
+{
+    // TODO needs to be verified to work in webkit
+    if(m_inputMethod->inputItem() != 0)
+        emit inputMethodStartRequested();
+    else
+        emit inputMethodStopRequested();
+}

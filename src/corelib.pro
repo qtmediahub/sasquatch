@@ -38,12 +38,8 @@ SOURCES += \
     deviceexposure.cpp
 
 !qt5 {
-    SOURCES += \
-        tarfileengine.cpp \
-        inputcontext.cpp
-    HEADERS += \
-        tarfileengine.h \
-        inputcontext.h
+    SOURCES += tarfileengine.cpp
+    HEADERS += tarfileengine.h
 }
 
 HEADERS += \
@@ -75,16 +71,19 @@ HEADERS += \
     ipaddressfinder.h \
     mainwindow.h \
     metrics.h \
-    deviceexposure.h
+    deviceexposure.h \
+    inputnotifier.h
 
 qt5 {
     SOURCES += \
         sgview.cpp \
-        libraryinfo_qt5.cpp
+        libraryinfo_qt5.cpp \
+        inputnotifier_qt5.cpp
 } else {
     SOURCES += \
         declarativeview.cpp \
-        libraryinfo_qt4.cpp
+        libraryinfo_qt4.cpp \
+        inputnotifier_qt4.cpp
 }
 
 vlc {
