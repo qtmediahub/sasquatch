@@ -60,8 +60,10 @@ void DbReader::execute(const QString &q, const QStringList &bindings, void *user
     foreach(const QString &binding, bindings)
         query.addBindValue(binding);
 
-    if (!query.exec())
-        qFatal("Error executing query: %s", qPrintable(query.lastQuery()));
+    if (!query.exec()) {
+        qWarning("Error executing query: %s", qPrintable(query.lastQuery()));
+        return;
+    }
 
     QList<QSqlRecord> data = readRecords(query);
     DEBUG << "Read " << data.count() << "records";
