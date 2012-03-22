@@ -143,6 +143,24 @@ void MediaModel::setMediaType(const QString &type)
     reload();
 }
 
+QString MediaModel::sqlCondition() const
+{
+    return m_sqlCondition;
+}
+
+void MediaModel::setSqlCondition(const QString &sqlCondition)
+{
+    if (sqlCondition == m_sqlCondition)
+        return;
+
+    DEBUG << sqlCondition;
+
+    m_sqlCondition = sqlCondition;
+    emit sqlConditionChanged();
+
+    reload();
+}
+
 QString MediaModel::structure() const
 {
     return m_structure;
@@ -507,6 +525,15 @@ QPair<QString, QStringList> MediaModel::buildQuery(const QList<QMap<int, QVarian
         }
 
         queryString.append(" WHERE " + where.join(" AND "));
+    }
+
+    // add WHERE for the model wide condition
+    if (!m_sqlCondition.isEmpty()) {
+        if (!queryString.contains("WHERE"))
+            queryString.append(" WHERE ");
+        else
+            queryString.append(" AND ");
+        queryString.append(m_sqlCondition);
     }
 
     QStringList escapedCurParts;

@@ -38,6 +38,7 @@ class MediaModel : public QAbstractItemModel
     Q_OBJECT
     Q_PROPERTY(QString structure READ structure WRITE setStructure NOTIFY structureChanged)
     Q_PROPERTY(QString mediaType READ mediaType WRITE setMediaType NOTIFY mediaTypeChanged)
+    Q_PROPERTY(QString sqlCondition READ sqlCondition WRITE setSqlCondition NOTIFY sqlConditionChanged)
     Q_PROPERTY(QString part READ part NOTIFY partChanged)
     Q_PROPERTY(DotDotPosition dotDotPosition READ dotDotPosition WRITE setDotDotPosition NOTIFY dotDotPositionChanged)
 
@@ -66,6 +67,9 @@ public:
 
     QString mediaType() const;
     void setMediaType(const QString &type);
+
+    QString sqlCondition() const;
+    void setSqlCondition(const QString &sqlCondition);
 
     DotDotPosition dotDotPosition() const;
     void setDotDotPosition(DotDotPosition position);
@@ -104,6 +108,7 @@ public:
 signals:
     void structureChanged();
     void mediaTypeChanged();
+    void sqlConditionChanged();
     void partChanged();
     void dotDotPositionChanged();
 
@@ -127,6 +132,7 @@ private:
 
     GlobalSettings *m_settings;
     QString m_structure;
+    QString m_sqlCondition;
     QList<QStringList> m_layoutInfo;
     QList<QMap<int, QVariant> > m_data;
     bool m_loading, m_loaded;
