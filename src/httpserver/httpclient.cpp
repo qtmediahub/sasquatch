@@ -119,6 +119,10 @@ void HttpClient::readMusicRequest()
 
 void HttpClient::readPictureRequest()
 {
+    // TODO add thumbnail option
+    QString id = m_get.right(m_get.length()-m_get.lastIndexOf("/")-1);
+    sendFile(getMediaUrl("picture", id.toInt(), "filepath").toString());
+    m_socket->close();
 }
 
 void HttpClient::answerOk(qint64 length)
@@ -169,7 +173,7 @@ QUrl HttpClient::getMediaUrl(QString mediaType, int id, QString field)
         return QUrl();
     }
 
-    return QUrl::fromEncoded(query.record().value(field).toByteArray());
+    return QUrl(query.record().value(field).toByteArray());
 }
 
 bool HttpClient::sendFile(QString fileName)
