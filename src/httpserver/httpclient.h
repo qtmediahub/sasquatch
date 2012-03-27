@@ -27,12 +27,13 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QtNetwork>
 
 class HttpServer;
+class SkinManager;
 
 class HttpClient : public QObject
 {
     Q_OBJECT
 public:
-    explicit HttpClient(int sockfd, HttpServer *server, QObject *parent = 0);
+    explicit HttpClient(int sockfd, HttpServer *server, SkinManager* skinManager, QObject *parent = 0);
 
 signals:
     void error(QTcpSocket::SocketError socketError);
@@ -46,6 +47,7 @@ private:
     void readVideoRequest();
     void readMusicRequest();
     void readPictureRequest();
+    void readQmlRequest();
 
     QUrl getMediaUrl(QString mediaType, int id, QString field = "uri");
     bool sendFile(QString fileName);
@@ -59,6 +61,7 @@ private:
     QFile m_file;
     QHash<QString, QString> m_request;
     QString m_get;
+    SkinManager *m_skinManager;
 };
 
 #endif // HTTPCLIENT_H

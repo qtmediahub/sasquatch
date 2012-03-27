@@ -28,6 +28,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 class HttpServer;
 class MediaScanner;
+class SkinManager;
 
 #include "global.h"
 #include "globalsettings.h"
@@ -46,6 +47,7 @@ public:
 private:
     GlobalSettings *m_settings;
     HttpServer *m_httpServer;
+    SkinManager *m_skinManager;
 };
 
 #endif // MEDIASERVER_H

@@ -96,6 +96,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "customcursor.h"
 #include "httpserver/httpserver.h"
 
+#include "contextcontentrpc.h"
+
 #ifndef NO_DBUS
 static void registerObjectWithDbus(const QString &path, QObject *object)
 {
@@ -123,6 +125,8 @@ public slots:
     // TODO check if there is some better place
     void rpcSendInputMethodStart();
     void rpcSendInputMethodStop();
+    void rpcSendNewContextContent(QString &skinName, QString &contentName, QList<int> idList);
+    void rpcSendInvalidateContextContent();
     void initialStatusCheck();
     void deadmanStatusCheck();
     void handleWarnings(const QList<QDeclarativeError> &warnings);
@@ -311,6 +315,12 @@ QObject *SkinRuntimePrivate::loadQmlSkin(const QUrl &targetUrl)
     runtime->insert("file", qVariantFromValue(static_cast<QObject *>(new File(this))));
     runtime->insert("remoteSessionsModel", qVariantFromValue(static_cast<QObject *>(remoteSessionsModel)));
 
+    ContextContentRpc* ccrpc = new ContextContentRpc(this);
+    connect(ccrpc, SIGNAL(sendNewContextContent(QString&, QString&, QList<int>)), this, SLOT(rpcSendNewContextContent(QString&,QString&,QList<int>)));
+    connect(ccrpc, SIGNAL(sendInvalidateContextContent()), this, SLOT(rpcSendInvalidateContextContent()));
+
+    runtime->insert("contextContent", qVariantFromValue(static_cast<QObject*>(ccrpc)));
+
     declarativeWidget->rootContext()->setContextProperty("runtime", runtime);
 
     const QString mediaPlayer = settings->isEnabled(GlobalSettings::OverlayMode) ? "overlaymode" : "mobility";
@@ -473,6 +483,27 @@ void SkinRuntimePrivate::rpcSendInputMethodStop()
 
     rpcConnection->call("inputContext.inputMethodStopRequested");
 }
+
+void SkinRuntimePrivate::rpcSendNewContextContent(QString &skinName, QString &contentName, QList<int> idList)
+{
+    if (!rpcConnection)
+        return;
+
+    QVariantList vList;
+    for(int i = 0; i< idList.length(); i++)
+        vList.append(QVariant(idList[i]));
+
+    rpcConnection->call("contextContent.newContextContent", skinName, contentName, vList);
+}
+
+void SkinRuntimePrivate::rpcSendInvalidateContextContent()
+{
+    if (!rpcConnection)
+        return;
+
+    rpcConnection->call("contextContent.invalidateContextContent");
+}
+
 
 SkinRuntime::SkinRuntime(GlobalSettings *settings, MainWindow *p)
     : QObject(p),

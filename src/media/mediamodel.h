@@ -77,6 +77,8 @@ public:
     Q_INVOKABLE void back(int count = 1);
     Q_INVOKABLE void enter(int index);
 
+    Q_INVOKABLE QList<int> getIdList();
+
     QString part() const;
 
     // reimp

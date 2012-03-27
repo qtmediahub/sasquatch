@@ -28,8 +28,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "httpserver.h"
 #include "global.h"
+#include "skinmanager.h"
 
-HttpClient::HttpClient(int sockfd, HttpServer *server, QObject *parent) :
+HttpClient::HttpClient(int sockfd, HttpServer *server, SkinManager* skinManager, QObject *parent) :
     QObject(parent)
 {
     m_server = server;
@@ -41,6 +42,8 @@ HttpClient::HttpClient(int sockfd, HttpServer *server, QObject *parent) :
 
     connect(m_socket, SIGNAL(readyRead()), this, SLOT(readClient()));
     connect(m_socket, SIGNAL(disconnected()), this, SLOT(discardClient()));
+
+    m_skinManager = skinManager;
 }
 
 void HttpClient::readClient()
@@ -54,6 +57,7 @@ void HttpClient::readClient()
             QList<QByteArray> lineTokens = bytesRead.split(':');
             if (lineTokens.size() == 2) {
                 m_request.insert(lineTokens[0], lineTokens[1].trimmed().replace("\r\n",""));
+
             }
         }
 
@@ -65,6 +69,8 @@ void HttpClient::readClient()
                 readMusicRequest();
             else if(m_get.startsWith("/picture"))
                 readPictureRequest();
+            else if(m_get.startsWith("/qml"))
+                readQmlRequest();
         }
 
     }
@@ -119,10 +125,60 @@ void HttpClient::readMusicRequest()
 
 void HttpClient::readPictureRequest()
 {
-    // TODO add thumbnail option
-    QString id = m_get.right(m_get.length()-m_get.lastIndexOf("/")-1);
-    sendFile(getMediaUrl("picture", id.toInt(), "filepath").toString());
+    QString id;
+    bool thumbnail;
+
+    QStringList tokens = m_get.split('/', QString::SkipEmptyParts);
+
+    if(tokens.length() == 3) {
+        if(tokens.at(0).compare("picture", Qt::CaseInsensitive) || tokens.at(1).compare("thumbnail", Qt::CaseInsensitive)) {
+            qWarning() << "void HttpClient::readPictureRequest() the picture-request was of wrong format: "
+                       << m_get << " ... the right format is: /pictures/thumbnail/<id> or /pictures/<id>";
+            return;
+        }
+        thumbnail = true;
+        id = tokens.at(2);
+    }
+    else if(tokens.length() == 2) {
+        if(tokens.at(0).compare("picture", Qt::CaseInsensitive)) {
+            qWarning() << "void HttpClient::readPictureRequest() the picture-request was of wrong format: "
+                       << m_get << " ... the right format is: /pictures/thumbnail/<id> or /pictures/<id>";
+            return;
+        }
+        thumbnail = false;
+        id = tokens.at(1);
+    }
+    else {
+        qWarning() << "void HttpClient::readPictureRequest() the picture-request was of wrong format: "
+                   << m_get << " ... the right format is: /pictures/thumbnail/<id> or /pictures/<id>";
+        return;
+    }
+
+
+    sendFile(getMediaUrl("picture", id.toInt(), thumbnail ? "thumbnail" : "filepath").toLocalFile());
     m_socket->close();
+}
+
+void HttpClient::readQmlRequest()
+{
+    qDebug() << "void HttpClient::readQmlRequest() ... m_get:" << m_get;
+    QStringList tokens = m_get.split('/', QString::SkipEmptyParts);
+    if(tokens.length() != 3) {
+        qWarning() << "HttpClient::readQmlRequest() the qml-file-request(" << m_get << ") was invalide, it must be of format: /qml/<skin>/<qml-file>";
+        return;
+    }
+
+    QString skinName = tokens.at(1);
+    QString fileName = tokens.at(2);
+
+    Skin* skin = (m_skinManager->skins().value(skinName, 0));
+    if(skin == 0) {
+        qWarning() << "HttpClient::readQmlRequest() requested skin: " << skin << " .. but this skin is unknown";
+        m_socket->close();
+        return;
+    }
+
+    sendFile( skin->path() + "/remoteqml/" + fileName);
 }
 
 void HttpClient::answerOk(qint64 length)

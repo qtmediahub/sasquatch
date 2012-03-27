@@ -35,7 +35,8 @@ SOURCES += \
     pushqml.cpp \
     ipaddressfinder.cpp \
     mainwindow.cpp \
-    deviceexposure.cpp
+    deviceexposure.cpp \
+    contextcontentrpc.cpp
 
 !qt5 {
     SOURCES += tarfileengine.cpp
@@ -72,7 +73,8 @@ HEADERS += \
     mainwindow.h \
     metrics.h \
     deviceexposure.h \
-    inputnotifier.h
+    inputnotifier.h \
+    contextcontentrpc.h
 
 qt5 {
     SOURCES += \

@@ -24,6 +24,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "httpclient.h"
 #include "globalsettings.h"
+#include "skinmanager.h"
 
 HttpServer::HttpServer(GlobalSettings *settings, quint16 port, QObject *parent) :
     QTcpServer(parent),
@@ -49,6 +50,8 @@ HttpServer::HttpServer(GlobalSettings *settings, quint16 port, QObject *parent) 
                  << serverPort()
                  << "with the following error"
                  << errorString();
+
+    m_skinManager = new SkinManager(m_settings, this);
 }
 
 #ifdef QT5
@@ -58,7 +61,7 @@ void HttpServer::incomingConnection(int socket)
 #endif
 {
     QThread *thread = new QThread(this);
-    HttpClient *client = new HttpClient(socket, this);
+    HttpClient *client = new HttpClient(socket, this, m_skinManager, this);
     client->moveToThread(thread);
     connect(client, SIGNAL(disconnected()), client, SLOT(deleteLater()));
     connect(client, SIGNAL(disconnected()), thread, SLOT(quit()));

@@ -226,6 +226,16 @@ void MediaModel::enter(int index)
     emit partChanged();
 }
 
+QList<int> MediaModel::getIdList()
+{
+    QList<int> idList;
+    for(int k = 0; k < m_data.length(); k++) {
+        int id = m_data[k].value(s_nameToRole.value("id")).toInt();
+        idList.append(id);
+    }
+    return idList;
+}
+
 void MediaModel::back(int count)
 {
     if (count == 0 || m_cursor.count() < 1)

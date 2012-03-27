@@ -27,6 +27,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QtNetwork>
 
 class GlobalSettings;
+class SkinManager;
 
 class HttpServer : public QTcpServer
 {
@@ -56,6 +57,7 @@ private:
     GlobalSettings *m_settings;
     QString m_base;
     QString m_address;
+    SkinManager* m_skinManager;
 };
 
 #endif // HTTPSERVER_H
