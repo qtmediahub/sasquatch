@@ -96,6 +96,11 @@ message("7425 mediaplayer integrated")
     DEFINES += MEDIAPLAYER_7425
     HEADERS += mediaplayer7425.h
     SOURCES += mediaplayer7425.cpp
+} else: ST7108 {
+    message("ST7108 mediaplayer integrated")
+    DEFINES += MEDIAPLAYER_ST7108
+    HEADERS += mediaplayerST7108.h
+    SOURCES += mediaplayerST7108.cpp
 } else:!no-dbus {
     DEFINES += MEDIAPLAYER_DBUS
     HEADERS += mediaplayerdbus.h
