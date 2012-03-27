@@ -96,16 +96,21 @@ message("7425 mediaplayer integrated")
     DEFINES += MEDIAPLAYER_7425
     HEADERS += mediaplayer7425.h
     SOURCES += mediaplayer7425.cpp
-} else: ST7108 {
-    message("ST7108 mediaplayer integrated")
-    DEFINES += MEDIAPLAYER_ST7108
-    HEADERS += mediaplayerST7108.h
-    SOURCES += mediaplayerST7108.cpp
 } else: ST7105 {
     message("ST7105 mediaplayer integrated")
     DEFINES += MEDIAPLAYER_ST7105
     HEADERS += mediaplayerST7105.h
     SOURCES += mediaplayerST7105.cpp
+} else: ST7108 {
+    message("ST7108 mediaplayer integrated")
+    DEFINES += MEDIAPLAYER_ST7108
+    HEADERS += mediaplayerST7108.h
+    SOURCES += mediaplayerST7108.cpp
+} else: ST7540 {
+    message("ST7540 mediaplayer integrated")
+    DEFINES += MEDIAPLAYER_ST7540
+    HEADERS += mediaplayerST7540.h
+    SOURCES += mediaplayerST7540.cpp
 } else: TRIDENT_SHINER_GSTTSPLAYER {
     message("Tridents Shiner's GstTsPlayer mediaplayer integrated")
     DEFINES += MEDIAPLAYER_TRIDENT_SHINER_GSTTSPLAYER
