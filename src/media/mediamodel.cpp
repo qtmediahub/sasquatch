@@ -187,7 +187,7 @@ void MediaModel::setDotDotPosition(MediaModel::DotDotPosition position)
     if (m_dotDotPosition == position)
         return;
 
-    const bool hasDotDot = !m_cursor.isEmpty();
+    const bool hasDotDot = !m_cursor.isEmpty() && m_dotDotPosition != MediaModel::Nowhere;
     if (hasDotDot) {
         emit layoutAboutToBeChanged();
         if (m_dotDotPosition == MediaModel::Beginning) {
@@ -403,7 +403,7 @@ void MediaModel::handleDataReady(DbReader *reader, const QList<QSqlRecord> &reco
 
 void MediaModel::insertAll(const QList<QSqlRecord> &records)
 {
-    const bool addDotDot = !m_cursor.isEmpty();
+    const bool addDotDot = !m_cursor.isEmpty() && m_dotDotPosition != MediaModel::Nowhere;
 
     if (records.isEmpty() && !addDotDot)
         return;
@@ -461,7 +461,7 @@ int MediaModel::compareData(int idx, const QSqlRecord &record) const
 
 void MediaModel::update(const QList<QSqlRecord> &records)
 {
-    const bool hasDotDot = !m_cursor.isEmpty();
+    const bool hasDotDot = !m_cursor.isEmpty() && m_dotDotPosition != MediaModel::Nowhere;
     const int oldStart = hasDotDot && m_dotDotPosition == MediaModel::Beginning ? 1 : 0;
     const int oldEnd = hasDotDot && m_dotDotPosition == MediaModel::End ? m_data.count() - 1 : m_data.count();
 
