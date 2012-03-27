@@ -20,8 +20,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 ****************************************************************************/
 
-#ifndef MEDIAPLAYER_PROCESS_H
-#define MEDIAPLAYER_PROCESS_H
+#ifndef MEDIAPLAYER_ST7105_H
+#define MEDIAPLAYER_ST7105_H
 
 #include <QProcess>
 #include <QFile>
@@ -88,4 +88,4 @@ private:
     int m_status_check_timer_id;
 };
 
-#endif // MEDIAPLAYER_PROCESS_H
+#endif // MEDIAPLAYER_ST7105_H

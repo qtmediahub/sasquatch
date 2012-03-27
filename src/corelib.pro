@@ -116,6 +116,11 @@ message("7425 mediaplayer integrated")
     DEFINES += MEDIAPLAYER_TRIDENT_SHINER_GSTTSPLAYER
     HEADERS += mediaplayerTridentShinerGstTsPlayer.h
     SOURCES += mediaplayerTridentShinerGstTsPlayer.cpp
+} else: MEDIAPLAYER_TRIDENT_SHINER_MINIPLAYER {
+    message("Tridents Shiner's miniplayer mediaplayer integrated")
+    DEFINES += MEDIAPLAYER_TRIDENT_SHINER_MINIPLAYER
+    HEADERS += mediaplayerTridentShinerMiniplayer.h
+    SOURCES += mediaplayerTridentShinerMiniplayer.cpp
 } else:!no-dbus {
     DEFINES += MEDIAPLAYER_DBUS
     HEADERS += mediaplayerdbus.h

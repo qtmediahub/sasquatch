@@ -25,7 +25,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #define NLLR "\r"
 
-#ifdef SCENEGRAPH
+#ifdef QT5
 MediaPlayer7425::MediaPlayer7425(QQuickItem *parent) :
 #else
 MediaPlayer7425::MediaPlayer7425(QDeclarativeItem *parent) :

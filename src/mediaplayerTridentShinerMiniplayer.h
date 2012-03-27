@@ -20,25 +20,21 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 ****************************************************************************/
 
-#ifndef MEDIAPLAYER_ST7540_H
-#define MEDIAPLAYER_ST7540_H
+#ifndef MEDIAPLAYER_TRIDENT_SHINER_MINIPLAYER_H
+#define MEDIAPLAYER_TRIDENT_SHINER_MINIPLAYER_H
 
 #include <QProcess>
-#include <QFile>
-#include <QSocketNotifier>
-#include <QTextStream>
-#include <QTimerEvent>
 
 #include "abstractmediaplayer.h"
 
-class MediaPlayerST7540 : public AbstractMediaPlayer
+class MediaPlayerTridentShinerMiniplayer : public AbstractMediaPlayer
 {
     Q_OBJECT
 public:
-#ifdef SCENEGRAPH
-    explicit MediaPlayerST7540(QQuickItem *parent = 0);
+#ifdef QT5
+    explicit MediaPlayerTridentShinerMiniplayer(QQuickItem *parent = 0);
 #else
-    explicit MediaPlayerST7540(QDeclarativeItem *parent = 0);
+    explicit MediaPlayerTridentShinerMiniplayer(QDeclarativeItem *parent = 0);
 #endif
 
     virtual QString source() const;
@@ -66,11 +62,6 @@ protected slots:
     void slotPlayerProcessStarted();
     void slotPlayerProcessStateChanged(QProcess::ProcessState newState);
 
-    void slotPlayerFeedBackSocketNotifierActivated(int socket);
-
-protected:
-    void timerEvent(QTimerEvent *event);
-
 private:
     bool  m_playing;
     bool  m_hasVideo;
@@ -79,13 +70,7 @@ private:
     QProcess *mp_player_process;
 
     QString  m_source_uri;
-    QString  st_current_command_line_arguments;
-
-    QFile *mp_player_feedback_file;
-    QSocketNotifier *mp_player_feedback_socket_notifier;
-    QTextStream *mp_player_feedback_textstream;
-
-    int m_status_check_timer_id;
+    QStringList  m_current_command_line_arguments;
 };
 
-#endif // MEDIAPLAYER_ST7540_H
+#endif // MEDIAPLAYER_TRIDENT_SHINER_MINIPLAYER_H

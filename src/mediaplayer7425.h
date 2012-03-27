@@ -30,7 +30,7 @@ class MediaPlayer7425 : public AbstractMediaPlayer
 {
     Q_OBJECT
 public:
-#ifdef SCENEGRAPH
+#ifdef QT5
     explicit MediaPlayer7425(QQuickItem *parent = 0);
 #else
     explicit MediaPlayer7425(QDeclarativeItem *parent = 0);
