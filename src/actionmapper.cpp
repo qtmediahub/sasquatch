@@ -76,11 +76,14 @@ void ActionMapper::setupQtKeyMap()
 
 void ActionMapper::takeAction(Action action)
 {
+     qDebug() << "takeAction(Action)" << action;
+
     if (m_recipient.isNull()) {
         qWarning("Trying to send an action when no recipient is set");
         return;
     }
     Qt::Key key = s_actionToQtKeyMap.value(action);
+    qDebug() << "action is key" << key << qPrintable(key);
     QKeyEvent keyPress(QEvent::KeyPress, key, Qt::NoModifier);
     qApp->sendEvent(m_recipient.data(), &keyPress);
     QKeyEvent keyRelease(QEvent::KeyRelease, key, Qt::NoModifier);
