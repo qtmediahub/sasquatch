@@ -56,7 +56,8 @@ public:
 
     enum DotDotPosition {
         Beginning,
-        End
+        End,
+        Nowhere
     };
 
     MediaModel(QObject *parent = 0);

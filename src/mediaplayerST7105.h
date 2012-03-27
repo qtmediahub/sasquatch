@@ -19,23 +19,27 @@ Redistribution and use in source and binary forms, with or without modification,
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ****************************************************************************/
-#ifndef MEDIAPLAYER_7425_H
-#define MEDIAPLAYER_7425_H
+
+#ifndef MEDIAPLAYER_ST7105_H
+#define MEDIAPLAYER_ST7105_H
+
+#include <QProcess>
+#include <QFile>
+#include <QSocketNotifier>
+#include <QTextStream>
+#include <QTimerEvent>
 
 #include "abstractmediaplayer.h"
 
-#include <QProcess>
-
-class MediaPlayer7425 : public AbstractMediaPlayer
+class MediaPlayerST7105 : public AbstractMediaPlayer
 {
     Q_OBJECT
 public:
 #ifdef QT5
-    explicit MediaPlayer7425(QQuickItem *parent = 0);
+    explicit MediaPlayerST7105(QQuickItem *parent = 0);
 #else
-    explicit MediaPlayer7425(QDeclarativeItem *parent = 0);
+    explicit MediaPlayerST7105(QDeclarativeItem *parent = 0);
 #endif
-    virtual ~MediaPlayer7425();
 
     virtual QString source() const;
     virtual bool hasVideo() const;
@@ -43,10 +47,8 @@ public:
     virtual bool playing() const;
     virtual bool paused() const;
 
-signals:
-
 public slots:
-    void setSource(const QString &source);
+    void setSource(const QString &uri);
     void stop();
     void pause();
     void resume();
@@ -56,17 +58,34 @@ public slots:
     void setPositionPercent(qreal position);
     void setVolumePercent(qreal volume);
 
-    void slotProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
-    void slotStateChanged(QProcess::ProcessState newState);
+protected slots:
+    void slotPlayerProcessError(QProcess::ProcessError error);
+    void slotPlayerProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
+    void slotPlayerProcessReadyReadStandardError();
+    void slotPlayerProcessReadyReadStandardOutput();
+    void slotPlayerProcessStarted();
+    void slotPlayerProcessStateChanged(QProcess::ProcessState newState);
+
+    void slotPlayerFeedBackSocketNotifierActivated(int socket);
+
+protected:
+    void timerEvent(QTimerEvent *event);
 
 private:
     bool  m_playing;
     bool  m_hasVideo;
     bool  m_paused;
 
-    QProcess    *m_pPlayer;
-    QStringList m_cmdLineArgs;
+    QProcess *mp_player_process;
+
+    QString  m_source_uri;
+    QString  st_current_command_line_arguments;
+
+    QFile *mp_player_feedback_file;
+    QSocketNotifier *mp_player_feedback_socket_notifier;
+    QTextStream *mp_player_feedback_textstream;
+
+    int m_status_check_timer_id;
 };
 
-#endif // MEDIAPLAYER_7425_H
-
+#endif // MEDIAPLAYER_ST7105_H

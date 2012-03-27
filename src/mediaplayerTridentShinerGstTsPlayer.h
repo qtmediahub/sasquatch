@@ -19,23 +19,23 @@ Redistribution and use in source and binary forms, with or without modification,
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ****************************************************************************/
-#ifndef MEDIAPLAYER_7425_H
-#define MEDIAPLAYER_7425_H
 
-#include "abstractmediaplayer.h"
+#ifndef MEDIAPLAYER_TRIDENT_SHINER_GSTTSPLAYER_H
+#define MEDIAPLAYER_TRIDENT_SHINER_GSTTSPLAYER_H
 
 #include <QProcess>
 
-class MediaPlayer7425 : public AbstractMediaPlayer
+#include "abstractmediaplayer.h"
+
+class MediaPlayerTridentShinerGstTsPlayer : public AbstractMediaPlayer
 {
     Q_OBJECT
 public:
 #ifdef QT5
-    explicit MediaPlayer7425(QQuickItem *parent = 0);
+    explicit MediaPlayerTridentShinerGstTsPlayer(QQuickItem *parent = 0);
 #else
-    explicit MediaPlayer7425(QDeclarativeItem *parent = 0);
+    explicit MediaPlayerTridentShinerGstTsPlayer(QDeclarativeItem *parent = 0);
 #endif
-    virtual ~MediaPlayer7425();
 
     virtual QString source() const;
     virtual bool hasVideo() const;
@@ -43,10 +43,8 @@ public:
     virtual bool playing() const;
     virtual bool paused() const;
 
-signals:
-
 public slots:
-    void setSource(const QString &source);
+    void setSource(const QString &uri);
     void stop();
     void pause();
     void resume();
@@ -56,17 +54,23 @@ public slots:
     void setPositionPercent(qreal position);
     void setVolumePercent(qreal volume);
 
-    void slotProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
-    void slotStateChanged(QProcess::ProcessState newState);
+protected slots:
+    void slotPlayerProcessError(QProcess::ProcessError error);
+    void slotPlayerProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
+    void slotPlayerProcessReadyReadStandardError();
+    void slotPlayerProcessReadyReadStandardOutput();
+    void slotPlayerProcessStarted();
+    void slotPlayerProcessStateChanged(QProcess::ProcessState newState);
 
 private:
     bool  m_playing;
     bool  m_hasVideo;
     bool  m_paused;
 
-    QProcess    *m_pPlayer;
-    QStringList m_cmdLineArgs;
+    QProcess *mp_player_process;
+
+    QString  m_source_uri;
+    QStringList  m_current_command_line_arguments;
 };
 
-#endif // MEDIAPLAYER_7425_H
-
+#endif // MEDIAPLAYER_TRIDENT_SHINER_GSTTSPLAYER_H
