@@ -125,7 +125,7 @@ Item {
 
     function togglePlayPause() {
         if (!mediaPlayer.playing || mediaPlayer.paused) {
-            mediaPlayer.play()
+            mediaPlayer.paused = false;
         } else {
             mediaPlayer.paused = true
         }
