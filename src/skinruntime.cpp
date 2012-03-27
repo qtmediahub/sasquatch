@@ -91,6 +91,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "mediaplayer7425.h"
 #elif defined(MEDIAPLAYER_ST7108)
 #include "mediaplayerST7108.h"
+#elif defined(MEDIAPLAYER_TRIDENT_SHINER_GSTTSPLAYER)
+#include "mediaplayerTridentShinerGstTsPlayer.h"
 #else
 #include "mediaplayerdummy.h"
 #endif
@@ -240,6 +242,8 @@ SkinRuntimePrivate::SkinRuntimePrivate(GlobalSettings *s, SkinRuntime *p)
         qmlRegisterType<MediaPlayer7425>("OverlayModeMediaPlayer", 1, 0, "OverlayModeMediaPlayer");
 #elif defined(MEDIAPLAYER_ST7108)
         qmlRegisterType<MediaPlayerST7108>("OverlayModeMediaPlayer", 1, 0, "OverlayModeMediaPlayer");
+#elif defined(MEDIAPLAYER_ST7108)
+        qmlRegisterType<MediaPlayerTridentShinerGstTsPlayer>("OverlayModeMediaPlayer", 1, 0, "OverlayModeMediaPlayer");
 #else
         qmlRegisterType<MediaPlayerDummy>("OverlayModeMediaPlayer", 1, 0, "OverlayModeMediaPlayer");
 #endif
