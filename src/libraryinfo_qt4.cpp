@@ -15,12 +15,20 @@ QString LibraryInfo::dataPath()
 
 QString LibraryInfo::tempPath()
 {
+#if defined(Q_WS_QWS)
+    return QString("/tmp");
+#else
     return storageLocation(QDesktopServices::TempLocation);
+#endif	//#if defined(Q_WS_QWS)
 }
 
 QString LibraryInfo::logPath()
 {
+#if defined(Q_WS_QWS)
+    return QString("/tmp");
+#else
     return storageLocation(QDesktopServices::TempLocation);
+#endif	//#if defined(Q_WS_QWS)
 }
 
 
