@@ -41,10 +41,12 @@ HttpClient::HttpClient(int sockfd, HttpServer *server, SkinManager* skinManager,
     }
 
     connect(m_socket, SIGNAL(readyRead()), this, SLOT(readClient()));
-    connect(m_socket, SIGNAL(disconnected()), this, SLOT(discardClient()));
+    connect(m_socket, SIGNAL(disconnected()), this, SIGNAL(disconnected()));
+    connect(m_socket, SIGNAL(disconnected()), this, SLOT(deleteLater()));
 
     m_skinManager = skinManager;
 }
+
 
 void HttpClient::readClient()
 {
@@ -75,20 +77,8 @@ void HttpClient::readClient()
 
     }
 
-    m_socket->close();
-    discardClient();
-
-    return;
+//    m_socket->close();
 }
-
-void HttpClient::discardClient()
-{
-    m_file.close();
-
-    m_socket->deleteLater();
-    emit disconnected();
-}
-
 
 void HttpClient::readVideoRequest()
 {
@@ -102,8 +92,6 @@ void HttpClient::readVideoRequest()
     } else {
         sendFile(getMediaUrl("video", id.toInt()).toLocalFile());
     }
-
-    m_socket->close();
 }
 
 void HttpClient::readMusicRequest()
@@ -118,9 +106,6 @@ void HttpClient::readMusicRequest()
     } else {
         sendFile(getMediaUrl("music", id.toInt()).toLocalFile());
     }
-
-
-    m_socket->close();
 }
 
 void HttpClient::readPictureRequest()
@@ -156,7 +141,6 @@ void HttpClient::readPictureRequest()
 
 
     sendFile(getMediaUrl("picture", id.toInt(), thumbnail ? "thumbnail" : "filepath").toLocalFile());
-    m_socket->close();
 }
 
 void HttpClient::readQmlRequest()
@@ -174,7 +158,6 @@ void HttpClient::readQmlRequest()
     Skin* skin = (m_skinManager->skins().value(skinName, 0));
     if(skin == 0) {
         qWarning() << "HttpClient::readQmlRequest() requested skin: " << skin << " .. but this skin is unknown";
-        m_socket->close();
         return;
     }
 
@@ -255,7 +238,8 @@ bool HttpClient::sendFile(QString fileName)
         sleep(0.1);
     }
 
-    return  true;
+    m_file.close();
+    return true;
 }
 
 bool HttpClient::sendPartial(QString fileName, qint64 offset)

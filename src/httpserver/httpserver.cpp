@@ -61,7 +61,7 @@ void HttpServer::incomingConnection(int socket)
 #endif
 {
     QThread *thread = new QThread(this);
-    HttpClient *client = new HttpClient(socket, this, m_skinManager, this);
+    HttpClient *client = new HttpClient(socket, this, m_skinManager);
     client->moveToThread(thread);
     connect(client, SIGNAL(disconnected()), client, SLOT(deleteLater()));
     connect(client, SIGNAL(disconnected()), thread, SLOT(quit()));

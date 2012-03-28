@@ -78,7 +78,9 @@ public:
     Q_INVOKABLE void back(int count = 1);
     Q_INVOKABLE void enter(int index);
 
-    Q_INVOKABLE QList<int> getIdList();
+    Q_INVOKABLE QList<int> getIdList() const;
+    Q_INVOKABLE int indexById(int id) const;
+
 
     QString part() const;
 

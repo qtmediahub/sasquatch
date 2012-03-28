@@ -338,6 +338,7 @@ QObject *SkinRuntimePrivate::loadQmlSkin(const QUrl &targetUrl)
     ContextContentRpc* ccrpc = new ContextContentRpc(this);
     connect(ccrpc, SIGNAL(sendNewContextContent(QString&, QString&, QList<int>)), this, SLOT(rpcSendNewContextContent(QString&,QString&,QList<int>)));
     connect(ccrpc, SIGNAL(sendInvalidateContextContent()), this, SLOT(rpcSendInvalidateContextContent()));
+    rpcConnection->registerObject(ccrpc);
 
     runtime->insert("contextContent", qVariantFromValue(static_cast<QObject*>(ccrpc)));
 

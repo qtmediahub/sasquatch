@@ -41,7 +41,6 @@ signals:
 
 private slots:
     void readClient();
-    void discardClient();
 
 private:
     void readVideoRequest();

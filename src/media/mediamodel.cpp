@@ -226,7 +226,7 @@ void MediaModel::enter(int index)
     emit partChanged();
 }
 
-QList<int> MediaModel::getIdList()
+QList<int> MediaModel::getIdList() const
 {
     QList<int> idList;
     for(int k = 0; k < m_data.length(); k++) {
@@ -234,6 +234,16 @@ QList<int> MediaModel::getIdList()
         idList.append(id);
     }
     return idList;
+}
+
+int MediaModel::indexById(int id) const
+{
+    for(int k = 0; k < m_data.length(); k++) {
+        int tmpId = m_data[k].value(s_nameToRole.value("id")).toInt();
+        if(tmpId == id) {
+            return k;
+        }
+    }
 }
 
 void MediaModel::back(int count)
