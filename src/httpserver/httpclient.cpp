@@ -25,31 +25,41 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "httpclient.h"
 
 #include <QtSql>
+#include <QTimer>
 
 #include "httpserver.h"
 #include "global.h"
 #include "skinmanager.h"
 
 HttpClient::HttpClient(int sockfd, HttpServer *server, SkinManager* skinManager, QObject *parent) :
-    QObject(parent)
+    QObject(parent),
+    m_sockfd(sockfd),
+    m_server(server),
+    m_skinManager(skinManager)
+
 {
-    m_server = server;
+    QTimer::singleShot(1, this, SLOT(init()));
+}
+
+void HttpClient::init()
+{
+    Q_ASSERT(this->thread() == QThread::currentThread());
+
     m_socket = new QTcpSocket(this);
-    if (!m_socket->setSocketDescriptor(sockfd)) {
+    if (!m_socket->setSocketDescriptor(m_sockfd)) {
         emit error(m_socket->error());
         return;
     }
 
     connect(m_socket, SIGNAL(readyRead()), this, SLOT(readClient()));
     connect(m_socket, SIGNAL(disconnected()), this, SIGNAL(disconnected()));
-    connect(m_socket, SIGNAL(disconnected()), this, SLOT(deleteLater()));
-
-    m_skinManager = skinManager;
 }
 
 
 void HttpClient::readClient()
 {
+    Q_ASSERT(this->thread() == QThread::currentThread());
+
     if (m_socket->canReadLine()) {
         QByteArray bytesRead = m_socket->readLine();
         QStringList tokens = QString(bytesRead).split(QRegExp("[ \r\n][ \r\n]*"));
@@ -76,12 +86,13 @@ void HttpClient::readClient()
         }
 
     }
-
-//    m_socket->close();
 }
+
 
 void HttpClient::readVideoRequest()
 {
+    Q_ASSERT(this->thread() == QThread::currentThread());
+
     QString id = m_get.right(m_get.length()-m_get.lastIndexOf("/")-1);
 
     if (m_request.contains("Range")) {
@@ -96,6 +107,8 @@ void HttpClient::readVideoRequest()
 
 void HttpClient::readMusicRequest()
 {
+    Q_ASSERT(this->thread() == QThread::currentThread());
+
     QString id = m_get.right(m_get.length()-m_get.lastIndexOf("/")-1);
 
     if (m_request.contains("Range")) {
@@ -110,6 +123,8 @@ void HttpClient::readMusicRequest()
 
 void HttpClient::readPictureRequest()
 {
+    Q_ASSERT(this->thread() == QThread::currentThread());
+
     QString id;
     bool thumbnail;
 
@@ -145,6 +160,8 @@ void HttpClient::readPictureRequest()
 
 void HttpClient::readQmlRequest()
 {
+    Q_ASSERT(this->thread() == QThread::currentThread());
+
     qDebug() << "void HttpClient::readQmlRequest() ... m_get:" << m_get;
     QStringList tokens = m_get.split('/', QString::SkipEmptyParts);
     if(tokens.length() != 3) {
@@ -166,6 +183,8 @@ void HttpClient::readQmlRequest()
 
 void HttpClient::answerOk(qint64 length)
 {
+    Q_ASSERT(this->thread() == QThread::currentThread());
+
     QByteArray answer;
     answer += "HTTP/1.1 200 OK \r\n";
     answer += "Server: QtMediaHub (Unix) \r\n";
@@ -181,6 +200,8 @@ void HttpClient::answerOk(qint64 length)
 
 void HttpClient::answerNotFound()
 {
+    Q_ASSERT(this->thread() == QThread::currentThread());
+
     QByteArray answer;
     answer += "HTTP/1.1 404 Not Found \r\n";
     answer += "Server: QtMediaHub (Unix) \r\n";
@@ -193,6 +214,8 @@ void HttpClient::answerNotFound()
 
 QUrl HttpClient::getMediaUrl(QString mediaType, int id, QString field)
 {
+    Q_ASSERT(this->thread() == QThread::currentThread());
+
     QSqlQuery query(QSqlDatabase::database(DEFAULT_DATABASE_CONNECTION_NAME));
     query.setForwardOnly(true);
 
@@ -217,6 +240,8 @@ QUrl HttpClient::getMediaUrl(QString mediaType, int id, QString field)
 
 bool HttpClient::sendFile(QString fileName)
 {
+    Q_ASSERT(this->thread() == QThread::currentThread());
+
     int chunk = 1024*16;
 
     m_file.setFileName(fileName);
@@ -244,6 +269,8 @@ bool HttpClient::sendFile(QString fileName)
 
 bool HttpClient::sendPartial(QString fileName, qint64 offset)
 {
+    Q_ASSERT(this->thread() == QThread::currentThread());
+
     int chunk = 1024*16;
 
     m_file.setFileName(fileName);

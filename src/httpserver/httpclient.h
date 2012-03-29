@@ -41,6 +41,7 @@ signals:
 
 private slots:
     void readClient();
+    void init();
 
 private:
     void readVideoRequest();
@@ -55,12 +56,14 @@ private:
     void answerOk(qint64 length);
     void answerNotFound();
 
-    QTcpSocket *m_socket;
+    int m_sockfd;
     HttpServer *m_server;
+    SkinManager *m_skinManager;
+
+    QTcpSocket *m_socket;
     QFile m_file;
     QHash<QString, QString> m_request;
     QString m_get;
-    SkinManager *m_skinManager;
 };
 
 #endif // HTTPCLIENT_H
