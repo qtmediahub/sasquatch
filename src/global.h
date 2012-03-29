@@ -26,6 +26,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QModelIndex>
 #include <QMetaType>
 
+#ifdef QT5
+#include <QtQml>
+#else
+#include <QtDeclarative>
+#endif
+
 #if defined _WIN32
     #ifdef BUILDING_QMH
         #define QMH_EXPORT __declspec(dllexport)

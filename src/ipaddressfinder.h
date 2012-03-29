@@ -23,7 +23,11 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #ifndef IPADDRESSFINDER
 #define IPADDRESSFINDER
 
+#ifdef QT5
+#include <QtQml>
+#else
 #include <QtDeclarative>
+#endif
 #include <QtNetwork>
 
 class IpAddressFinder : public QObject

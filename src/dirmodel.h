@@ -24,7 +24,13 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #define DIRMODEL_H
 
 #include <QDirModel>
+
+#ifdef QT5
+#include <QtQml>
+#else
 #include <QtDeclarative>
+#endif
+
 #include "global.h"
 
 class DirModel : public QDirModel

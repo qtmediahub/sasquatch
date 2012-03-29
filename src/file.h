@@ -25,7 +25,13 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <QObject>
 #include <QFile>
+
+#ifndef QT5
 #include <QtDeclarative>
+#else
+#include <QtQml>
+#endif
+
 #include <QDebug>
 
 #include "libraryinfo.h"

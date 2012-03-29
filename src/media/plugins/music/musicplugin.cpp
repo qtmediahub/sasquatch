@@ -25,7 +25,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "globalsettings.h"
 
 #include <QtGui>
-#include <QtDeclarative>
+#include <QtPlugin>
+
 
 QStringList MusicPlugin::parserKeys() const
 {

@@ -25,7 +25,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <QtCore>
 #include <QtGui>
-#include <QtDeclarative>
 #include <QtSql>
 
 class QThread;

@@ -23,10 +23,15 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #ifndef ACTIONMAPPER_H
 #define ACTIONMAPPER_H
 
-#include <QtDeclarative>
 #include <QObject>
 #include <QDebug>
 #include <QWeakPointer>
+
+#ifdef QT5
+#include <QtQml>
+#else
+#include <QtDeclarative>
+#endif
 
 class GlobalSettings;
 

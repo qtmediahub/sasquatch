@@ -22,10 +22,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "trackpad.h"
 #include <QtGui>
-#include <QtDeclarative>
-#ifdef QT5
-#include <QtWidgets>
-#endif
 
 Trackpad::Trackpad(QObject *p)
     : QObject(p), parent(p)
@@ -50,6 +46,8 @@ void Trackpad::setRecipient(QObject *recipient)
 
 void Trackpad::setEnabled(bool e)
 {
+#ifndef QT5
+
     if(m_recipientContext.isNull()) {
         qWarning("Trying to use Declarative specific functionality outside of Declarative");
         return;
@@ -58,10 +56,12 @@ void Trackpad::setEnabled(bool e)
     expression.evaluate();
     if (expression.hasError())
         qWarning() << "Failed to enable/disable cursor";
+#endif
 }
 
 void Trackpad::moveBy(qlonglong x, qlonglong y)
 {
+#ifndef QT5
     if(m_recipientContext.isNull()) {
         qWarning("Trying to use Declarative specific functionality outside of Declarative");
         return;
@@ -71,10 +71,12 @@ void Trackpad::moveBy(qlonglong x, qlonglong y)
     expression.evaluate();
     if (expression.hasError())
         qWarning() << "Failed to enable/disable cursor";
+#endif
 }
 
 void Trackpad::click()
 {
+#ifndef QT5
     if(m_recipient.isNull()) {
         qFatal("No recipient has been specified for mouse events");
         return;
@@ -85,4 +87,5 @@ void Trackpad::click()
     qApp->sendEvent(m_recipient.data(), &mousePress);
     QMouseEvent mouseRelease(QEvent::MouseButtonRelease, localPos, globalPos, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
     qApp->sendEvent(m_recipient.data(), &mouseRelease);
+#endif
 }
