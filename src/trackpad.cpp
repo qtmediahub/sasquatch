@@ -22,6 +22,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "trackpad.h"
 #include <QtGui>
+#ifndef QT5
+#include <QtDeclarative>
+#endif
 
 Trackpad::Trackpad(QObject *p)
     : QObject(p), parent(p)
