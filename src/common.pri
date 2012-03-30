@@ -4,8 +4,6 @@
 qt5 {
     DEFINES += QT5
     QT += v8 network sql quick widgets declarative qml#QDirModel from widgets!
-    #Until we guard linkage of avahi-qt4
-    CONFIG += meegoesque
 } else {
     QT += declarative script network sql
 }

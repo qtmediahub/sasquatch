@@ -135,20 +135,13 @@ include(httpserver/httpserver.pri)
 #for() structure does not work with lupdate
 TRANSLATIONS = $$system(cat $$DESTDIR/supported_languages | while read i; do echo translations/"$i".ts; done)
 
-avahi {
-    DEFINES += QMH_AVAHI
-    # avahi support
-    include(3rdparty/libqavahi/libqavahi.pri)
-    INCLUDEPATH += 3rdparty/libqavahi/
+staticserivce {
+    DEFINES += QMH_STATIC_SERVICE_BROWSER
+    SOURCES += staticservicebrowsermodel.cpp
+    HEADERS += staticservicebrowsermodel.h
 } else {
-    staticserivce {
-        DEFINES += QMH_STATIC_SERVICE_BROWSER
-        SOURCES += staticservicebrowsermodel.cpp
-        HEADERS += staticservicebrowsermodel.h
-    } else {
-        SOURCES += simpleservicebrowsermodel.cpp
-        HEADERS += simpleservicebrowsermodel.h
-    }
+    SOURCES += simpleservicebrowsermodel.cpp
+    HEADERS += simpleservicebrowsermodel.h
 }
 
 !no-dbus {

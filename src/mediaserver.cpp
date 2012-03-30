@@ -27,24 +27,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QtCore>
 #include <QDebug>
 
-#ifdef QMH_AVAHI
-#include "qavahiservicepublisher.h"
-#endif
-
 #include "libraryinfo.h"
 
 MediaServer::MediaServer(GlobalSettings *settings, QObject *parent) :
     QObject(parent),
     m_settings(settings)
 {
-#ifdef QMH_AVAHI
-    if (m_settings->isEnabled(GlobalSettings::Avahi) && m_settings->isEnabled(GlobalSettings::AvahiAdvertize)) {
-        QAvahiServicePublisher *publisher = new QAvahiServicePublisher(this);
-        publisher->publish(QHostInfo::localHostName(), "_qtmediahub._tcp", 1234, "Qt Media Hub JSON-RPCv2 interface");
-        qDebug() << "Advertizing session via zeroconf";
-    }
-#endif
-
     QDir dir;
     dir.mkpath(LibraryInfo::thumbnailPath(m_settings));
     dir.mkpath(LibraryInfo::dataPath());

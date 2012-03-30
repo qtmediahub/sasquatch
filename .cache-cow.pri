@@ -13,7 +13,6 @@ linux* {
     message()
     message(Linux specific options: ('*' indicates that option is enabled by default))
     message(Use '-config no-<option>' to disable or '-config <option>' to enable)
-    message(avahi - Enabled Avahi support)
     message(glviewport* - Render using a GL Viewport)
     message(glgs - Render using GL graphics system (Avoid like the plague!))
 }
@@ -22,7 +21,7 @@ isEmpty(PROJECTROOT) {
     message()
     system(echo "PROJECTROOT=$$BASE_NAME" > $$QMAKE_CACHE)
 #$$LITERAL_HASH is not jiving in system( calls fine in echo(
-    system(echo "false: CONFIG+=no-pkg-cfg no-avahi no-dbus" >> $$QMAKE_CACHE)
+    system(echo "false: CONFIG+=no-pkg-cfg no-dbus" >> $$QMAKE_CACHE)
     system(echo "CONFIG-=qt_framework" >> $$QMAKE_CACHE)
     system(echo "CONFIG+=cache-exists" >> $$QMAKE_CACHE)
     message(Cache created)

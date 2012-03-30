@@ -66,10 +66,6 @@ GlobalSettings::GlobalSettings(QObject *parent) :
     addOptionEntry(GlobalSettings::OpenGLFormatHack,    "false",         "opengl-format-hack","<bool> use special OpenGL format hacks");   // TODO test this!!!
     addOptionEntry(GlobalSettings::OpenGLViewport,      "true",         "opengl-viewport",  "<bool> use special OpenGL viewport");   // TODO test this!!!
     addOptionEntry(GlobalSettings::SmoothScaling,       "true",         "smooth-scaling",   "<bool> toggle smooth scaling");
-    addOptionEntry(GlobalSettings::Avahi,               "true",         "avahi",            "<bool> toggle avahi usage");
-    addOptionEntry(GlobalSettings::AvahiAdvertize,      "true",         "avahiAdvertize",   "<bool> toggle avahi advertizing");
-    addOptionEntry(GlobalSettings::AvahiHideIPv6,       "true",         "avahiHideIPv6",    "<bool> hide IPv6 addresses");
-    addOptionEntry(GlobalSettings::AvahiHideLocal,      "true",         "avahiHideLocal",   "<bool> hide local address");
     addOptionEntry(GlobalSettings::ResizeDelay,         "25",           "resizeDelay",      "<int> wait n milliseconds to do actual resize");
     addOptionEntry(GlobalSettings::TranslationsPath,    "",             "translationsPath", "<path> adds path to translations search paths");
     addOptionEntry(GlobalSettings::ResourcesPath,       "",             "resourcesPath",    "<path> adds path to resources search paths");

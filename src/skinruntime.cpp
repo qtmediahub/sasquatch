@@ -29,9 +29,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QtGui>
 #include <QDebug>
 
-#ifdef QMH_AVAHI
-#include "qavahiservicebrowsermodel.h"
-#elif defined(QMH_STATIC_SERVICE_BROWSER)
+#ifdef QMH_STATIC_SERVICE_BROWSER
 #include "staticservicebrowsermodel.h"
 #else
 #include "simpleservicebrowsermodel.h"
@@ -265,19 +263,7 @@ SkinRuntimePrivate::SkinRuntimePrivate(GlobalSettings *s, SkinRuntime *p)
 #endif
     }
 
-#ifdef QMH_AVAHI
-    if (settings->isEnabled(GlobalSettings::Avahi)) {
-        QAvahiServiceBrowserModel *model = new QAvahiServiceBrowserModel(this);
-        model->setAutoResolve(true);
-        QAvahiServiceBrowserModel::Options options = QAvahiServiceBrowserModel::NoOptions;
-        if (settings->isEnabled(GlobalSettings::AvahiHideIPv6))
-            options |= QAvahiServiceBrowserModel::HideIPv6;
-        if (settings->isEnabled(GlobalSettings::AvahiHideLocal))
-            options |= QAvahiServiceBrowserModel::HideLocal;
-        model->browse("_qtmediahub._tcp", options);
-        remoteSessionsModel = model;
-    }
-#elif defined(QMH_STATIC_SERVICE_BROWSER)
+#ifdef QMH_STATIC_SERVICE_BROWSER
     remoteSessionsModel = new StaticServiceBrowserModel(this);
 #else
     remoteSessionsModel = new SimpleServiceBrowserModel(this);
