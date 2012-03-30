@@ -28,6 +28,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 class GlobalSettings;
 class SkinManager;
+class HttpClient;
 
 class HttpServer : public QTcpServer
 {
@@ -47,6 +48,10 @@ public:
     QString address() const { return m_address; }
     int port() const { return serverPort(); }
 
+private slots:
+    void cleanUpAfterThread();
+
+
 signals:
     void addressChanged();
     void portChanged();
@@ -58,6 +63,8 @@ private:
     QString m_base;
     QString m_address;
     SkinManager* m_skinManager;
+
+    QHash<QObject*, HttpClient*> threadClientMap;
 };
 
 #endif // HTTPSERVER_H
