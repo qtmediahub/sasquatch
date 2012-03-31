@@ -358,6 +358,7 @@ bool MainWindow::setSkin(Skin *newSkin)
 #ifdef QT5
     else {
         //FIXME: We clearly need parity window state management in the long run
+        qWarning("\nQtMediaHub on Qt 5 does not use an toplevel event filter, yet.\nThe keyboard mapping might be broken!\n");
         (qobject_cast<QWindow*>(skinWidget))->show();
     }
 #endif
