@@ -35,8 +35,13 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QDeclarativeView>
 #endif
 
+#ifdef QT5
+MainWindow::MainWindow(GlobalSettings *settings, QWindow *parent)
+    : QWindow(parent),
+#else
 MainWindow::MainWindow(GlobalSettings *settings, QWidget *parent)
     : QWidget(parent),
+#endif
       m_centralWidget(0),
       m_settings(settings)
 {
@@ -44,13 +49,17 @@ MainWindow::MainWindow(GlobalSettings *settings, QWidget *parent)
     m_attemptingFullScreen = m_settings->isEnabled(GlobalSettings::FullScreen);
 
     const bool isOverlay = m_settings->isEnabled(GlobalSettings::OverlayMode);
+#ifndef QT5
     setAttribute(isOverlay ? Qt::WA_TranslucentBackground : Qt::WA_NoSystemBackground);
+#endif
 
     m_skinRuntime = new SkinRuntime(m_settings, this);
 
     // TODO Orientation needs to be changeable from skin during runtime
     setOrientation(ScreenOrientationAuto);
 
+    // TODO does not work in Qt5
+#ifndef QT5
     new QShortcut(QKeySequence(Qt::ALT + Qt::Key_Backspace), this, SIGNAL(resetUI()));
     new QShortcut(QKeySequence(Qt::ALT + Qt::Key_Down), this, SLOT(decreaseHeight()));
     new QShortcut(QKeySequence(Qt::ALT + Qt::Key_Up), this, SLOT(increaseHeight()));
@@ -63,6 +72,7 @@ MainWindow::MainWindow(GlobalSettings *settings, QWidget *parent)
     new QShortcut(QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_S), this, SLOT(selectSkin()));
 
     new QShortcut(QKeySequence(Qt::ALT + Qt::Key_Return), this, SLOT(toggleFullScreen()));
+#endif
 
     m_resizeSettleTimer.setSingleShot(true);
 
@@ -104,12 +114,20 @@ MainWindow::~MainWindow()
         m_settings->setValue(GlobalSettings::OverscanGeometry, geometry());
 }
 
+#ifdef QT5
+QWindow *MainWindow::centralWidget() const
+#else
 QWidget *MainWindow::centralWidget() const
+#endif
 {
     return m_centralWidget;
 }
 
+#ifdef QT5
+void MainWindow::setCentralWidget(QWindow *centralWidget)
+#else
 void MainWindow::setCentralWidget(QWidget *centralWidget)
+#endif
 {
     if (m_centralWidget) {
         m_centralWidget->hide();
@@ -117,7 +135,7 @@ void MainWindow::setCentralWidget(QWidget *centralWidget)
     }
     m_centralWidget = centralWidget;
     m_centralWidget->setParent(this);
-    m_centralWidget->setFixedSize(size());
+    m_centralWidget->resize(size());
     m_centralWidget->installEventFilter(this);
     if (isVisible())
         m_centralWidget->show();
@@ -133,7 +151,11 @@ void MainWindow::resizeEvent(QResizeEvent *e)
     else
         m_resizeSettleTimer.start(staggerResizingDelay);
 
+#ifdef QT5
+    QWindow::resizeEvent(e);
+#else
     QWidget::resizeEvent(e);
+#endif
 }
 
 void MainWindow::setOrientation(ScreenOrientation orientation)
@@ -161,7 +183,8 @@ void MainWindow::setOrientation(ScreenOrientation orientation)
 void MainWindow::handleResize()
 {
     if (m_centralWidget)
-        m_centralWidget->setFixedSize(size());
+        m_centralWidget->resize(size());
+
     qDebug() << "Resizing widget to:" << size();
 }
 
@@ -186,7 +209,11 @@ void MainWindow::increaseHeight()
 
     const QRect newGeometry = geometry().adjusted(0,-1,0,1);
 
+#ifdef QT5
+    const QSize desktopSize = screen()->availableSize();
+#else
     const QSize desktopSize = qApp->desktop()->screenGeometry(this).size();
+#endif
     if ((newGeometry.width() > desktopSize.width())
             || (newGeometry.height() > desktopSize.height())) {
         m_settings->setValue(GlobalSettings::Overscan, false);
@@ -203,7 +230,11 @@ void MainWindow::increaseWidth()
 
     const QRect newGeometry = geometry().adjusted(-1,0,1,0);
 
+#ifdef QT5
+    const QSize desktopSize = screen()->availableSize();
+#else
     const QSize desktopSize = qApp->desktop()->screenGeometry(this).size();
+#endif
     if ((newGeometry.width() > desktopSize.width())
             || (newGeometry.height() > desktopSize.height())) {
         m_settings->setValue(GlobalSettings::Overscan, false);
@@ -291,12 +322,28 @@ void MainWindow::showFullScreen()
         setGeometry(geometry);
         setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
         setWindowState(Qt::WindowNoState);
+#ifdef QT5
+        QWindow::show();
+        if (m_centralWidget)
+            m_centralWidget->show();
+#else
         QWidget::show();
+#endif
     } else {
+#ifdef QT5
+        QWindow::showFullScreen();
+        if (m_centralWidget)
+            m_centralWidget->show();
+#else
         QWidget::showFullScreen();
+#endif
     }
 
+#ifdef QT5
+    requestActivateWindow();
+#else
     activateWindow();
+#endif
 }
 
 void MainWindow::showNormal()
@@ -305,21 +352,25 @@ void MainWindow::showNormal()
 
     setWindowFlags(Qt::Window);
     setGeometry(m_settings->value(GlobalSettings::WindowGeometry).toRect());
+#ifdef QT5
+    QWindow::showNormal();
+    if (m_centralWidget)
+        m_centralWidget->show();
+    requestActivateWindow();
+#else
     QWidget::showNormal();
-
     activateWindow();
+#endif
+
 }
 
 void MainWindow::show()
 {
-    //FIXME: QML 2 related hackery
-#ifndef QT5
     if (m_attemptingFullScreen) {
         showFullScreen();
     } else {
         showNormal();
     }
-#endif
 }
 
 void MainWindow::selectSkin()
@@ -351,17 +402,17 @@ bool MainWindow::setSkin(Skin *newSkin)
         return false;
     }
 
-    QWidget *widget = qobject_cast<QWidget*>(skinWidget);
-    if (widget) {
-        setCentralWidget(widget);
-    }
 #ifdef QT5
-    else {
-        //FIXME: We clearly need parity window state management in the long run
-        qWarning("\nQtMediaHub on Qt 5 does not use an toplevel event filter, yet.\nThe keyboard mapping might be broken!\n");
-        (qobject_cast<QWindow*>(skinWidget))->show();
-    }
+    //FIXME: We clearly need parity window state management in the long run
+    qWarning("\nQtMediaHub on Qt 5 does not use an toplevel event filter, yet.\nThe keyboard mapping might be broken!\n");
+
+    QWindow *widget = qobject_cast<QWindow*>(skinWidget);
+#else
+    QWidget *widget = qobject_cast<QWidget*>(skinWidget);
 #endif
+
+    setCentralWidget(widget);
+
     return true;
 }
 
