@@ -6,7 +6,7 @@ Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).*
 All rights reserved.
 
 Contact:  Girish Ramakrishnan girish@forwardbias.in
-Contact:  Nokia Corporation donald.carr@nokia.com
+Contact:  Donald Carr sirspudd@gmail.com
 Contact:  Nokia Corporation johannes.zellner@nokia.com
 
 You may use this file under the terms of the BSD license as follows:
