@@ -44,10 +44,9 @@ private slots:
     void init();
 
 private:
-    void readVideoRequest();
-    void readMusicRequest();
-    void readPictureRequest();
-    void readQmlRequest();
+    void readMediaRequest(const QString& get);
+    void readQmlRequest(const QString& get);
+    void printRequestFormatErrorMessage(const QString& get);
 
     QUrl getMediaUrl(QString mediaType, int id, QString field = "uri");
     bool sendFile(QString fileName);
@@ -63,7 +62,6 @@ private:
     QTcpSocket *m_socket;
     QFile m_file;
     QHash<QString, QString> m_request;
-    QString m_get;
 };
 
 #endif // HTTPCLIENT_H

@@ -74,111 +74,99 @@ void HttpClient::readClient()
         }
 
         if (tokens[0] == "GET") {
-            m_get = tokens[1];
-            if (m_get.startsWith("/video"))
-                readVideoRequest();
-            else if(m_get.startsWith("/music"))
-                readMusicRequest();
-            else if(m_get.startsWith("/picture"))
-                readPictureRequest();
-            else if(m_get.startsWith("/qml"))
-                readQmlRequest();
-        }
+            QString get = tokens[1];
 
+            if(get.startsWith("/qml"))
+                readQmlRequest(get);
+            else
+                readMediaRequest(get);
+        }
     }
 }
 
-
-void HttpClient::readVideoRequest()
+void HttpClient::readQmlRequest(const QString& get)
 {
-    Q_ASSERT(this->thread() == QThread::currentThread());
-
-    QString id = m_get.right(m_get.length()-m_get.lastIndexOf("/")-1);
-
-    if (m_request.contains("Range")) {
-        QString offsetString = m_request.value("Range");
-        offsetString.remove(0, 6);
-        qint64 offset = offsetString.split("-").at(0).toLongLong();
-        sendPartial(getMediaUrl("video", id.toInt()).toLocalFile(), offset);
-    } else {
-        sendFile(getMediaUrl("video", id.toInt()).toLocalFile());
-    }
-}
-
-void HttpClient::readMusicRequest()
-{
-    Q_ASSERT(this->thread() == QThread::currentThread());
-
-    QString id = m_get.right(m_get.length()-m_get.lastIndexOf("/")-1);
-
-    if (m_request.contains("Range")) {
-        QString offsetString = m_request.value("Range");
-        offsetString.remove(0, 6);
-        qint64 offset = offsetString.split("-").at(0).toLongLong();
-        sendPartial(getMediaUrl("music", id.toInt()).toLocalFile(), offset);
-    } else {
-        sendFile(getMediaUrl("music", id.toInt()).toLocalFile());
-    }
-}
-
-void HttpClient::readPictureRequest()
-{
-    Q_ASSERT(this->thread() == QThread::currentThread());
-
-    QString id;
-    bool thumbnail;
-
-    QStringList tokens = m_get.split('/', QString::SkipEmptyParts);
-
-    if(tokens.length() == 3) {
-        if(tokens.at(0).compare("picture", Qt::CaseInsensitive) || tokens.at(1).compare("thumbnail", Qt::CaseInsensitive)) {
-            qWarning() << "void HttpClient::readPictureRequest() the picture-request was of wrong format: "
-                       << m_get << " ... the right format is: /pictures/thumbnail/<id> or /pictures/<id>";
-            return;
-        }
-        thumbnail = true;
-        id = tokens.at(2);
-    }
-    else if(tokens.length() == 2) {
-        if(tokens.at(0).compare("picture", Qt::CaseInsensitive)) {
-            qWarning() << "void HttpClient::readPictureRequest() the picture-request was of wrong format: "
-                       << m_get << " ... the right format is: /pictures/thumbnail/<id> or /pictures/<id>";
-            return;
-        }
-        thumbnail = false;
-        id = tokens.at(1);
-    }
-    else {
-        qWarning() << "void HttpClient::readPictureRequest() the picture-request was of wrong format: "
-                   << m_get << " ... the right format is: /pictures/thumbnail/<id> or /pictures/<id>";
+    QStringList requestTokens = get.split('/', QString::SkipEmptyParts);
+    if(requestTokens.length() != 3) {
+        printRequestFormatErrorMessage(get);
         return;
     }
 
-
-    sendFile(getMediaUrl("picture", id.toInt(), thumbnail ? "thumbnail" : "filepath").toLocalFile());
-}
-
-void HttpClient::readQmlRequest()
-{
-    Q_ASSERT(this->thread() == QThread::currentThread());
-
-    qDebug() << "void HttpClient::readQmlRequest() ... m_get:" << m_get;
-    QStringList tokens = m_get.split('/', QString::SkipEmptyParts);
-    if(tokens.length() != 3) {
-        qWarning() << "HttpClient::readQmlRequest() the qml-file-request(" << m_get << ") was invalide, it must be of format: /qml/<skin>/<qml-file>";
-        return;
-    }
-
-    QString skinName = tokens.at(1);
-    QString fileName = tokens.at(2);
+    QString skinName = requestTokens.at(1);
+    QString fileName = requestTokens.at(2);
 
     Skin* skin = (m_skinManager->skins().value(skinName, 0));
     if(skin == 0) {
-        qWarning() << "HttpClient::readQmlRequest() requested skin: " << skin << " .. but this skin is unknown";
+        qWarning() << "HttpClient: requested skin: " << skinName << " .. but this skin is unknown";
         return;
     }
 
     sendFile( skin->path() + "/remoteqml/" + fileName);
+}
+
+void HttpClient::readMediaRequest(const QString& get)
+{
+    QStringList requestTokens = get.split('/', QString::SkipEmptyParts);
+    QString id;
+    bool thumbnail;
+
+    QString mediaType = requestTokens.at(0);
+    if(     mediaType.compare("music", Qt::CaseInsensitive)   &&
+            mediaType.compare("picture", Qt::CaseInsensitive) &&
+            mediaType.compare("video", Qt::CaseInsensitive)   ) {
+        printRequestFormatErrorMessage(get);
+        return;
+    }
+
+    if(requestTokens.length() == 3) {  // it must be a thumbnail request!
+        if(requestTokens.at(1).compare("thumbnail", Qt::CaseInsensitive)) {
+            printRequestFormatErrorMessage(get);
+            return;
+        }
+
+        if(!mediaType.compare("music", Qt::CaseInsensitive)) {
+            qWarning() << "HttpClient: thumbnail for music requested, but thumbnails for music are currently not supported";
+            return;
+        }
+
+        thumbnail = true;
+        id = requestTokens.at(2);
+    }
+    else {  // it's a normal (not thumbnail) request!
+        if(requestTokens.length() == 2) {
+            thumbnail = false;
+            id = requestTokens.at(1);
+        }
+    }
+
+    bool ok;
+    int intId = id.toInt(&ok);
+    if(!ok) {
+        printRequestFormatErrorMessage(get);
+        return;
+    }
+
+    if (m_request.contains("Range")) {
+        if(!mediaType.compare("picture", Qt::CaseInsensitive)) {
+            qWarning() << "HttpClient: picture-request doesn't support Range parameters";
+            return;
+        }
+
+        QString offsetString = m_request.value("Range");
+        offsetString.remove(0, 6);
+        qint64 offset = offsetString.split("-").at(0).toLongLong();
+        sendPartial(getMediaUrl(mediaType, intId).toLocalFile(), offset);
+    }
+    else {
+        sendFile(getMediaUrl(mediaType, intId, thumbnail ? "thumbnail" : "filepath").toLocalFile());
+    }
+}
+
+void HttpClient::printRequestFormatErrorMessage(const QString &get)
+{
+    qWarning() << "HttpClient: the http-request was of wrong format: " <<
+                  get << "\n   ... the right format is: /<type>/[thumbnail/]<id> or /<type>/<id> for media and /qml/<skin>/<qml-file> for qml files" <<
+                  "   (supported types: picture, music, video); <id> must be convertable to int";
 }
 
 void HttpClient::answerOk(qint64 length)
