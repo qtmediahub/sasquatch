@@ -20,6 +20,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 ****************************************************************************/
 
+#ifdef QT5
+#include <QGraphicsView>
+#endif
+
 #include <QApplication>
 #include <QKeyEvent>
 
@@ -181,7 +185,6 @@ void ActionMapper::setMap(const QString &map)
 
 void ActionMapper::setRecipient(QObject *recipient)
 {
-/*
     m_skipGeneratedEvent = false;
     recipient->installEventFilter(this);
     QGraphicsView *potentialView = qobject_cast<QGraphicsView*>(recipient);
@@ -189,11 +192,11 @@ void ActionMapper::setRecipient(QObject *recipient)
         // directly send to the scene, to avoid loops
         m_recipient = QWeakPointer<QObject>(potentialView->scene());
     } else {
-*/
+
         //feeding outselves: spare our children!
         m_skipGeneratedEvent = true;
         m_recipient = QWeakPointer<QObject>(recipient);
-//    }
+    }
 }
 
 bool ActionMapper::eventFilter(QObject *obj, QEvent *event)
