@@ -230,7 +230,9 @@ QList<int> MediaModel::getIdList() const
 {
     QList<int> idList;
     for(int k = 0; k < m_data.length(); k++) {
-        int id = m_data[k].value(s_nameToRole.value("id")).toInt();
+        int id = m_data[k].value(s_nameToRole.value("id"), 0).toInt();
+        if(m_data.at(k)[DotDotRole].toBool())
+            id = -1;
         idList.append(id);
     }
     return idList;
