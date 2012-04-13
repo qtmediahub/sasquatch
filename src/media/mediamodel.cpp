@@ -246,6 +246,7 @@ int MediaModel::indexById(int id) const
             return k;
         }
     }
+    return 0;
 }
 
 void MediaModel::back(int count)
