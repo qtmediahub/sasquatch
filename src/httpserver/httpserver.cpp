@@ -60,24 +60,8 @@ void HttpServer::incomingConnection(qintptr socket)
 void HttpServer::incomingConnection(int socket)
 #endif
 {
-    QThread *thread = new QThread(this);
-    HttpClient *client = new HttpClient(socket, this, m_skinManager);
-    client->moveToThread(thread);
-    connect(client, SIGNAL(disconnected()), thread, SLOT(quit()));
-    connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
-    connect(thread, SIGNAL(destroyed()), this, SLOT(cleanUpAfterThread()));
-
-    threadClientMap.insert(thread, client);
-    thread->start();
-}
-
-void HttpServer::cleanUpAfterThread()
-{
-    HttpClient* client = threadClientMap.value(static_cast<QThread*>(sender()), 0);
-    Q_ASSERT(client);
-    // ... as the QThread is already destroyed ... the "real"-thread should be stopped and the HttpClient can be safely deleted
-    delete client;
-    threadClientMap.remove(static_cast<QThread*>(sender()));
+    HttpClient *client = new HttpClient(socket, this, m_skinManager, this);
+    client->start();
 }
 
 QString HttpServer::getAddress()

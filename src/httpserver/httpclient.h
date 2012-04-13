@@ -23,45 +23,38 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #ifndef HTTPCLIENT_H
 #define HTTPCLIENT_H
 
-#include <QObject>
-#include <QtNetwork>
+#include <QThread>
 
 class HttpServer;
 class SkinManager;
+class HttpClientPrivate;
 
-class HttpClient : public QObject
+class HttpClient : public QThread
 {
     Q_OBJECT
+
 public:
-    explicit HttpClient(int sockfd, HttpServer *server, SkinManager* skinManager, QObject *parent = 0);
+#ifdef QT5
+    explicit HttpClient(qintptr sockfd, HttpServer *server, SkinManager* skinManager, QObject *parent = 0);
+#else
+    explicit HttpClient(int     sockfd, HttpServer *server, SkinManager* skinManager, QObject *parent = 0);
+#endif
 
-signals:
-    void error(QTcpSocket::SocketError socketError);
-    void disconnected();
 
-private slots:
-    void readClient();
-    void init();
+
+protected:
+    virtual void run();
+
 
 private:
-    void readMediaRequest(const QString& get);
-    void readQmlRequest(const QString& get);
-    void printRequestFormatErrorMessage(const QString& get);
-
-    QUrl getMediaUrl(QString mediaType, int id, QString field = "uri");
-    bool sendFile(QString fileName);
-    bool sendPartial(QString fileName, qint64 offset);
-
-    void answerOk(qint64 length);
-    void answerNotFound();
-
-    int m_sockfd;
+    QScopedPointer<QObject> d;
     HttpServer *m_server;
     SkinManager *m_skinManager;
-
-    QTcpSocket *m_socket;
-    QFile m_file;
-    QHash<QString, QString> m_request;
+#ifdef QT5
+    qintptr m_sockfd;
+#else
+    int m_sockfd;
+#endif
 };
 
 #endif // HTTPCLIENT_H

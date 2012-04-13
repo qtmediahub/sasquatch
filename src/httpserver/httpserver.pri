@@ -7,6 +7,7 @@ SOURCES += \
 
 HEADERS += \
     $$PWD/httpclient.h \
+    $$PWD/httpclient_p.h \
     $$PWD/httpserver.h
 
 

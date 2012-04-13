@@ -23,25 +23,47 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <unistd.h>
 
 #include "httpclient.h"
+#include "httpclient_p.h"
 
 #include <QtSql>
-#include <QTimer>
 
 #include "httpserver.h"
 #include "global.h"
 #include "skinmanager.h"
 
-HttpClient::HttpClient(int sockfd, HttpServer *server, SkinManager* skinManager, QObject *parent) :
+
+#ifdef QT5
+HttpClient::HttpClient(qintptr sockfd, HttpServer *server, SkinManager *skinManager, QObject *parent)
+#else
+HttpClient::HttpClient(int sockfd, HttpServer *server, SkinManager *skinManager, QObject *parent)
+#endif
+    : QThread(parent)
+    , m_server(server)
+    , m_skinManager(skinManager)
+    , m_sockfd(sockfd)
+{
+}
+void HttpClient::run()
+{
+    d.reset(new HttpClientPrivate(m_sockfd, m_server, m_skinManager, 0));  // No parent because HttpClientPrivate lifes in another thread then HttpClient
+
+    connect(d.data(), SIGNAL(disconnected()), this, SLOT(quit()));
+    connect(this, SIGNAL(finished()), this, SLOT(deleteLater()));
+
+    exec();
+}
+
+
+#ifdef QT5
+HttpClientPrivate::HttpClientPrivate(qintptr sockfd, HttpServer *server, SkinManager* skinManager, QObject *parent) :
+#else
+HttpClientPrivate::HttpClientPrivate(int     sockfd, HttpServer *server, SkinManager* skinManager, QObject *parent) :
+#endif
     QObject(parent),
     m_sockfd(sockfd),
     m_server(server),
     m_skinManager(skinManager)
 
-{
-    QTimer::singleShot(1, this, SLOT(init()));
-}
-
-void HttpClient::init()
 {
     Q_ASSERT(this->thread() == QThread::currentThread());
 
@@ -55,8 +77,7 @@ void HttpClient::init()
     connect(m_socket, SIGNAL(disconnected()), this, SIGNAL(disconnected()));
 }
 
-
-void HttpClient::readClient()
+void HttpClientPrivate::readClient()
 {
     Q_ASSERT(this->thread() == QThread::currentThread());
 
@@ -84,7 +105,7 @@ void HttpClient::readClient()
     }
 }
 
-void HttpClient::readQmlRequest(const QString& get)
+void HttpClientPrivate::readQmlRequest(const QString& get)
 {
     QStringList requestTokens = get.split('/', QString::SkipEmptyParts);
     if(requestTokens.length() != 3) {
@@ -104,7 +125,7 @@ void HttpClient::readQmlRequest(const QString& get)
     sendFile( skin->path() + "/remoteqml/" + fileName);
 }
 
-void HttpClient::readMediaRequest(const QString& get)
+void HttpClientPrivate::readMediaRequest(const QString& get)
 {
     QStringList requestTokens = get.split('/', QString::SkipEmptyParts);
     QString id;
@@ -162,14 +183,14 @@ void HttpClient::readMediaRequest(const QString& get)
     }
 }
 
-void HttpClient::printRequestFormatErrorMessage(const QString &get)
+void HttpClientPrivate::printRequestFormatErrorMessage(const QString &get)
 {
     qWarning() << "HttpClient: the http-request was of wrong format: " <<
                   get << "\n   ... the right format is: /<type>/[thumbnail/]<id> or /<type>/<id> for media and /qml/<skin>/<qml-file> for qml files" <<
                   "   (supported types: picture, music, video); <id> must be convertable to int";
 }
 
-void HttpClient::answerOk(qint64 length)
+void HttpClientPrivate::answerOk(qint64 length)
 {
     Q_ASSERT(this->thread() == QThread::currentThread());
 
@@ -186,7 +207,7 @@ void HttpClient::answerOk(qint64 length)
     m_socket->waitForBytesWritten();
 }
 
-void HttpClient::answerNotFound()
+void HttpClientPrivate::answerNotFound()
 {
     Q_ASSERT(this->thread() == QThread::currentThread());
 
@@ -200,7 +221,7 @@ void HttpClient::answerNotFound()
     m_socket->waitForBytesWritten();
 }
 
-QUrl HttpClient::getMediaUrl(QString mediaType, int id, QString field)
+QUrl HttpClientPrivate::getMediaUrl(QString mediaType, int id, QString field)
 {
     Q_ASSERT(this->thread() == QThread::currentThread());
 
@@ -226,7 +247,7 @@ QUrl HttpClient::getMediaUrl(QString mediaType, int id, QString field)
     return QUrl(query.record().value(field).toByteArray());
 }
 
-bool HttpClient::sendFile(QString fileName)
+bool HttpClientPrivate::sendFile(QString fileName)
 {
     Q_ASSERT(this->thread() == QThread::currentThread());
 
@@ -255,7 +276,7 @@ bool HttpClient::sendFile(QString fileName)
     return true;
 }
 
-bool HttpClient::sendPartial(QString fileName, qint64 offset)
+bool HttpClientPrivate::sendPartial(QString fileName, qint64 offset)
 {
     Q_ASSERT(this->thread() == QThread::currentThread());
 
