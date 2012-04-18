@@ -2,7 +2,8 @@
 # Add with care
 
 isEmpty(PROJECTROOT) {
-    error("Building without PROJECTROOT is not defined")
+    message("Building without a rational PROJECTROOT is undefined")
+    error("Did you run configure?")
 }
 
 qt5 {
