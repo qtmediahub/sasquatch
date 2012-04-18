@@ -1,6 +1,6 @@
 include(common.pri)
 
-DESTDIR = ../lib
+DESTDIR = $$BUILDROOT/lib
 TEMPLATE = lib
 TARGET = qmhcore
 DEPENDPATH += .

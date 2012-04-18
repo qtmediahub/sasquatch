@@ -2,9 +2,9 @@ include($$PROJECTROOT/src/core-common.pri)
 
 TEMPLATE = app
 mac:{
-    DESTDIR = $$PROJECTROOT
+    DESTDIR = $$BUILDROOT
 } else {
-    DESTDIR = $$PROJECTROOT/bin
+    DESTDIR = $$BUILDROOT/bin
 }
 TARGET=qtmediahub
 DEPENDPATH += .

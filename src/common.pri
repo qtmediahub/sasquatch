@@ -1,6 +1,10 @@
 # This is a common file for the corelib, plugins and main
 # Add with care
 
+isEmpty(PROJECTROOT) {
+    error("Building without PROJECTROOT is not defined")
+}
+
 qt5 {
     DEFINES += QT5
     QT += v8 network sql quick widgets declarative qml#QDirModel from widgets!
