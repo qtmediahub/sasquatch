@@ -1,0 +1,16 @@
+#!/bin/bash
+set -e
+
+# begin script
+SCRIPT_DIR="$( cd -P "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+exec 3>&1 1>$SCRIPT_DIR/../.qmake.cache
+
+echo "PROJECTROOT=$SCRIPT_DIR"
+echo "#CONFIG+=no-pkg-cfg no-dbus"
+echo "CONFIG-=qt_framework"
+echo "equals(QT_MAJOR_VERSION, "5") CONFIG+=qt5"
+
+exec 1>&3 3>&- # restore stdout
+
+qmake

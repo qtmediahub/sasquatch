@@ -1,5 +1,3 @@
-include(.cache-cow.pri)
-
 #Used for mac app-bundle deployment
 DESTDIR = $$PROJECTROOT/bin
 TARGET=qtmediahub
