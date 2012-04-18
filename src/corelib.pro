@@ -88,49 +88,12 @@ qt5 {
         inputnotifier_qt4.cpp
 }
 
-vlc {
-    DEFINES += MEDIAPLAYER_VLC
-    HEADERS += mediaplayervlc.h
-    SOURCES += mediaplayervlc.cpp
-    LIBS += -lvlc
-} else: 7425 {
-message("7425 mediaplayer integrated")
-    DEFINES += MEDIAPLAYER_7425
-    HEADERS += mediaplayer7425.h
-    SOURCES += mediaplayer7425.cpp
-} else: ST7105 {
-    message("ST7105 mediaplayer integrated")
-    DEFINES += MEDIAPLAYER_ST7105
-    HEADERS += mediaplayerST7105.h
-    SOURCES += mediaplayerST7105.cpp
-} else: ST7108 {
-    message("ST7108 mediaplayer integrated")
-    DEFINES += MEDIAPLAYER_ST7108
-    HEADERS += mediaplayerST7108.h
-    SOURCES += mediaplayerST7108.cpp
-} else: ST7540 {
-    message("ST7540 mediaplayer integrated")
-    DEFINES += MEDIAPLAYER_ST7540
-    HEADERS += mediaplayerST7540.h
-    SOURCES += mediaplayerST7540.cpp
-} else: TRIDENT_SHINER_GSTTSPLAYER {
-    message("Tridents Shiner's GstTsPlayer mediaplayer integrated")
-    DEFINES += MEDIAPLAYER_TRIDENT_SHINER_GSTTSPLAYER
-    HEADERS += mediaplayerTridentShinerGstTsPlayer.h
-    SOURCES += mediaplayerTridentShinerGstTsPlayer.cpp
-} else: MEDIAPLAYER_TRIDENT_SHINER_MINIPLAYER {
-    message("Tridents Shiner's miniplayer mediaplayer integrated")
-    DEFINES += MEDIAPLAYER_TRIDENT_SHINER_MINIPLAYER
-    HEADERS += mediaplayerTridentShinerMiniplayer.h
-    SOURCES += mediaplayerTridentShinerMiniplayer.cpp
-} else:!no-dbus {
-    DEFINES += MEDIAPLAYER_DBUS
-    HEADERS += mediaplayerdbus.h
-}
-
 include(rpc/rpc.pri)
 include(media/media.pri)
+include(mediaplayer/mediaplayer.pri)
 include(httpserver/httpserver.pri)
+
+INCLUDEPATH += mediaplayer
 
 #for() structure does not work with lupdate
 TRANSLATIONS = $$system(cat $$DESTDIR/supported_languages | while read i; do echo translations/"$i".ts; done)
