@@ -30,7 +30,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "mediamodel.h"
 #include "globalsettings.h"
 
-#include <QtSql>
+#include <QSqlQuery>
+#include <QSqlDatabase>
+#include <QSqlError>
 
 #define DEBUG if (0) qDebug() << __PRETTY_FUNCTION__
 #define WARNING qWarning() << __PRETTY_FUNCTION__

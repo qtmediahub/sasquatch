@@ -20,11 +20,16 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 ****************************************************************************/
 
-#ifdef QT5
+#if defined(QT5) && defined(QT_WIDGETS)
 #include <QGraphicsView>
 #endif
 
+#ifdef QT5
+#include <QGuiApplication>
+#else
 #include <QApplication>
+#endif
+
 #include <QKeyEvent>
 
 #include "actionmapper.h"
@@ -187,10 +192,15 @@ void ActionMapper::setRecipient(QObject *recipient)
 {
     m_skipGeneratedEvent = false;
     recipient->installEventFilter(this);
-    QGraphicsView *potentialView = qobject_cast<QGraphicsView*>(recipient);
+    QObject *potentialView = 0;
+#if QT_WIDGETS
+    potentialView = qobject_cast<QGraphicsView*>(recipient);
+#endif
     if (potentialView) {
         // directly send to the scene, to avoid loops
-        m_recipient = QWeakPointer<QObject>(potentialView->scene());
+#if QT_WIDGETS
+        m_recipient = QWeakPointer<QObject>(qobject_cast<QGraphicsView*>(potentialView)->scene());
+#endif
     } else {
 
         //feeding outselves: spare our children!
@@ -213,7 +223,11 @@ bool ActionMapper::eventFilter(QObject *obj, QEvent *event)
                                          , keyEvent->isAutoRepeat()
                                          , keyEvent->count());
             if (!m_recipient.isNull()) {
+#ifdef QT5
+                QGuiApplication::postEvent(m_recipient.data(), e);
+#else
                 QApplication::postEvent(m_recipient.data(), e);
+#endif
                 m_generatedEvent = true;
                 return true;
             } else {

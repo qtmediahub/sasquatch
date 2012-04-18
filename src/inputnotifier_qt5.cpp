@@ -22,7 +22,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "inputnotifier.h"
 
+#ifdef QT5
+#include <QGuiApplication>
+#else
 #include <QApplication>
+#endif
+
 #include <QtDebug>
 
 #define DEBUG if (0) qDebug() << __PRETTY_FUNCTION__

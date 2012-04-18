@@ -22,8 +22,13 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "customcursor.h"
 
-#include <QPixmap>
+#ifdef QT5
+#include <QGuiApplication>
+#else
 #include <QApplication>
+#endif
+
+#include <QPixmap>
 #include <QDebug>
 
 #include "globalsettings.h"

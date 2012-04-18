@@ -37,10 +37,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "declarativeview.h"
 
-#ifdef QT5
-#include <QApplication>
-#include <QDesktopWidget>
-#else
+#ifndef QT5
 #include <QtDeclarative>
 #endif
 
@@ -49,16 +46,19 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QDBusConnection>
 #endif
 
-#ifdef GL
+#if defined(GL) && !defined(QT5)
 #include <QGLFormat>
 #endif
 
-#ifdef GLVIEWPORT
+#if defined(GL) && !defined(QT5)
 #include <QGLWidget>
 #endif
 
-#include "mainwindow.h"
+#ifndef QT5
 #include "dirmodel.h"
+#endif
+
+#include "mainwindow.h"
 #include "media/playlist.h"
 #include "file.h"
 #include "media/mediamodel.h"
@@ -190,7 +190,7 @@ SkinRuntimePrivate::SkinRuntimePrivate(GlobalSettings *s, SkinRuntime *p)
     }
 #endif
 
-#ifdef GL
+#if defined(GL) && !defined(QT5)
     //Can't fool with the default format when dealing with the Tegra for some reason
     if (settings->isEnabled(GlobalSettings::OpenGLUsage) && settings->isEnabled(GlobalSettings::OpenGLFormatHack)) {
         QGLFormat format = QGLFormat::defaultFormat();
@@ -233,7 +233,9 @@ SkinRuntimePrivate::SkinRuntimePrivate(GlobalSettings *s, SkinRuntime *p)
     qmlRegisterUncreatableType<ActionMapper>("ActionMapper", 1, 0, "ActionMapper", "For enums. For methods use actionmap global variable");
     qmlRegisterUncreatableType<AbstractMediaPlayer>("AbstractMediaPlayer", 1, 0, "AbstractMediaPlayer", "For enums. For methods use actionmap global variable");
     qmlRegisterType<Metrics>("Metrics", 1, 0, "Metrics");
+#ifndef QT5
     qmlRegisterType<DirModel>("DirModel", 1, 0, "DirModel");
+#endif
     qmlRegisterType<Playlist>("Playlist", 1, 0, "Playlist");
     qmlRegisterType<MediaModel>("MediaModel", 1, 0, "MediaModel");
     qmlRegisterType<RpcConnection>("RpcConnection", 1, 0, "RpcConnection");
@@ -533,7 +535,13 @@ QString SkinRuntime::errorMsg() const
 QObject *SkinRuntime::create(Skin *skin)
 {
     const QSize res = d->settings->value(GlobalSettings::SkinResolution).toRect().size(); // TODO provide a toSize for Settings
-    const QSize preferredResolution = res.isEmpty() ? qApp->desktop()->screenGeometry().size() : res;
+    const QSize preferredResolution = res.isEmpty()
+#ifdef QT5
+        ? qApp->primaryScreen()->geometry().size()
+#else
+        ? qApp->desktop()->screenGeometry().size()
+#endif
+        : res;
 
     QObject *interface = 0;
 

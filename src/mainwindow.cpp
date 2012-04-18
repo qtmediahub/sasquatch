@@ -30,7 +30,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #ifdef QT5
 #include <QQuickView>
-#include <QtWidgets>
 #else
 #include <QDeclarativeView>
 #endif
@@ -83,6 +82,7 @@ MainWindow::MainWindow(GlobalSettings *settings, QWidget *parent)
     m_inputIdleTimer.start();
     connect(&m_inputIdleTimer, SIGNAL(timeout()), this, SIGNAL(inputIdle()));
 
+#ifndef QT5
     QList<QAction*> actions;
     QAction *quitAction = new QAction(tr("Quit"), this);
     connect(quitAction, SIGNAL(triggered()), this, SLOT(close()));
@@ -99,6 +99,7 @@ MainWindow::MainWindow(GlobalSettings *settings, QWidget *parent)
         contextMenu->addActions(actions);
         systray->setContextMenu(contextMenu);
     }
+#endif
 
     m_skinManager = new SkinManager(m_settings, this);
 }
@@ -317,8 +318,11 @@ void MainWindow::showFullScreen()
         QRect geometry = m_settings->value(GlobalSettings::OverscanGeometry).toRect();
         if (geometry.isNull()) geometry = oldGeometry;
 
+#ifdef QT5
+        qApp->primaryScreen()->geometry().center();
+#else
         geometry.moveCenter(qApp->desktop()->availableGeometry().center());
-
+#endif
         setGeometry(geometry);
         setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
         setWindowState(Qt::WindowNoState);

@@ -27,7 +27,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QtGui>
 
 #ifdef QT5
-#include <QtWidgets>
+#include <QGuiApplication>
+#else
+#include <QApplication>
+//#include <QtWidgets>
 #endif
 
 static QStringList standardResourcePaths(GlobalSettings *settings, const GlobalSettings::Option option, const QString &suffix, const QString &relativeOffset = QString("/../"))
@@ -116,7 +119,7 @@ QString LibraryInfo::thumbnailPath(GlobalSettings *settings)
     if (!path.isEmpty())
         return path;
 
-    return QDir::homePath() % "/.thumbnails/" % QApplication::applicationName() % "/";
+    return QDir::homePath() % "/.thumbnails/" % qApp->applicationName() % "/";
 }
 
 QString LibraryInfo::databaseFilePath()

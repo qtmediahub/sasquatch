@@ -25,6 +25,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "dbreader.h"
 #include "skinruntime.h"
 
+#include <QSqlDriver>
+
 #define DEBUG if (0) qDebug() << this << __PRETTY_FUNCTION__
 #define WARNING if (1) qWarning() << this << __PRETTY_FUNCTION__
 

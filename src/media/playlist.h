@@ -24,7 +24,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #define PLAYLIST_H
 
 #include <QtGui>
-#include <QtSql>
 
 class MediaModel;
 

@@ -26,8 +26,11 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "libraryinfo.h"
 #include "globalsettings.h"
 
-#include <QtSql>
 #include <QImageReader>
+
+#include <QSqlError>
+#include <QSqlRecord>
+#include <QSqlField>
 
 #define DEBUG if (0) qDebug() << __PRETTY_FUNCTION__
 

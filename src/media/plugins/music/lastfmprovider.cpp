@@ -1,5 +1,7 @@
 #include "lastfmprovider.h"
 
+#include <QSqlError>
+
 #define DEBUG if (0) qDebug() << __PRETTY_FUNCTION__
 
 LastFMProvider::LastFMProvider(QSqlDatabase db, QObject *parent) :

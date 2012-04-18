@@ -3,7 +3,9 @@
 
 #include <QObject>
 #include <QtNetwork>
-#include <QtSql>
+
+#include <QSqlDatabase>
+#include <QSqlQuery>
 
 class LastFMProvider : public QObject
 {

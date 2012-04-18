@@ -23,9 +23,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "videoparser.h"
 #include "libraryinfo.h"
 #include <QtGui>
-#include <QtSql>
 #include "scopedtransaction.h"
 #include "globalsettings.h"
+
+#include <QSqlRecord>
+#include <QSqlField>
+#include <QSqlError>
 
 #define DEBUG if (0) qDebug() << __PRETTY_FUNCTION__
 

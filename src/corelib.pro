@@ -40,14 +40,14 @@ SOURCES += \
 
 !qt5 {
     SOURCES += tarfileengine.cpp
-    HEADERS += tarfileengine.h
+    HEADERS += tarfileengine.h \
+        dirmodel.h
 }
 
 HEADERS += \
     global.h \
     skinruntime.h \
     mediaserver.h \
-    dirmodel.h \
     file.h \
     actionmapper.h \
     trackpad.h \

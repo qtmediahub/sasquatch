@@ -25,7 +25,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <QtCore>
 #include <QtGui>
-#include <QtSql>
+
+#include <QSqlRecord>
+#include <QSqlQuery>
 
 class QThread;
 class MediaScanner;

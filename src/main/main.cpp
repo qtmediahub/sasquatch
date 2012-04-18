@@ -27,13 +27,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "skinmanager.h"
 #include "libraryinfo.h"
 
-#include <QApplication>
 #include <QNetworkProxy>
 #include <QNetworkConfigurationManager>
 #include <QNetworkSession>
 
 #ifdef QT5
-#include <QApplication>
+#include <QGuiApplication>
 #else
 #include "qtsingleapplication.h"
 #endif
@@ -100,7 +99,7 @@ static void logMessageHandler(QtMsgType type,
 int main(int argc, char** argv)
 {
 #ifdef QT5
-    QApplication app(argc, argv);
+    QGuiApplication app(argc, argv);
 #else
 
     bool overrideGraphicsSystem = false;
