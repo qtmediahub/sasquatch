@@ -36,4 +36,6 @@ message("7425 mediaplayer integrated")
 } else:!no-dbus {
     DEFINES += MEDIAPLAYER_DBUS
     HEADERS += $$PWD/mediaplayerdbus.h
+} else {
+    HEADERS += mediaplayerdummy.h
 }

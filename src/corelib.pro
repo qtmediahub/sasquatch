@@ -64,7 +64,6 @@ HEADERS += \
     processmanager.h \
     skinmanager.h \
     declarativeview.h \
-    mediaplayerdummy.h \
     settings.h \
     globalsettings.h \
     appsmanager.h \
