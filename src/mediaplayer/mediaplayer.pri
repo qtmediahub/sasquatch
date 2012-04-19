@@ -37,5 +37,5 @@ message("7425 mediaplayer integrated")
     DEFINES += MEDIAPLAYER_DBUS
     HEADERS += $$PWD/mediaplayerdbus.h
 } else {
-    HEADERS += mediaplayerdummy.h
+    HEADERS += $$PWD/mediaplayerdummy.h
 }
