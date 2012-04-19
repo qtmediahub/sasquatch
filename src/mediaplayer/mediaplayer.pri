@@ -28,7 +28,7 @@ message("7425 mediaplayer integrated")
     DEFINES += MEDIAPLAYER_TRIDENT_SHINER_GSTTSPLAYER
     HEADERS += $$PWD/mediaplayerTridentShinerGstTsPlayer.h
     SOURCES += $$PWD/mediaplayerTridentShinerGstTsPlayer.cpp
-} else: MEDIAPLAYER_TRIDENT_SHINER_MINIPLAYER {
+} else: TRIDENT_SHINER_MINIPLAYER {
     message("Tridents Shiner's miniplayer mediaplayer integrated")
     DEFINES += MEDIAPLAYER_TRIDENT_SHINER_MINIPLAYER
     HEADERS += $$PWD/mediaplayerTridentShinerMiniplayer.h
