@@ -40,3 +40,6 @@ TRIDENT_SHINER_MINIPLAYER)
 esac
 
 qmake $SCRIPT_DIR/qtmediahub-core.pro "CONFIG+=${QHM_MEDIA_PLAYER_QMAKE_CONFIG_OPTION}"
+
+echo
+echo "Feel free to check .qmake.cache to see the generated values qmake will use when building QMH"
