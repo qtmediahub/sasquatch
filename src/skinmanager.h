@@ -49,7 +49,6 @@ private slots:
 
 private:
     QFileSystemWatcher m_pathMonitor;
-    TarFileEngineHandler *m_tarFileEngineHandler;
     QHash<QString, Skin *> m_skins;
     GlobalSettings *m_settings;
 };

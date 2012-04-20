@@ -38,12 +38,6 @@ SOURCES += \
     deviceexposure.cpp \
     contextcontentrpc.cpp
 
-!qt5 {
-    SOURCES += tarfileengine.cpp
-    HEADERS += tarfileengine.h \
-        dirmodel.h
-}
-
 HEADERS += \
     global.h \
     skinruntime.h \
@@ -85,6 +79,8 @@ qt5 {
         declarativeview.cpp \
         libraryinfo_qt4.cpp \
         inputnotifier_qt4.cpp
+
+    HEADERS += dirmodel.h
 }
 
 include(rpc/rpc.pri)
@@ -114,14 +110,4 @@ staticserivce {
 
 target.path = $${PREFIX}/lib/
 INSTALLS += target
-
-
-
-
-
-
-
-
-
-
 
