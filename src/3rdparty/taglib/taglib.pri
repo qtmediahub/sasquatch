@@ -1,5 +1,12 @@
-DEFINES += HAVE_ZLIB=1 NDEBUG WITH_ASF WITH_MP4 TAGLIB_NO_CONFIG
-LIBS += -lz
+DEFINES += NDEBUG WITH_ASF WITH_MP4 TAGLIB_NO_CONFIG
+contains(QT_CONFIG, system-zlib) {
+    LIBS += -lz
+    HAVE_ZLIB=1
+} else:contains(QT_CONFIG, zlib) {
+    HAVE_ZLIB=1
+} else {
+    message(taglib could not detect zlib in Qt or system)
+}
 VERSION = 1.6.3
 DEPENDPATH += $$PWD \
            $$PWD/ape \
