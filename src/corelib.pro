@@ -79,9 +79,9 @@ qt5 {
         declarativeview.cpp \
         libraryinfo_qt4.cpp \
         inputnotifier_qt4.cpp
-
-    HEADERS += dirmodel.h
 }
+
+HEADERS += dirmodel.h
 
 include(rpc/rpc.pri)
 include(media/media.pri)

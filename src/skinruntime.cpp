@@ -54,9 +54,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <QGLWidget>
 #endif
 
-#ifndef QT5
 #include "dirmodel.h"
-#endif
 
 #include "mainwindow.h"
 #include "media/playlist.h"
@@ -233,9 +231,7 @@ SkinRuntimePrivate::SkinRuntimePrivate(GlobalSettings *s, SkinRuntime *p)
     qmlRegisterUncreatableType<ActionMapper>("ActionMapper", 1, 0, "ActionMapper", "For enums. For methods use actionmap global variable");
     qmlRegisterUncreatableType<AbstractMediaPlayer>("AbstractMediaPlayer", 1, 0, "AbstractMediaPlayer", "For enums. For methods use actionmap global variable");
     qmlRegisterType<Metrics>("Metrics", 1, 0, "Metrics");
-#ifndef QT5
     qmlRegisterType<DirModel>("DirModel", 1, 0, "DirModel");
-#endif
     qmlRegisterType<Playlist>("Playlist", 1, 0, "Playlist");
     qmlRegisterType<MediaModel>("MediaModel", 1, 0, "MediaModel");
     qmlRegisterType<RpcConnection>("RpcConnection", 1, 0, "RpcConnection");
