@@ -56,4 +56,6 @@ MediaParser *MusicPlugin::createParser(GlobalSettings *settings, const QString &
     return 0;
 }
 
+#ifndef QT5
 Q_EXPORT_PLUGIN2(music, MusicPlugin)
+#endif

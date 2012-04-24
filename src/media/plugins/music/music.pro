@@ -29,4 +29,4 @@ SOURCES += musicplugin.cpp \
            tagreader.cpp \
     lastfmprovider.cpp
 
-
+OTHER_FILES += music.json

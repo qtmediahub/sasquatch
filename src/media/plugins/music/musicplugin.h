@@ -49,7 +49,9 @@ class MusicPlugin : public MediaPlugin
 {
     Q_OBJECT
     Q_INTERFACES(MediaPlugin)
-
+#ifdef QT5
+    Q_PLUGIN_METADATA(IID "org.qt-project.QMH.PluginInterface" FILE "music.json")
+#endif
 public:
     MusicPlugin() { }
     ~MusicPlugin() {}

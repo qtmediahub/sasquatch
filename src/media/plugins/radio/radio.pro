@@ -9,3 +9,5 @@ HEADERS += radioplugin.h \
 
 SOURCES += radioplugin.cpp \
            radioparser.cpp
+
+OTHER_FILES += radio.json

@@ -18,3 +18,5 @@ HEADERS += \
 SOURCES += \
         videoplugin.cpp \
         videoparser.cpp
+
+OTHER_FILES += video.json

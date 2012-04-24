@@ -53,5 +53,6 @@ MediaParser *SnesPlugin::createParser(const QString &key)
     return 0;
 }
 
-
+#ifndef QT5
 Q_EXPORT_PLUGIN2(snes, SnesPlugin)
+#endif

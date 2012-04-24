@@ -11,3 +11,5 @@ HEADERS += \
 SOURCES += \
         snesplugin.cpp \
         snesparser.cpp
+
+OTHER_FILES += snes.json

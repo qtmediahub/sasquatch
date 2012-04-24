@@ -202,6 +202,8 @@ void MediaScanner::handleScanPathChanged(const QString &scanPath)
 
 void MediaScanner::loadParserPlugins()
 {
+    //FIXME: Using Qt 5 style plugin metadata exports to remove error messages
+    //Update this to use this mechanism
     MediaModel::createStaticRoleNameMapping();
 
     QStringList loaded;
