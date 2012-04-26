@@ -74,7 +74,7 @@ static QStringList standardResourcePaths(GlobalSettings *settings, const GlobalS
     if (!envPath.isEmpty())
         paths << QDir(envPath).absolutePath();
 
-    paths << QMH_PROJECTROOT % QString::fromLatin1("/share/qtmediahub/") % suffix % "/";
+    paths << QMH_PROJECTROOT % QString::fromLatin1("/hub/share/qtmediahub/") % suffix % "/";
     paths << QMH_PREFIX % QString::fromLatin1("/share/qtmediahub/") % suffix % "/";
 
     paths << QDir::homePath() % QString::fromLatin1("/.qtmediahub/") % suffix % "/";
@@ -84,12 +84,12 @@ static QStringList standardResourcePaths(GlobalSettings *settings, const GlobalS
 
 QStringList LibraryInfo::skinPaths(GlobalSettings *settings)
 {
-    return standardResourcePaths(settings, GlobalSettings::SkinsPath, "skins", "/../../");
+    return standardResourcePaths(settings, GlobalSettings::SkinsPath, "skins", "/../../../");
 }
 
 QStringList LibraryInfo::applicationPaths(GlobalSettings *settings)
 {
-    return standardResourcePaths(settings, GlobalSettings::AppsPath, "apps", "/../../");
+    return standardResourcePaths(settings, GlobalSettings::AppsPath, "apps", "/../../../");
 }
 
 QStringList LibraryInfo::translationPaths(GlobalSettings *settings)

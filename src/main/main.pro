@@ -4,7 +4,7 @@ TEMPLATE = app
 mac:{
     DESTDIR = $$BUILDROOT
 } else {
-    DESTDIR = $$BUILDROOT/bin
+    DESTDIR = $$BUILDROOT/hub/bin
 }
 TARGET=qtmediahub
 DEPENDPATH += .
