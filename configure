@@ -4,7 +4,104 @@ set -e
 # begin script
 SCRIPT_DIR="$( cd -P "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
+# vars
+OPT_HELP=
+QHM_MEDIA_PLAYER_QMAKE_CONFIG_OPTION=
+
+parseArgs()
+{
+    # parse the arguments, setting things to "yes" or "no"
+    while [ "$#" -gt 0 ]; do
+        CURRENT_OPT="$1"
+        UNKNOWN_ARG=no
+        case "$1" in
+        #Qt style options
+        -h|-help|-debug-script)
+            VAR=`echo $1 | sed "s,^-\(.*\),\1,"`
+            VAL=yes
+            ;;
+        -media-backend)
+            VAR=`echo $1 | sed "s,^-\(.*\),\1,"`
+            shift
+            VAL="$1"
+            ;;
+        #Autoconf style options
+        --enable-*)
+            VAR=`echo $1 | sed "s,^--enable-\(.*\),\1,"`
+            VAL=yes
+            ;;
+        --disable-*)
+            VAR=`echo $1 | sed "s,^--disable-\(.*\),\1,"`
+            VAL=no
+            ;;
+        --*=*)
+            VAR=`echo $1 | sed "s,^--\(.*\)=.*,\1,"`
+            VAL=`echo $1 | sed "s,^--.*=\(.*\),\1,"`
+            ;;
+        --no-*)
+            VAR=`echo $1 | sed "s,^--no-\(.*\),\1,"`
+            VAL=no
+            ;;
+        --*)
+            VAR=`echo $1 | sed "s,^--\(.*\),\1,"`
+            VAL=yes
+            ;;
+        -*)
+            VAR=`echo $1 | sed "s,^-\(.*\),\1,"`
+            VAL="unknown"
+            ;;
+        *)
+            UNKNOWN_ARG=yes
+            ;;
+        esac
+        if [ "$UNKNOWN_ARG" = "yes" ]; then
+            echo "$1: unknown argument"
+            OPT_HELP=yes
+            ERROR=yes
+            shift
+            continue
+        fi
+        shift
+        UNKNOWN_OPT=no
+        case "$VAR" in
+            h|help)
+                OPT_HELP=yes
+                ;;
+            debug-script)
+                set -x
+                ;;
+            media-backend)
+                QHM_MEDIA_PLAYER_QMAKE_CONFIG_OPTION=$VAL
+                ;;
+            *)
+                UNKNOWN_OPT=yes
+                ;;
+        esac
+
+        if [ "$UNKNOWN_OPT" = "yes" ]; then
+            echo "${CURRENT_OPT}: invalid command-line switch"
+            OPT_HELP=yes
+            ERROR=yes
+            shift
+            continue
+        fi
+    done
+}
+
+parseArgs "$@"
+
+if [ "$OPT_HELP" = "yes" ]; then
+    echo "Valid arguments"
+    echo "-prefix \$path                       : Prefix the QMH build to \$path"
+    echo "-media-backend \$foo                 : Use the \$foo media backend"
+    exit 0
+fi
+
 exec 3>&1 1> .qmake.cache
+
+if [ -n "$QHM_MEDIA_PLAYER_QMAKE_CONFIG_OPTION" ]; then
+    echo "CONFIG+=${QHM_MEDIA_PLAYER_QMAKE_CONFIG_OPTION}"
+fi
 
 echo "BUILDROOT=$PWD"
 echo "PROJECTROOT=$SCRIPT_DIR"
@@ -14,32 +111,7 @@ echo "equals(QT_MAJOR_VERSION, "5") CONFIG+=qt5"
 
 exec 1>&3 3>&- # restore stdout
 
-QHM_MEDIA_PLAYER_QMAKE_CONFIG_OPTION=""
-case $@ in
-vlc)
-    QHM_MEDIA_PLAYER_QMAKE_CONFIG_OPTION=vlc
-    ;;
-7425)
-    QHM_MEDIA_PLAYER_QMAKE_CONFIG_OPTION=7425
-    ;;
-ST7105)
-    QHM_MEDIA_PLAYER_QMAKE_CONFIG_OPTION=ST7105
-    ;;
-ST7108)
-    QHM_MEDIA_PLAYER_QMAKE_CONFIG_OPTION=ST7108
-    ;;
-ST7540)
-    QHM_MEDIA_PLAYER_QMAKE_CONFIG_OPTION=ST7540
-    ;;
-TRIDENT_SHINER_GSTTSPLAYER)
-    QHM_MEDIA_PLAYER_QMAKE_CONFIG_OPTION=TRIDENT_SHINER_GSTTSPLAYER
-    ;;
-TRIDENT_SHINER_MINIPLAYER)
-    QHM_MEDIA_PLAYER_QMAKE_CONFIG_OPTION=TRIDENT_SHINER_MINIPLAYER
-    ;;
-esac
-
-qmake $SCRIPT_DIR/qtmediahub-core.pro "CONFIG+=${QHM_MEDIA_PLAYER_QMAKE_CONFIG_OPTION}"
+qmake $SCRIPT_DIR/qtmediahub-core.pro
 
 echo
 echo "Feel free to check .qmake.cache to see the generated values qmake will use when building QMH"
