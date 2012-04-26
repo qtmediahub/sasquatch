@@ -113,7 +113,9 @@ fi
 
 echo "BUILDROOT=$PWD"
 echo "PROJECTROOT=$SCRIPT_DIR"
+echo "#Minimal dependency build"
 echo "#CONFIG+=no-pkg-cfg no-dbus"
+echo "#Work around current Qt 5 mac deployment woes"
 echo "CONFIG-=qt_framework"
 echo "equals(QT_MAJOR_VERSION, "5") CONFIG+=qt5"
 
