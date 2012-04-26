@@ -25,12 +25,6 @@ for(deploymentfolder, DEPLOYMENTFOLDERS) {
 #    include(generated-deployment.pri)
 #    qtcAddDeployment()
 
-message()
-message("If you want to set an explicit deployment (make install) PREFIX please add it to .qmake.cache or use PREFIX=$PWD as recursive qmake argument")
-message("QtMediaHub is built to run in-source (without make install) by default")
-message("current PREFIX is "$$PREFIX)
-message()
-
 SUBDIRS += src
 
 qt5|media-backend {
