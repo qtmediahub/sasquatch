@@ -16,10 +16,15 @@ parseArgs()
         CURRENT_OPT="$1"
         UNKNOWN_ARG=no
         case "$1" in
-        #Qt style options
+        #Qt style yes options
         -h|-help|-debug-script)
             VAR=`echo $1 | sed "s,^-\(.*\),\1,"`
             VAL=yes
+            ;;
+        #Qt style no options
+        -no-*)
+            VAR=`echo $1 | sed "s,^-no-\(.*\),\1,"`
+            VAL=no
             ;;
         -media-backend|-prefix)
             VAR=`echo $1 | sed "s,^-\(.*\),\1,"`
