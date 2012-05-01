@@ -219,8 +219,9 @@ void MusicParser::runExtraMetaDataProvider(QSqlDatabase db)
 {
     DEBUG << "run extra meta data provider for music";
 
-    LastFMProvider *lastFmProvider = new LastFMProvider(db);
-    connect(lastFmProvider, SIGNAL(allRequestsFinished()), lastFmProvider, SLOT(deleteLater()));
+    // TODO: the xml parsing in there needs some love
+//    LastFMProvider *lastFmProvider = new LastFMProvider(db);
+//    connect(lastFmProvider, SIGNAL(allRequestsFinished()), lastFmProvider, SLOT(deleteLater()));
 }
 
 
