@@ -66,13 +66,16 @@ static QStringList standardResourcePaths(GlobalSettings *settings, const GlobalS
     if (!settingsPath.isEmpty())
         paths << QDir(settingsPath).absolutePath();
 
-    // Relative paths
+    // In repo paths: skins, apps and friends when developing
     paths <<  QCoreApplication::applicationDirPath() % relativeOffset % platformBinOffset % suffix % "/";
 
     // allows changing resource paths with exporting with QMH_SKINS_PATH on runtime
     const QByteArray envPath = qgetenv(QString("QMH_" % suffix.toUpper() % "_PATH").toLatin1());
     if (!envPath.isEmpty())
         paths << QDir(envPath).absolutePath();
+
+    // Executable relative paths
+    paths <<  QCoreApplication::applicationDirPath() % relativeOffset % platformBinOffset % QString::fromLatin1("/share/qtmediahub/") % suffix % "/";
 
     paths << QMH_PROJECTROOT % QString::fromLatin1("/hub/share/qtmediahub/") % suffix % "/";
     paths << QMH_PREFIX % QString::fromLatin1("/share/qtmediahub/") % suffix % "/";
