@@ -41,8 +41,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. **/
 
 #include <QObject>
 #include <QByteArray>
-
-class QUdpSocket;
+#include <QUdpSocket>
 
 class DeviceExposure : public QObject
 {

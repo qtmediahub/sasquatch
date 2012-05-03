@@ -47,8 +47,6 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. **/
 
 #include "global.h"
 
-class QSettings;
-
 // TODO make it threadsafe
 #ifdef QT5
 class QMH_EXPORT Settings : public QQmlPropertyMap

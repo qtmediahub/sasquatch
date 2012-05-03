@@ -45,7 +45,6 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. **/
 #include <QSqlRecord>
 #include <QSqlQuery>
 
-class QThread;
 class MediaScanner;
 class DbReader;
 class GlobalSettings;

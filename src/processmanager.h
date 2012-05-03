@@ -40,8 +40,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. **/
 #define PROCESSMANAGER_H
 
 #include <QObject>
-
-class QProcess;
+#include <QProcess>
 
 class ProcessManager : public QObject
 {

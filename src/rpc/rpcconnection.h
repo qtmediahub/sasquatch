@@ -46,9 +46,6 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. **/
 
 #include "global.h"
 
-class QTcpServer;
-class QTcpSocket;
-
 class QMH_EXPORT RpcConnection : public QObject
 {
     Q_OBJECT

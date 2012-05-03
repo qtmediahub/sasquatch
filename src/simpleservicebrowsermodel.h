@@ -41,8 +41,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. **/
 
 #include <QAbstractListModel>
 #include <QStringList>
-
-class QUdpSocket;
+#include <QUdpSocket>
 
 class SimpleServiceBrowserModel : public QAbstractListModel
 {

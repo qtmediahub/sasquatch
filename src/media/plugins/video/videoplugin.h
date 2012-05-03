@@ -42,6 +42,8 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. **/
 #include <QObject>
 #include "mediaplugin.h"
 
+QT_BEGIN_NAMESPACE
+
 class VideoPlugin : public MediaPlugin
 {
     Q_OBJECT
@@ -58,3 +60,5 @@ public:
 };
 
 #endif // VIDEOPLUGIN_H
+
+QT_END_NAMESPACE

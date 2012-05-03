@@ -49,7 +49,6 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. **/
 
 class MediaParser;
 class MediaScannerWorker;
-class QThread;
 class GlobalSettings;
 
 class QMH_EXPORT MediaScanner : public QObject

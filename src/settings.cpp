@@ -38,7 +38,6 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. **/
 
 #include "settings.h"
 
-#include <QSettings>
 #include <QtDebug>
 #include <QRect>
 
