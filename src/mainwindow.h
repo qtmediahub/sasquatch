@@ -39,6 +39,8 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. **/
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include "global.h"
+
 #ifdef QT5
 #include <QWindow>
 #else
@@ -52,16 +54,10 @@ class SkinManager;
 class Skin;
 class GlobalSettings;
 
-#if defined(QMH_LIB)
-#  define EXPORT_SYM Q_DECL_EXPORT
-#else
-#  define EXPORT_SYM Q_DECL_IMPORT
-#endif
-
 #ifdef QT5
-class MainWindow : public QWindow
+class QMH_EXPORT MainWindow : public QWindow
 #else
-class MainWindow : public QWidget
+class QMH_EXPORT MainWindow : public QWidget
 #endif
 {
     Q_OBJECT
@@ -72,9 +68,9 @@ public:
         ScreenOrientationAuto
     };
 #ifdef QT5
-    EXPORT_SYM MainWindow(GlobalSettings *m_settings, QWindow *parent = 0);
+    MainWindow(GlobalSettings *m_settings, QWindow *parent = 0);
 #else
-    EXPORT_SYM MainWindow(GlobalSettings *m_settings, QWidget *parent = 0);
+    MainWindow(GlobalSettings *m_settings, QWidget *parent = 0);
 #endif
     ~MainWindow();
 
@@ -89,10 +85,10 @@ public:
 
 public slots:
     // ## These are a bit evil, since they shadow QWidget
-    EXPORT_SYM void show();
+    void show();
     void showFullScreen();
     void showNormal();
-    EXPORT_SYM bool setSkin(const QString &name);
+    bool setSkin(const QString &name);
     bool setSkin(Skin *skin);
 
 signals:

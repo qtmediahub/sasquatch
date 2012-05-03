@@ -9,7 +9,7 @@ QMAKE_CFLAGS_RELEASE += -fvisibility=hidden -fvisibility-inlines-hidden
 QMAKE_CFLAGS_DEBUG += -fvisibility=hidden -fvisibility-inlines-hidden
 QMAKE_CXXFLAGS += -fvisibility=hidden  -fvisibility-inlines-hidden
 
-DEFINES += BUILDING_QMH QMH_LIB
+DEFINES += BUILDING_QMH
 
 # Input
 SOURCES += \
