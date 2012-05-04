@@ -59,6 +59,8 @@ public:
     virtual MediaParser *createParser(GlobalSettings *settings, const QString &key) = 0;
 };
 
+QT_BEGIN_NAMESPACE
 Q_DECLARE_INTERFACE(MediaPlugin, "com.qtmediahub.MediaPlugin/1.0")
+QT_END_NAMESPACE
 
 #endif // MEDIAPLUGIN_H

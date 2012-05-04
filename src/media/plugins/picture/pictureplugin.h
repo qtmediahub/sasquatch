@@ -48,7 +48,7 @@ class PicturePlugin : public MediaPlugin
     Q_OBJECT
     Q_INTERFACES(MediaPlugin)
 #ifdef QT5
-    Q_PLUGIN_METADATA(IID "org.qt-project.QMH.PluginInterface" FILE "music.json")
+    Q_PLUGIN_METADATA(IID "org.qt-project.QMH.PluginInterface" FILE "picture.json")
 #endif
 public:
     PicturePlugin() { }
