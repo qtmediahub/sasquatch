@@ -42,8 +42,6 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. **/
 #include <QObject>
 #include "mediaplugin.h"
 
-QT_BEGIN_NAMESPACE
-
 class SnesPlugin : public MediaPlugin
 {
     Q_OBJECT
@@ -60,5 +58,3 @@ public:
 };
 
 #endif // SNESPLUGIN_H
-
-QT_END_NAMESPACE

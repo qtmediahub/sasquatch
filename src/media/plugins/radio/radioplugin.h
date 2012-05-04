@@ -43,8 +43,6 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. **/
 
 #include "mediaplugin.h"
 
-QT_BEGIN_NAMESPACE
-
 class RadioPlugin : public MediaPlugin
 {
     Q_OBJECT
@@ -61,5 +59,3 @@ public:
 };
 
 #endif // RADIOPLUGIN_H
-
-QT_END_NAMESPACE

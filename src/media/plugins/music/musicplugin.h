@@ -45,8 +45,6 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. **/
 
 class GlobalSettings;
 
-QT_BEGIN_NAMESPACE
-
 class MusicPlugin : public MediaPlugin
 {
     Q_OBJECT
@@ -63,5 +61,3 @@ public:
 };
 
 #endif // MUSICPLUGIN_H
-
-QT_END_NAMESPACE

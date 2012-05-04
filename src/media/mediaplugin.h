@@ -47,8 +47,6 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. **/
 class MediaParser;
 class GlobalSettings;
 
-QT_BEGIN_NAMESPACE
-
 class QMH_EXPORT MediaPlugin : public QObject
 {
     Q_OBJECT
@@ -64,5 +62,3 @@ public:
 Q_DECLARE_INTERFACE(MediaPlugin, "com.qtmediahub.MediaPlugin/1.0")
 
 #endif // MEDIAPLUGIN_H
-
-QT_END_NAMESPACE
