@@ -151,7 +151,11 @@ public slots:
     void rpcSendInvalidateContextContent();
     void initialStatusCheck();
     void deadmanStatusCheck();
+#ifdef QT5
+    void handleWarnings(const QList<QQmlError> &warnings);
+#else
     void handleWarnings(const QList<QDeclarativeError> &warnings);
+#endif
 
 public:
     void enableRemoteControlMode(bool enable);
@@ -298,7 +302,11 @@ DeclarativeView *SkinRuntimePrivate::declarativeView()
 
     DeclarativeView *declarativeWidget = new DeclarativeView(settings);
 
+#ifdef QT5
+    QQmlEngine *engine = declarativeWidget->engine();
+#else
     QDeclarativeEngine *engine = declarativeWidget->engine();
+#endif
     QObject::connect(engine, SIGNAL(quit()), qApp, SLOT(quit()));
 
     skinUI = declarativeWidget;
@@ -310,9 +318,17 @@ QObject *SkinRuntimePrivate::loadQmlSkin(const QUrl &targetUrl)
 {
     DeclarativeView *declarativeWidget = declarativeView();
 
+#ifdef QT5
+    QQmlEngine *engine = declarativeWidget->engine();
+#else
     QDeclarativeEngine *engine = declarativeWidget->engine();
+#endif
 
+#ifdef QT5
+    QQmlPropertyMap *runtime = new QQmlPropertyMap(declarativeWidget);
+#else
     QDeclarativePropertyMap *runtime = new QDeclarativePropertyMap(declarativeWidget);
+#endif
     if (!remoteControlMode) {
         runtime->insert("mediaScanner", qVariantFromValue(static_cast<QObject *>(mediaServer->mediaScanner())));
         runtime->insert("httpServer", qVariantFromValue(static_cast<QObject *>(mediaServer->httpServer())));
@@ -351,7 +367,11 @@ QObject *SkinRuntimePrivate::loadQmlSkin(const QUrl &targetUrl)
     }
     engine->addImportPath(currentSkin->path());
 
+#ifdef QT5
+    QObject::connect(engine, SIGNAL(warnings(QList<QQmlError>)), this, SLOT(handleWarnings(QList<QQmlError>)));
+#else
     QObject::connect(engine, SIGNAL(warnings(QList<QDeclarativeError>)), this, SLOT(handleWarnings(QList<QDeclarativeError>)));
+#endif
 
     //Would be nice to have error handling here for broken QML skins
     //Can't detect QML1/QDeclarativeView collision
@@ -390,10 +410,18 @@ void SkinRuntimePrivate::deadmanStatusCheck()
     }
 }
 
+#ifdef QT5
+void SkinRuntimePrivate::handleWarnings(const QList<QQmlError> &warnings)
+#else
 void SkinRuntimePrivate::handleWarnings(const QList<QDeclarativeError> &warnings)
+#endif
 {
     errorMsg.clear();
+#ifdef QT5
+    foreach(const QQmlError error, warnings) {
+#else
     foreach(const QDeclarativeError error, warnings) {
+#endif
         errorMsg += error.toString() + "\n";
     }
 }
@@ -402,7 +430,11 @@ QObject *SkinRuntimePrivate::loadSkinSelector()
 {
     DeclarativeView *declarativeWidget = declarativeView();
 
+#ifdef QT5
+    QQmlPropertyMap *runtime = new QQmlPropertyMap(declarativeWidget);
+#else
     QDeclarativePropertyMap *runtime = new QDeclarativePropertyMap(declarativeWidget);
+#endif
     runtime->insert("skinManager", qVariantFromValue(static_cast<QObject *>(new SkinManager(settings, declarativeWidget))));
     runtime->insert("window", qVariantFromValue(static_cast<QObject *>(mainWindow)));
     runtime->insert("skinruntime", qVariantFromValue(static_cast<QObject *>(q)));
