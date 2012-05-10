@@ -63,10 +63,6 @@ DeclarativeView::DeclarativeView(GlobalSettings *settings, QWindow *parent)
     connect(this, SIGNAL(statusChanged(QQuickView::Status)), this, SLOT(handleStatusChanged(QQuickView::Status)));
 }
 
-void DeclarativeView::timerEvent(QTimerEvent *event)
-{
-}
-
 void DeclarativeView::setSource(const QUrl &url)
 {
     m_url = url;
