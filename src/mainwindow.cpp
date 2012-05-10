@@ -63,8 +63,8 @@ MainWindow::MainWindow(GlobalSettings *settings, QWidget *parent)
     m_overscanWorkAround = m_settings->isEnabled(GlobalSettings::Overscan);
     m_attemptingFullScreen = m_settings->isEnabled(GlobalSettings::FullScreen);
 
-    const bool isOverlay = m_settings->isEnabled(GlobalSettings::OverlayMode);
 #ifndef QT5
+    const bool isOverlay = m_settings->isEnabled(GlobalSettings::OverlayMode);
     setAttribute(isOverlay ? Qt::WA_TranslucentBackground : Qt::WA_NoSystemBackground);
 #endif
 
@@ -178,6 +178,7 @@ void MainWindow::resizeEvent(QResizeEvent *e)
 void MainWindow::setOrientation(ScreenOrientation orientation)
 {
 #ifdef QT5
+    Q_UNUSED(orientation)
     qWarning("set orientation is not supported, yet");
 #else
     Qt::WidgetAttribute attribute;

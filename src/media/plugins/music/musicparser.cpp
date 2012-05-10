@@ -217,6 +217,8 @@ QList<QSqlRecord> MusicParser::updateMediaInfos(const QList<QFileInfo> &fis, con
 
 void MusicParser::runExtraMetaDataProvider(QSqlDatabase db)
 {
+    Q_UNUSED(db)
+
     DEBUG << "run extra meta data provider for music";
 
     // TODO: the xml parsing in there needs some love

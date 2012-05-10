@@ -148,7 +148,7 @@ void HttpClientPrivate::readMediaRequest(const QString& get)
 {
     QStringList requestTokens = get.split('/', QString::SkipEmptyParts);
     QString id;
-    bool thumbnail;
+    bool thumbnail = false;
 
     QString mediaType = requestTokens.at(0);
     if(     mediaType.compare("music", Qt::CaseInsensitive)   &&

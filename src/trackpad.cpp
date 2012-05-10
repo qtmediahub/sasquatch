@@ -53,7 +53,9 @@ Trackpad::~Trackpad()
 
 void Trackpad::setRecipient(QObject *recipient)
 {
-#ifndef QT5
+#ifdef QT5
+    Q_UNUSED(recipient)
+#else
     QDeclarativeView *potentialDeclarativeView = qobject_cast<QDeclarativeView*>(recipient);
     if (potentialDeclarativeView)
     {
@@ -65,8 +67,9 @@ void Trackpad::setRecipient(QObject *recipient)
 
 void Trackpad::setEnabled(bool e)
 {
-#ifndef QT5
-
+#ifdef QT5
+    Q_UNUSED(e)
+#else
     if(m_recipientContext.isNull()) {
         qWarning("Trying to use Declarative specific functionality outside of Declarative");
         return;
@@ -80,7 +83,10 @@ void Trackpad::setEnabled(bool e)
 
 void Trackpad::moveBy(qlonglong x, qlonglong y)
 {
-#ifndef QT5
+#ifdef QT5
+    Q_UNUSED(x)
+    Q_UNUSED(y)
+#else
     if(m_recipientContext.isNull()) {
         qWarning("Trying to use Declarative specific functionality outside of Declarative");
         return;

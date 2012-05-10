@@ -83,10 +83,10 @@ public:
 
     Q_INVOKABLE static int swaplogFPS()
     {
-        int fps;
+        int fps = -1;
         QFile logFile("/tmp/swaplog");
         if (!logFile.open(QFile::ReadOnly))
-            return -1;
+            return fps;
 
         int lineCount = 0;
 
