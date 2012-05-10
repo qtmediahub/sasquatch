@@ -10,6 +10,7 @@ QHM_MEDIA_PLAYER_QMAKE_CONFIG_OPTION=
 PREFIX=
 QHM_ENABLE_OPENGL=
 QHM_ENABLE_DBUS=
+VERBOSE=no
 
 parseArgs()
 {
@@ -19,7 +20,7 @@ parseArgs()
         UNKNOWN_ARG=no
         case "$1" in
         #Qt style yes options
-        -h|-help|-debug-script)
+        -h|-help|-debug-script|-verbose)
             VAR=`echo $1 | sed "s,^-\(.*\),\1,"`
             VAL=yes
             ;;
@@ -72,6 +73,9 @@ parseArgs()
         shift
         UNKNOWN_OPT=no
         case "$VAR" in
+            verbose)
+                VERBOSE=yes
+                ;;
             h|help)
                 OPT_HELP=yes
                 ;;
@@ -85,14 +89,10 @@ parseArgs()
                 PREFIX=$VAL
                 ;;
             gl)
-                if [ "$VAL" = "no" ]; then
-                    QHM_ENABLE_OPENGL="no"
-                fi
+                QHM_ENABLE_OPENGL="$VAL"
                 ;;
             dbus)
-                if [ "$VAL" = "no" ]; then
-                    QHM_ENABLE_DBUS="no"
-                fi
+                QHM_ENABLE_DBUS="$VAL"
                 ;;
             *)
                 UNKNOWN_OPT=yes
@@ -115,8 +115,9 @@ if [ "$OPT_HELP" = "yes" ]; then
     echo "Valid arguments"
     echo "-prefix \$path                       : Prefix the QMH build to \$path"
     echo "-media-backend \$foo                 : Use the \$foo media backend"
-    echo "-no-gl                               : Diable opengl"
-    echo "-no-dbus                             : Diable Dbus"
+    echo "-no-gl                               : Disable opengl"
+    echo "-no-dbus                             : Disable DBUS"
+    echo "-verbose                             : Enable verbose compiler output"
     exit 0
 fi
 
@@ -124,6 +125,10 @@ exec 3>&1 1> .qmake.cache
 
 if [ -n "$QHM_MEDIA_PLAYER_QMAKE_CONFIG_OPTION" ]; then
     echo "CONFIG+=${QHM_MEDIA_PLAYER_QMAKE_CONFIG_OPTION}"
+fi
+
+if [ "$VERBOSE" != "yes" ]; then
+    echo "CONFIG+=silent"
 fi
 
 if [ "$QHM_ENABLE_OPENGL" = "no" ]; then
