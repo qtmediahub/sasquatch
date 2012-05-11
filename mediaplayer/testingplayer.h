@@ -55,7 +55,7 @@ signals:
 
 public slots:
     Q_SCRIPTABLE void setSource(const QString &source) { qDebug() << __FUNCTION__ << source; }
-    Q_SCRIPTABLE void setPlaying(bool p) { qDebug() << __FUNCTION__; }
+    Q_SCRIPTABLE void setPlaying(bool p) { qDebug() << __FUNCTION__ << p; }
     Q_SCRIPTABLE void setVolume(qreal vol) { qDebug() << __FUNCTION__ << vol; }
     Q_SCRIPTABLE void setPaused(bool p) { qDebug() << __FUNCTION__ << p; }
     Q_SCRIPTABLE void setPlaybackRate(qreal rate) { qDebug() << __FUNCTION__ << rate; }
