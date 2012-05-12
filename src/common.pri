@@ -8,7 +8,7 @@ isEmpty(PROJECTROOT) {
 
 qt5 {
     DEFINES += QT5
-    QT += v8 network sql quick widgets declarative qml#QDirModel from widgets!
+    QT += v8 network sql quick widgets #QDirModel from widgets!
 } else {
     QT += declarative script network sql
 }
