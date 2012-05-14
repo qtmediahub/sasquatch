@@ -41,14 +41,20 @@ import QtQuick 2.0
 FocusScope
 {
     id: root
+
+    QtObject {
+        id: settings
+        property real headerSize: root.width/20
+        property real textSize: root.width/60
+    }
     Item {
         id: header
         anchors.top: parent.top
-        width: parent.width
-        height: 80
+        width: root.width
+        height: childrenRect.height + 40
         Text {
             text: "Skin selector"
-            font.pointSize: 40
+            font.pointSize: settings.headerSize
             anchors.centerIn: parent
         }
     }
@@ -62,97 +68,96 @@ FocusScope
         Text {
             id: errorMsg
             text: "Error output\n" + runtime.skinruntime.errorMsg
-            font.pointSize: 12
+            font.pointSize: settings.textSize
         }
     }
     ListView {
         id: list
         focus: true
-        width: 800
-        height: 600
-
-        SystemPalette {
-            id: palette
-            colorGroup: SystemPalette.Active
-        }
 
         anchors { top: errorLog.bottom; bottom: parent.bottom }
 
-            model: runtime.skinManager.skinsModel
+        model: runtime.skinManager.skinsModel
 
-            delegate:
-                Rectangle {
-                id: delegate
-                width: ListView.view.width
-                height: Math.max(column.height, screenshot.height)
-                color: ListView.isCurrentItem ? palette.highlight : "transparent"
+        highlight:
+            Rectangle {
+            width: root.width
+            color: "lightsteelblue"; radius: 5
+        }
 
-                Image {
-                    id: screenshot
-                    width: 75
-                    height: 50
-                    fillMode: Image.PreserveAspectFit
-                    smooth: true
+        delegate:
+            Rectangle {
+            id: delegate
+            width: ListView.view.width
+            height: Math.max(column.height, screenshot.height)
+
+            Image {
+                id: screenshot
+                anchors.verticalCenter: delegate.verticalCenter
+                width: 75
+                height: 50
+                fillMode: Image.PreserveAspectFit
+                smooth: true
+            }
+
+            Column {
+                id: column
+                anchors {
+                    topMargin: 5
+                    bottomMargin: 5
+                    leftMargin: 10
+                    left: screenshot.right
+                }
+                spacing: 3
+                Text {
+                    id: skinName
+                    font.bold: true
+                    font.pointSize: settings.textSize
                 }
 
-                Column {
-                    id: column
-                    anchors {
-                        topMargin: 5
-                        bottomMargin: 5
-                        leftMargin: 10
-                        left: screenshot.right
-                    }
-                    spacing: 3
-                    Text {
-                        id: skinName
-                        font.bold: true
-                        color: delegate.ListView.view.isCurrentItem ? palette.highlightedText : palette.text
-                    }
-
-                    Text {
-                        id: skinAuthors
-                        font.pointSize: skinName.font.pointSize - 4
-                    }
-
-                    Text {
-                        id: website
-                        font.pointSize: skinName.font.pointSize - 4
-                    }
+                Text {
+                    id: skinAuthors
+                    font.pointSize: settings.textSize
                 }
 
-                MouseArea {
-                    id: mouseArea
-                    anchors.fill: parent
-
-                    onClicked: delegate.ListView.view.currentIndex = index
-                    onDoubleClicked: runtime.window.setSkin(model.modelData.name)
-                }
-
-                Keys.onEnterPressed: runtime.window.setSkin(model.modelData.name)
-                Keys.onReturnPressed: runtime.window.setSkin(model.modelData.name)
-
-                Component.onCompleted: {
-                    var doc = new XMLHttpRequest()
-                    doc.onreadystatechange = function() {
-                                if (doc.readyState == XMLHttpRequest.DONE && doc.responseText) {
-                                    var manifest = eval('(' + doc.responseText + ')')
-                                    skinName.text = manifest.name + " (v" + manifest.version + ")"
-                                    if (manifest.screenshot)
-                                        screenshot.source = "file://" + model.modelData.path + "/" + manifest.screenshot
-                                    var authors = []
-                                    for (var i = 0; i < manifest.authors.length; i++) {
-                                        authors.push(manifest.authors[i].name)
-                                    }
-                                    skinAuthors.text = "By " + authors.join(", ")
-                                    website.text = manifest.website
-                                }
-                            }
-                    doc.open("GET", "file://" + model.modelData.path + "/skin.manifest")
-                    doc.send()
+                Text {
+                    id: website
+                    font.pointSize: settings.textSize
                 }
             }
+
+            MouseArea {
+                id: mouseArea
+                anchors.fill: parent
+
+                onClicked: delegate.ListView.view.currentIndex = index
+                onDoubleClicked: runtime.window.setSkin(model.modelData.name)
+            }
+
+            Keys.onEnterPressed: runtime.window.setSkin(model.modelData.name)
+            Keys.onReturnPressed: runtime.window.setSkin(model.modelData.name)
+
+            Component.onCompleted: {
+                var doc = new XMLHttpRequest()
+                doc.onreadystatechange = function() {
+                    if (doc.readyState == XMLHttpRequest.DONE && doc.responseText) {
+                        var manifest = eval('(' + doc.responseText + ')')
+                        skinName.text = manifest.name + " (v" + manifest.version + ")"
+                        if (manifest.screenshot)
+                            screenshot.source = "file://" + model.modelData.path + "/" + manifest.screenshot
+                        var authors = []
+                        for (var i = 0; i < manifest.authors.length; i++) {
+                            authors.push(manifest.authors[i].name)
+                        }
+                        skinAuthors.text = "By " + authors.join(", ")
+                        website.text = manifest.website
+                    }
+                }
+                doc.open("GET", "file://" + model.modelData.path + "/skin.manifest")
+                doc.send()
+            }
         }
-        Component.onCompleted:
-            forceActiveFocus()
     }
+    Component.onCompleted:
+        forceActiveFocus()
+}
