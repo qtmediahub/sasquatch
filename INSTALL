@@ -4,7 +4,8 @@ QtMediaHub requires
 
 - or -
 
-Qt 5
+Qt 5 (Qt 5 on Mac currently needs to be compiled with -no-framework, and
+hence this is tested against that configuration)
 
 Building:
 1. ./configure
