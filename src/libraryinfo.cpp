@@ -126,7 +126,11 @@ QStringList LibraryInfo::pluginPaths(GlobalSettings *settings)
         ret << QMH_PREFIX % QString::fromLatin1("/lib/qtmediahub/");
 #endif
     } else {
+#ifdef Q_OS_MAC
+        ret << QCoreApplication::applicationDirPath() % QString::fromLatin1("/../../../lib/qtmediahub/");
+#else
         ret << QCoreApplication::applicationDirPath() % QString::fromLatin1("/../lib/qtmediahub/");
+#endif
     }
     ret << QDir::homePath() % QString::fromLatin1("/.qtmediahub/lib");
     return ret;
