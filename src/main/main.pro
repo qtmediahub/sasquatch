@@ -2,7 +2,7 @@ include($$PROJECTROOT/src/core-common.pri)
 
 TEMPLATE = app
 mac:{
-    DESTDIR = $$BUILDROOT
+    DESTDIR = $$BUILDROOT/hub
 } else {
     DESTDIR = $$BUILDROOT/hub/bin
 }
