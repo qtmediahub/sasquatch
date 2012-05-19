@@ -162,6 +162,11 @@ void MainWindow::resizeEvent(QResizeEvent *e)
 {
     Q_UNUSED(e);
 
+    const QSize attemptedSize = e->size();
+    //Bail out of insane attempts to resize window down to 0,0
+    if ((attemptedSize.width() <= 0) || (attemptedSize.height() <= 0))
+        return;
+
     static int staggerResizingDelay = m_settings->value(GlobalSettings::ResizeDelay).toInt();
     if (staggerResizingDelay == 0)
         handleResize();
@@ -387,11 +392,15 @@ void MainWindow::showNormal()
 
 void MainWindow::show()
 {
+#ifdef Q_OS_MAC
+    showNormal();
+#else
     if (m_attemptingFullScreen) {
         showFullScreen();
     } else {
         showNormal();
     }
+#endif
 }
 
 void MainWindow::selectSkin()
