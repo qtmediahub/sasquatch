@@ -49,6 +49,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. **/
 
 #ifdef QT5
 #include <QGuiApplication>
+#include <QtCore/private/qabstractanimation_p.h>
 #else
 #include "qtsingleapplication.h"
 #endif
@@ -202,12 +203,15 @@ int main(int argc, char** argv)
         mainWindow = new MainWindow(settings);
         mainWindow->setSkin(settings->value(GlobalSettings::Skin).toString());
         mainWindow->show();
+#if defined Q_OS_MAC && defined QT5
+        if (settings->isEnabled(GlobalSettings::UnifiedTimer)) QUnifiedTimer::instance(true)->setConsistentTiming(true);
+#endif
     } else {
         mediaServer = new MediaServer(settings);
     }
 
     int ret = app.exec();
-    
+
     g_networkSession->close();
 
     delete mainWindow;

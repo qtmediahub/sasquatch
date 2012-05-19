@@ -57,11 +57,13 @@ GlobalSettings::GlobalSettings(QObject *parent) :
     addOptionEntry(GlobalSettings::KeymapsPath,         "",             "keymapsPath",      "<path> adds path to keymaps search paths");
     addOptionEntry(GlobalSettings::ApplicationsPath,    "",             "appsPath",         "<path> adds path to skins search paths");
     addOptionEntry(GlobalSettings::FullScreen,          "true",         "fullscreen",       "<bool> toggle fullscreen");
+    addOptionEntry(GlobalSettings::Skin,
 #ifdef QT5
-    addOptionEntry(GlobalSettings::Skin,                "shroomfluence",   "skin",             "<name> specifies the skin");
+            "shroomfluence",
 #else
-    addOptionEntry(GlobalSettings::Skin,                "confluence",   "skin",             "<name> specifies the skin");
+            "confluence",
 #endif
+            "skin", "<name> specifies the skin");
     addOptionEntry(GlobalSettings::OverlayMode,         "true",        "overlayMode",      "<bool> toggle overlay mode used for devices with other mediaplayers than QtMultimediaKit");
     addOptionEntry(GlobalSettings::Headless,            "false",        "headless",         "<bool> toggle running with user interface, usable for streaming server usage");
     addOptionEntry(GlobalSettings::Proxy,               "false",        "proxy",            "<bool> use a proxy for network access");
@@ -100,6 +102,7 @@ GlobalSettings::GlobalSettings(QObject *parent) :
     addOptionEntry(GlobalSettings::RedirectDebugOutput, "false",          "log","<bool> log debug messenging to file!");
     addOptionEntry(GlobalSettings::SwapLogPollInterval, "1000",          "swaplogInterval","<int> Interval at which to sample the swap log!");
     addOptionEntry(GlobalSettings::FPS,                 "false",         "fps","<bool> show fps counter!");
+    addOptionEntry(GlobalSettings::UnifiedTimer,        "false",         "utimer","<bool> Use a unified animation timer");
 
     m_instance = this;
 }

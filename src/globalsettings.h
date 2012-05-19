@@ -94,6 +94,7 @@ public:
         RedirectDebugOutput,
         SwapLogPollInterval,
         FPS,
+        UnifiedTimer,
 
         OptionLength
     };
