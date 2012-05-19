@@ -1,0 +1,3 @@
+1) We require Qt to be built with -no-framework
+2) We are using our own bundling mechanism: launch with ./hub/bin/qtmediahub-launcher
+3) Graceful/elegant deployment is borked until macdeployqt plays nicely with Qt 5
