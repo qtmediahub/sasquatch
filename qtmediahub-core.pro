@@ -36,7 +36,7 @@ qt5|media-backend {
 }
 
 mac {
-    message(You are compiling on mac, displaying mac specific notes)
+    message(You are compiling on mac: displaying mac specific notes)
     system(cat ./mac-platform-notes)
 }
 
