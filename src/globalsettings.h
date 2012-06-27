@@ -64,7 +64,9 @@ public:
         MultiInstance,
         Mouse,
         MouseTimeout,
+#ifndef QT5
         DrivenFPS,
+#endif
         StreamingAddress,
         StreamingPort,
         Overscan,
@@ -72,10 +74,12 @@ public:
         IdleTimeout,
         SystemTray,
         WindowGeometry,
+#ifndef QT5
         OpenGLUsage,
         OpenGLFormatHack,
         OpenGLViewport,
         SmoothScaling,
+#endif
         ResizeDelay,
         TranslationsPath,
         ResourcesPath,
@@ -90,7 +94,6 @@ public:
         ExtraVideoExtensions,
         Installed,
         MemoryConscious,
-        VSyncAnim,
         RedirectDebugOutput,
         SwapLogPollInterval,
         FPS,
