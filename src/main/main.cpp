@@ -91,8 +91,10 @@ static void setupNetwork(GlobalSettings *settings)
 static void logMessageHandler(QtMsgType type,
                               #ifdef QT5
                               const QMessageLogContext &,
-                              #endif
+                              const QString &msg)
+                              #else
                               const char *msg)
+                              #endif
 {
     QString logPath(LibraryInfo::logPath() + "/qmh-log");
 
@@ -109,7 +111,11 @@ static void logMessageHandler(QtMsgType type,
 
     QFile logFile(logPath);
     logFile.open(QIODevice::WriteOnly);
+#ifdef QT5
+    logFile.write(msg.toLatin1());
+#else
     logFile.write(msg, qstrlen(msg));
+#endif
     logFile.close();
 }
 
