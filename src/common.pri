@@ -6,12 +6,9 @@ isEmpty(PROJECTROOT) {
     error("Did you run configure?")
 }
 
-qt5 {
-    DEFINES += QT5
-    QT += v8 network sql quick widgets #QDirModel from widgets!
-} else {
-    QT += declarative script network sql
-}
+DEFINES += QT5
+QT += network sql quick
+# widgets #QDirModel from widgets!
 
 TEMP_DIR = .tmp
 OBJECTS_DIR = $$TEMP_DIR/.obj

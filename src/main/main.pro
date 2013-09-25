@@ -6,7 +6,7 @@ mac:{
 } else {
     DESTDIR = $$BUILDROOT/hub/bin
 }
-TARGET=qtmediahub
+TARGET=sasquatch
 DEPENDPATH += .
 INCLUDEPATH += $${PROJECTROOT}/src/
 
