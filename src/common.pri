@@ -6,7 +6,9 @@ isEmpty(PROJECTROOT) {
     error("Did you run configure?")
 }
 
+DEFINES += GL
 DEFINES += QT5
+
 QT += network sql quick
 # widgets #QDirModel from widgets!
 
@@ -41,33 +43,6 @@ mac:isEmpty(PKG_CONFIG_PATH) {
     message(export PKG_CONFIG_PATH=/opt/local/lib/pkgconfig)
 }
 
-# default options
-linux* {
-    !no-gl:CONFIG += glviewport
-}
-
-glgs {
-    CONFIG += gl
-    DEFINES += GLGS
-}
-
-glviewport {
-    CONFIG += gl
-    DEFINES += GLVIEWPORT
-}
-
-gl {
-    DEFINES += GL
-    QT += opengl
-}
-
-mac {
-    # QT += webkit multimedia
-    CONFIG += no-dbus
-    #CONFIG += mobility
-    #MOBILITY += multimedia systeminfo
-}
-
 !contains(QT_CONFIG, dbus) {
     #This catches dbus free Qt builds
     CONFIG += no-dbus
@@ -76,12 +51,6 @@ mac {
 no-dbus {
     message(Disabling dbus support)
     DEFINES += NO_DBUS
-}
-
-# This is needed for Maemo5 to recognize minimization of the application window
-# Thanks quit coding!
-maemo5 {
-    QT += dbus
 }
 
 CONFIG(debug, debug|release):!qt5:CONFIG += declarative_debug
