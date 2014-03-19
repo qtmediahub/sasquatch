@@ -96,7 +96,7 @@ static QImage generateThumbnailGstreamer(GlobalSettings *settings, const QFileIn
 
     QString descr = "uridecodebin uri=\"file://" + fileInfo.absoluteFilePath() + "\" ! ffmpegcolorspace ! videoscale ! appsink name=sink caps=\"" CAPS "\"";
 
-    pipeline = gst_parse_launch (descr.toAscii(), &error);
+    pipeline = gst_parse_launch (descr.toLatin1(), &error);
 
     if (error != NULL) {
         qDebug() <<  "could not construct pipeline: " << error->message;

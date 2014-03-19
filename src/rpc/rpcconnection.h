@@ -122,7 +122,7 @@ private:
     QTcpSocket *m_socket;
     QHash<QString, QObject *> m_objects;
     int m_id;
-    QList<QWeakPointer<QTcpSocket> > m_clients;
+    QList<QTcpSocket *> m_clients;
 };
 
 #endif // RPCCONNECTION_H

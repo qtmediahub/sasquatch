@@ -50,13 +50,13 @@ SimpleServiceBrowserModel::SimpleServiceBrowserModel(QObject *parent) :
     roleNames[Qt::DisplayRole] = "display";
     roleNames[AddressRole] = "address";
     roleNames[PortRole] = "port";
-    setRoleNames(roleNames);
+//    setRoleNames(roleNames);
 
     udpSocket = new QUdpSocket(this);
     udpSocket->bind(port, QUdpSocket::ShareAddress);
     connect(udpSocket, SIGNAL(readyRead()), this, SLOT(processDatagrams()));
 
-    QByteArray datagram = identifier + ping + QHostInfo::localHostName().toAscii();
+    QByteArray datagram = identifier + ping + QHostInfo::localHostName().toLatin1();
     udpSocket->writeDatagram(datagram.data(), datagram.size(), QHostAddress::Broadcast, port);
 }
 
@@ -71,9 +71,9 @@ void SimpleServiceBrowserModel::processDatagrams()
         if (received.startsWith(identifier)) {
             received.remove(0, identifier.size());
             if (received.startsWith(ping) && received.size() > ping.size()
-                && received.indexOf(QHostInfo::localHostName().toAscii(), ping.size()) < 0) {
+                && received.indexOf(QHostInfo::localHostName().toLatin1(), ping.size()) < 0) {
                 addDevice(received.mid(ping.size(), 30), address.toString());
-                QByteArray datagram = identifier + pong + QHostInfo::localHostName().toAscii();
+                QByteArray datagram = identifier + pong + QHostInfo::localHostName().toLatin1();
                 udpSocket->writeDatagram(datagram.data(), datagram.size(), address, port);
             } else if (received.startsWith(pong) && received.size() > pong.size()) {
                 addDevice(received.mid(pong.size(), 30), address.toString());

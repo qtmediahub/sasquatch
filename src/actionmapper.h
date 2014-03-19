@@ -100,7 +100,7 @@ private:
     static void setupQtKeyMap();
     static QHash<Action, Qt::Key> s_actionToQtKeyMap;
 
-    QWeakPointer<QObject> m_recipient;
+    QPointer<QObject> m_recipient;
     bool m_generatedEvent;
     bool m_skipGeneratedEvent;
     QString m_mapName;

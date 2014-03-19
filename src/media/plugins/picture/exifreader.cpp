@@ -214,7 +214,7 @@ QString ExifReader::stringValue(ExifEntry *entry) const
 	char value[1024] = { 0 };
 	exif_entry_get_value(entry, value, sizeof(value) - 1);
 	value[sizeof(value)-1] = 0;
-	return QString::fromAscii(value); // ###: fix encoding
+    return QString::fromLatin1(value); // ###: fix encoding
 }
 
 QString ExifReader::aperture() const

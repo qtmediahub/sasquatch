@@ -53,7 +53,7 @@ Playlist::Playlist(QObject *parent)
     m_saveTimer.setSingleShot(true);
     connect(&m_saveTimer, SIGNAL(timeout()), this, SLOT(saveToDatabase()));
 
-    setRoleNames(MediaModel::roleToNameMapping());
+//    setRoleNames(MediaModel::roleToNameMapping());
 }
 
 QVariant Playlist::data(int index, const QString &role) const

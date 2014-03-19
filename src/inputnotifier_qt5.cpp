@@ -58,8 +58,8 @@ InputNotifier::InputNotifier(QObject *parent) :
 void InputNotifier::inputItemChanged()
 {
     // TODO needs to be verified to work in webkit
-    if(m_inputMethod->inputItem() != 0)
-        emit inputMethodStartRequested();
-    else
-        emit inputMethodStopRequested();
+//    if(m_inputMethod->inputItem() != 0)
+//        emit inputMethodStartRequested();
+//    else
+//        emit inputMethodStopRequested();
 }
