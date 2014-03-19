@@ -87,7 +87,7 @@ static QStringList standardResourcePaths(GlobalSettings *settings, const GlobalS
 
 QStringList LibraryInfo::skinPaths(GlobalSettings *settings)
 {
-    return standardResourcePaths(settings, GlobalSettings::SkinsPath, "skins", "/../../../");
+    return standardResourcePaths(settings, GlobalSettings::SkinsPath, "skins", "/../../");
 }
 
 QStringList LibraryInfo::applicationPaths(GlobalSettings *settings)

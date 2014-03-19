@@ -81,7 +81,7 @@ qt5 {
         inputnotifier_qt4.cpp
 }
 
-HEADERS += dirmodel.h
+#HEADERS += dirmodel.h
 
 include(rpc/rpc.pri)
 include(media/media.pri)
