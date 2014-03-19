@@ -1,0 +1,21 @@
+{
+    "name": "Plattenbau",
+    "version": "0.8",
+    "qmlVersion": "2",
+
+    "resolutions": {
+        "720p": {
+            "file": "POC/Plattenbau.qml"
+        }
+    },
+    
+    "default_resolution": "720p",
+
+    "website": "http://www.qtmediahub.com/trac/wiki/Plattenbau",
+
+    "authors": [
+        { "name": "Johannes Zellner", "email": "webmaster@nebulon.de" },
+        { "name": "Donald Carr", "email": "sirspudd@gmail.com" }
+    ]
+}
+
