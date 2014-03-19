@@ -165,14 +165,14 @@ bool ActionMapper::loadMapFromDisk(const QString &mapFilePath)
         QStringList keyStrings = mapping.at(1).split(",");
         QList<int> keys;
 
-        int index = actionEnum.keyToValue(mapping[0].toAscii().constData());
+        int index = actionEnum.keyToValue(mapping[0].toLatin1().constData());
         if (index == -1) {
             qWarning() << "\tMapped action is not defined in ActionMapper, skipping: " << mapping[0];
             continue;
         }
 
         foreach(const QString &key, keyStrings) {
-            int keyIndex = keyEnum.keyToValue(QString("Key_").append(key).toAscii().constData());
+            int keyIndex = keyEnum.keyToValue(QString("Key_").append(key).toLatin1().constData());
             if (keyIndex == -1) {
                 qWarning() << "\tQt Key does not exist: Key_" << key;
                 continue;
@@ -221,7 +221,7 @@ void ActionMapper::setRecipient(QObject *recipient)
 
         //feeding outselves: spare our children!
         m_skipGeneratedEvent = true;
-        m_recipient = QWeakPointer<QObject>(recipient);
+        m_recipient = QPointer<QObject>(recipient);
     }
 }
 

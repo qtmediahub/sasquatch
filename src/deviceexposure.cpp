@@ -58,7 +58,7 @@ void DeviceExposure::processDatagrams()
         received.resize(udpSocket->pendingDatagramSize());
         udpSocket->readDatagram(received.data(), received.size(), &address);
         if (received == identifier) {
-            QByteArray datagram = identifier + QHostInfo::localHostName().toAscii();
+            QByteArray datagram = identifier + QHostInfo::localHostName().toLatin1();
             udpSocket->writeDatagram(datagram.data(), datagram.size(), address, 52108);
         }
     }

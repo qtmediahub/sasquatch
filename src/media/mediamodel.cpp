@@ -55,7 +55,7 @@ MediaModel::MediaModel(QObject *parent):
     m_autoForward(false),
     m_dotDotPosition(MediaModel::Beginning)
 {
-    setRoleNames(MediaModel::roleToNameMapping());
+//    setRoleNames(MediaModel::roleToNameMapping());
 
     // TODO this is single point for GlobalSettings singleton usage
     // we know that we have a instance already

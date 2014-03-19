@@ -78,7 +78,7 @@ void DeclarativeView::handleStatusChanged(QQuickView::Status status)
 {
     //Dodgy work around for gnome focus issues?
     if (status == QQuickView::Ready) {
-        requestActivateWindow();
+//        requestActivateWindow();
     }
 }
 

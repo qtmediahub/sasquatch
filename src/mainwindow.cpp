@@ -346,7 +346,7 @@ void MainWindow::showFullScreen()
         geometry.moveCenter(qApp->desktop()->availableGeometry().center());
 #endif
         setGeometry(geometry);
-        setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
+//        setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
         setWindowState(Qt::WindowNoState);
 #ifdef QT5
         QWindow::show();
@@ -366,7 +366,7 @@ void MainWindow::showFullScreen()
     }
 
 #ifdef QT5
-    requestActivateWindow();
+//    requestActivateWindow();
 #else
     activateWindow();
 #endif
@@ -376,13 +376,13 @@ void MainWindow::showNormal()
 {
     m_attemptingFullScreen = m_overscanWorkAround = false;
 
-    setWindowFlags(Qt::Window);
+//    setWindowFlags(Qt::Window);
     setGeometry(m_settings->value(GlobalSettings::WindowGeometry).toRect());
 #ifdef QT5
     QWindow::showNormal();
     if (m_centralWidget)
         m_centralWidget->show();
-    requestActivateWindow();
+//    requestActivateWindow();
 #else
     QWidget::showNormal();
     activateWindow();

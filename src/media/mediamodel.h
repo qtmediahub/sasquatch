@@ -112,7 +112,7 @@ public:
     QMap<int, QVariant> itemData(const QModelIndex &index) const;
 
     // PathView hack
-    Q_INVOKABLE void reset() { QAbstractItemModel::reset(); }
+    Q_INVOKABLE void reset() { /*QAbstractItemModel::reset();*/ }
 
     bool isLeafLevel() const;
 
