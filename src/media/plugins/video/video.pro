@@ -4,6 +4,13 @@
 
 include(../plugins.pri)
 
+unix: !no-pkg-cfg:!no-gst:system(pkg-config --exists gstreamer-0.10) {
+    DEFINES += THUMBNAIL_GSTREAMER
+
+    CONFIG += link_pkgconfig
+    PKGCONFIG += gstreamer-0.10
+}
+
 HEADERS += \
         videoplugin.h \
         videoparser.h

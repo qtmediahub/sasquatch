@@ -4,18 +4,18 @@
 
 include(../plugins.pri)
 
-#unix: !no-pkg-cfg:system(pkg-config --exists taglib) {
-#    CONFIG += link_pkgconfig
-#    PKGCONFIG += taglib
-#    message(Use system taglib)
-#} else {
+unix: !no-pkg-cfg:system(pkg-config --exists taglib) {
+    CONFIG += link_pkgconfig
+    PKGCONFIG += taglib
+    message(Use system taglib)
+} else {
     include($$PROJECTROOT/src/3rdparty/taglib/taglib.pri)
     INCLUDEPATH +=  $$PROJECTROOT/src/3rdparty/taglib \
                     $$PROJECTROOT/src/3rdparty/taglib/mpeg \
                     $$PROJECTROOT/src/3rdparty/taglib/id3v2/ \
                     $$PROJECTROOT/src/3rdparty/taglib/id3v2/frames/
     message(Use taglib from 3rdparty)
-#}
+}
 
 QT += sql
 

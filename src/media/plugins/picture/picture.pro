@@ -4,15 +4,15 @@
 
 include(../plugins.pri)
 
-#unix: !no-pkg-cfg:system(pkg-config --exists libexif) {
-#    CONFIG += link_pkgconfig
-#    PKGCONFIG += libexif
-#    message(Use system libexif)
-#} else {
+unix: !no-pkg-cfg:system(pkg-config --exists libexif) {
+    CONFIG += link_pkgconfig
+    PKGCONFIG += libexif
+    message(Use system libexif)
+} else {
     include($$PROJECTROOT/src/3rdparty/libexif-0.6.19/libexif/libexif.pri)
     INCLUDEPATH += $$PROJECTROOT/src/3rdparty/libexif-0.6.19
     message(Use libexif from 3rdparty)
-#}
+}
 
 HEADERS += pictureplugin.h \
            pictureparser.h \
