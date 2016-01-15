@@ -19,12 +19,6 @@ isEmpty(PREFIX) {
     mac {
         PREFIX=$$PROJECTROOT
     }
-    maemo5 {
-        PREFIX=/opt/usr/
-    }
-    harmattan {
-        PREFIX=/opt/sasquatch/
-    }
     isEmpty(PREFIX) {
         PREFIX=/usr/local/
     }

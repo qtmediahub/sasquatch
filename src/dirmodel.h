@@ -41,11 +41,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. **/
 
 #include <QDirModel>
 
-#ifdef QT5
 #include <QtQml>
-#else
-#include <QtDeclarative>
-#endif
 
 #include "global.h"
 

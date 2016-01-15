@@ -1,5 +1,8 @@
 include(common.pri)
 
+# Just for the dirmodel hotness
+QT += widgets
+
 DESTDIR = $$BUILDROOT/hub/lib
 TEMPLATE = lib
 TARGET = qmhcore
@@ -67,7 +70,8 @@ HEADERS += \
     metrics.h \
     deviceexposure.h \
     inputnotifier.h \
-    contextcontentrpc.h
+    contextcontentrpc.h \
+    dirmodel.h
 
     SOURCES += \
         sgview.cpp \
