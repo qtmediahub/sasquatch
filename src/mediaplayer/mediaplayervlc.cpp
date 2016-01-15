@@ -41,11 +41,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. **/
 #include <QWidget>
 #include <QApplication>
 
-#ifdef QT5
 MediaPlayerVLC::MediaPlayerVLC(QQuickItem *parent) :
-#else
-MediaPlayerVLC::MediaPlayerVLC(QDeclarativeItem *parent) :
-#endif
     AbstractMediaPlayer(parent),
     m_source(""),
     m_hasVideo(false),

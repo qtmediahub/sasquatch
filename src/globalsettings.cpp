@@ -51,17 +51,7 @@ GlobalSettings * GlobalSettings::instance()
 GlobalSettings::GlobalSettings(QObject *parent) :
     Settings(parent)
 {
-#ifdef QT5
     addOptionEntry(GlobalSettings::Skin,                "shroomfluence","skin",                 "<name> specifies the skin");
-#else
-    addOptionEntry(GlobalSettings::Skin,                "confluence",   "skin",                 "<name> specifies the skin");
-    //Obsoleted for Qt 5
-    addOptionEntry(GlobalSettings::DrivenFPS,           "false",        "drivenFPS",            "<bool> toggle fps counter");
-    addOptionEntry(GlobalSettings::OpenGLUsage,         "true",         "opengl-usage",         "<bool> enable OpenGL if built with OpenGL");   // TODO test this!!!
-    addOptionEntry(GlobalSettings::OpenGLFormatHack,    "false",        "opengl-format-hack",   "<bool> use special OpenGL format hacks");   // TODO test this!!!
-    addOptionEntry(GlobalSettings::OpenGLViewport,      "true",         "opengl-viewport",      "<bool> use special OpenGL viewport");   // TODO test this!!!
-    addOptionEntry(GlobalSettings::SmoothScaling,       "true",         "smooth-scaling",       "<bool> toggle smooth scaling");
-#endif
     addOptionEntry(GlobalSettings::SystemTray,          "true",         "systemTray",           "<bool> toggle system tray icon");
     addOptionEntry(GlobalSettings::SkinsPath,           "",             "skinsPath",            "<path> adds path to skins search paths");
     addOptionEntry(GlobalSettings::SkinResolution,      "",             "skinResolution",       "<string> resolution name from skin manifest");

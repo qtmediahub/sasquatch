@@ -15,14 +15,9 @@ OBJECTS_DIR = $$TEMP_DIR/.obj
 MOC_DIR = $$TEMP_DIR/.moc
 RCC_DIR = $$TEMP_DIR/.rcc
 
-qt5 {
 #Including private for access to QUnifiedTimer!
-    QT += core-private
-    RESOURCES = main-qt5.qrc
-} else {
-    RESOURCES = main-qt4.qrc
-    include($${PROJECTROOT}/src/3rdparty/qtsingleapplication/qtsingleapplication.pri)
-}
+QT += core-private
+RESOURCES = main-qt5.qrc
 
 # Input
 SOURCES += main.cpp

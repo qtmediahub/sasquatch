@@ -47,17 +47,11 @@ class MediaPlayerDbus : public AbstractMediaPlayer
 {
     Q_OBJECT
 public:
-#ifdef QT5
     explicit MediaPlayerDbus(QQuickItem *parent = 0)
-#else
-    explicit MediaPlayerDbus(QDeclarativeItem *parent = 0)
-#endif
-    : AbstractMediaPlayer(parent)
-     , interface(new QDBusInterface(QMH_PLAYER_DBUS_SERVICENAME, "/", QString(), QDBusConnection::sessionBus(), this))
-{
-}
-
-signals:
+        : AbstractMediaPlayer(parent),
+          interface(new QDBusInterface(QMH_PLAYER_DBUS_SERVICENAME, "/", QString(), QDBusConnection::sessionBus(), this))
+    {
+    }
 
 public slots:
     void setSource(const QString &source) { AbstractMediaPlayer::setSource(source); interface->call(__FUNCTION__, source); }

@@ -50,27 +50,16 @@ class HttpClient : public QThread
     Q_OBJECT
 
 public:
-#ifdef QT5
     explicit HttpClient(qintptr sockfd, HttpServer *server, SkinManager* skinManager, QObject *parent = 0);
-#else
-    explicit HttpClient(int     sockfd, HttpServer *server, SkinManager* skinManager, QObject *parent = 0);
-#endif
-
-
 
 protected:
     virtual void run();
-
 
 private:
     QScopedPointer<QObject> d;
     HttpServer *m_server;
     SkinManager *m_skinManager;
-#ifdef QT5
     qintptr m_sockfd;
-#else
-    int m_sockfd;
-#endif
 };
 
 #endif // HTTPCLIENT_H

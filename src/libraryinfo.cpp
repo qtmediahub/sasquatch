@@ -42,12 +42,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. **/
 #include <QtCore>
 #include <QtGui>
 
-#ifdef QT5
 #include <QGuiApplication>
-#else
-#include <QApplication>
-//#include <QtWidgets>
-#endif
 
 static QStringList standardResourcePaths(GlobalSettings *settings, const GlobalSettings::Option option, const QString &suffix, const QString &relativeOffset = QString("/../"))
 {

@@ -36,54 +36,24 @@ STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. **/
 
-#ifndef MEDIAPLAYER_7425_H
-#define MEDIAPLAYER_7425_H
+import QtQuick 2.0
 
-#include "abstractmediaplayer.h"
+QtObject {
+    function pathFromUrl(url) {
+        url += ""
+        return url.substr(0,url.lastIndexOf("/")+1)
+    }
 
-#include <QProcess>
+    function createQmlObjectFromFile(file, properties, parent) {
+        var qmlComponent = Qt.createComponent(file)
+        if (qmlComponent.status == Component.Ready) {
+            return qmlComponent.createObject(parent, properties ? properties : {})
+        }
+        console.log(qmlComponent.errorString())
+        return null
+    }
 
-class MediaPlayer7425 : public AbstractMediaPlayer
-{
-    Q_OBJECT
-public:
-#ifdef QT5
-    explicit MediaPlayer7425(QQuickItem *parent = 0);
-#else
-    explicit MediaPlayer7425(QDeclarativeItem *parent = 0);
-#endif
-    virtual ~MediaPlayer7425();
-
-    virtual QString source() const;
-    virtual bool hasVideo() const;
-    virtual bool hasAudio() const;
-    virtual bool playing() const;
-    virtual bool paused() const;
-
-signals:
-
-public slots:
-    void setSource(const QString &source);
-    void stop();
-    void pause();
-    void resume();
-    void play();
-    void mute(bool on = true);
-    void setPosition(int position);
-    void setPositionPercent(qreal position);
-    void setVolumePercent(qreal volume);
-
-    void slotProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
-    void slotStateChanged(QProcess::ProcessState newState);
-
-private:
-    bool  m_playing;
-    bool  m_hasVideo;
-    bool  m_paused;
-
-    QProcess    *m_pPlayer;
-    QStringList m_cmdLineArgs;
-};
-
-#endif // MEDIAPLAYER_7425_H
-
+    function createBinding(target, targetProperty, value, owner) {
+        Qt.createQmlObject('import QtQuick 2.0; Binding { target: ' + target + '; property: "' + targetProperty + '"; value: ' + value +' }', owner)
+    }
+}

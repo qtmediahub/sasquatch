@@ -38,11 +38,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. **/
 
 #include "customcursor.h"
 
-#ifdef QT5
 #include <QGuiApplication>
-#else
-#include <QApplication>
-#endif
 
 #include <QPixmap>
 #include <QDebug>

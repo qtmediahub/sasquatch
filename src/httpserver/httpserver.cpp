@@ -51,13 +51,7 @@ HttpServer::HttpServer(GlobalSettings *settings, quint16 port, QObject *parent) 
     if (m_address == "")
         m_address = getAddress();
 
-    if (listen(
-            #ifdef QT5
-                QHostAddress::AnyIPv4,
-            #else
-                QHostAddress::Any,
-            #endif
-                port))
+    if (listen(QHostAddress::AnyIPv4, port))
         qDebug() << "Streaming server listening" << m_address << "on" << serverPort();
     else
         qDebug() << "Streaming server failed to listen on"
@@ -70,11 +64,7 @@ HttpServer::HttpServer(GlobalSettings *settings, quint16 port, QObject *parent) 
     m_skinManager = new SkinManager(m_settings, this);
 }
 
-#ifdef QT5
 void HttpServer::incomingConnection(qintptr socket)
-#else
-void HttpServer::incomingConnection(int socket)
-#endif
 {
     HttpClient *client = new HttpClient(socket, this, m_skinManager, this);
     client->start();

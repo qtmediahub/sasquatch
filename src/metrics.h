@@ -39,14 +39,9 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. **/
 #include <qdebug.h>
 #include <QFile>
 #include <QStringList>
-#ifdef QT5
 #include <qqml.h>
 #include <QGuiApplication>
 #include <qqml.h>
-#else
-#include <QApplication>
-#include <qdeclarative.h>
-#endif
 
 class Metrics : public QObject
 {

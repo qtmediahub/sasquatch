@@ -44,11 +44,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. **/
 //#define QMH_SETTINGS_DEBUG
 
 Settings::Settings(QObject *parent) :
-#ifdef QT5
     QQmlPropertyMap(parent),
-#else
-    QDeclarativePropertyMap(parent),
-#endif
     m_settings(0)
 {
 }

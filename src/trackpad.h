@@ -42,11 +42,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. **/
 #include <QObject>
 #include <QCoreApplication>
 #include <QWeakPointer>
-#ifdef QT5
 #include <QQmlContext>
-#else
-#include <QDeclarativeContext>
-#endif
 
 class Trackpad : public QObject
 {
@@ -64,11 +60,7 @@ public slots:
 
 private:
     QWeakPointer<QWidget> m_recipient;
-#ifdef QT5
     QWeakPointer<QQmlContext> m_recipientContext;
-#else
-    QWeakPointer<QDeclarativeContext> m_recipientContext;
-#endif
     QObject *parent;
 };
 

@@ -47,9 +47,7 @@ class RadioPlugin : public MediaPlugin
 {
     Q_OBJECT
     Q_INTERFACES(MediaPlugin)
-#ifdef QT5
     Q_PLUGIN_METADATA(IID "org.qt-project.QMH.PluginInterface" FILE "radio.json")
-#endif
 public:
     RadioPlugin() { }
     ~RadioPlugin() { }

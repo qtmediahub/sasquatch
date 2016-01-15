@@ -39,44 +39,24 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. **/
 #ifndef INPUTNOTIFIERRPC_H
 #define INPUTNOTIFIERRPC_H
 
-#ifndef QT5
-#include <QInputContext>
-#else
 #include <QInputMethod>
-#endif
 
 class InputNotifier
-#ifndef QT5
-        : public QInputContext
-#else
         : public QObject
-#endif
 {
     Q_OBJECT
 public:
     explicit InputNotifier(QObject *parent = 0);
 
-#ifndef QT5
-    virtual bool filterEvent(const QEvent *event);
-    virtual QString identifierName() { return QString::fromLatin1("QtMediaHubInputContext"); }
-    virtual QString language() { return QString::fromLatin1("en"); }
-    virtual void reset();
-    virtual bool isComposing() const { return m_composing; }
-#else
 private slots:
     void inputItemChanged();
-#endif
 
 signals:
     Q_SCRIPTABLE void inputMethodStartRequested();
     Q_SCRIPTABLE void inputMethodStopRequested();
 
 private:
-#ifndef QT5
-    bool m_composing;
-#else
     QInputMethod *m_inputMethod;
-#endif
 };
 
 #endif // INPUTNOTIFIERRPC_H

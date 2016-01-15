@@ -1,5 +1,0 @@
-<RCC>
-<qresource prefix="/">
-    <file alias="skinselector.qml">qt4/skinselector.qml</file>
-</qresource>
-</RCC>

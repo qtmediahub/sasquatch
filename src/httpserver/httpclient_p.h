@@ -51,13 +51,7 @@ class HttpClientPrivate : public QObject
 
 public:
 
-#ifdef QT5
     explicit HttpClientPrivate(qintptr sockfd, HttpServer *server, SkinManager* skinManager, QObject *parent = 0);
-#else
-    explicit HttpClientPrivate(int     sockfd, HttpServer *server, SkinManager* skinManager, QObject *parent = 0);
-#endif
-
-
 
 signals:
     void error(QTcpSocket::SocketError socketError);
@@ -78,11 +72,7 @@ private:
     void answerOk(qint64 length);
     void answerNotFound();
 
-#ifdef QT5
     qintptr m_sockfd;
-#else
-    int m_sockfd;
-#endif
     HttpServer *m_server;
     SkinManager *m_skinManager;
 

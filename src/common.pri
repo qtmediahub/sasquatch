@@ -7,10 +7,8 @@ isEmpty(PROJECTROOT) {
 }
 
 DEFINES += GL
-DEFINES += QT5
 
 QT += network sql quick
-# widgets #QDirModel from widgets!
 
 TEMP_DIR = .tmp
 OBJECTS_DIR = $$TEMP_DIR/.obj
@@ -52,8 +50,6 @@ no-dbus {
     message(Disabling dbus support)
     DEFINES += NO_DBUS
 }
-
-CONFIG(debug, debug|release):!qt5:CONFIG += declarative_debug
 
 # Include JS debugger library if QMLJSDEBUGGER_PATH is set
 !isEmpty(QMLJSDEBUGGER_PATH) {

@@ -41,31 +41,19 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. **/
 
 #include <QElapsedTimer>
 
-#ifdef QT5
 #include <QQuickView>
-#else
-#include <QDeclarativeView>
-#endif
 
 #include <QDebug>
 
 class GlobalSettings;
 
-#ifdef QT5
 class DeclarativeView : public QQuickView
-#else
-class DeclarativeView : public QDeclarativeView
-#endif
 {
     Q_OBJECT
     Q_PROPERTY(int fps READ fps NOTIFY fpsChanged)
 
 public:
-#ifdef QT5
     DeclarativeView(GlobalSettings *settings, QWindow *parent = 0);
-#else
-    DeclarativeView(GlobalSettings *settings, QWidget *parent = 0);
-#endif
     void setSource(const QUrl &url);
 
     Q_INVOKABLE QObject *focusItem() const;
@@ -74,23 +62,10 @@ public:
 
     int fps() const;
 
-#ifndef QT5
-protected:
-    void timerEvent(QTimerEvent *event);
-    void paintEvent(QPaintEvent *event);
-
-protected slots:
-    void setupViewport(QWidget *viewport);
-#endif
-
 public slots:
     void handleSourceChanged();
     void printFocusItem() { qDebug() << "Focus is held by:" << focusItem(); }
-#ifdef QT5
     void handleStatusChanged(QQuickView::Status status);
-#else
-    void handleStatusChanged(QDeclarativeView::Status status);
-#endif
 
 signals:
     void fpsChanged();

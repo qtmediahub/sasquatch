@@ -44,29 +44,14 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. **/
 #include <QDebug>
 #include <QtDBus>
 
-#ifdef QT5
 #include <QCoreApplication>
-#else
-#include "qtsingleapplication.h"
-#endif
 
 int main(int argc, char** argv)
 {
-#ifdef QT5
     QCoreApplication app(argc, argv);
-#else
-    QtSingleApplication app(argc, argv);
-#endif
     app.setApplicationName("mediahelper");
-    app.setOrganizationName("Nokia");
-    app.setOrganizationDomain("nokia.com");
-
-#ifndef QT5
-    if (app.isRunning()) {
-        qWarning() << app.applicationName() << "is already running, aborting";
-        return false;
-    }
-#endif
+    app.setOrganizationName("Freefolk");
+    app.setOrganizationDomain("muppets.com");
 
     bool dbusRegistration = QDBusConnection::sessionBus().registerService(QMH_PLAYER_DBUS_SERVICENAME);
     if (!dbusRegistration) {

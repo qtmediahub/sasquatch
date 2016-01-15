@@ -47,12 +47,8 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. **/
 #include <QNetworkConfigurationManager>
 #include <QNetworkSession>
 
-#ifdef QT5
 #include <QGuiApplication>
 #include <QtCore/private/qabstractanimation_p.h>
-#else
-#include "qtsingleapplication.h"
-#endif
 
 static QNetworkSession *g_networkSession = 0;
 
@@ -89,12 +85,8 @@ static void setupNetwork(GlobalSettings *settings)
 }
 
 static void logMessageHandler(QtMsgType type,
-                              #ifdef QT5
                               const QMessageLogContext &,
                               const QString &msg)
-                              #else
-                              const char *msg)
-                              #endif
 {
     QString logPath(LibraryInfo::logPath() + "/qmh-log");
 
@@ -111,33 +103,13 @@ static void logMessageHandler(QtMsgType type,
 
     QFile logFile(logPath);
     logFile.open(QIODevice::WriteOnly);
-#ifdef QT5
     logFile.write(msg.toLatin1());
-#else
-    logFile.write(msg, qstrlen(msg));
-#endif
     logFile.close();
 }
 
 int main(int argc, char** argv)
 {
-#ifdef QT5
     QGuiApplication app(argc, argv);
-#else
-
-    bool overrideGraphicsSystem = false;
-    for(int i = 0; i < argc; ++i) {
-        if (qstrcmp(argv[i], "-graphicssystem") == 0) {
-            overrideGraphicsSystem = true;
-            break;
-        }
-    }
-
-    if (!overrideGraphicsSystem)
-        QApplication::setGraphicsSystem("raster");
-
-    QtSingleApplication app(argc, argv);
-#endif
     app.setApplicationName("sasquatch");
     app.setOrganizationName("MediaTrolls");
     app.setOrganizationDomain("sasquatch.com");
@@ -191,16 +163,7 @@ int main(int argc, char** argv)
     setupNetwork(settings);
 
     bool redirectDebugging = settings->isEnabled(GlobalSettings::RedirectDebugOutput);
-#ifdef QT5
     if (redirectDebugging) qInstallMessageHandler(logMessageHandler);
-#else
-    bool primarySession = !app.isRunning();
-    if (!(settings->isEnabled(GlobalSettings::MultiInstance) || primarySession)) {
-        qWarning() << app.applicationName() << "is already running, aborting";
-        return false;
-    }
-    if (redirectDebugging) qInstallMsgHandler(logMessageHandler);
-#endif
 
     MainWindow *mainWindow = 0;
     MediaServer *mediaServer = 0;
@@ -209,7 +172,7 @@ int main(int argc, char** argv)
         mainWindow = new MainWindow(settings);
         mainWindow->setSkin(settings->value(GlobalSettings::Skin).toString());
         mainWindow->show();
-#if defined Q_OS_MAC && defined QT5
+#if defined Q_OS_MAC
         if (settings->isEnabled(GlobalSettings::UnifiedTimer)) QUnifiedTimer::instance(true)->setConsistentTiming(true);
 #endif
     } else {

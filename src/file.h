@@ -42,11 +42,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. **/
 #include <QObject>
 #include <QFile>
 
-#ifndef QT5
-#include <QtDeclarative>
-#else
 #include <QtQml>
-#endif
 
 #include <QDebug>
 

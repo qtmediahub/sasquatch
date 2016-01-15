@@ -39,20 +39,12 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. **/
 #ifndef SETTINGS_H
 #define SETTINGS_H
 
-#ifdef QT5
 #include <QQmlPropertyMap>
-#else
-#include <QDeclarativePropertyMap>
-#endif
 
 #include "global.h"
 
 // TODO make it threadsafe
-#ifdef QT5
 class QMH_EXPORT Settings : public QQmlPropertyMap
-#else
-class QMH_EXPORT Settings : public QDeclarativePropertyMap
-#endif
 {
     Q_OBJECT
 

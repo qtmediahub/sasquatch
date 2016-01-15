@@ -70,12 +70,7 @@ public:
     void registerObject(QObject *object);
     void unregisterObject(QObject *object);
 
-    bool listen(const QHostAddress &address
-            #ifdef QT5
-                = QHostAddress::AnyIPv4,
-            #else
-                = QHostAddress::Any,
-            #endif
+    bool listen(const QHostAddress &address = QHostAddress::AnyIPv4,
                 quint16 port = 0);
     void connectToHost(const QHostAddress &address, quint16 port);
     bool waitForConnected(int msecs = 5000);

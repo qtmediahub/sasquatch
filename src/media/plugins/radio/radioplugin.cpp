@@ -51,7 +51,3 @@ MediaParser *RadioPlugin::createParser(GlobalSettings *settings, const QString &
         return new RadioParser(settings);
     return 0;
 }
-
-#ifndef QT5
-Q_EXPORT_PLUGIN2(radio, RadioPlugin)
-#endif

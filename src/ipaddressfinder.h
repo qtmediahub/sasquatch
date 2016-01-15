@@ -39,11 +39,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. **/
 #ifndef IPADDRESSFINDER
 #define IPADDRESSFINDER
 
-#ifdef QT5
 #include <QtQml>
-#else
-#include <QtDeclarative>
-#endif
 #include <QtNetwork>
 
 class IpAddressFinder : public QObject

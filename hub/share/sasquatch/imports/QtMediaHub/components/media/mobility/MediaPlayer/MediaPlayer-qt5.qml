@@ -36,16 +36,38 @@ STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. **/
 
-#include <QtGui>
+import QtQuick 2.0
+import QtMultimedia 4.0
 
-#include "mainwindow.h"
+Item {
+    property alias source: video.source
+    property alias playing: video.playing
+    property alias hasAudio: video.hasAudio
+    property alias hasVideo: video.hasVideo
+    property alias volume: video.volume
+    property alias position: video.position
+    property alias seekable: video.seekable
+    property alias status: video.status
+    property alias paused: video.paused
+    property alias playbackRate: video.playbackRate
+    property alias duration: video.duration
 
-int main(int argc, char** argv)
-{
-    QApplication app(argc, argv);
+    anchors.fill: parent
 
-    MainWindow win;
-    win.show();
+    function play() { video.play() }
+    function stop() { video.stop() }
+    function pause() { video.pause() }
+    function resume() { video.resume() }
 
-    return app.exec();
+    MediaPlayer {
+        id: video
+        playing: true
+    }
+
+    VideoOutput {
+        source: video
+        anchors.fill: parent
+        fillMode: VideoOutput.PreserveAspectFit
+    }
 }
+

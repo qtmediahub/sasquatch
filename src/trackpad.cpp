@@ -38,9 +38,8 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. **/
 
 #include "trackpad.h"
 #include <QtGui>
-#ifndef QT5
-#include <QtDeclarative>
-#endif
+
+#define QT5
 
 Trackpad::Trackpad(QObject *p)
     : QObject(p), parent(p)

@@ -51,11 +51,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. **/
 #include "skinmanager.h"
 
 
-#ifdef QT5
 HttpClient::HttpClient(qintptr sockfd, HttpServer *server, SkinManager *skinManager, QObject *parent)
-#else
-HttpClient::HttpClient(int sockfd, HttpServer *server, SkinManager *skinManager, QObject *parent)
-#endif
     : QThread(parent)
     , m_server(server)
     , m_skinManager(skinManager)
@@ -73,11 +69,7 @@ void HttpClient::run()
 }
 
 
-#ifdef QT5
 HttpClientPrivate::HttpClientPrivate(qintptr sockfd, HttpServer *server, SkinManager* skinManager, QObject *parent) :
-#else
-HttpClientPrivate::HttpClientPrivate(int     sockfd, HttpServer *server, SkinManager* skinManager, QObject *parent) :
-#endif
     QObject(parent),
     m_sockfd(sockfd),
     m_server(server),

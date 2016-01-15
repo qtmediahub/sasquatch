@@ -45,11 +45,7 @@ class MediaPlayerDummy : public AbstractMediaPlayer
 {
     Q_OBJECT
 public:
-#ifdef QT5
     explicit MediaPlayerDummy(QQuickItem *parent = 0)
-#else
-    explicit MediaPlayerDummy(QDeclarativeItem *parent = 0)
-#endif
     : AbstractMediaPlayer(parent) { /**/ }
 
     virtual bool playing() const { return m_playing; }

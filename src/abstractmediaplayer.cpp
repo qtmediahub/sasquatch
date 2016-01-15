@@ -38,13 +38,8 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. **/
 
 #include "abstractmediaplayer.h"
 
-#ifdef QT5
 AbstractMediaPlayer::AbstractMediaPlayer(QQuickItem *parent)
     : QQuickItem(parent),
-#else
-AbstractMediaPlayer::AbstractMediaPlayer(QDeclarativeItem *parent)
-    : QDeclarativeItem(parent),
-#endif
       m_status(UnknownStatus)
 {
 }

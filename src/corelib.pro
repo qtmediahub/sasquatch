@@ -69,19 +69,11 @@ HEADERS += \
     inputnotifier.h \
     contextcontentrpc.h
 
-qt5 {
     SOURCES += \
         sgview.cpp \
         libraryinfo_qt5.cpp \
         inputnotifier_qt5.cpp
-} else {
-    SOURCES += \
-        declarativeview.cpp \
-        libraryinfo_qt4.cpp \
-        inputnotifier_qt4.cpp
-}
 
-#HEADERS += dirmodel.h
 
 include(rpc/rpc.pri)
 include(media/media.pri)

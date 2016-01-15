@@ -36,44 +36,25 @@ STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. **/
 
-#include "inputnotifier.h"
+import QtQuick 1.0
 
-#include <QApplication>
-#include <QtDebug>
+// The code here is merely documentation of the properties that
+// are required to be implemented by a MediaPlayer
+Item {
+    property string source
+    property bool playing
+    property bool hasAudio
+    property bool hasVideo
+    property int volume
+    property int position
+    property bool seekable
+    property variant status
+    property bool paused
+    property real playbackRate
+    property int duration
 
-#define DEBUG if (0) qDebug() << __PRETTY_FUNCTION__
-
-InputNotifier::InputNotifier(QObject *parent) :
-    QInputContext(parent),
-    m_composing(false)
-{
-    //FIXME: oh so bad
-    //This looks very Nokia device specific
-    qApp->setInputContext(this);
-}
-
-bool InputNotifier::filterEvent(const QEvent *event)
-{
-    if (event->type() == QEvent::RequestSoftwareInputPanel) {
-        m_composing = true;
-        emit inputMethodStartRequested();
-        DEBUG << "request Input Panel";
-        return true;
-    }
-
-    if (event->type() == QEvent::CloseSoftwareInputPanel) {
-        m_composing = false;
-        emit inputMethodStopRequested();
-        DEBUG << "request close Input Panel";
-        return true;
-    }
-
-    return false;
-}
-
-void InputNotifier::reset()
-{
-    DEBUG;
-    m_composing = false;
-    emit inputMethodStopRequested();
+    function play() { }
+    function stop() { }
+    function pause() { }
+    function resume() { }
 }

@@ -43,11 +43,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. **/
 #include <QDebug>
 #include <QWeakPointer>
 
-#ifdef QT5
 #include <QtQml>
-#else
-#include <QtDeclarative>
-#endif
 
 class GlobalSettings;
 

@@ -36,37 +36,35 @@ STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. **/
 
-#include "libraryinfo.h"
+import QtQuick 2.0
+import QtMediaHub.components 2.0
 
-#include <QDesktopServices>
+import OverlayModeMediaPlayer 1.0
 
-static QString storageLocation(QDesktopServices::StandardLocation type)
-{
-    QString location = QDesktopServices::storageLocation(type);
-    return location.isEmpty() ? QString("/tmp") : location;
+Item {
+    id: root
+    anchors.fill: parent
+
+    OverlayModeMediaPlayer {
+        id: mediaPlayer
+        anchors.fill: parent
+    }
+
+    property alias source: mediaPlayer.source
+    property alias playing: mediaPlayer.playing
+    property alias hasAudio: mediaPlayer.hasAudio
+    property alias hasVideo: mediaPlayer.hasVideo
+    property alias volume: mediaPlayer.volume
+
+    property alias position: mediaPlayer.position
+    property alias seekable: mediaPlayer.seekable
+    property alias status: mediaPlayer.status
+    property alias paused: mediaPlayer.paused
+    property alias playbackRate: mediaPlayer.playbackRate
+    property alias duration: mediaPlayer.duration
+
+    function play() { mediaPlayer.play() }
+    function stop() { mediaPlayer.stop() }
+    function pause() { mediaPlayer.pause() }
+    function resume() { mediaPlayer.resume() }
 }
-
-QString LibraryInfo::dataPath()
-{
-    return storageLocation(QDesktopServices::DataLocation);
-}
-
-QString LibraryInfo::tempPath()
-{
-#if defined(Q_WS_QWS)
-    return QString("/tmp");
-#else
-    return storageLocation(QDesktopServices::TempLocation);
-#endif	//#if defined(Q_WS_QWS)
-}
-
-QString LibraryInfo::logPath()
-{
-#if defined(Q_WS_QWS)
-    return QString("/tmp");
-#else
-    return storageLocation(QDesktopServices::TempLocation);
-#endif	//#if defined(Q_WS_QWS)
-}
-
-

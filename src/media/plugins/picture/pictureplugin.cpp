@@ -52,7 +52,3 @@ MediaParser *PicturePlugin::createParser(GlobalSettings *settings, const QString
         return new PictureParser(settings);
     return 0;
 }
-
-#ifndef QT5
-Q_EXPORT_PLUGIN2(picture, PicturePlugin)
-#endif

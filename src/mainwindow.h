@@ -41,11 +41,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. **/
 
 #include "global.h"
 
-#ifdef QT5
 #include <QWindow>
-#else
-#include <QWidget>
-#endif
 
 #include <QTimer>
 
@@ -54,11 +50,7 @@ class SkinManager;
 class Skin;
 class GlobalSettings;
 
-#ifdef QT5
 class QMH_EXPORT MainWindow : public QWindow
-#else
-class QMH_EXPORT MainWindow : public QWidget
-#endif
 {
     Q_OBJECT
 public:
@@ -67,21 +59,12 @@ public:
         ScreenOrientationLockLandscape,
         ScreenOrientationAuto
     };
-#ifdef QT5
     MainWindow(GlobalSettings *m_settings, QWindow *parent = 0);
-#else
-    MainWindow(GlobalSettings *m_settings, QWidget *parent = 0);
-#endif
     ~MainWindow();
 
-#ifdef QT5
 // TODO: rename to centralWindow
     void setCentralWidget(QWindow *cw);
     QWindow *centralWidget() const;
-#else
-    void setCentralWidget(QWidget *cw);
-    QWidget *centralWidget() const;
-#endif
 
 public slots:
     // ## These are a bit evil, since they shadow QWidget
@@ -120,11 +103,7 @@ private:
     QTimer m_inputIdleTimer;
     SkinManager *m_skinManager;
     SkinRuntime *m_skinRuntime;
-#ifdef QT5
     QWindow *m_centralWidget;
-#else
-    QWidget *m_centralWidget;
-#endif
     bool m_overscanWorkAround;
     bool m_attemptingFullScreen;
     GlobalSettings *m_settings;

@@ -27,12 +27,10 @@ for(deploymentfolder, DEPLOYMENTFOLDERS) {
 
 SUBDIRS += src
 
-qt5|media-backend {
-    !no-dbus {
-        SUBDIRS += mediaplayer
-    } else {
-        message("dbus mediaplayer helper app not being built")
-    }
+!no-dbus {
+  SUBDIRS += mediaplayer
+} else {
+  message("dbus mediaplayer helper app not being built")
 }
 
 mac {

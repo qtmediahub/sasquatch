@@ -36,15 +36,7 @@ STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. **/
 
-#if defined(QT5) && defined(QT_WIDGETS)
-#include <QGraphicsView>
-#endif
-
-#ifdef QT5
 #include <QGuiApplication>
-#else
-#include <QApplication>
-#endif
 
 #include <QKeyEvent>
 
@@ -239,11 +231,7 @@ bool ActionMapper::eventFilter(QObject *obj, QEvent *event)
                                          , keyEvent->isAutoRepeat()
                                          , keyEvent->count());
             if (!m_recipient.isNull()) {
-#ifdef QT5
                 QGuiApplication::postEvent(m_recipient.data(), e);
-#else
-                QApplication::postEvent(m_recipient.data(), e);
-#endif
                 m_generatedEvent = true;
                 return true;
             } else {

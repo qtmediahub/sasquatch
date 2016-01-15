@@ -44,29 +44,15 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. **/
 #include <QtCore>
 #include <QtGui>
 
-#ifdef QT5
 #include <QQuickView>
-#else
-#include <QDeclarativeView>
-#endif
 
-#ifdef QT5
 MainWindow::MainWindow(GlobalSettings *settings, QWindow *parent)
     : QWindow(parent),
-#else
-MainWindow::MainWindow(GlobalSettings *settings, QWidget *parent)
-    : QWidget(parent),
-#endif
       m_centralWidget(0),
       m_settings(settings)
 {
     m_overscanWorkAround = m_settings->isEnabled(GlobalSettings::Overscan);
     m_attemptingFullScreen = m_settings->isEnabled(GlobalSettings::FullScreen);
-
-#ifndef QT5
-    const bool isOverlay = m_settings->isEnabled(GlobalSettings::OverlayMode);
-    setAttribute(isOverlay ? Qt::WA_TranslucentBackground : Qt::WA_NoSystemBackground);
-#endif
 
     m_skinRuntime = new SkinRuntime(m_settings, this);
 
@@ -74,7 +60,7 @@ MainWindow::MainWindow(GlobalSettings *settings, QWidget *parent)
     setOrientation(ScreenOrientationAuto);
 
     // TODO does not work in Qt5
-#ifndef QT5
+#if 0
     new QShortcut(QKeySequence(Qt::ALT + Qt::Key_Backspace), this, SIGNAL(resetUI()));
     new QShortcut(QKeySequence(Qt::ALT + Qt::Key_Down), this, SLOT(decreaseHeight()));
     new QShortcut(QKeySequence(Qt::ALT + Qt::Key_Up), this, SLOT(increaseHeight()));
@@ -98,25 +84,6 @@ MainWindow::MainWindow(GlobalSettings *settings, QWidget *parent)
     m_inputIdleTimer.start();
     connect(&m_inputIdleTimer, SIGNAL(timeout()), this, SIGNAL(inputIdle()));
 
-#ifndef QT5
-    QList<QAction*> actions;
-    QAction *quitAction = new QAction(tr("Quit"), this);
-    connect(quitAction, SIGNAL(triggered()), this, SLOT(close()));
-    actions.append(quitAction);
-
-    QAction *selectSkinAction = new QAction(tr("Select skin"), this);
-    connect(selectSkinAction, SIGNAL(triggered()), this, SLOT(selectSkin()));
-    actions.append(selectSkinAction);
-
-    if (m_settings->isEnabled(GlobalSettings::SystemTray)) {
-        QSystemTrayIcon *systray = new QSystemTrayIcon(QIcon(":/images/petite-ganesh-22x22.jpg"), this);
-        systray->setVisible(true);
-        QMenu *contextMenu = new QMenu;
-        contextMenu->addActions(actions);
-        systray->setContextMenu(contextMenu);
-    }
-#endif
-
     m_skinManager = new SkinManager(m_settings, this);
 }
 
@@ -131,20 +98,12 @@ MainWindow::~MainWindow()
         m_settings->setValue(GlobalSettings::OverscanGeometry, geometry());
 }
 
-#ifdef QT5
 QWindow *MainWindow::centralWidget() const
-#else
-QWidget *MainWindow::centralWidget() const
-#endif
 {
     return m_centralWidget;
 }
 
-#ifdef QT5
 void MainWindow::setCentralWidget(QWindow *centralWidget)
-#else
-void MainWindow::setCentralWidget(QWidget *centralWidget)
-#endif
 {
     if (m_centralWidget) {
         m_centralWidget->hide();
@@ -173,34 +132,13 @@ void MainWindow::resizeEvent(QResizeEvent *e)
     else
         m_resizeSettleTimer.start(staggerResizingDelay);
 
-#ifdef QT5
     QWindow::resizeEvent(e);
-#else
-    QWidget::resizeEvent(e);
-#endif
 }
 
 void MainWindow::setOrientation(ScreenOrientation orientation)
 {
-#ifdef QT5
     Q_UNUSED(orientation)
     qWarning("set orientation is not supported, yet");
-#else
-    Qt::WidgetAttribute attribute;
-    switch (orientation) {
-    case ScreenOrientationLockPortrait:
-        attribute = Qt::WA_LockPortraitOrientation;
-        break;
-    case ScreenOrientationLockLandscape:
-        attribute = Qt::WA_LockLandscapeOrientation;
-        break;
-    default:
-    case ScreenOrientationAuto:
-        attribute = Qt::WA_AutoOrientation;
-        break;
-    };
-    setAttribute(attribute, true);
-#endif
 }
 
 void MainWindow::handleResize()
@@ -232,11 +170,7 @@ void MainWindow::increaseHeight()
 
     const QRect newGeometry = geometry().adjusted(0,-1,0,1);
 
-#ifdef QT5
     const QSize desktopSize = screen()->availableSize();
-#else
-    const QSize desktopSize = qApp->desktop()->screenGeometry(this).size();
-#endif
     if ((newGeometry.width() > desktopSize.width())
             || (newGeometry.height() > desktopSize.height())) {
         m_settings->setValue(GlobalSettings::Overscan, false);
@@ -253,11 +187,7 @@ void MainWindow::increaseWidth()
 
     const QRect newGeometry = geometry().adjusted(-1,0,1,0);
 
-#ifdef QT5
     const QSize desktopSize = screen()->availableSize();
-#else
-    const QSize desktopSize = qApp->desktop()->screenGeometry(this).size();
-#endif
     if ((newGeometry.width() > desktopSize.width())
             || (newGeometry.height() > desktopSize.height())) {
         m_settings->setValue(GlobalSettings::Overscan, false);
@@ -340,36 +270,19 @@ void MainWindow::showFullScreen()
         QRect geometry = m_settings->value(GlobalSettings::OverscanGeometry).toRect();
         if (geometry.isNull()) geometry = oldGeometry;
 
-#ifdef QT5
         qApp->primaryScreen()->geometry().center();
-#else
-        geometry.moveCenter(qApp->desktop()->availableGeometry().center());
-#endif
         setGeometry(geometry);
-//        setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
         setWindowState(Qt::WindowNoState);
-#ifdef QT5
         QWindow::show();
         if (m_centralWidget)
             m_centralWidget->show();
-#else
-        QWidget::show();
-#endif
     } else {
-#ifdef QT5
         QWindow::showFullScreen();
         if (m_centralWidget)
             m_centralWidget->show();
-#else
-        QWidget::showFullScreen();
-#endif
     }
 
-#ifdef QT5
 //    requestActivateWindow();
-#else
-    activateWindow();
-#endif
 }
 
 void MainWindow::showNormal()
@@ -378,16 +291,10 @@ void MainWindow::showNormal()
 
 //    setWindowFlags(Qt::Window);
     setGeometry(m_settings->value(GlobalSettings::WindowGeometry).toRect());
-#ifdef QT5
     QWindow::showNormal();
     if (m_centralWidget)
         m_centralWidget->show();
 //    requestActivateWindow();
-#else
-    QWidget::showNormal();
-    activateWindow();
-#endif
-
 }
 
 void MainWindow::show()
@@ -432,14 +339,10 @@ bool MainWindow::setSkin(Skin *newSkin)
         return false;
     }
 
-#ifdef QT5
     //FIXME: We clearly need parity window state management in the long run
     qWarning("\nQtMediaHub on Qt 5 does not use an toplevel event filter, yet.\nThe keyboard mapping might be broken!\n");
 
     QWindow *widget = qobject_cast<QWindow*>(skinWidget);
-#else
-    QWidget *widget = qobject_cast<QWidget*>(skinWidget);
-#endif
 
     setCentralWidget(widget);
 

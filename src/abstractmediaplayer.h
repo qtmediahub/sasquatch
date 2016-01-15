@@ -39,22 +39,14 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. **/
 #ifndef ABSTRACTMEDIAPLAYER_H
 #define ABSTRACTMEDIAPLAYER_H
 
-#ifdef QT5
 #include <QQuickItem>
-#else
-#include <QDeclarativeItem>
-#endif
 
 #include <QDebug>
 
 #include "global.h"
 
 // Media Player API used by the "non-mobility" QML Video element
-#ifdef QT5
 class QMH_EXPORT AbstractMediaPlayer : public QQuickItem
-#else
-class QMH_EXPORT AbstractMediaPlayer : public QDeclarativeItem
-#endif
 {
     Q_OBJECT
     Q_PROPERTY(QString source READ source WRITE setSource NOTIFY sourceChanged)
@@ -84,11 +76,7 @@ public:
     };
     Q_ENUMS(Status)
 
-#ifdef QT5
     explicit AbstractMediaPlayer(QQuickItem *parent = 0);
-#else
-    explicit AbstractMediaPlayer(QDeclarativeItem *parent = 0);
-#endif
     virtual ~AbstractMediaPlayer() { /**/ }
 
     virtual QString source() const { return QString(); }

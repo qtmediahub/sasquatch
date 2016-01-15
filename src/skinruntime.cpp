@@ -53,21 +53,9 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. **/
 
 #include "declarativeview.h"
 
-#ifndef QT5
-#include <QtDeclarative>
-#endif
-
 #ifndef NO_DBUS
 #include <QDBusError>
 #include <QDBusConnection>
-#endif
-
-#if defined(GL) && !defined(QT5)
-#include <QGLFormat>
-#endif
-
-#if defined(GL) && !defined(QT5)
-#include <QGLWidget>
 #endif
 
 //#include "dirmodel.h"
@@ -99,18 +87,6 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. **/
 #include "mediaplayerdbus.h"
 #elif defined(MEDIAPLAYER_VLC)
 #include "mediaplayervlc.h"
-#elif defined(MEDIAPLAYER_7425)
-#include "mediaplayer7425.h"
-#elif defined(MEDIAPLAYER_ST7105)
-#include "mediaplayerST7105.h"
-#elif defined(MEDIAPLAYER_ST7108)
-#include "mediaplayerST7108.h"
-#elif defined(MEDIAPLAYER_ST7540)
-#include "mediaplayerST7540.h"
-#elif defined(MEDIAPLAYER_TRIDENT_SHINER_GSTTSPLAYER)
-#include "mediaplayerTridentShinerGstTsPlayer.h"
-#elif defined(MEDIAPLAYER_TRIDENT_SHINER_MINIPLAYER)
-#include "mediaplayerTridentShinerMiniplayer.h"
 #else
 #include "mediaplayerdummy.h"
 #endif
@@ -151,11 +127,7 @@ public slots:
     void rpcSendInvalidateContextContent();
     void initialStatusCheck();
     void deadmanStatusCheck();
-#ifdef QT5
     void handleWarnings(const QList<QQmlError> &warnings);
-#else
-    void handleWarnings(const QList<QDeclarativeError> &warnings);
-#endif
 
 public:
     void enableRemoteControlMode(bool enable);
@@ -208,23 +180,6 @@ SkinRuntimePrivate::SkinRuntimePrivate(GlobalSettings *s, SkinRuntime *p)
     }
 #endif
 
-#if defined(GL) && !defined(QT5)
-    //Can't fool with the default format when dealing with the Tegra for some reason
-    if (settings->isEnabled(GlobalSettings::OpenGLUsage) && settings->isEnabled(GlobalSettings::OpenGLFormatHack)) {
-        QGLFormat format = QGLFormat::defaultFormat();
-        //explicitly set options
-        //format.setDoubleBuffer(true);
-        //Doc: Text antialiasing in Qt 4 OpenGL engine?
-        format.setSampleBuffers(true);
-        //format.setAlpha(true);
-        //Doc: Will screw with Quick 3D?
-        //format.setDepth(false);
-        //Doc: To what extent does this work prior to Qt 5?
-        //format.setSwapInterval(1);
-        QGLFormat::setDefaultFormat(format);
-    }
-#endif //GL
-
     foreach (const QString &resourcePath, LibraryInfo::resourcePaths(settings)) {
         QString dejavuPath(resourcePath % "/3rdparty/dejavu-fonts-ttf-2.32/ttf/");
         if (QDir(dejavuPath).exists()) {
@@ -233,11 +188,8 @@ SkinRuntimePrivate::SkinRuntimePrivate(GlobalSettings *s, SkinRuntime *p)
             QFontDatabase::addApplicationFont(dejavuPath % "DejaVuSans-Bold.ttf");
             QFontDatabase::addApplicationFont(dejavuPath % "DejaVuSans-Oblique.ttf");
             QFontDatabase::addApplicationFont(dejavuPath % "DejaVuSans-BoldOblique.ttf");
-#ifdef QT5
+
             QGuiApplication::setFont(QFont("DejaVu Sans"));
-#else
-            QApplication::setFont(QFont("DejaVu Sans"));
-#endif
             break;
         }
     }
@@ -264,18 +216,6 @@ SkinRuntimePrivate::SkinRuntimePrivate(GlobalSettings *s, SkinRuntime *p)
         qmlRegisterType<MediaPlayerDbus>("OverlayModeMediaPlayer", 1, 0, "OverlayModeMediaPlayer");
 #elif defined(MEDIAPLAYER_VLC)
         qmlRegisterType<MediaPlayerVLC>("OverlayModeMediaPlayer", 1, 0, "OverlayModeMediaPlayer");
-#elif defined(MEDIAPLAYER_7425)
-        qmlRegisterType<MediaPlayer7425>("OverlayModeMediaPlayer", 1, 0, "OverlayModeMediaPlayer");
-#elif defined(MEDIAPLAYER_ST7105)
-        qmlRegisterType<MediaPlayerST7105>("OverlayModeMediaPlayer", 1, 0, "OverlayModeMediaPlayer");
-#elif defined(MEDIAPLAYER_ST7108)
-        qmlRegisterType<MediaPlayerST7108>("OverlayModeMediaPlayer", 1, 0, "OverlayModeMediaPlayer");
-#elif defined(MEDIAPLAYER_ST7540)
-        qmlRegisterType<MediaPlayerST7540>("OverlayModeMediaPlayer", 1, 0, "OverlayModeMediaPlayer");
-#elif defined(MEDIAPLAYER_TRIDENT_SHINER_GSTTSPLAYER)
-        qmlRegisterType<MediaPlayerTridentShinerGstTsPlayer>("OverlayModeMediaPlayer", 1, 0, "OverlayModeMediaPlayer");
-#elif defined(MEDIAPLAYER_TRIDENT_SHINER_MINIPLAYER)
-        qmlRegisterType<MediaPlayerTridentShinerMiniplayer>("OverlayModeMediaPlayer", 1, 0, "OverlayModeMediaPlayer");
 #else
         qmlRegisterType<MediaPlayerDummy>("OverlayModeMediaPlayer", 1, 0, "OverlayModeMediaPlayer");
 #endif
@@ -302,11 +242,7 @@ DeclarativeView *SkinRuntimePrivate::declarativeView()
 
     DeclarativeView *declarativeWidget = new DeclarativeView(settings);
 
-#ifdef QT5
     QQmlEngine *engine = declarativeWidget->engine();
-#else
-    QDeclarativeEngine *engine = declarativeWidget->engine();
-#endif
     QObject::connect(engine, SIGNAL(quit()), qApp, SLOT(quit()));
 
     skinUI = declarativeWidget;
@@ -318,17 +254,9 @@ QObject *SkinRuntimePrivate::loadQmlSkin(const QUrl &targetUrl)
 {
     DeclarativeView *declarativeWidget = declarativeView();
 
-#ifdef QT5
     QQmlEngine *engine = declarativeWidget->engine();
-#else
-    QDeclarativeEngine *engine = declarativeWidget->engine();
-#endif
 
-#ifdef QT5
     QQmlPropertyMap *runtime = new QQmlPropertyMap(declarativeWidget);
-#else
-    QDeclarativePropertyMap *runtime = new QDeclarativePropertyMap(declarativeWidget);
-#endif
     if (!remoteControlMode) {
         runtime->insert("mediaScanner", qVariantFromValue(static_cast<QObject *>(mediaServer->mediaScanner())));
         runtime->insert("httpServer", qVariantFromValue(static_cast<QObject *>(mediaServer->httpServer())));
@@ -367,11 +295,7 @@ QObject *SkinRuntimePrivate::loadQmlSkin(const QUrl &targetUrl)
     }
     engine->addImportPath(currentSkin->path());
 
-#ifdef QT5
     QObject::connect(engine, SIGNAL(warnings(QList<QQmlError>)), this, SLOT(handleWarnings(QList<QQmlError>)));
-#else
-    QObject::connect(engine, SIGNAL(warnings(QList<QDeclarativeError>)), this, SLOT(handleWarnings(QList<QDeclarativeError>)));
-#endif
 
     //Would be nice to have error handling here for broken QML skins
     //Can't detect QML1/QDeclarativeView collision
@@ -410,18 +334,10 @@ void SkinRuntimePrivate::deadmanStatusCheck()
     }
 }
 
-#ifdef QT5
 void SkinRuntimePrivate::handleWarnings(const QList<QQmlError> &warnings)
-#else
-void SkinRuntimePrivate::handleWarnings(const QList<QDeclarativeError> &warnings)
-#endif
 {
     errorMsg.clear();
-#ifdef QT5
     foreach(const QQmlError error, warnings) {
-#else
-    foreach(const QDeclarativeError error, warnings) {
-#endif
         errorMsg += error.toString() + "\n";
     }
 }
@@ -430,11 +346,7 @@ QObject *SkinRuntimePrivate::loadSkinSelector()
 {
     DeclarativeView *declarativeWidget = declarativeView();
 
-#ifdef QT5
     QQmlPropertyMap *runtime = new QQmlPropertyMap(declarativeWidget);
-#else
-    QDeclarativePropertyMap *runtime = new QDeclarativePropertyMap(declarativeWidget);
-#endif
     runtime->insert("skinManager", qVariantFromValue(static_cast<QObject *>(new SkinManager(settings, declarativeWidget))));
     runtime->insert("window", qVariantFromValue(static_cast<QObject *>(mainWindow)));
     runtime->insert("skinruntime", qVariantFromValue(static_cast<QObject *>(q)));
@@ -484,11 +396,7 @@ void SkinRuntimePrivate::enableRemoteControlMode(bool enable)
 
     mediaServer = new MediaServer(settings, this);
     rpcConnection = new RpcConnection(RpcConnection::Server,
-                                  #ifdef QT5
                                       QHostAddress::AnyIPv4,
-                                  #else
-                                      QHostAddress::Any,
-                                  #endif
                                       1234,
                                       this);
     mediaPlayerRpc = new MediaPlayerRpc(this);
@@ -580,11 +488,7 @@ QObject *SkinRuntime::create(Skin *skin)
 {
     const QSize res = d->settings->value(GlobalSettings::SkinResolution).toRect().size(); // TODO provide a toSize for Settings
     const QSize preferredResolution = res.isEmpty()
-#ifdef QT5
         ? qApp->primaryScreen()->geometry().size()
-#else
-        ? qApp->desktop()->screenGeometry().size()
-#endif
         : res;
 
     QObject *interface = 0;
