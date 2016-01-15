@@ -154,8 +154,6 @@ echo "!qt5:DEFINES += QT_WIDGETS"
 
 exec 1>&3 3>&- # restore stdout
 
-qmake $SCRIPT_DIR/sasquatch-core.pro
-
 echo "Configured successfully"
 echo
 echo "Feel free to check .qmake.cache to see the generated values qmake will use when building QMH"
