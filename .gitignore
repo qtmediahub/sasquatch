@@ -13,7 +13,7 @@
 Makefile
 *.user
 *.log
-hub/qtmediahub
+hub/sasquatch
 hub/qmh
 hub/remotecontrol
 hub/qmlremotecontrol

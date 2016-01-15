@@ -5,12 +5,12 @@ CONFIG += ordered
 TEMPLATE = subdirs
 
 # add additional folders for keymaps, qml imports and resources to install step
-folder_01.source=share/qtmediahub/keymaps
-folder_02.source=share/qtmediahub/imports
-folder_03.source=share/qtmediahub/resources
+folder_01.source=share/sasquatch/keymaps
+folder_02.source=share/sasquatch/imports
+folder_03.source=share/sasquatch/resources
 DEPLOYMENTFOLDERS=folder_01 folder_02 folder_03
 
-installPrefix = $$PREFIX/share/qtmediahub/
+installPrefix = $$PREFIX/share/sasquatch/
 for(deploymentfolder, DEPLOYMENTFOLDERS) {
     item = item$${deploymentfolder}
     itemfiles = $${item}.files

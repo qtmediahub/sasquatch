@@ -138,14 +138,14 @@ int main(int argc, char** argv)
 
     QtSingleApplication app(argc, argv);
 #endif
-    app.setApplicationName("qtmediahub");
+    app.setApplicationName("sasquatch");
     app.setOrganizationName("MediaTrolls");
-    app.setOrganizationDomain("qtmediahub.com");
+    app.setOrganizationDomain("sasquatch.com");
 
     GlobalSettings *settings = new GlobalSettings(&app);
 
     if (app.arguments().contains("--help") || app.arguments().contains("-help") || app.arguments().contains("-h")) {
-        printf("Usage: qtmediahub [-option value] [-option=value]\n"
+        printf("Usage: sasquatch [-option value] [-option=value]\n"
                "\n"
                "Options (default):\n");
 

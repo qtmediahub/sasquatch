@@ -1,6 +1,6 @@
 [Desktop Entry]
 Encoding=UTF-8
-Exec=/usr/bin/qtmediahub
+Exec=/usr/bin/sasquatch
 Name=Qt Media Hub
 GenericName=Media Player
 X-KDE-StartupNotify=true

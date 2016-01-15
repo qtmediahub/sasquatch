@@ -4,4 +4,4 @@ hence this is tested against that configuration)
 Building:
 1. ./configure
 2. make
-3. ./bin/qtmediahub-launcher
+3. ./bin/sasquatch-launcher

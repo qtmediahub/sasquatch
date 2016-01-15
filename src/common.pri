@@ -25,7 +25,7 @@ isEmpty(PREFIX) {
         PREFIX=/opt/usr/
     }
     harmattan {
-        PREFIX=/opt/qtmediahub/
+        PREFIX=/opt/sasquatch/
     }
     isEmpty(PREFIX) {
         PREFIX=/usr/local/
@@ -34,8 +34,8 @@ isEmpty(PREFIX) {
 
 DEFINES += "QMH_PREFIX=\\\"$$PREFIX\\\""
 DEFINES += "QMH_PROJECTROOT=\\\"$$PROJECTROOT\\\""
-DEFINES += "QMH_DBUS_SERVICENAME=\\\"com.nokia.qtmediahub\\\""
-DEFINES += "QMH_PLAYER_DBUS_SERVICENAME=\\\"com.nokia.qtmediahub.player\\\""
+DEFINES += "QMH_DBUS_SERVICENAME=\\\"com.nokia.sasquatch\\\""
+DEFINES += "QMH_PLAYER_DBUS_SERVICENAME=\\\"com.nokia.sasquatch.player\\\""
 
 PKG_CONFIG_PATH=$$(PKG_CONFIG_PATH)
 mac:isEmpty(PKG_CONFIG_PATH) {

@@ -1,7 +1,7 @@
 include($$PROJECTROOT/src/core-common.pri)
 
 TEMPLATE = lib
-DESTDIR = $$BUILDROOT/hub/lib/qtmediahub/
+DESTDIR = $$BUILDROOT/hub/lib/sasquatch/
 CONFIG += plugin
 QT += sql
 
@@ -15,7 +15,7 @@ INCLUDEPATH += $${PROJECTROOT}/src $${PROJECTROOT}/src/media
 #            english_uk.ts \
 #            english_bob.ts
 
-target.path = $${PREFIX}/hub/lib/qtmediahub/
+target.path = $${PREFIX}/hub/lib/sasquatch/
 INSTALLS += target
 
 TARGET = $${TARGET}parser

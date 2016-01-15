@@ -75,12 +75,12 @@ static QStringList standardResourcePaths(GlobalSettings *settings, const GlobalS
         paths << QDir(envPath).absolutePath();
 
     // Executable relative paths
-    paths <<  QCoreApplication::applicationDirPath() % relativeOffset % platformBinOffset % QString::fromLatin1("/share/qtmediahub/") % suffix % "/";
+    paths <<  QCoreApplication::applicationDirPath() % relativeOffset % platformBinOffset % QString::fromLatin1("/share/sasquatch/") % suffix % "/";
 
-    paths << QMH_PROJECTROOT % QString::fromLatin1("/hub/share/qtmediahub/") % suffix % "/";
-    paths << QMH_PREFIX % QString::fromLatin1("/share/qtmediahub/") % suffix % "/";
+    paths << QMH_PROJECTROOT % QString::fromLatin1("/hub/share/sasquatch/") % suffix % "/";
+    paths << QMH_PREFIX % QString::fromLatin1("/share/sasquatch/") % suffix % "/";
 
-    paths << QDir::homePath() % QString::fromLatin1("/.qtmediahub/") % suffix % "/";
+    paths << QDir::homePath() % QString::fromLatin1("/.sasquatch/") % suffix % "/";
 
     return paths;
 }
@@ -121,18 +121,18 @@ QStringList LibraryInfo::pluginPaths(GlobalSettings *settings)
     if (settings->value(GlobalSettings::Installed).toBool())
     {
 #ifdef Q_OS_MAC
-        ret << QCoreApplication::applicationDirPath() % QString::fromLatin1("../Resources/qtmediahub");
+        ret << QCoreApplication::applicationDirPath() % QString::fromLatin1("../Resources/sasquatch");
 #else
-        ret << QMH_PREFIX % QString::fromLatin1("/lib/qtmediahub/");
+        ret << QMH_PREFIX % QString::fromLatin1("/lib/sasquatch/");
 #endif
     } else {
 #ifdef Q_OS_MAC
-        ret << QCoreApplication::applicationDirPath() % QString::fromLatin1("/../../../lib/qtmediahub/");
+        ret << QCoreApplication::applicationDirPath() % QString::fromLatin1("/../../../lib/sasquatch/");
 #else
-        ret << QCoreApplication::applicationDirPath() % QString::fromLatin1("/../lib/qtmediahub/");
+        ret << QCoreApplication::applicationDirPath() % QString::fromLatin1("/../lib/sasquatch/");
 #endif
     }
-    ret << QDir::homePath() % QString::fromLatin1("/.qtmediahub/lib");
+    ret << QDir::homePath() % QString::fromLatin1("/.sasquatch/lib");
     return ret;
 }
 

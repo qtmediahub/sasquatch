@@ -60,7 +60,7 @@ public:
 };
 
 QT_BEGIN_NAMESPACE
-Q_DECLARE_INTERFACE(MediaPlugin, "com.qtmediahub.MediaPlugin/1.0")
+Q_DECLARE_INTERFACE(MediaPlugin, "com.sasquatch.MediaPlugin/1.0")
 QT_END_NAMESPACE
 
 #endif // MEDIAPLUGIN_H
