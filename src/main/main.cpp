@@ -48,7 +48,6 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. **/
 #include <QNetworkSession>
 
 #include <QGuiApplication>
-#include <QtCore/private/qabstractanimation_p.h>
 
 static QNetworkSession *g_networkSession = 0;
 
