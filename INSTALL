@@ -1,7 +1,13 @@
 Qt 5 (Qt 5 on Mac currently needs to be compiled with -no-framework, and
 hence this is tested against that configuration)
 
-Building:
+Building on Mac:
 1. ./configure
 2. make
 3. ./bin/sasquatch-launcher
+
+Building on debian jessie:
+0. sudo apt-get install qtdeclarative5-dev
+1. ./configure
+2. make
+3. ./hub/bin/sasquatch-launcher
