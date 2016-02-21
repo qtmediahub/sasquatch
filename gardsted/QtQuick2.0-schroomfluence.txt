@@ -1,0 +1,40 @@
+Apparently no QtQuick 2.5 on my system - though I guess I have 2.0, so I decided to try that out.:
+I changed all the qml files accordingly in shroomfluence like this
+
+find . -name '*.qml'  -exec sed -i s/import\ QtQuick\ 2.5/import\ QtQuick\ 2.0/g {} \;
+
+And rand the baby like this (I have shroomfluence skin in my home/debian directory) :
+
+sasquatch/hub/bin/sasquatch-launcher -skinsPath /home/debian > sasquatch/gardsted/QtQuick2.0-schroomfluence.txt 2>&1
+
+but still all I get is a white screen. 
+
+I suspect the 'Skin does not have any website' error may be the reason
+
+
+Available skins: "shroomfluence,plattenbau"
+Attempting to use: "shroomfluence" skin
+Skin does not have any website
+Streaming server listening "192.168.1.120" on 1337
+Available skins: "shroomfluence,plattenbau"
+Using DB: "/home/debian/.local/share/MediaTrolls/sasquatch/media.db"
+Starting to scan for parser plugins in: "/home/debian/sasquatch/hub/bin/../lib/sasquatch/"
+Using parser plugin: "libmusicparser.so"
+Using parser plugin: "libpictureparser.so"
+Using parser plugin: "libvideoparser.so"
+Starting to scan for parser plugins in: "/home/debian/.sasquatch/lib"
+Finished scanning for parser plugins
+RPC server listening:  QHostAddress( "0.0.0.0" )  on 1234
+Available maps  ("extkeyboard", "gamekeymap", "stdkeyboard", "technisatremote")
+Try to load keymap "stdkeyboard" from keymap path "/home/debian/sasquatch/hub/bin/../keymaps/"
+Could not load keymap:  "/home/debian/sasquatch/hub/bin/../keymaps//stdkeyboard"
+Try to load keymap "stdkeyboard" from keymap path "/home/debian/sasquatch/hub/bin/..//share/sasquatch/keymaps/"
+Using keymap "/home/debian/sasquatch/hub/bin/..//share/sasquatch/keymaps//stdkeyboard"
+QObject::connect: No such signal QInputMethod::inputItemChanged()
+
+QtMediaHub on Qt 5 does not use an toplevel event filter, yet.
+The keyboard mapping might be broken!
+
+file:///home/debian/shroomfluence/r720/Shroomfluence.qml:346:5: Type WeatherHeader unavailable
+file:///home/debian/shroomfluence/r720/WeatherHeader.qml:21:1: module "QtQuick.XmlListModel" is not installed
+Resizing widget to: QSize(1908, 912)
